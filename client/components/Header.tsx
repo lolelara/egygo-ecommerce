@@ -71,7 +71,7 @@ export function Header({ cartItemCount }: HeaderProps) {
             <SheetHeader>
               <SheetTitle>
                 <Link to="/" className="text-2xl font-bold text-primary">
-                  شوب كو
+                  إيجي جو
                 </Link>
               </SheetTitle>
             </SheetHeader>
@@ -110,8 +110,8 @@ export function Header({ cartItemCount }: HeaderProps) {
         </Sheet>
 
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-primary">
-          شوب كو
+        <Link to="/" className="text-2xl font-bold text-primary hover:text-primary/90 transition-colors">
+          إيجي جو
         </Link>
 
         {/* Desktop Navigation */}

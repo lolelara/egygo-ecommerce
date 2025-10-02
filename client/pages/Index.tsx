@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
-import { AppwriteStatus } from "@/components/AppwriteStatus";
 
 export default function Index() {
   // Fetch categories
@@ -49,11 +48,6 @@ export default function Index() {
 
   return (
     <div className="space-y-16 pb-16">
-      {/* Appwrite Status Component */}
-      <div className="container mx-auto px-4 pt-8">
-        <AppwriteStatus />
-      </div>
-
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary via-brand-purple to-brand-orange text-white">
         <div className="absolute inset-0 bg-black/20"></div>
