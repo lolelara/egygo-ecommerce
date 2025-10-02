@@ -12,10 +12,22 @@ export default defineConfig(({ mode }) => ({
       allow: ["../client", "../shared"],
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "../server/**"],
     },
+    cors: {
+      origin: "*",
+      credentials: true,
+    },
   },
   build: {
     outDir: "../dist",
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+    // Copy _redirects and .htaccess to dist
+    copyPublicDir: true,
   },
+  publicDir: "../public",
   plugins: [react()], // expressPlugin() disabled temporarily
   resolve: {
     alias: {
