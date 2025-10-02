@@ -55,33 +55,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = await AppwriteService.getCurrentUser();
       
       if (currentUser) {
-        // Get additional user data from the users collection
-        try {
-          const userDoc = await AppwriteService.getUserDocument(currentUser.$id);
-          setUser({
-            $id: currentUser.$id,
-            name: currentUser.name,
-            email: currentUser.email,
-            ...userDoc
-          });
-        } catch (error) {
-          // If no user document exists, create one
-          await AppwriteService.createUserDocument({
-            userId: currentUser.$id,
-            name: currentUser.name,
-            email: currentUser.email,
-            isAffiliate: false,
-            commissionRate: 0.15
-          });
-          
-          setUser({
-            $id: currentUser.$id,
-            name: currentUser.name,
-            email: currentUser.email,
-            isAffiliate: false,
-            commissionRate: 0.15
-          });
-        }
+        // Use user preferences instead of separate collection
+        const prefs = currentUser.prefs as any || {};
+        
+        setUser({
+          $id: currentUser.$id,
+          name: currentUser.name,
+          email: currentUser.email,
+          phone: prefs.phone || '',
+          address: prefs.address || '',
+          isAffiliate: prefs.isAffiliate || false,
+          affiliateCode: prefs.affiliateCode || '',
+          commissionRate: prefs.commissionRate || 0.15
+        });
       } else {
         setUser(null);
       }
@@ -181,7 +167,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!user) return;
       
       setLoading(true);
-      await AppwriteService.updateUserDocument(user.$id, userData);
+      
+      // Update user preferences instead of separate document
+      await AppwriteService.updateUserPreferences(userData);
       
       setUser(prev => prev ? { ...prev, ...userData } : null);
     } catch (error) {

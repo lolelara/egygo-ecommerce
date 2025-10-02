@@ -162,7 +162,17 @@ export class AppwriteService {
     }
   }
 
-  // User document methods
+  // User preferences methods (better than separate collection)
+  static async updateUserPreferences(userData: any) {
+    try {
+      return await account.updatePrefs(userData);
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      throw error;
+    }
+  }
+
+  // User document methods (kept for backward compatibility if needed)
   static async getUserDocument(userId: string) {
     try {
       return await databases.getDocument(
