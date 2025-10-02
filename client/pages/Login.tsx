@@ -23,7 +23,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { login, user } = useAuth();
+  const { login, loginWithGoogle, loginWithFacebook, user } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +57,7 @@ export default function Login() {
         {/* Header */}
         <div className="text-center">
           <Link to="/" className="text-3xl font-bold text-primary">
-            شوب كو
+            إيجي جو
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
             تسجيل الدخول
@@ -213,8 +213,10 @@ export default function Login() {
                 variant="outline"
                 className="w-full"
                 onClick={() => {
-                  // Implement Google login
-                  console.log("تسجيل دخول بـ Google");
+                  loginWithGoogle().catch((err) => {
+                    setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
+                    console.error(err);
+                  });
                 }}
               >
                 <svg
@@ -246,8 +248,10 @@ export default function Login() {
                 variant="outline"
                 className="w-full"
                 onClick={() => {
-                  // Implement Facebook login
-                  console.log("تسجيل دخول بـ Facebook");
+                  loginWithFacebook().catch((err) => {
+                    setError("حدث خطأ أثناء تسجيل الدخول بـ Facebook");
+                    console.error(err);
+                  });
                 }}
               >
                 <svg

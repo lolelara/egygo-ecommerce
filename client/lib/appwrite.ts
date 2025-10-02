@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Storage, Functions } from 'appwrite';
+import { Client, Account, Databases, Storage, Functions, OAuthProvider } from 'appwrite';
 
 // Appwrite configuration
 export const appwriteConfig = {
@@ -65,6 +65,41 @@ export class AppwriteService {
       return newAccount;
     } catch (error) {
       console.error('Registration error:', error);
+      throw error;
+    }
+  }
+
+  // OAuth methods
+  static async loginWithGoogle() {
+    try {
+      // Redirect to Google OAuth
+      const successUrl = `${window.location.origin}/`;
+      const failureUrl = `${window.location.origin}/login`;
+      
+      return await account.createOAuth2Session(
+        OAuthProvider.Google,
+        successUrl,
+        failureUrl
+      );
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
+  }
+
+  static async loginWithFacebook() {
+    try {
+      // Redirect to Facebook OAuth
+      const successUrl = `${window.location.origin}/`;
+      const failureUrl = `${window.location.origin}/login`;
+      
+      return await account.createOAuth2Session(
+        OAuthProvider.Facebook,
+        successUrl,
+        failureUrl
+      );
+    } catch (error) {
+      console.error('Facebook login error:', error);
       throw error;
     }
   }

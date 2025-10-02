@@ -16,6 +16,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  loginWithFacebook: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
@@ -109,6 +111,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      if (!AppwriteService.isConfigured()) {
+        throw new Error('Appwrite غير مُعد. يرجى التحقق من إعدادات المشروع.');
+      }
+
+      // This will redirect the user to Google OAuth
+      await AppwriteService.loginWithGoogle();
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
+  };
+
+  const loginWithFacebook = async () => {
+    try {
+      if (!AppwriteService.isConfigured()) {
+        throw new Error('Appwrite غير مُعد. يرجى التحقق من إعدادات المشروع.');
+      }
+
+      // This will redirect the user to Facebook OAuth
+      await AppwriteService.loginWithFacebook();
+    } catch (error) {
+      console.error('Facebook login error:', error);
+      throw error;
+    }
+  };
+
   const register = async (email: string, password: string, name: string) => {
     try {
       setLoading(true);
@@ -166,6 +196,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     loading,
     login,
+    loginWithGoogle,
+    loginWithFacebook,
     register,
     logout,
     updateUser

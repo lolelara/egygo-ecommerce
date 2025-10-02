@@ -97,7 +97,7 @@ export default function Register() {
         {/* Header */}
         <div className="text-center">
           <Link to="/" className="text-3xl font-bold text-primary">
-            شوب كو
+            إيجي جو
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
             إنشاء حساب جديد
@@ -116,7 +116,7 @@ export default function Register() {
         {/* Register Form */}
         <Card>
           <CardHeader>
-            <CardTitle>انضم إلى شوب كو</CardTitle>
+            <CardTitle>انضم إلى إيجي جو</CardTitle>
             <CardDescription>
               أنشئ حسابك واستمتع بتجربة تسوق م��يزة
             </CardDescription>
