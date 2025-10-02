@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "scripts": {
+    "create-collections": "node scripts/create-collections.mjs",
+    "create-sample-data": "tsx scripts/create-sample-data.ts",
+    "test-appwrite": "node scripts/test-appwrite.mjs"
+  },
+  "dependencies": {
+    "appwrite": "^20.1.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}
