@@ -30,146 +30,7 @@ import {
   XCircle,
   DollarSign,
 } from "lucide-react";
-import type { Order } from "@shared/api";
 import { adminOrdersApi } from "@/lib/admin-api";
-
-// Mock orders data
-const mockOrders: Order[] = [
-  {
-    id: "1",
-    orderNumber: "ORD-2024-001",
-    status: "PENDING",
-    total: 599,
-    subtotal: 599,
-    tax: 0,
-    shipping: 0,
-    discount: 0,
-    shippingAddress: {
-      name: "أحمد محمد",
-      address: "شارع النصر، المعادي، القاهرة",
-      phone: "01234567890",
-    },
-    paymentMethod: "cash_on_delivery",
-    paymentStatus: "PENDING",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-15T10:30:00Z",
-    userId: "1",
-    user: {
-      id: "1",
-      email: "ahmed@example.com",
-      name: "أحمد محمد",
-      role: "USER",
-      isActive: true,
-      createdAt: "2024-01-10T10:00:00Z",
-      updatedAt: "2024-01-15T10:00:00Z",
-    },
-    items: [
-      {
-        id: "1",
-        quantity: 1,
-        price: 599,
-        total: 599,
-        productId: "1",
-        product: {
-          id: "1",
-          name: "سماعات بلوتوث لاسلكية",
-          description: "",
-          price: 599,
-          originalPrice: 799,
-          images: ["/placeholder.svg"],
-          category: "electronics",
-          tags: [],
-          inStock: true,
-          rating: 4.8,
-          reviewCount: 24,
-          affiliateCommission: 8,
-        },
-      },
-    ],
-  },
-  {
-    id: "2",
-    orderNumber: "ORD-2024-002",
-    status: "PROCESSING",
-    total: 1299,
-    subtotal: 1299,
-    tax: 0,
-    shipping: 0,
-    discount: 0,
-    shippingAddress: {
-      name: "فاطمة علي",
-      address: "مدينة نصر، القاهرة",
-      phone: "01987654321",
-    },
-    paymentMethod: "credit_card",
-    paymentStatus: "PAID",
-    createdAt: "2024-01-15T09:15:00Z",
-    updatedAt: "2024-01-15T09:15:00Z",
-    userId: "2",
-    user: {
-      id: "2",
-      email: "fatima@example.com",
-      name: "فاطمة علي",
-      role: "USER",
-      isActive: true,
-      createdAt: "2024-01-12T14:30:00Z",
-      updatedAt: "2024-01-15T14:30:00Z",
-    },
-    items: [
-      {
-        id: "2",
-        quantity: 1,
-        price: 1299,
-        total: 1299,
-        productId: "2",
-        product: {
-          id: "2",
-          name: "ساعة ذكية رياضية",
-          description: "",
-          price: 1299,
-          originalPrice: 1599,
-          images: ["/placeholder.svg"],
-          category: "electronics",
-          tags: [],
-          inStock: true,
-          rating: 4.6,
-          reviewCount: 18,
-          affiliateCommission: 10,
-        },
-      },
-    ],
-  },
-  {
-    id: "3",
-    orderNumber: "ORD-2024-003",
-    status: "SHIPPED",
-    total: 899,
-    subtotal: 899,
-    tax: 0,
-    shipping: 0,
-    discount: 0,
-    shippingAddress: {
-      name: "محمد أحمد",
-      address: "الزمالك، القاهرة",
-      phone: "01555666777",
-    },
-    paymentMethod: "credit_card",
-    paymentStatus: "PAID",
-    createdAt: "2024-01-14T16:45:00Z",
-    updatedAt: "2024-01-15T11:20:00Z",
-    userId: "3",
-    user: {
-      id: "3",
-      email: "mohamed@example.com",
-      name: "محمد أحمد",
-      role: "USER",
-      isActive: true,
-      createdAt: "2024-01-08T09:15:00Z",
-      updatedAt: "2024-01-15T09:15:00Z",
-    },
-    items: [],
-  },
-];
 
 const OrderStatusBadge = ({ status }: { status: string }) => {
   const statusConfig = {
@@ -237,8 +98,8 @@ export default function AdminOrders() {
         setOrders(ordersData);
       } catch (error) {
         console.error("Error fetching orders:", error);
-        // Fallback to mock data
-        setOrders(mockOrders as any);
+        // Show error message
+        setOrders([]);
       }
       setLoading(false);
     };

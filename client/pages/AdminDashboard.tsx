@@ -30,94 +30,6 @@ import {
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { adminDashboardApi, type AdminStats } from "@/lib/admin-api";
-// @ts-ignore - Using simplified AdminStats from admin-api
-import type { Order, Product } from "@/shared/api";
-
-// Mock data for admin stats - in real app this would come from API
-// @ts-ignore - Mock data has extra properties
-const mockAdminStats: AdminStats = {
-  totalUsers: 1250,
-  totalProducts: 89,
-  totalOrders: 342,
-  totalRevenue: 45780,
-  pendingOrders: 12,
-  totalAffiliates: 68,
-  pendingCommissions: 2340,
-  thisMonthRevenue: 12450,
-  thisMonthOrders: 87,
-  topProducts: [
-    {
-      product: {
-        id: "1",
-        name: "سماعات بلوتوث لاسلكية",
-        description: "",
-        price: 299,
-        originalPrice: 399,
-        images: ["/placeholder.svg"],
-        category: "electronics",
-        tags: [],
-        inStock: true,
-        rating: 4.8,
-        reviewCount: 24,
-        affiliateCommission: 8,
-      },
-      soldQuantity: 45,
-      revenue: 13455,
-    },
-    {
-      product: {
-        id: "2",
-        name: "ساعة ذكية رياضية",
-        description: "",
-        price: 899,
-        originalPrice: 1099,
-        images: ["/placeholder.svg"],
-        category: "electronics",
-        tags: [],
-        inStock: true,
-        rating: 4.6,
-        reviewCount: 18,
-        affiliateCommission: 10,
-      },
-      soldQuantity: 32,
-      revenue: 28768,
-    },
-  ],
-  recentOrders: [
-    {
-      id: "1",
-      orderNumber: "ORD-2024-001",
-      status: "PENDING",
-      total: 599,
-      subtotal: 599,
-      tax: 0,
-      shipping: 0,
-      discount: 0,
-      shippingAddress: {},
-      paymentStatus: "PENDING",
-      createdAt: "2024-01-15T10:30:00Z",
-      updatedAt: "2024-01-15T10:30:00Z",
-      userId: "1",
-      items: [],
-    },
-    {
-      id: "2",
-      orderNumber: "ORD-2024-002",
-      status: "PROCESSING",
-      total: 1299,
-      subtotal: 1299,
-      tax: 0,
-      shipping: 0,
-      discount: 0,
-      shippingAddress: {},
-      paymentStatus: "PAID",
-      createdAt: "2024-01-15T09:15:00Z",
-      updatedAt: "2024-01-15T09:15:00Z",
-      userId: "2",
-      items: [],
-    },
-  ],
-};
 
 const StatCard = ({
   title,
@@ -182,8 +94,8 @@ export default function AdminDashboard() {
         setStats(data);
       } catch (error) {
         console.error("Error fetching admin stats:", error);
-        // Fallback to mock data if API fails
-        setStats(mockAdminStats);
+        // Show error message to user
+        setStats(null);
       } finally {
         setLoading(false);
       }
