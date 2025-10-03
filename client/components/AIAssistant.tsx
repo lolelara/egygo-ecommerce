@@ -6,7 +6,6 @@ import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import OpenAI from 'openai';
 
 interface Message {
   id: string;
@@ -25,9 +24,6 @@ interface AITip {
   };
 }
 
-// OpenAI configuration
-const OPENAI_MODEL = 'gpt-4o-mini';
-
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -37,45 +33,28 @@ export function AIAssistant() {
   const [initError, setInitError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const chatRef = useRef<OpenAI.Chat.Completions.ChatCompletionMessageParam[]>([]);
-  const clientRef = useRef<OpenAI | null>(null);
+  
+  // Chat history with messages
+  const chatRef = useRef<Array<{role: 'system' | 'user' | 'assistant'; content: string}>>([]);
 
-  // Lazily initialize OpenAI client on the client-side only
+  // Lazily initialize chat history on the client-side only
   useEffect(() => {
-    console.log('🔍 useEffect triggered - checking initialization...');
+    console.log('🔍 useEffect triggered - initializing chat...');
     
     if (typeof window === 'undefined') {
-      console.log('⚠️ Server-side render detected, skipping initialization');
+      console.log('⚠️ Server-side render detected, skipping');
       return;
     }
 
-    if (clientRef.current) {
-      console.log('✅ Client already initialized, skipping');
+    if (chatRef.current.length > 0) {
+      console.log('✅ Chat already initialized, skipping');
       return;
     }
 
-    // Get API key inside useEffect to ensure it's only accessed on client-side
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-    console.log('🔑 API Key status:', apiKey ? 'Found ✅' : 'Missing ❌');
-
-    if (!apiKey) {
-      console.error('⚠️ VITE_OPENAI_API_KEY is not set in .env file');
-      console.error('Please check your .env file has: VITE_OPENAI_API_KEY=your-key-here');
-      setInitError('missing-key');
-      return;
-    }
-
-    console.log('🔄 Initializing OpenAI client...');
+    console.log('� Initializing chat history with system prompt...');
     
     try {
-      clientRef.current = new OpenAI({
-        apiKey: apiKey,
-        dangerouslyAllowBrowser: true
-      });
-      
-      console.log('📦 OpenAI client object created');
-      
-      // Initialize chat history with system prompt immediately
+      // Initialize chat history with system prompt
       const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر. 
 
 معلومات عن الموقع:
@@ -103,15 +82,11 @@ export function AIAssistant() {
       ];
       
       console.log('💬 Chat history initialized, length:', chatRef.current.length);
-      
       setIsModelReady(true);
       setInitError(null);
-      
-      console.log('✅ OpenAI client initialized successfully');
-      console.log('📝 Model:', OPENAI_MODEL);
-      console.log('🎯 clientRef.current:', clientRef.current ? 'EXISTS ✅' : 'NULL ❌');
+      console.log('✅ Chat initialization complete!');
     } catch (error) {
-      console.error('❌ Failed to initialize OpenAI:', error);
+      console.error('❌ Failed to initialize chat:', error);
       setInitError('init-failed');
     }
   }, []);
@@ -262,7 +237,7 @@ export function AIAssistant() {
     }
   }, [isOpen, user]);
 
-  // Handle send message with OpenAI
+  // Handle send message with server-side OpenAI API
   const handleSendMessage = async () => {
     console.log('📤 handleSendMessage called');
     
@@ -287,17 +262,7 @@ export function AIAssistant() {
     setIsTyping(true);
 
     try {
-      // Check if client is available
-      console.log('🔍 Checking clientRef.current:', clientRef.current ? 'EXISTS ✅' : 'NULL ❌');
-      console.log('🔍 isModelReady:', isModelReady);
-      console.log('🔍 initError:', initError);
-      
-      if (!clientRef.current) {
-        console.error('❌ clientRef.current is null or undefined!');
-        throw new Error('OpenAI client not initialized. Check API key configuration.');
-      }
-      
-      console.log('✅ Client is available, proceeding...');
+      console.log('✅ Using server-side API (secure)...');
       
       // Add user message to chat history
       chatRef.current.push({
@@ -305,15 +270,23 @@ export function AIAssistant() {
         content: currentInput
       });
 
-      // Call OpenAI API
-      const completion = await clientRef.current.chat.completions.create({
-        model: OPENAI_MODEL,
-        messages: chatRef.current,
-        temperature: 0.7,
-        max_tokens: 500
+      // Call server endpoint instead of OpenAI directly (more secure)
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: chatRef.current
+        })
       });
 
-      const aiText = completion.choices[0]?.message?.content || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const aiText = data.message || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
 
       // Add assistant response to history
       chatRef.current.push({
@@ -335,15 +308,7 @@ export function AIAssistant() {
       // Detailed error message
       let errorMessage = 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏';
 
-      if (!clientRef.current) {
-        if (initError === 'missing-key') {
-          errorMessage = 'المساعد الذكي مش متاح حالياً لأن إعدادات الـ API ناقصة. برجاء التواصل مع الدعم الفني. 🔑';
-        } else if (initError === 'init-failed') {
-          errorMessage = 'المساعد الذكي بيواجه مشكلة في الاتصال بالخدمة. هنحلها قريب جداً 🙏';
-        }
-      }
-      
-      if (error?.message?.includes('API key')) {
+      if (error?.message?.includes('API key') || error?.message?.includes('401')) {
         errorMessage = 'في مشكلة في إعدادات الـ API. يرجى التواصل مع الدعم 🔑';
       } else if (error?.message?.includes('quota') || error?.message?.includes('429')) {
         errorMessage = 'وصلنا للحد الأقصى من الطلبات. جرب تاني بعد دقيقة ⏱️';

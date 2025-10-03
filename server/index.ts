@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { handleChatCompletion } from "./routes/chat";
 import {
   getProducts,
   getProductById,
@@ -58,6 +59,9 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+  
+  // AI Chat API
+  app.post("/api/chat", handleChatCompletion);
 
   // Products API
   app.get("/api/products", getProducts);
