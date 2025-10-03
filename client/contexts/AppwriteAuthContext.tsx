@@ -73,12 +73,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Use user preferences instead of separate collection
         const prefs = currentUser.prefs as any || {};
         
+        // قائمة الإيميلات للمديرين (Super Admins)
+        const ADMIN_EMAILS = [
+          'lolelarap@gmail.com',
+          'admin@egygo.me'
+        ];
+        
         // Determine user role
         let userRole: 'admin' | 'merchant' | 'affiliate' | 'customer' = prefs.role || 'customer';
         
         // If role not set in prefs, determine from email or affiliate status
         if (!prefs.role) {
-          if (currentUser.email.includes('admin')) {
+          // التحقق من البريد الإلكتروني أولاً للمديرين
+          if (ADMIN_EMAILS.includes(currentUser.email.toLowerCase())) {
+            userRole = 'admin';
+            console.log(`✅ تم تحديد المستخدم كـ Admin: ${currentUser.email}`);
+          } else if (currentUser.email.includes('admin')) {
             userRole = 'admin';
           } else if (currentUser.email.includes('merchant') || currentUser.email.includes('vendor')) {
             userRole = 'merchant';
@@ -90,9 +100,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           // Save the detected role
           try {
-            await AppwriteService.updateUserPreferences({ role: userRole });
+            await AppwriteService.updateUserPreferences({ 
+              role: userRole,
+              isAdmin: userRole === 'admin',
+              isSuperAdmin: ADMIN_EMAILS.includes(currentUser.email.toLowerCase())
+            });
           } catch (error) {
             console.log('Could not save user role:', error);
+          }
+        } else if (ADMIN_EMAILS.includes(currentUser.email.toLowerCase()) && prefs.role !== 'admin') {
+          // إذا كان البريد في قائمة المديرين لكن الدور ليس admin، قم بالتحديث
+          userRole = 'admin';
+          try {
+            await AppwriteService.updateUserPreferences({ 
+              role: 'admin',
+              isAdmin: true,
+              isSuperAdmin: true
+            });
+            console.log(`✅ تم تحديث دور المستخدم إلى Admin: ${currentUser.email}`);
+          } catch (error) {
+            console.log('Could not update user role:', error);
           }
         }
         
