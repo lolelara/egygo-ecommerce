@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, Truck, MapPin, Phone, Mail, User, ArrowRight } from "lucide-react";
+import { CreditCard, Truck, MapPin, Phone, Mail, User, ArrowRight, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { databases } from "@/lib/appwrite";
+import { Query } from "appwrite";
+
+const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "";
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -16,6 +20,9 @@ export default function Checkout() {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cash");
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
   
   // Mock cart data
   const cartItems = [
@@ -40,7 +47,82 @@ export default function Checkout() {
     0
   );
   const shipping = subtotal >= 500 ? 0 : 50;
-  const total = subtotal + shipping;
+  
+  // Calculate discount
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === "percentage") {
+      discount = (subtotal * appliedCoupon.value) / 100;
+    } else {
+      discount = appliedCoupon.value;
+    }
+  }
+  
+  const total = subtotal + shipping - discount;
+
+  // Apply coupon
+  const applyCoupon = async () => {
+    if (!couponCode) return;
+    setIsCheckingCoupon(true);
+    
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        "coupons",
+        [Query.equal("code", couponCode.toUpperCase()), Query.equal("isActive", true)]
+      );
+      
+      if (response.documents.length === 0) {
+        toast({
+          title: "كوبون غير صالح",
+          description: "الكود غير موجود أو غير نشط",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const coupon = response.documents[0];
+      
+      // Check expiry
+      if (new Date(coupon.expiryDate) < new Date()) {
+        toast({
+          title: "كوبون منتهي",
+          description: "هذا الكوبون انتهت صلاحيته",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Check usage limit
+      if (coupon.usageCount >= coupon.usageLimit) {
+        toast({
+          title: "كوبون مستنفذ",
+          description: "تم استخدام هذا الكوبون بالكامل",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setAppliedCoupon(coupon);
+      toast({
+        title: "تم تطبيق الكوبون!",
+        description: `حصلت على خصم ${coupon.type === 'percentage' ? coupon.value + '%' : coupon.value + ' ج.م'}`,
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في التحقق من الكوبون",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingCoupon(false);
+    }
+  };
+  
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

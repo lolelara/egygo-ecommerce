@@ -1,4 +1,4 @@
-import "./global.css";
+﻿import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
@@ -45,6 +45,16 @@ import AffiliateLinkManager from "./pages/AffiliateLinkManager";
 import AffiliateAnalytics from "./pages/AffiliateAnalytics";
 import AffiliateCreatives from "./pages/AffiliateCreatives";
 import UpdateAffiliatePrefs from "./pages/UpdateAffiliatePrefs";
+import AffiliateCoupons from "./pages/AffiliateCoupons";
+import DealsPage from "./pages/DealsPage";
+import ContactPage from "./pages/ContactPage";
+import AboutPage from "./pages/AboutPage";
+import ShippingPage from "./pages/ShippingPage";
+import FAQPage from "./pages/FAQPage";
+import AffiliateWithdrawPage from "./pages/AffiliateWithdrawPage";
+import AffiliateResourcesPage from "./pages/AffiliateResourcesPage";
+import AffiliateSupportPage from "./pages/AffiliateSupportPage";
+import AdminSettingsPage from "./pages/AdminSettingsPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
@@ -75,11 +85,7 @@ const App = () => (
                 <Route path="/affiliate" element={<Affiliate />} />
                 <Route path="/merchant" element={<Merchant />} />
 
-                {/* Placeholder routes */}
-                <Route
-                  path="/deals"
-                  element={<PlaceholderPage title="Special Deals" />}
-                />
+                <Route path="/deals" element={<DealsPage />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/wishlist" element={<Wishlist />} />
@@ -97,26 +103,12 @@ const App = () => (
               <Route path="/affiliate/links" element={<AffiliateLinkManager />} />
               <Route path="/affiliate/analytics" element={<AffiliateAnalytics />} />
               <Route path="/affiliate/creatives" element={<AffiliateCreatives />} />
-              <Route
-                path="/affiliate/dashboard"
-                element={<EnhancedAffiliateDashboard />}
-              />
-              <Route
-                path="/affiliate/withdraw"
-                element={<PlaceholderPage title="س��ب الأرباح" />}
-              />
-              <Route
-                path="/affiliate/resources"
-                element={<PlaceholderPage title="مصادر التسويق" />}
-              />
-              <Route
-                path="/affiliate/support"
-                element={<PlaceholderPage title="الدعم الفني" />}
-              />
-              <Route
-                path="/update-affiliate-prefs"
-                element={<UpdateAffiliatePrefs />}
-              />
+              <Route path="/affiliate/coupons" element={<AffiliateCoupons />} />
+              <Route path="/affiliate/dashboard" element={<EnhancedAffiliateDashboard />} />
+              <Route path="/affiliate/withdraw" element={<AffiliateWithdrawPage />} />
+              <Route path="/affiliate/resources" element={<AffiliateResourcesPage />} />
+              <Route path="/affiliate/support" element={<AffiliateSupportPage />} />
+              <Route path="/update-affiliate-prefs" element={<UpdateAffiliatePrefs />} />
 
               {/* Admin Routes */}
               <Route path="/admin" element={<EnhancedAdminDashboard />} />
@@ -128,27 +120,13 @@ const App = () => (
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/affiliates" element={<AdminUsers />} />
               <Route path="/admin/commissions" element={<AdminCommissions />} />
-              <Route
-                path="/admin/settings"
-                element={<PlaceholderPage title="إعدادات النظام" />}
-              />
-              <Route path="/account" element={<CustomerAccount />} />
-              <Route path="/my-account" element={<CustomerAccount />} />
+              <Route path="/admin/settings" element={<AdminSettingsPage />} />
 
-              <Route
-                path="/about"
-                element={<PlaceholderPage title="About Us" />}
-              />
-              <Route
-                path="/contact"
-                element={<PlaceholderPage title="Contact" />}
-              />
-              <Route
-                path="/shipping"
-                element={<PlaceholderPage title="Shipping Info" />}
-              />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/shipping" element={<ShippingPage />} />
               <Route path="/returns" element={<ReturnPolicy />} />
-              <Route path="/faq" element={<PlaceholderPage title="FAQ" />} />
+              <Route path="/faq" element={<FAQPage />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
 
