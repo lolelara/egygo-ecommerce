@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
+import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
 
 export default function Index() {
   // Fetch categories
@@ -50,6 +51,8 @@ export default function Index() {
 
   return (
     <div className="space-y-16 pb-16">
+      <EnhancedSEO {...pageSEO.home()} />
+      
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary via-brand-purple to-brand-orange text-white">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -62,11 +65,11 @@ export default function Index() {
                 </Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
                   اكتشف منتجات مذهلة و
-                  <span className="text-brand-yellow"> اكسب أكثر</span>
+                  <span className="text-brand-yellow"> اكسب أكتر</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
-                  تسوق منتجات عالية الجودة وانضم إلى برنامج الشراكة لتكسب عمولة
-                  تصل إلى 25% على كل عملية بيع.
+                  تسوق منتجات عالية الجودة وانضم لبرنامج الشراكة عشان تكسب عمولة
+                  لحد 25% على كل عملية بيع.
                 </p>
               </div>
 
@@ -99,7 +102,7 @@ export default function Index() {
               <div className="grid grid-cols-3 gap-4 pt-8">
                 <div className="text-center">
                   <div className="text-2xl font-bold">+10K</div>
-                  <div className="text-sm text-white/80">عميل سعيد</div>
+                  <div className="text-sm text-white/80">عميل راضي</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">+500</div>
@@ -107,7 +110,7 @@ export default function Index() {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">+1K</div>
-                  <div className="text-sm text-white/80">شريك</div>
+                  <div className="text-sm text-white/80">مسوق</div>
                 </div>
               </div>
             </div>
@@ -299,30 +302,30 @@ export default function Index() {
                   💰 برنامج الشراكة
                 </Badge>
                 <h2 className="text-3xl lg:text-4xl font-bold">
-                  ابدأ الكسب اليوم مع برنامج الشراكة
+                  ابدأ تكسب دلوقتي مع برنامج الشراكة
                 </h2>
                 <p className="text-xl text-white/90">
-                  انضم إلى آلاف الشركاء الناجحين واكسب عمولة تصل إلى 25% على كل
-                  عملية بيع تحيلها. الانضمام مجاني ونوفر جميع الأدوات التي
-                  تحتاجها للنجاح.
+                  انضم لآلاف المسوقين الناجحين واكسب عمولة لحد 25% على كل
+                  عملية بيع تيجي منك. الانضمام مجاني وعندنا كل الأدوات اللي
+                  تحتاجها عشان تنجح.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <TrendingUp className="h-8 w-8 mx-auto mb-2" />
-                  <div className="font-bold text-lg">حتى 25%</div>
+                  <div className="font-bold text-lg">لحد 25%</div>
                   <div className="text-sm text-white/80">عمولة</div>
                 </div>
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Users className="h-8 w-8 mx-auto mb-2" />
                   <div className="font-bold text-lg">+1000</div>
-                  <div className="text-sm text-white/80">شريك نشط</div>
+                  <div className="text-sm text-white/80">مسوق نشط</div>
                 </div>
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Award className="h-8 w-8 mx-auto mb-2" />
-                  <div className="font-bold text-lg">+$2M</div>
-                  <div className="text-sm text-white/80">مدفوع كعمولات</div>
+                  <div className="font-bold text-lg">+10 مليون جنيه</div>
+                  <div className="text-sm text-white/80">اتدفع عمولات</div>
                 </div>
               </div>
 

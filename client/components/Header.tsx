@@ -206,6 +206,95 @@ export function Header({ cartItemCount }: HeaderProps) {
             <Search className="h-5 w-5" />
           </Button>
 
+          {/* Control Panel Button - For Affiliates, Merchants & Admins */}
+          {user && (user.role === 'admin' || user.isAffiliate || user.role === 'merchant') && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="hidden md:flex items-center gap-2 font-semibold border-2"
+                >
+                  {user.role === 'admin' && (
+                    <>
+                      <Shield className="h-4 w-4" />
+                      <span>لوحة التحكم</span>
+                    </>
+                  )}
+                  {user.role === 'merchant' && (
+                    <>
+                      <Briefcase className="h-4 w-4" />
+                      <span>لوحة التاجر</span>
+                    </>
+                  )}
+                  {user.isAffiliate && user.role !== 'admin' && user.role !== 'merchant' && (
+                    <>
+                      <TrendingUp className="h-4 w-4" />
+                      <span>لوحة المسوق</span>
+                    </>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {user.role === 'admin' && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
+                        <Shield className="h-4 w-4" />
+                        لوحة الإدارة
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/products" className="flex items-center gap-2 cursor-pointer">
+                        إدارة المنتجات
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/orders" className="flex items-center gap-2 cursor-pointer">
+                        إدارة الطلبات
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {user.role === 'merchant' && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/merchant/dashboard" className="flex items-center gap-2 cursor-pointer">
+                        <Briefcase className="h-4 w-4" />
+                        لوحة التاجر
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/products" className="flex items-center gap-2 cursor-pointer">
+                        منتجاتي
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {user.isAffiliate && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/affiliate/dashboard" className="flex items-center gap-2 cursor-pointer">
+                        <TrendingUp className="h-4 w-4" />
+                        لوحة المسوق
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/affiliate/analytics" className="flex items-center gap-2 cursor-pointer">
+                        التحليلات
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/affiliate/withdraw" className="flex items-center gap-2 cursor-pointer">
+                        سحب الأرباح
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           {/* Notifications */}
           {user && <NotificationDropdown />}
 

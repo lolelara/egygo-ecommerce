@@ -58,6 +58,8 @@ import AdminSettingsPage from "./pages/AdminSettingsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AIAssistant } from "./components/AIAssistant";
+import { HelmetProvider } from 'react-helmet-async';
 
 const queryClient = new QueryClient();
 
@@ -66,19 +68,21 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
     <Header cartItemCount={0} />
     <main className="flex-1">{children}</main>
     <Footer />
+    <AIAssistant />
   </div>
 );
 
 const App = () => (
   <ErrorBoundary>
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <CartProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <HashRouter>
+    <HelmetProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <CartProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <HashRouter>
               <Layout>
                 <Routes>
                 <Route path="/" element={<Index />} />
@@ -143,7 +147,8 @@ const App = () => (
     </CartProvider>
   </AuthProvider>
 </QueryClientProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   </ErrorBoundary>
 );
 
