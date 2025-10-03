@@ -1,4 +1,14 @@
-# 🔧 إصلاح مشاكل Routing و CORS
+# 🔧 حل مشكلة "Page not found" عند التحديث أو فتح روابط مباشرة
+
+## المشكلة:
+عند تحديث الصفحة أو فتح رابط مباشر مثل:
+- `https://egygo-ecommerce.appwrite.network/affiliate/analytics`
+- `https://egygo-ecommerce.appwrite.network/affiliate/links`
+- `https://egygo-ecommerce.appwrite.network/affiliate/creatives`
+
+يظهر خطأ: **"Page not found - router_path_not_found"**
+
+**السبب:** React Router يعمل من جانب العميل (Client-side Routing)، لكن الخادم لا يعرف هذه المسارات ويحاول البحث عن ملفات فعلية غير موجودة.
 
 ## المشاكل التي تم حلها:
 
