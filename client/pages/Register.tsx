@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { Button } from "@/components/ui/button";
@@ -24,13 +24,22 @@ export default function Register() {
     password: "",
     confirmPassword: "",
   });
+  const [accountType, setAccountType] = useState<'customer' | 'affiliate' | 'merchant'>('customer');
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [joinAffiliate, setJoinAffiliate] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
   const { register, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Check if account type is specified in URL
+  useEffect(() => {
+    const type = searchParams.get('type');
+    if (type === 'affiliate' || type === 'merchant') {
+      setAccountType(type);
+    }
+  }, [searchParams]);
 
   const handleChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,19 +77,22 @@ export default function Register() {
     setIsLoading(true);
 
     try {
+      // Register with account type
       await register(
         formData.email,
         formData.password,
-        formData.name
+        formData.name,
+        accountType
       );
 
-      // TODO: Handle affiliate registration separately if needed
-      if (joinAffiliate) {
-        // Add affiliate logic here later
+      // Redirect to appropriate page based on account type
+      if (accountType === 'affiliate') {
+        navigate("/affiliate/dashboard");
+      } else if (accountType === 'merchant') {
+        navigate("/merchant/dashboard");
+      } else {
+        navigate("/");
       }
-
-      // Redirect to appropriate page
-      navigate("/");
     } catch (err: any) {
       setError(
         err instanceof Error ? err.message : "حدث خطأ أثناء إنشاء الحساب",
@@ -229,23 +241,81 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Join Affiliate Program */}
-              <div className="flex items-center space-x-2 rtl:space-x-reverse p-4 bg-brand-orange/10 rounded-lg border border-brand-orange/20">
-                <Checkbox
-                  id="join-affiliate"
-                  checked={joinAffiliate}
-                  onCheckedChange={(checked) => setJoinAffiliate(!!checked)}
-                />
-                <div className="flex-1">
-                  <Label
-                    htmlFor="join-affiliate"
-                    className="text-sm cursor-pointer font-medium text-brand-orange"
+              {/* Account Type Selection */}
+              <div>
+                <Label>نوع الحساب</Label>
+                <div className="grid grid-cols-1 gap-3 mt-2">
+                  {/* Customer */}
+                  <div
+                    className={`flex items-center space-x-3 rtl:space-x-reverse p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      accountType === 'customer'
+                        ? 'border-primary bg-primary/5'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setAccountType('customer')}
                   >
-                    💰 انضم لبرنامج الشراكة
-                  </Label>
-                  <p className="text-xs text-brand-orange/80 mt-1">
-                    اكسب عمولة تصل إلى 25% من كل عملية بيع تحيلها
-                  </p>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      accountType === 'customer' ? 'border-primary' : 'border-gray-300'
+                    }`}>
+                      {accountType === 'customer' && (
+                        <div className="w-3 h-3 rounded-full bg-primary" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium">🛒 عميل</div>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        تسوق واشتري المنتجات
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Affiliate */}
+                  <div
+                    className={`flex items-center space-x-3 rtl:space-x-reverse p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      accountType === 'affiliate'
+                        ? 'border-brand-orange bg-brand-orange/5'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setAccountType('affiliate')}
+                  >
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      accountType === 'affiliate' ? 'border-brand-orange' : 'border-gray-300'
+                    }`}>
+                      {accountType === 'affiliate' && (
+                        <div className="w-3 h-3 rounded-full bg-brand-orange" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-brand-orange">💰 مسوق بالعمولة</div>
+                      <p className="text-xs text-brand-orange/80 mt-0.5">
+                        اكسب عمولة تصل إلى 25% من كل عملية بيع
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Merchant */}
+                  <div
+                    className={`flex items-center space-x-3 rtl:space-x-reverse p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      accountType === 'merchant'
+                        ? 'border-brand-purple bg-brand-purple/5'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setAccountType('merchant')}
+                  >
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      accountType === 'merchant' ? 'border-brand-purple' : 'border-gray-300'
+                    }`}>
+                      {accountType === 'merchant' && (
+                        <div className="w-3 h-3 rounded-full bg-brand-purple" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-brand-purple">🏪 تاجر</div>
+                      <p className="text-xs text-brand-purple/80 mt-0.5">
+                        بيع منتجاتك على المنصة
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

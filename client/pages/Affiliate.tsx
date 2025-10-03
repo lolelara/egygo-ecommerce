@@ -158,14 +158,16 @@ export default function Affiliate() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="text-primary font-semibold"
-                >
-                  انضم مجانًا اليوم
-                  <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-                </Button>
+                <Link to="/register?type=affiliate">
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="text-primary font-semibold w-full sm:w-auto"
+                  >
+                    انضم مجانًا اليوم
+                    <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
+                  </Button>
+                </Link>
                 <Button
                   size="lg"
                   variant="outline"

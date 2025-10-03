@@ -19,7 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithFacebook: () => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string, accountType?: 'customer' | 'affiliate' | 'merchant') => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
 }
@@ -164,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string, accountType: 'customer' | 'affiliate' | 'merchant' = 'customer') => {
     try {
       setLoading(true);
       
@@ -173,6 +173,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       await AppwriteService.register(email, password, name);
+      
+      // Set user role and preferences after registration
+      const preferences: any = {
+        role: accountType,
+        isAffiliate: accountType === 'affiliate',
+        isMerchant: accountType === 'merchant'
+      };
+      
+      // Generate affiliate code if needed
+      if (accountType === 'affiliate') {
+        preferences.affiliateCode = `AFF${Date.now().toString(36).toUpperCase()}`;
+        preferences.commissionRate = 0.15; // 15% default commission
+      }
+      
+      await AppwriteService.updateUserPreferences(preferences);
       await checkAuthUser();
     } catch (error) {
       console.error('Registration error:', error);
