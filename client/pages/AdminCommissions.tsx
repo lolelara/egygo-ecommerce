@@ -29,100 +29,7 @@ import {
   Users,
   CreditCard,
 } from "lucide-react";
-import type { Commission } from "@/shared/api";
-
-// Mock commissions data
-const mockCommissions: (Commission & {
-  affiliate: { name: string; email: string; affiliateCode: string };
-  order: { orderNumber: string };
-  product?: { name: string };
-})[] = [
-  {
-    id: "1",
-    amount: 47.92,
-    percentage: 8,
-    status: "PENDING",
-    description: "عمولة من بيع سماعات بلوتوث",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-15T10:30:00Z",
-    affiliateId: "1",
-    orderId: "1",
-    affiliate: {
-      name: "سارة أحمد",
-      email: "sarah@example.com",
-      affiliateCode: "SARAH2024",
-    },
-    order: {
-      orderNumber: "ORD-2024-001",
-    },
-    product: {
-      name: "سماعات بلوتوث لاسلكية",
-    },
-  },
-  {
-    id: "2",
-    amount: 129.9,
-    percentage: 10,
-    status: "APPROVED",
-    description: "عمولة من بيع ساعة ذكية",
-    createdAt: "2024-01-14T15:20:00Z",
-    updatedAt: "2024-01-15T09:00:00Z",
-    affiliateId: "2",
-    orderId: "2",
-    affiliate: {
-      name: "محمد خالد",
-      email: "mohamed@example.com",
-      affiliateCode: "MOHAMED2024",
-    },
-    order: {
-      orderNumber: "ORD-2024-002",
-    },
-    product: {
-      name: "ساعة ذكية رياضية",
-    },
-  },
-  {
-    id: "3",
-    amount: 71.92,
-    percentage: 8,
-    status: "PAID",
-    description: "عمولة من بيع جهاز لوحي",
-    createdAt: "2024-01-13T11:45:00Z",
-    updatedAt: "2024-01-14T16:30:00Z",
-    affiliateId: "1",
-    orderId: "3",
-    affiliate: {
-      name: "سارة أحمد",
-      email: "sarah@example.com",
-      affiliateCode: "SARAH2024",
-    },
-    order: {
-      orderNumber: "ORD-2024-003",
-    },
-    product: {
-      name: "جهاز لوحي 10 بوصة",
-    },
-  },
-  {
-    id: "4",
-    amount: 23.96,
-    percentage: 8,
-    status: "CANCELLED",
-    description: "عمولة ملغية - إرجاع المنتج",
-    createdAt: "2024-01-12T14:15:00Z",
-    updatedAt: "2024-01-13T10:20:00Z",
-    affiliateId: "3",
-    orderId: "4",
-    affiliate: {
-      name: "أحمد محمود",
-      email: "ahmed@example.com",
-      affiliateCode: "AHMED2024",
-    },
-    order: {
-      orderNumber: "ORD-2024-004",
-    },
-  },
-];
+import { adminCommissionsApi } from "@/lib/admin-api";
 
 const CommissionStatusBadge = ({ status }: { status: string }) => {
   const statusConfig = {
@@ -153,10 +60,27 @@ const CommissionStatusBadge = ({ status }: { status: string }) => {
 };
 
 export default function AdminCommissions() {
-  const [commissions, setCommissions] = useState(mockCommissions);
-  const [loading, setLoading] = useState(false);
+  const [commissions, setCommissions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  useEffect(() => {
+    const fetchCommissions = async () => {
+      setLoading(true);
+      try {
+        const data = await adminCommissionsApi.getAll();
+        setCommissions(data);
+      } catch (error) {
+        console.error("Error fetching commissions:", error);
+        setCommissions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCommissions();
+  }, []);
 
   const filteredCommissions = commissions.filter((commission) => {
     const matchesSearch =
@@ -177,21 +101,27 @@ export default function AdminCommissions() {
     return matchesSearch && matchesStatus;
   });
 
-  const handleUpdateCommissionStatus = (
+  const handleUpdateCommissionStatus = async (
     commissionId: string,
     newStatus: string,
   ) => {
-    setCommissions((prev) =>
-      prev.map((commission) =>
-        commission.id === commissionId
-          ? {
-              ...commission,
-              status: newStatus as Commission["status"],
-              updatedAt: new Date().toISOString(),
-            }
-          : commission,
-      ),
-    );
+    try {
+      await adminCommissionsApi.updateStatus(commissionId, newStatus);
+      // Update local state
+      setCommissions((prev) =>
+        prev.map((commission) =>
+          commission.id === commissionId
+            ? {
+                ...commission,
+                status: newStatus,
+                updatedAt: new Date().toISOString(),
+              }
+            : commission,
+        ),
+      );
+    } catch (error) {
+      console.error("Error updating commission status:", error);
+    }
   };
 
   // Statistics
