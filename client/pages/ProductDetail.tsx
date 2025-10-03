@@ -13,6 +13,9 @@ import {
   Loader2,
   Plus,
   Minus,
+  Check,
+  ZoomIn,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,14 +27,32 @@ import { Progress } from "@/components/ui/progress";
 import { productsApi, queryKeys } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { addItem } = useCart();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState("");
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isImageZoomed, setIsImageZoomed] = useState(false);
+
+  // Available colors (يمكن جلبها من API لاحقاً)
+  const availableColors = [
+    { name: "أسود", value: "black", hex: "#000000" },
+    { name: "أبيض", value: "white", hex: "#FFFFFF", border: true },
+    { name: "أزرق", value: "blue", hex: "#3B82F6" },
+    { name: "أحمر", value: "red", hex: "#EF4444" },
+    { name: "أخضر", value: "green", hex: "#10B981" },
+  ];
+
+  // Available sizes
+  const availableSizes = ["S", "M", "L", "XL", "XXL"];
 
   // Fetch product details
   const { data: product, isLoading } = useQuery({
@@ -68,9 +89,44 @@ export default function ProductDetail() {
     : 0;
 
   const handleAddToCart = () => {
+    // التحقق من اختيار اللون
+    if (availableColors.length > 0 && !selectedColor) {
+      toast({
+        title: "يرجى اختيار اللون",
+        description: "الرجاء اختيار لون المنتج قبل الإضافة للسلة",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // التحقق من اختيار المقاس
+    if (availableSizes.length > 0 && !selectedSize) {
+      toast({
+        title: "يرجى اختيار المقاس",
+        description: "الرجاء اختيار مقاس المنتج قبل الإضافة للسلة",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // إضافة المنتج للسلة
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: images[0]?.url || "",
+      quantity,
+      stockQuantity: product.stockQuantity,
+      inStock: product.inStock,
+    });
+
+    const colorName = selectedColor ? availableColors.find(c => c.value === selectedColor)?.name : "";
+    const details = [colorName, selectedSize].filter(Boolean).join(" - ");
+
     toast({
-      title: "تمت الإضافة لسلة التسوق",
-      description: `تم إضافة ${quantity} من ${product.name} إلى سلة التسوق`,
+      title: "✅ تمت الإضافة لسلة التسوق",
+      description: `تم إضافة ${quantity} من ${product.name}${details ? ` (${details})` : ""} إلى سلة التسوق`,
     });
   };
 
@@ -160,17 +216,29 @@ export default function ProductDetail() {
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+            {/* Main Image with Zoom */}
+            <div 
+              className="relative aspect-square rounded-lg overflow-hidden bg-muted group cursor-zoom-in"
+              onClick={() => setIsLightboxOpen(true)}
+              onMouseEnter={() => setIsImageZoomed(true)}
+              onMouseLeave={() => setIsImageZoomed(false)}
+            >
               <img
                 src={images[selectedImage].url}
                 alt={images[selectedImage].alt || product.name}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover transition-transform duration-300 ${
+                  isImageZoomed ? "scale-110" : "scale-100"
+                }`}
               />
               {discount > 0 && (
                 <Badge className="absolute top-4 left-4 bg-red-500">
                   خصم {discount}%
                 </Badge>
               )}
+              {/* Zoom Icon Overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
             </div>
             {images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
@@ -252,6 +320,64 @@ export default function ProductDetail() {
                 {product.description}
               </p>
             </div>
+
+            <Separator />
+
+            {/* Color Selection */}
+            {availableColors.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold">
+                  اللون: {selectedColor && <span className="text-primary">{availableColors.find(c => c.value === selectedColor)?.name}</span>}
+                </h3>
+                <div className="flex gap-3 flex-wrap">
+                  {availableColors.map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => setSelectedColor(color.value)}
+                      className={`relative w-12 h-12 rounded-full transition-all ${
+                        selectedColor === color.value
+                          ? "ring-2 ring-primary ring-offset-2 scale-110"
+                          : "hover:scale-105"
+                      } ${color.border ? "border-2 border-gray-300" : ""}`}
+                      style={{ backgroundColor: color.hex }}
+                      title={color.name}
+                    >
+                      {selectedColor === color.value && (
+                        <Check className="h-6 w-6 absolute inset-0 m-auto text-white drop-shadow-lg" 
+                          style={{ 
+                            color: color.value === "white" ? "#000000" : "#ffffff" 
+                          }}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Size Selection */}
+            {availableSizes.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold">
+                  المقاس: {selectedSize && <span className="text-primary">{selectedSize}</span>}
+                </h3>
+                <div className="flex gap-2 flex-wrap">
+                  {availableSizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-6 py-3 rounded-lg border-2 font-medium transition-all ${
+                        selectedSize === size
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-muted hover:border-primary/50"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <Separator />
 
@@ -535,6 +661,87 @@ export default function ProductDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Image Lightbox */}
+      {isLightboxOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          {/* Close Button */}
+          <button
+            onClick={() => setIsLightboxOpen(false)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
+          {/* Image Counter */}
+          <div className="absolute top-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+            {selectedImage + 1} / {images.length}
+          </div>
+
+          {/* Main Image */}
+          <div className="relative max-w-6xl max-h-[90vh] w-full h-full flex items-center justify-center">
+            <img
+              src={images[selectedImage].url}
+              alt={images[selectedImage].alt || product.name}
+              className="max-w-full max-h-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          {/* Navigation Buttons */}
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage((prev) => (prev > 0 ? prev - 1 : images.length - 1));
+                }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ArrowRight className="w-6 h-6 text-white" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              >
+                <ArrowRight className="w-6 h-6 text-white rotate-180" />
+              </button>
+            </>
+          )}
+
+          {/* Thumbnails */}
+          {images.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
+              {images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedImage(index);
+                  }}
+                  className={`w-16 h-16 rounded overflow-hidden border-2 transition-all ${
+                    selectedImage === index
+                      ? "border-white scale-110"
+                      : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img
+                    src={image.url}
+                    alt={image.alt || ""}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
