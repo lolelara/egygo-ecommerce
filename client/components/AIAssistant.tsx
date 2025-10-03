@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, TrendingUp, Briefcase, Shield, User, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, TrendingUp, Briefcase, Shield, User, Loader2, FileText, BarChart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
@@ -7,6 +7,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { Client, Functions, ExecutionMethod } from 'appwrite';
+import { buildUserContext, buildAdminContext } from '@/lib/ai-context-builder';
 
 interface Message {
   id: string;
@@ -39,11 +40,46 @@ export function AIAssistant() {
   const [isTyping, setIsTyping] = useState(false);
   const [isModelReady, setIsModelReady] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
+  const [isLoadingContext, setIsLoadingContext] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   
   // Chat history with messages
   const chatRef = useRef<Array<{role: 'system' | 'user' | 'assistant'; content: string}>>([]);
+  
+  // User context data
+  const [userContextData, setUserContextData] = useState<string | null>(null);
+
+  // Load user/admin context when chat opens
+  useEffect(() => {
+    if (isOpen && user && !userContextData) {
+      loadUserContext();
+    }
+  }, [isOpen, user]);
+
+  const loadUserContext = async () => {
+    if (!user) return;
+    
+    setIsLoadingContext(true);
+    try {
+      // Check if user is admin (adjust based on your logic)
+      const isAdmin = (user as any).labels?.includes('admin') || user.email === 'admin@egygo.com';
+      
+      let context: string;
+      if (isAdmin) {
+        context = await buildAdminContext();
+      } else {
+        context = await buildUserContext(user.$id);
+      }
+      
+      setUserContextData(context);
+      console.log('✅ Context loaded:', context.substring(0, 100) + '...');
+    } catch (error) {
+      console.error('Error loading context:', error);
+    } finally {
+      setIsLoadingContext(false);
+    }
+  };
 
   // Lazily initialize chat history on the client-side only
   useEffect(() => {
@@ -75,12 +111,26 @@ export function AIAssistant() {
 - ضمان على المنتجات
 - إرجاع مجاني خلال 14 يوم
 
+قدراتك الخاصة:
+✅ يمكنك رؤية بيانات المستخدم الكاملة (طلبات، عمولات، إحصائيات)
+✅ يمكنك عمل تقارير شاملة للأدمن عن أداء الموقع
+✅ يمكنك تحليل البيانات وإعطاء نصائح مخصصة
+✅ يمكنك اقتراح خطط تطوير بناءً على نشاط المستخدم
+
+الأوامر الخاصة:
+• "راجع حسابي" → أعرض تحليل شامل لحساب المستخدم
+• "اعمل تقرير" → أنشئ تقرير مفصل للأدمن عن الموقع
+• "نصائح" → أعطي نصائح ذكية بناءً على البيانات
+• "جدول تطوير" → أقترح خطة عمل مخصصة
+
 تعليمات مهمة:
 1. تحدث باللهجة المصرية الطبيعية (مثل: "ازيك"، "دلوقتي"، "عشان"، "لحد")
-2. كن ودوداً ومساعداً
-3. أجب بإيجاز ووضوح (3-5 أسطر max)
-4. استخدم emojis مصرية (🇪🇬 ❤️ 🛍️ 💰)
-5. اذكر عروض إيجي جو عند الإمكان`;
+2. استخدم البيانات المتاحة لك لتقديم إجابات مخصصة ودقيقة
+3. عند كتابة تقارير، نظمها بعناوين واضحة وأرقام محددة
+4. أعطي توصيات قابلة للتنفيذ (actionable recommendations)
+5. استخدم emojis مصرية (🇪🇬 ❤️ 🛍️ 💰 📊 📈 🏆)
+6. عند رؤية بيانات المستخدم في [بيانات المستخدم]، حللها واستخدمها في إجابتك`;
+
 
       chatRef.current = [
         {
@@ -105,6 +155,31 @@ export function AIAssistant() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Quick action buttons
+  const quickActions = [
+    { label: '📊 راجع حسابي', value: 'راجع حسابي وقولي إيه الإحصائيات بتاعتي' },
+    { label: '💡 نصائح ذكية', value: 'اديني نصائح ذكية بناءً على نشاطي' },
+    { label: '📈 جدول تطوير', value: 'اعمل لي جدول تطوير مخصص' },
+    { label: '🎯 اقتراحات', value: 'اقترح علي حاجات تساعدني أحسن أدائي' },
+  ];
+
+  // Admin quick actions
+  const adminActions = [
+    { label: '📊 تقرير شامل', value: 'اعمل تقرير شامل عن أداء الموقع' },
+    { label: '🏆 أفضل المسوقين', value: 'اعرض أفضل 10 مسوقين بالعمولة' },
+    { label: '📦 حالة المخزون', value: 'راجع حالة المخزون والمنتجات المنخفضة' },
+    { label: '💰 تحليل الإيرادات', value: 'حلل الإيرادات وقولي فين المشاكل' },
+  ];
+
+  const handleQuickAction = (value: string) => {
+    setInputValue(value);
+    // Auto-send
+    setTimeout(() => {
+      const button = document.querySelector<HTMLButtonElement>('[data-send-button]');
+      button?.click();
+    }, 100);
+  };
 
   // Generate AI tips based on user role and stats
   const generateAITips = (): AITip[] => {
@@ -272,10 +347,25 @@ export function AIAssistant() {
     try {
       console.log('✅ Using Appwrite Functions SDK...');
       
+      // Check if user is asking for contextual data
+      const contextualKeywords = ['راجع', 'شوف بياناتي', 'تقرير', 'نصائح', 'نصيحة', 'جدول تطوير', 'حسابي'];
+      const needsContext = contextualKeywords.some(keyword => currentInput.includes(keyword));
+      
       // Add user message to chat history
+      let messageToSend = currentInput;
+      if (needsContext && userContextData) {
+        messageToSend = `${currentInput}\n\n[بيانات المستخدم]:\n${userContextData}`;
+      } else if (needsContext && !userContextData) {
+        // Load context if not loaded yet
+        await loadUserContext();
+        if (userContextData) {
+          messageToSend = `${currentInput}\n\n[بيانات المستخدم]:\n${userContextData}`;
+        }
+      }
+      
       chatRef.current.push({
         role: 'user',
-        content: currentInput
+        content: messageToSend
       });
 
       // Call Appwrite Function using SDK (handles CORS automatically)
@@ -445,7 +535,36 @@ export function AIAssistant() {
           </ScrollArea>
 
           {/* Input */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t space-y-3">
+            {/* Quick Actions */}
+            {messages.length === 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground">إجراءات سريعة:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {(user && (user as any).labels?.includes('admin') ? adminActions : quickActions).map((action) => (
+                    <Button
+                      key={action.label}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleQuickAction(action.value)}
+                      disabled={isTyping || isLoadingContext}
+                      className="text-xs h-auto py-2 px-2 justify-start"
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Loading Context Indicator */}
+            {isLoadingContext && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>جاري تحميل بياناتك...</span>
+              </div>
+            )}
+            
             <div className="flex gap-2">
               <Input
                 placeholder="اكتب رسالتك هنا..."
@@ -459,12 +578,13 @@ export function AIAssistant() {
                 onClick={handleSendMessage} 
                 size="icon"
                 disabled={isTyping || !inputValue.trim()}
+                data-send-button
               >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              مدعوم بـ OpenAI 🤖
+              مدعوم بـ OpenAI 🤖 {userContextData && '• بيانات محدثة'}
             </p>
           </div>
         </Card>
