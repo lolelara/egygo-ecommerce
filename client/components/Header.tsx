@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import {
@@ -78,6 +78,17 @@ export function Header({ cartItemCount }: HeaderProps) {
               </SheetTitle>
             </SheetHeader>
             <nav className="mt-6 space-y-4">
+              {user?.role === 'admin' && (
+                <div className="space-y-2 mb-4">
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-2 py-2 px-3 bg-primary/10 text-primary rounded-lg font-semibold hover:bg-primary/20 transition-colors"
+                  >
+                    <Shield className="h-5 w-5" />
+                    لوحة تحكم الإدارة
+                  </Link>
+                </div>
+              )}
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm text-muted-foreground">
                   الفئات
@@ -206,6 +217,17 @@ export function Header({ cartItemCount }: HeaderProps) {
                     مرحباً، {user.name}
                   </div>
                   <DropdownMenuSeparator />
+                  {user.role === 'admin' && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="text-primary font-semibold">
+                          <Shield className="ml-2 h-4 w-4" />
+                          لوحة تحكم الإدارة
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link to="/my-orders">طلباتي</Link>
                   </DropdownMenuItem>
