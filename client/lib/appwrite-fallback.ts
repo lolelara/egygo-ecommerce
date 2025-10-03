@@ -4,7 +4,7 @@ import { Client, Account, Databases, Storage, Functions } from 'appwrite';
 export const appwriteConfig = {
   endpoint: import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1',
   projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID || '',
-  databaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID || 'ecommerce-db',
+  databaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID || '68de037e003bd03c4d45',
   storageId: import.meta.env.VITE_APPWRITE_STORAGE_ID || 'product-images',
   
   // Collection IDs (will be created in Appwrite dashboard)
