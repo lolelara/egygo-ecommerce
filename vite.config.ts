@@ -58,8 +58,6 @@ export default defineConfig(({ mode }) => ({
     copyPublicDir: true,
   },
   publicDir: "../public",
-  // Treat .html as assets to avoid parsing issues with Arabic text
-  assetsInclude: ['**/*.html'],
   plugins: [
     react(),
     spaFallbackPlugin() // Enable SPA routing in dev mode
