@@ -270,48 +270,23 @@ export function AIAssistant() {
         content: currentInput
       });
 
-      // Call Appwrite Function
-      const projectId = '68d8b9db00134c41e7c8';
-      const functionId = 'openai-chat';
-      const response = await fetch(
-        `https://fra.cloud.appwrite.io/v1/functions/${functionId}/executions`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Appwrite-Project': projectId,
-          },
-          body: JSON.stringify({
-            messages: chatRef.current
+      // Call Appwrite Function directly via its domain
+      const response = await fetch('https://68dfe4d400329f850dbd.fra.appwrite.run/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: chatRef.current
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
       }
 
-      const execution = await response.json();
-      
-      // Wait for execution to complete and get response
-      let executionResult = execution;
-      while (executionResult.status === 'processing' || executionResult.status === 'waiting') {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const statusResponse = await fetch(
-          `https://fra.cloud.appwrite.io/v1/functions/${functionId}/executions/${executionResult.$id}`,
-          {
-            headers: {
-              'X-Appwrite-Project': projectId,
-            },
-          }
-        );
-        executionResult = await statusResponse.json();
-      }
-
-      if (executionResult.status !== 'completed') {
-        throw new Error(`Function execution failed: ${executionResult.status}`);
-      }
-
-      const data = JSON.parse(executionResult.responseBody || '{}');
+      const data = await response.json();
       const aiText = data.message || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
 
       // Add assistant response to history
