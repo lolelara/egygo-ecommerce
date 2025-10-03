@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useCart } from "@/contexts/CartContext";
 import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
+import { ThemeToggle } from "./ThemeToggle";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -207,6 +208,9 @@ export function Header({ cartItemCount }: HeaderProps) {
 
           {/* Notifications */}
           {user && <NotificationDropdown />}
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* Wishlist */}
           <Button variant="ghost" size="icon" asChild>

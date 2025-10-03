@@ -55,7 +55,9 @@ import AffiliateWithdrawPage from "./pages/AffiliateWithdrawPage";
 import AffiliateResourcesPage from "./pages/AffiliateResourcesPage";
 import AffiliateSupportPage from "./pages/AffiliateSupportPage";
 import AdminSettingsPage from "./pages/AdminSettingsPage";
+import SettingsPage from "./pages/SettingsPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const queryClient = new QueryClient();
 
@@ -69,15 +71,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <HashRouter>
-            <Layout>
-              <Routes>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <CartProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <HashRouter>
+              <Layout>
+                <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
@@ -94,6 +97,7 @@ const App = () => (
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/account" element={<CustomerAccount />} />
               <Route path="/my-account" element={<CustomerAccount />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/orders" element={<MyOrders />} />
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/orders/:orderId/track" element={<OrderTracking />} />
@@ -139,6 +143,7 @@ const App = () => (
     </CartProvider>
   </AuthProvider>
 </QueryClientProvider>
+    </ThemeProvider>
   </ErrorBoundary>
 );
 
