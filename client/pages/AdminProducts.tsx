@@ -52,7 +52,7 @@ import type {
   Category,
   AdminProductCreate,
   AdminProductUpdate,
-} from "@/shared/api";
+} from "@shared/api";
 import { adminProductsApi } from "@/lib/admin-api";
 import { productsApi, categoriesApi } from "@/lib/api";
 

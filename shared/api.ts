@@ -35,6 +35,7 @@ export interface Category {
   slug: string;
   image: string;
   productCount: number;
+  description?: string;
 }
 
 /**

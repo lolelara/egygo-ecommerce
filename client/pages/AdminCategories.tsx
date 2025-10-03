@@ -23,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Edit, Trash2, Search, FolderOpen, Package } from "lucide-react";
-import type { Category } from "@/shared/api";
+import type { Category } from "@shared/api";
 import { adminCategoriesApi } from "@/lib/admin-api";
 import { categoriesApi } from "@/lib/api";
 

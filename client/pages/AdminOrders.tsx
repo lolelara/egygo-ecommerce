@@ -30,7 +30,7 @@ import {
   XCircle,
   DollarSign,
 } from "lucide-react";
-import type { Order } from "@/shared/api";
+import type { Order } from "@shared/api";
 import { adminOrdersApi } from "@/lib/admin-api";
 
 // Mock orders data
