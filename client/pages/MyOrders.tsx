@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import {
   Package,
   Truck,
@@ -9,12 +10,14 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
+import { ordersApi, queryKeys } from "@/lib/api";
 
 interface Order {
   id: string;
@@ -75,111 +78,71 @@ export default function MyOrders() {
   const { user } = useAuth();
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
-  // Mock orders data
-  const orders: Order[] = [
-    {
-      id: "1",
-      orderNumber: "ORD-2025-001",
-      date: "2025-09-28",
-      status: "DELIVERED",
-      total: 8497,
-      itemsCount: 2,
-      items: [
-        {
-          id: "1",
-          productId: "prod-1",
-          name: "ساعة ذكية - Apple Watch Series 9",
-          price: 4999,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100",
-        },
-        {
-          id: "2",
-          productId: "prod-2",
-          name: "سماعات لاسلكية - Sony WH-1000XM5",
-          price: 3498,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100",
-        },
-      ],
-      shippingAddress: {
-        city: "القاهرة",
-        address: "شارع التحرير، مبنى 15، الدور 3",
-        phone: "+20 123 456 7890",
-      },
-    },
-    {
-      id: "2",
-      orderNumber: "ORD-2025-002",
-      date: "2025-09-30",
-      status: "SHIPPED",
-      total: 2499,
-      itemsCount: 1,
-      items: [
-        {
-          id: "3",
-          productId: "prod-3",
-          name: "لوحة مفاتيح ميكانيكية",
-          price: 2499,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=100",
-        },
-      ],
-      shippingAddress: {
-        city: "الجيزة",
-        address: "الهرم، شارع الثلاثيني، مبنى 8",
-        phone: "+20 123 456 7890",
-      },
-    },
-    {
-      id: "3",
-      orderNumber: "ORD-2025-003",
-      date: "2025-10-01",
-      status: "PENDING",
-      total: 1299,
-      itemsCount: 1,
-      items: [
-        {
-          id: "4",
-          productId: "prod-4",
-          name: "ماوس لاسلكي - Logitech MX Master",
-          price: 1299,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=100",
-        },
-      ],
-      shippingAddress: {
-        city: "الإسكندرية",
-        address: "سموحة، شارع فوزي معاذ",
-        phone: "+20 123 456 7890",
-      },
-    },
-  ];
+  // Fetch user orders from API
+  const {
+    data: orders = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: queryKeys.orders(user?.id || ""),
+    queryFn: () => ordersApi.getUserOrders(user?.id || ""),
+    enabled: !!user?.id, // Only fetch if user is logged in
+  });
 
   const toggleOrderExpand = (orderId: string) => {
-    setExpandedOrders((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(orderId)) {
-        newSet.delete(orderId);
-      } else {
-        newSet.add(orderId);
-      }
-      return newSet;
-    });
+    const newExpanded = new Set(expandedOrders);
+    if (newExpanded.has(orderId)) {
+      newExpanded.delete(orderId);
+    } else {
+      newExpanded.add(orderId);
+    }
+    setExpandedOrders(newExpanded);
   };
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-16 text-center">
-          <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <h1 className="text-2xl font-bold mb-4">
-            يجب تسجيل الدخول لعرض طلباتك
-          </h1>
-          <Button asChild>
-            <Link to="/login">تسجيل الدخول</Link>
-          </Button>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center">تسجيل الدخول مطلوب</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="mb-4">يرجى تسجيل الدخول لعرض طلباتك</p>
+            <Link to="/login">
+              <Button>تسجيل الدخول</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">جاري تحميل طلباتك...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center text-red-500">خطأ في التحميل</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="mb-4">
+              {error instanceof Error ? error.message : "حدث خطأ أثناء تحميل الطلبات"}
+            </p>
+            <Button onClick={() => window.location.reload()}>إعادة المحاولة</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }

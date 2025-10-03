@@ -197,4 +197,57 @@ export const queryKeys = {
   categories: ["categories"] as const,
   category: (slug: string) => ["categories", slug] as const,
   categoryProducts: (slug: string) => ["categories", slug, "products"] as const,
+  orders: (userId: string) => ["orders", userId] as const,
+  order: (id: string) => ["orders", id] as const,
+};
+
+// Orders API
+export const ordersApi = {
+  getUserOrders: async (userId: string): Promise<any[]> => {
+    try {
+      if (!(await isApiAvailable())) {
+        console.log("API not available for orders");
+        return [];
+      }
+
+      const response = await fetch(`${API_BASE}/api?userId=${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error("فشل في جلب الطلبات");
+      }
+      
+      // The API endpoint is /api/orders, so we need to pass path parameter
+      const ordersResponse = await fetch(`${API_BASE}/api/orders?userId=${userId}`);
+      if (!ordersResponse.ok) {
+        throw new Error("فشل في جلب الطلبات");
+      }
+      return ordersResponse.json();
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      return [];
+    }
+  },
+
+  getOrderById: async (id: string, userId: string): Promise<any> => {
+    try {
+      if (!(await isApiAvailable())) {
+        console.log("API not available for order details");
+        return null;
+      }
+
+      const response = await fetch(`${API_BASE}/api/orders/${id}?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error("فشل في جلب تفاصيل الطلب");
+      }
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+      return null;
+    }
+  },
 };

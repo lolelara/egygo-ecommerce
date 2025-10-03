@@ -28,6 +28,7 @@ import {
   updateCommissionStatus,
 } from "./routes/admin";
 import { login, register, forgotPassword, getCurrentUser } from "./routes/auth";
+import { getUserOrders, getOrderById } from "./routes/orders";
 
 export function createServer() {
   const app = express();
@@ -85,6 +86,10 @@ export function createServer() {
   // Admin Commissions
   app.get("/api/admin/commissions", getCommissions);
   app.put("/api/admin/commissions/:id", updateCommissionStatus);
+
+  // User Orders API
+  app.get("/api/orders", getUserOrders);
+  app.get("/api/orders/:id", getOrderById);
 
   return app;
 }
