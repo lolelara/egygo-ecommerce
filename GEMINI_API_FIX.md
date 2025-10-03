@@ -14,8 +14,8 @@
 🔗 https://aistudio.google.com/app/apikey
 
 ### 2. تحقق من الـ API Key
-- افتح API Key: `AIzaSyAf5Ie5bq9snBYY4xG_AwKLiaRHN8tQx7A`
-- أو **أنشئ API Key جديد** إذا كان القديم مش شغال
+- افتح API Key الحالي للمشروع: `AIzaSyCIHY4CgrLo-MqXCkxJmsVGdlNMi5jI4t8`
+- أو **أنشئ API Key جديد** إذا كان المفتاح دا مش شغال
 
 ### 3. Enable Gemini API
 🔗 https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com
@@ -47,12 +47,14 @@ VITE_GEMINI_API_KEY=YOUR_NEW_API_KEY_HERE
 
 ### 6. أعد تشغيل المشروع
 ```powershell
-# أوقف السيرفر الحالي
+# أوقف أي سيرفر شغال حالياً
 Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force
 
-# ابدأ من جديد
+# شغّل السيرفر من جديد بعد حفظ .env
 pnpm dev
 ```
+
+> 💡 **مهم:** أي تعديل على `.env` محتاج إعادة تشغيل للسيرفر علشان قيم `import.meta.env` تتحدث.
 
 ## 📝 ملاحظات مهمة
 
