@@ -3,23 +3,23 @@ import { Client } from 'node-appwrite';
 // This Appwrite function will be executed every time your function is triggered
 export default async ({ req, res, log, error }) => {
   // Set CORS headers for all responses - allow your domain
-  const origin = req.headers['origin'] || '*';
+  const origin = req.headers['origin'] || 'https://egygo-ecommerce.appwrite.network';
   const corsHeaders = {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-    'Access-Control-Max-Age': '86400',
+    'Access-Control-Allow-Credentials': 'true',
   };
 
   // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
-    return res.empty(204, corsHeaders);
+    return res.text('', 204, corsHeaders);
   }
 
   // Initialize Appwrite client (for future DB operations if needed)
   const client = new Client()
-    .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
-    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+    .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT || '')
+    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID || '')
     .setKey(req.headers['x-appwrite-key'] ?? '');
 
   try {
@@ -33,7 +33,7 @@ export default async ({ req, res, log, error }) => {
     }
 
     // Parse request body
-    const body = JSON.parse(req.bodyText || '{}');
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const { messages } = body;
 
     if (!messages || !Array.isArray(messages)) {
