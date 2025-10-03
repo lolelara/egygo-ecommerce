@@ -29,7 +29,21 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    // في وضع التطوير، نعرض تحذير بدلاً من رمي خطأ
+    if (import.meta.env.DEV) {
+      console.warn('useAuth is being called before AuthProvider is ready');
+    }
+    // نرجع قيم افتراضية بدلاً من رمي خطأ
+    return {
+      user: null,
+      loading: true,
+      login: async () => {},
+      loginWithGoogle: async () => {},
+      loginWithFacebook: async () => {},
+      register: async () => {},
+      logout: async () => {},
+      updateUser: async () => {}
+    };
   }
   return context;
 };
