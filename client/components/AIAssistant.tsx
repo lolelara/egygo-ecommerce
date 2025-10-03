@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, TrendingUp, Briefcase, Shield, User } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, TrendingUp, Briefcase, Shield, User, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface Message {
   id: string;
@@ -24,6 +25,10 @@ interface AITip {
   };
 }
 
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -31,6 +36,54 @@ export function AIAssistant() {
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const chatRef = useRef<any>(null);
+
+  // Initialize chat session
+  useEffect(() => {
+    if (isOpen && !chatRef.current) {
+      const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر. 
+
+معلومات عن الموقع:
+- موقع تسوق إلكتروني مصري
+- يبيع منتجات متنوعة بأسعار تنافسية
+- شحن لجميع أنحاء مصر (مجاني فوق 500 جنيه)
+- دفع عند الاستلام متاح
+- برنامج تسويق بالعمولة (لحد 25%)
+- برنامج للتجار لبيع منتجاتهم
+- ضمان على المنتجات
+- إرجاع مجاني خلال 14 يوم
+
+معلومات عن المستخدم الحالي:
+${user ? `
+- الاسم: ${user.name}
+- الدور: ${user.role === 'admin' ? 'مدير' : user.role === 'merchant' ? 'تاجر' : user.isAffiliate ? 'مسوق' : 'عميل'}
+` : '- مستخدم غير مسجل'}
+
+تعليمات مهمة:
+1. تحدث باللهجة المصرية الطبيعية (مثل: "ازيك"، "دلوقتي"، "عشان"، "لحد")
+2. كن ودوداً ومساعداً
+3. أجب بإيجاز ووضوح (3-5 أسطر max)
+4. استخدم الإيموجي بشكل مناسب
+5. ركز على مساعدة المستخدم حسب دوره
+6. لا تتحدث عن مواضيع خارج نطاق الموقع
+7. اذكر روابط مفيدة إذا كان مناسباً (مثل: /#/products, /#/affiliate)
+
+ابدأ الآن بالرد على المستخدم.`;
+
+      chatRef.current = model.startChat({
+        history: [
+          {
+            role: 'user',
+            parts: [{ text: systemPrompt }],
+          },
+          {
+            role: 'model',
+            parts: [{ text: 'فهمت! أنا جاهز لمساعدة مستخدمي إيجي جو باللهجة المصرية الطبيعية. 😊' }],
+          },
+        ],
+      });
+    }
+  }, [isOpen, user]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -178,53 +231,17 @@ export function AIAssistant() {
     }
   }, [isOpen, user]);
 
-  // AI Response generator
-  const generateAIResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-
-    // FAQ responses in Egyptian dialect
-    if (lowerMessage.includes('شحن') || lowerMessage.includes('توصيل')) {
-      return 'الشحن عندنا سريع وآمن! 📦\n\n• بنوصل لكل محافظات مصر\n• الشحن مجاني للطلبات أكتر من 500 جنيه\n• التوصيل خلال 3-5 أيام عمل\n• تقدر تتبع طلبك أول بأول';
-    }
-
-    if (lowerMessage.includes('دفع') || lowerMessage.includes('كاش')) {
-      return 'متقلقش، الدفع عندنا سهل! 💳\n\n• كاش عند الاستلام متاح\n• فيزا وماستركارد\n• آمن 100%\n• ما بناخدش فلوس غير لما تستلم المنتج';
-    }
-
-    if (lowerMessage.includes('عمولة') || lowerMessage.includes('افلييت') || lowerMessage.includes('تسويق')) {
-      return 'برنامج التسويق بالعمولة بتاعنا ممتاز! 🎯\n\n• عمولة لحد 25% على كل عملية بيع\n• أدوات تسويقية جاهزة\n• سحب أرباح سريع\n• دعم فني متواصل\n\nانضم دلوقتي من صفحة البرنامج!';
-    }
-
-    if (lowerMessage.includes('منتج') || lowerMessage.includes('سعر')) {
-      return 'عندنا تشكيلة كبيرة من المنتجات! 🛍️\n\n• أسعار تنافسية\n• منتجات أصلية 100%\n• ضمان على كل المنتجات\n• عروض وخصومات مستمرة\n\nتقدر تتصفح المنتجات من الصفحة الرئيسية';
-    }
-
-    if (lowerMessage.includes('إرجاع') || lowerMessage.includes('استرجاع')) {
-      return 'سياسة الإرجاع عندنا سهلة! 🔄\n\n• إرجاع مجاني خلال 14 يوم\n• استرداد كامل للمبلغ\n• بدون أسئلة كتير\n• المنتج لازم يكون في حالته الأصلية';
-    }
-
-    if (lowerMessage.includes('حساب') || lowerMessage.includes('تسجيل')) {
-      return user
-        ? `حسابك شغال تمام يا ${user.name}! ✅\n\nتقدر تراجع:\n• طلباتك من "طلباتي"\n• بياناتك من "حسابي"\n• المفضلة من أيقونة القلب`
-        : 'عشان تستفيد من كل المميزات، سجل دخولك أو أنشئ حساب جديد! 🔐\n\nالتسجيل سهل ومجاني تماماً';
-    }
-
-    if (lowerMessage.includes('مساعدة') || lowerMessage.includes('دعم')) {
-      return 'أنا هنا عشان أساعدك! 🤝\n\nممكن تسألني عن:\n• الشحن والتوصيل\n• طرق الدفع\n• المنتجات والأسعار\n• برنامج التسويق بالعمولة\n• الإرجاع والاسترداد\n• أي حاجة تانية!\n\nاسأل براحتك 😊';
-    }
-
-    // Default response
-    return 'عذراً، مش فاهم سؤالك كويس 🤔\n\nممكن تعيده تاني بطريقة تانية؟ أو اختار واحد من المواضيع دي:\n\n• الشحن والتوصيل\n• طرق الدفع\n• برنامج التسويق\n• المنتجات والأسعار\n• الإرجاع والاسترداد';
-  };
-
-  const handleSendMessage = () => {
+  // Handle send message with Gemini AI
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
+
+    const currentInput = inputValue;
 
     // Add user message
     const userMessage: Message = {
       id: String(messages.length + 1),
       type: 'user',
-      content: inputValue,
+      content: currentInput,
       timestamp: new Date(),
     };
 
@@ -232,19 +249,39 @@ export function AIAssistant() {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI thinking and response
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(inputValue);
+    try {
+      // Generate AI response using Gemini
+      if (!chatRef.current) {
+        throw new Error('Chat session not initialized');
+      }
+
+      const result = await chatRef.current.sendMessage(currentInput);
+      const response = await result.response;
+      const aiText = response.text();
+
       const botMessage: Message = {
         id: String(messages.length + 2),
         type: 'bot',
-        content: aiResponse,
+        content: aiText,
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Gemini API Error:', error);
+      
+      // Fallback response
+      const botMessage: Message = {
+        id: String(messages.length + 2),
+        type: 'bot',
+        content: 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏',
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, botMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   };
 
   const getUserRoleBadge = () => {
@@ -305,7 +342,7 @@ export function AIAssistant() {
               <div>
                 <h3 className="font-semibold">مساعد إيجي جو الذكي</h3>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs opacity-90">متاح دلوقتي</span>
+                  <span className="text-xs opacity-90">متاح دلوقتي • Gemini AI</span>
                   {getUserRoleBadge()}
                 </div>
               </div>
@@ -349,10 +386,9 @@ export function AIAssistant() {
               {isTyping && (
                 <div className="flex justify-start">
                   <div className="bg-muted rounded-lg p-3">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 bg-foreground/40 rounded-full animate-bounce"></div>
+                    <div className="flex gap-1 items-center">
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      <span className="text-xs text-muted-foreground mr-2">جاري الكتابة...</span>
                     </div>
                   </div>
                 </div>
@@ -367,15 +403,20 @@ export function AIAssistant() {
                 placeholder="اكتب رسالتك هنا..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
+                disabled={isTyping}
                 className="flex-1"
               />
-              <Button onClick={handleSendMessage} size="icon">
+              <Button 
+                onClick={handleSendMessage} 
+                size="icon"
+                disabled={isTyping || !inputValue.trim()}
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              مدعوم بالذكاء الاصطناعي 🤖
+              مدعوم بـ Google Gemini AI 🤖
             </p>
           </div>
         </Card>
