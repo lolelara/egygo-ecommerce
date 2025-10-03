@@ -6,7 +6,7 @@ import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 
 interface Message {
   id: string;
@@ -25,9 +25,8 @@ interface AITip {
   };
 }
 
-// Gemini configuration
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-1.5-flash';
+// OpenAI configuration
+const OPENAI_MODEL = 'gpt-4o-mini';
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,39 +37,45 @@ export function AIAssistant() {
   const [initError, setInitError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const chatRef = useRef<any>(null);
-  const modelRef = useRef<ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null>(null);
+  const chatRef = useRef<OpenAI.Chat.Completions.ChatCompletionMessageParam[]>([]);
+  const clientRef = useRef<OpenAI | null>(null);
 
-  // Lazily initialize Gemini client on the client-side only
+  // Lazily initialize OpenAI client on the client-side only
   useEffect(() => {
+    console.log('🔍 useEffect triggered - checking initialization...');
+    
     if (typeof window === 'undefined') {
+      console.log('⚠️ Server-side render detected, skipping initialization');
       return;
     }
 
-    if (modelRef.current || isModelReady) {
+    if (clientRef.current) {
+      console.log('✅ Client already initialized, skipping');
       return;
     }
+
+    // Get API key inside useEffect to ensure it's only accessed on client-side
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    console.log('🔑 API Key status:', apiKey ? 'Found ✅' : 'Missing ❌');
 
     if (!apiKey) {
-      console.error('⚠️ VITE_GEMINI_API_KEY is not set in .env file');
+      console.error('⚠️ VITE_OPENAI_API_KEY is not set in .env file');
+      console.error('Please check your .env file has: VITE_OPENAI_API_KEY=your-key-here');
       setInitError('missing-key');
       return;
     }
 
+    console.log('🔄 Initializing OpenAI client...');
+    
     try {
-      const client = new GoogleGenerativeAI(apiKey);
-      modelRef.current = client.getGenerativeModel({ model: GEMINI_MODEL });
-      setIsModelReady(true);
-      setInitError(null);
-    } catch (error) {
-      console.error('Failed to initialize Gemini API:', error);
-      setInitError('init-failed');
-    }
-  }, [isModelReady]);
-
-  // Initialize chat session
-  useEffect(() => {
-    if (isOpen && !chatRef.current && modelRef.current) {
+      clientRef.current = new OpenAI({
+        apiKey: apiKey,
+        dangerouslyAllowBrowser: true
+      });
+      
+      console.log('📦 OpenAI client object created');
+      
+      // Initialize chat history with system prompt immediately
       const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر. 
 
 معلومات عن الموقع:
@@ -83,37 +88,33 @@ export function AIAssistant() {
 - ضمان على المنتجات
 - إرجاع مجاني خلال 14 يوم
 
-معلومات عن المستخدم الحالي:
-${user ? `
-- الاسم: ${user.name}
-- الدور: ${user.role === 'admin' ? 'مدير' : user.role === 'merchant' ? 'تاجر' : user.isAffiliate ? 'مسوق' : 'عميل'}
-` : '- مستخدم غير مسجل'}
-
 تعليمات مهمة:
 1. تحدث باللهجة المصرية الطبيعية (مثل: "ازيك"، "دلوقتي"، "عشان"، "لحد")
 2. كن ودوداً ومساعداً
 3. أجب بإيجاز ووضوح (3-5 أسطر max)
-4. استخدم الإيموجي بشكل مناسب
-5. ركز على مساعدة المستخدم حسب دوره
-6. لا تتحدث عن مواضيع خارج نطاق الموقع
-7. اذكر روابط مفيدة إذا كان مناسباً (مثل: /#/products, /#/affiliate)
+4. استخدم emojis مصرية (🇪🇬 ❤️ 🛍️ 💰)
+5. اذكر عروض إيجي جو عند الإمكان`;
 
-ابدأ الآن بالرد على المستخدم.`;
-
-      chatRef.current = modelRef.current.startChat({
-        history: [
-          {
-            role: 'user',
-            parts: [{ text: systemPrompt }],
-          },
-          {
-            role: 'model',
-            parts: [{ text: 'فهمت! أنا جاهز لمساعدة مستخدمي إيجي جو باللهجة المصرية الطبيعية. 😊' }],
-          },
-        ],
-      });
+      chatRef.current = [
+        {
+          role: 'system',
+          content: systemPrompt
+        }
+      ];
+      
+      console.log('💬 Chat history initialized, length:', chatRef.current.length);
+      
+      setIsModelReady(true);
+      setInitError(null);
+      
+      console.log('✅ OpenAI client initialized successfully');
+      console.log('📝 Model:', OPENAI_MODEL);
+      console.log('🎯 clientRef.current:', clientRef.current ? 'EXISTS ✅' : 'NULL ❌');
+    } catch (error) {
+      console.error('❌ Failed to initialize OpenAI:', error);
+      setInitError('init-failed');
     }
-  }, [isOpen, user, isModelReady]);
+  }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -261,11 +262,17 @@ ${user ? `
     }
   }, [isOpen, user]);
 
-  // Handle send message with Gemini AI
+  // Handle send message with OpenAI
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    console.log('📤 handleSendMessage called');
+    
+    if (!inputValue.trim()) {
+      console.log('⚠️ Empty input, aborting');
+      return;
+    }
 
     const currentInput = inputValue;
+    console.log('📝 User input:', currentInput);
 
     // Add user message
     const userMessage: Message = {
@@ -280,21 +287,39 @@ ${user ? `
     setIsTyping(true);
 
     try {
-      // Check if model is available
-      if (!modelRef.current) {
-        throw new Error('Gemini API not initialized. Check API key configuration.');
+      // Check if client is available
+      console.log('🔍 Checking clientRef.current:', clientRef.current ? 'EXISTS ✅' : 'NULL ❌');
+      console.log('🔍 isModelReady:', isModelReady);
+      console.log('🔍 initError:', initError);
+      
+      if (!clientRef.current) {
+        console.error('❌ clientRef.current is null or undefined!');
+        throw new Error('OpenAI client not initialized. Check API key configuration.');
       }
       
-      // Generate AI response using Gemini
-      if (!chatRef.current) {
-        chatRef.current = modelRef.current.startChat({
-          history: [],
-        });
-      }
+      console.log('✅ Client is available, proceeding...');
+      
+      // Add user message to chat history
+      chatRef.current.push({
+        role: 'user',
+        content: currentInput
+      });
 
-      const result = await chatRef.current.sendMessage(currentInput);
-      const response = await result.response;
-      const aiText = response.text();
+      // Call OpenAI API
+      const completion = await clientRef.current.chat.completions.create({
+        model: OPENAI_MODEL,
+        messages: chatRef.current,
+        temperature: 0.7,
+        max_tokens: 500
+      });
+
+      const aiText = completion.choices[0]?.message?.content || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
+
+      // Add assistant response to history
+      chatRef.current.push({
+        role: 'assistant',
+        content: aiText
+      });
 
       const botMessage: Message = {
         id: String(messages.length + 2),
@@ -305,12 +330,12 @@ ${user ? `
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error: any) {
-      console.error('Gemini API Error:', error);
+      console.error('OpenAI API Error:', error);
       
       // Detailed error message
       let errorMessage = 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏';
 
-      if (!modelRef.current) {
+      if (!clientRef.current) {
         if (initError === 'missing-key') {
           errorMessage = 'المساعد الذكي مش متاح حالياً لأن إعدادات الـ API ناقصة. برجاء التواصل مع الدعم الفني. 🔑';
         } else if (initError === 'init-failed') {
@@ -397,7 +422,7 @@ ${user ? `
               <div>
                 <h3 className="font-semibold">مساعد إيجي جو الذكي</h3>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs opacity-90">متاح دلوقتي • Gemini AI</span>
+                  <span className="text-xs opacity-90">متاح دلوقتي • OpenAI</span>
                   {getUserRoleBadge()}
                 </div>
               </div>
@@ -471,7 +496,7 @@ ${user ? `
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              مدعوم بـ Google Gemini AI 🤖
+              مدعوم بـ OpenAI 🤖
             </p>
           </div>
         </Card>
