@@ -35,12 +35,13 @@ import {
   updateReview,
   deleteReview,
 } from "./routes/reviews";
-import {
-  getUserWishlist,
-  addToWishlist,
-  removeFromWishlist,
-  isInWishlist,
-} from "./routes/wishlist";
+// Wishlist imports commented out for static deployment
+// import {
+//   getUserWishlist,
+//   addToWishlist,
+//   removeFromWishlist,
+//   isInWishlist,
+// } from "./routes/wishlist";
 
 export function createServer() {
   const app = express();
@@ -109,11 +110,12 @@ export function createServer() {
   app.put("/api/reviews/:id", updateReview);
   app.delete("/api/reviews/:id", deleteReview);
 
-  // Wishlist API
-  app.get("/api/wishlist", getUserWishlist);
-  app.post("/api/wishlist", addToWishlist);
-  app.delete("/api/wishlist/:id", removeFromWishlist);
-  app.get("/api/wishlist/check", isInWishlist);
+  // Wishlist API - Commented out for static deployment
+  // Use client-side Appwrite SDK instead
+  // app.get("/api/wishlist", getUserWishlist);
+  // app.post("/api/wishlist", addToWishlist);
+  // app.delete("/api/wishlist/:id", removeFromWishlist);
+  // app.get("/api/wishlist/check", isInWishlist);
 
   return app;
 }

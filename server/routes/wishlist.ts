@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { databases } from "../appwrite-server";
-import { Query } from "node-appwrite";
+import { Query } from "appwrite";
 
 const DATABASE_ID = process.env.VITE_APPWRITE_DATABASE_ID || "68de037e003bd03c4d45";
 const WISHLIST_COLLECTION_ID = "wishlist";
