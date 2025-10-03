@@ -1,0 +1,14 @@
+{
+  "name": "egygo - متجر إلكتروني",
+  "short_name": "egygo",
+  "description": "متجر إلكتروني متكامل مع برنامج شراكة متقدم",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [],
+  "categories": ["shopping", "business"]
+}
