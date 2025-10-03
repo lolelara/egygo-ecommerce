@@ -6,6 +6,7 @@ import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
+import { Client, Functions, ExecutionMethod } from 'appwrite';
 
 interface Message {
   id: string;
@@ -23,6 +24,13 @@ interface AITip {
     link: string;
   };
 }
+
+// Initialize Appwrite client for Functions
+const client = new Client()
+  .setEndpoint('https://fra.cloud.appwrite.io/v1')
+  .setProject('68d8b9db00134c41e7c8');
+
+const functions = new Functions(client);
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -262,7 +270,7 @@ export function AIAssistant() {
     setIsTyping(true);
 
     try {
-      console.log('✅ Using Appwrite Function (serverless)...');
+      console.log('✅ Using Appwrite Functions SDK...');
       
       // Add user message to chat history
       chatRef.current.push({
@@ -270,23 +278,17 @@ export function AIAssistant() {
         content: currentInput
       });
 
-      // Call Appwrite Function directly via its domain
-      const response = await fetch('https://68dfe4d400329f850dbd.fra.appwrite.run/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: chatRef.current
-        })
-      });
+      // Call Appwrite Function using SDK (handles CORS automatically)
+      const execution = await functions.createExecution(
+        'openai-chat',
+        JSON.stringify({ messages: chatRef.current }),
+        false,
+        '/',
+        ExecutionMethod.POST
+      );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
+      // Parse the response
+      const data = JSON.parse(execution.responseBody);
       const aiText = data.message || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
 
       // Add assistant response to history
