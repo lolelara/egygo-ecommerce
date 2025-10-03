@@ -1,0 +1,38 @@
+# Cloudflare Pages Build Configuration
+
+# Framework
+[build]
+  command = "pnpm install && pnpm build"
+  publish = "dist"
+
+# Environment Variables (أضفها في Cloudflare Dashboard)
+# VITE_APPWRITE_ENDPOINT=https://fra.cloud.appwrite.io/v1
+# VITE_APPWRITE_PROJECT_ID=68d8b9db00134c41e7c8
+# VITE_APPWRITE_DATABASE_ID=68de037e003bd03c4d45
+# VITE_APPWRITE_STORAGE_ID=product-images
+
+# Node version
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+
+# Redirects and rewrites
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
