@@ -37,6 +37,8 @@ import EnhancedAdminDashboard from "./pages/EnhancedAdminDashboard";
 import MerchantDashboard from "./pages/MerchantDashboard";
 import CustomerAccount from "./pages/CustomerAccount";
 import EnhancedAffiliateDashboard from "./pages/EnhancedAffiliateDashboard";
+import Wishlist from "./pages/Wishlist";
+import OrderTracking from "./pages/OrderTracking";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,7 @@ const App = () => (
                 />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -78,6 +81,7 @@ const App = () => (
               <Route path="/my-account" element={<CustomerAccount />} />
               <Route path="/orders" element={<MyOrders />} />
               <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/orders/:orderId/track" element={<OrderTracking />} />
               <Route
                 path="/affiliate/dashboard"
                 element={<EnhancedAffiliateDashboard />}

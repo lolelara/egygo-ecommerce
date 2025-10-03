@@ -22,6 +22,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useCart } from "@/contexts/CartContext";
 import SearchBar from "./SearchBar";
+import { NotificationDropdown } from "./NotificationDropdown";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -166,9 +167,14 @@ export function Header({ cartItemCount }: HeaderProps) {
             <Search className="h-5 w-5" />
           </Button>
 
+          {/* Notifications */}
+          {user && <NotificationDropdown />}
+
           {/* Wishlist */}
-          <Button variant="ghost" size="icon">
-            <Heart className="h-5 w-5" />
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/wishlist">
+              <Heart className="h-5 w-5" />
+            </Link>
           </Button>
 
           {/* Cart */}

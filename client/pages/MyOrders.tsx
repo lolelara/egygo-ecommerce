@@ -374,8 +374,10 @@ export default function MyOrders() {
 
                     {/* Actions */}
                     <div className="flex gap-3 pt-2">
-                      <Button variant="outline" size="sm">
-                        تتبع الشحنة
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to={`/orders/${order.id}/track`}>
+                          تتبع الطلب
+                        </Link>
                       </Button>
                       {order.status === "DELIVERED" && (
                         <Button variant="outline" size="sm">

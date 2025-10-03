@@ -200,6 +200,8 @@ export const queryKeys = {
   orders: (userId: string) => ["orders", userId] as const,
   order: (id: string) => ["orders", id] as const,
   reviews: (productId: string) => ["reviews", productId] as const,
+  wishlist: (userId: string) => ["wishlist", userId] as const,
+  wishlistCheck: (userId: string, productId: string) => ["wishlist-check", userId, productId] as const,
 };
 
 // Orders API
@@ -351,6 +353,88 @@ export const reviewsApi = {
       }
     } catch (error) {
       throw error;
+    }
+  },
+};
+
+// Wishlist API
+export const wishlistApi = {
+  getUserWishlist: async (userId: string): Promise<any[]> => {
+    try {
+      if (!(await isApiAvailable())) {
+        console.log("API not available for wishlist");
+        return [];
+      }
+
+      const response = await fetch(`${API_BASE}/api/wishlist?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error("فشل في جلب قائمة المفضلة");
+      }
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      return [];
+    }
+  },
+
+  addToWishlist: async (userId: string, productId: string): Promise<any> => {
+    try {
+      if (!(await isApiAvailable())) {
+        throw new Error("API not available");
+      }
+
+      const response = await fetch(`${API_BASE}/api/wishlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, productId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "فشل في إضافة المنتج للمفضلة");
+      }
+
+      return response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  removeFromWishlist: async (id: string, userId: string): Promise<void> => {
+    try {
+      if (!(await isApiAvailable())) {
+        throw new Error("API not available");
+      }
+
+      const response = await fetch(`${API_BASE}/api/wishlist/${id}?userId=${userId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "فشل في حذف المنتج من المفضلة");
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  isInWishlist: async (userId: string, productId: string): Promise<{ inWishlist: boolean; wishlistItemId: string | null }> => {
+    try {
+      if (!(await isApiAvailable())) {
+        return { inWishlist: false, wishlistItemId: null };
+      }
+
+      const response = await fetch(`${API_BASE}/api/wishlist/check?userId=${userId}&productId=${productId}`);
+      if (!response.ok) {
+        throw new Error("فشل في التحقق من قائمة المفضلة");
+      }
+      return response.json();
+    } catch (error) {
+      console.error("Error checking wishlist:", error);
+      return { inWishlist: false, wishlistItemId: null };
     }
   },
 };
