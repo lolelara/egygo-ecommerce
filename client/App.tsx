@@ -91,6 +91,12 @@ const App = () => (
               <Route path="/orders" element={<MyOrders />} />
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/orders/:orderId/track" element={<OrderTracking />} />
+              
+              {/* Affiliate Routes */}
+              <Route path="/l/:linkCode" element={<ProductLanding />} />
+              <Route path="/affiliate/links" element={<AffiliateLinkManager />} />
+              <Route path="/affiliate/analytics" element={<AffiliateAnalytics />} />
+              <Route path="/affiliate/creatives" element={<AffiliateCreatives />} />
               <Route
                 path="/affiliate/dashboard"
                 element={<EnhancedAffiliateDashboard />}

@@ -4,7 +4,6 @@ import * as express from "express";
 import express__default from "express";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
-import { Client, Databases, Query } from "node-appwrite";
 const handleDemo = (req, res) => {
   const response = {
     message: "Hello from Express server"
@@ -1172,147 +1171,6 @@ const deleteReview = async (req, res) => {
     res.status(500).json({ error: "Failed to delete review" });
   }
 };
-const client = new Client().setEndpoint(process.env.APPWRITE_ENDPOINT || "https://cloud.appwrite.io/v1").setProject(process.env.APPWRITE_PROJECT_ID || "68d8b9db00134c41e7c8").setKey(process.env.APPWRITE_API_KEY || "");
-const databases = new Databases(client);
-const DATABASE_ID = process.env.VITE_APPWRITE_DATABASE_ID || "68de037e003bd03c4d45";
-const WISHLIST_COLLECTION_ID = "wishlist";
-const PRODUCTS_COLLECTION_ID = "products";
-const getUserWishlist = async (req, res) => {
-  try {
-    const userId = req.query.userId;
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      WISHLIST_COLLECTION_ID,
-      [Query.equal("userId", userId), Query.orderDesc("$createdAt")]
-    );
-    const wishlistItems = await Promise.all(
-      response.documents.map(async (item) => {
-        try {
-          const product = await databases.getDocument(
-            DATABASE_ID,
-            PRODUCTS_COLLECTION_ID,
-            item.productId
-          );
-          return {
-            id: item.$id,
-            productId: item.productId,
-            addedAt: item.$createdAt,
-            product: {
-              id: product.$id,
-              name: product.name,
-              description: product.description,
-              price: product.price,
-              originalPrice: product.originalPrice,
-              inStock: product.inStock,
-              stockQuantity: product.stockQuantity,
-              rating: product.rating || 0,
-              reviewCount: product.reviewCount || 0,
-              images: product.images || [],
-              category: product.category
-            }
-          };
-        } catch (error) {
-          console.error(`Product ${item.productId} not found:`, error);
-          return null;
-        }
-      })
-    );
-    const validItems = wishlistItems.filter((item) => item !== null);
-    res.json(validItems);
-  } catch (error) {
-    console.error("Error fetching wishlist:", error);
-    res.status(500).json({ error: "Failed to fetch wishlist" });
-  }
-};
-const addToWishlist = async (req, res) => {
-  try {
-    const { userId, productId } = req.body;
-    if (!userId || !productId) {
-      return res.status(400).json({ error: "User ID and Product ID are required" });
-    }
-    try {
-      await databases.getDocument(DATABASE_ID, PRODUCTS_COLLECTION_ID, productId);
-    } catch (error) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-    const existingItems = await databases.listDocuments(
-      DATABASE_ID,
-      WISHLIST_COLLECTION_ID,
-      [Query.equal("userId", userId), Query.equal("productId", productId)]
-    );
-    if (existingItems.documents.length > 0) {
-      return res.status(400).json({ error: "Product already in wishlist" });
-    }
-    const wishlistItem = await databases.createDocument(
-      DATABASE_ID,
-      WISHLIST_COLLECTION_ID,
-      "unique()",
-      {
-        userId,
-        productId
-      }
-    );
-    res.status(201).json({
-      id: wishlistItem.$id,
-      productId: wishlistItem.productId,
-      addedAt: wishlistItem.$createdAt
-    });
-  } catch (error) {
-    console.error("Error adding to wishlist:", error);
-    res.status(500).json({ error: "Failed to add to wishlist" });
-  }
-};
-const removeFromWishlist = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userId = req.query.userId;
-    if (!userId) {
-      return res.status(400).json({ error: "User ID is required" });
-    }
-    try {
-      const item = await databases.getDocument(
-        DATABASE_ID,
-        WISHLIST_COLLECTION_ID,
-        id
-      );
-      if (item.userId !== userId) {
-        return res.status(403).json({ error: "You can only remove your own wishlist items" });
-      }
-      await databases.deleteDocument(DATABASE_ID, WISHLIST_COLLECTION_ID, id);
-      res.json({ message: "Removed from wishlist successfully" });
-    } catch (error) {
-      return res.status(404).json({ error: "Wishlist item not found" });
-    }
-  } catch (error) {
-    console.error("Error removing from wishlist:", error);
-    res.status(500).json({ error: "Failed to remove from wishlist" });
-  }
-};
-const isInWishlist = async (req, res) => {
-  try {
-    const { userId, productId } = req.query;
-    if (!userId || !productId) {
-      return res.status(400).json({ error: "User ID and Product ID are required" });
-    }
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      WISHLIST_COLLECTION_ID,
-      [
-        Query.equal("userId", userId),
-        Query.equal("productId", productId)
-      ]
-    );
-    const inWishlist = response.documents.length > 0;
-    const wishlistItemId = inWishlist ? response.documents[0].$id : null;
-    res.json({ inWishlist, wishlistItemId });
-  } catch (error) {
-    console.error("Error checking wishlist:", error);
-    res.status(500).json({ error: "Failed to check wishlist" });
-  }
-};
 function createServer() {
   const app2 = express__default();
   app2.use(cors());
@@ -1352,10 +1210,6 @@ function createServer() {
   app2.post("/api/reviews", createReview);
   app2.put("/api/reviews/:id", updateReview);
   app2.delete("/api/reviews/:id", deleteReview);
-  app2.get("/api/wishlist", getUserWishlist);
-  app2.post("/api/wishlist", addToWishlist);
-  app2.delete("/api/wishlist/:id", removeFromWishlist);
-  app2.get("/api/wishlist/check", isInWishlist);
   return app2;
 }
 const app = createServer();

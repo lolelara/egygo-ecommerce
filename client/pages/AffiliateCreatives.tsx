@@ -4,7 +4,7 @@ import { databases } from "@/lib/appwrite";
 import { Query } from "appwrite";
 import { productsApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
-import QRCode from "qrcode";
+// import QRCode from "qrcode"; // Temporarily disabled for deployment
 import {
   Card,
   CardContent,
@@ -85,16 +85,20 @@ export default function AffiliateCreatives() {
   useEffect(() => {
     if (selectedLinkCode) {
       const url = `${window.location.origin}/l/${selectedLinkCode}`;
-      QRCode.toDataURL(url, {
-        width: 300,
-        margin: 2,
-        color: {
-          dark: "#000000",
-          light: "#ffffff",
-        },
-      })
-        .then((dataUrl) => setQrCodeUrl(dataUrl))
-        .catch((err) => console.error(err));
+      // QR Code generation temporarily disabled
+      // QRCode.toDataURL(url, {
+      //   width: 300,
+      //   margin: 2,
+      //   color: {
+      //     dark: "#000000",
+      //     light: "#ffffff",
+      //   },
+      // })
+      //   .then((dataUrl) => setQrCodeUrl(dataUrl))
+      //   .catch((err) => console.error(err));
+      
+      // Placeholder QR code
+      setQrCodeUrl("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Crect width='300' height='300' fill='%23f0f0f0'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23999' font-size='16'%3EQR Code%3C/text%3E%3C/svg%3E");
     }
   }, [selectedLinkCode]);
 
