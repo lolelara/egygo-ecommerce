@@ -77,6 +77,7 @@ const App = () => (
               <Route path="/account" element={<CustomerAccount />} />
               <Route path="/my-account" element={<CustomerAccount />} />
               <Route path="/orders" element={<MyOrders />} />
+              <Route path="/my-orders" element={<MyOrders />} />
               <Route
                 path="/affiliate/dashboard"
                 element={<EnhancedAffiliateDashboard />}
