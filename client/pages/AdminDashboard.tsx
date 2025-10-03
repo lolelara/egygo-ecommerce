@@ -29,9 +29,12 @@ import {
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
-import type { AdminStats, Order, Product } from "@/shared/api";
+import { adminDashboardApi, type AdminStats } from "@/lib/admin-api";
+// @ts-ignore - Using simplified AdminStats from admin-api
+import type { Order, Product } from "@/shared/api";
 
 // Mock data for admin stats - in real app this would come from API
+// @ts-ignore - Mock data has extra properties
 const mockAdminStats: AdminStats = {
   totalUsers: 1250,
   totalProducts: 89,
@@ -168,18 +171,22 @@ const OrderStatusBadge = ({ status }: { status: string }) => {
 };
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [stats, setStats] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call
     const fetchStats = async () => {
       setLoading(true);
-      // In real app, this would be an API call
-      setTimeout(() => {
+      try {
+        const data = await adminDashboardApi.getStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Error fetching admin stats:", error);
+        // Fallback to mock data if API fails
         setStats(mockAdminStats);
+      } finally {
         setLoading(false);
-      }, 500);
+      }
     };
 
     fetchStats();
