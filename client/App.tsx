@@ -40,6 +40,11 @@ import EnhancedAffiliateDashboard from "./pages/EnhancedAffiliateDashboard";
 import Wishlist from "./pages/Wishlist";
 import OrderTracking from "./pages/OrderTracking";
 import Merchant from "./pages/Merchant";
+import ProductLanding from "./pages/ProductLanding";
+import AffiliateLinkManager from "./pages/AffiliateLinkManager";
+import AffiliateAnalytics from "./pages/AffiliateAnalytics";
+import AffiliateCreatives from "./pages/AffiliateCreatives";
+import UpdateAffiliatePrefs from "./pages/UpdateAffiliatePrefs";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
@@ -101,6 +106,10 @@ const App = () => (
               <Route
                 path="/affiliate/support"
                 element={<PlaceholderPage title="الدعم الفني" />}
+              />
+              <Route
+                path="/update-affiliate-prefs"
+                element={<UpdateAffiliatePrefs />}
               />
 
               {/* Admin Routes */}
