@@ -11,6 +11,8 @@ interface CartItem {
   quantity: number;
   stockQuantity: number;
   inStock: boolean;
+  color?: string;
+  size?: string;
 }
 
 interface CartContextType {

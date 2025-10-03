@@ -28,6 +28,7 @@ import { productsApi, queryKeys } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import ProductReviews from "@/components/ProductReviews";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -110,6 +111,8 @@ export default function ProductDetail() {
     }
 
     // إضافة المنتج للسلة
+    const colorName = selectedColor ? availableColors.find(c => c.value === selectedColor)?.name : undefined;
+    
     addItem({
       productId: product.id,
       name: product.name,
@@ -119,9 +122,10 @@ export default function ProductDetail() {
       quantity,
       stockQuantity: product.stockQuantity,
       inStock: product.inStock,
+      color: colorName,
+      size: selectedSize || undefined,
     });
 
-    const colorName = selectedColor ? availableColors.find(c => c.value === selectedColor)?.name : "";
     const details = [colorName, selectedSize].filter(Boolean).join(" - ");
 
     toast({
@@ -155,39 +159,6 @@ export default function ProductDetail() {
       });
     }
   };
-
-  // Mock reviews data
-  const reviews = [
-    {
-      id: "1",
-      userName: "أحمد محمد",
-      rating: 5,
-      comment: "منتج ممتاز جداً وبجودة عالية، أنصح بشرائه",
-      date: "2025-09-15",
-    },
-    {
-      id: "2",
-      userName: "فاطمة علي",
-      rating: 4,
-      comment: "جيد جداً لكن التوصيل كان متأخر قليلاً",
-      date: "2025-09-10",
-    },
-    {
-      id: "3",
-      userName: "محمود حسن",
-      rating: 5,
-      comment: "أفضل منتج اشتريته، يستحق السعر",
-      date: "2025-09-05",
-    },
-  ];
-
-  const ratingDistribution = [
-    { stars: 5, count: 45, percentage: 75 },
-    { stars: 4, count: 10, percentage: 17 },
-    { stars: 3, count: 3, percentage: 5 },
-    { stars: 2, count: 1, percentage: 2 },
-    { stars: 1, count: 1, percentage: 1 },
-  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -514,97 +485,7 @@ export default function ProductDetail() {
 
           {/* Reviews Tab */}
           <TabsContent value="reviews" className="space-y-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="grid md:grid-cols-2 gap-8">
-                  {/* Rating Summary */}
-                  <div className="space-y-4">
-                    <div className="text-center">
-                      <div className="text-5xl font-bold mb-2">
-                        {product.rating.toFixed(1)}
-                      </div>
-                      <div className="flex items-center justify-center gap-1 mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-5 w-5 ${
-                              i < Math.floor(product.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        بناءً على {product.reviewCount} تقييم
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Rating Distribution */}
-                  <div className="space-y-2">
-                    {ratingDistribution.map((item) => (
-                      <div key={item.stars} className="flex items-center gap-2">
-                        <span className="text-sm w-8">{item.stars} ⭐</span>
-                        <Progress value={item.percentage} className="flex-1" />
-                        <span className="text-sm text-muted-foreground w-12 text-left">
-                          {item.count}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Reviews List */}
-            <div className="space-y-4">
-              {reviews.map((review) => (
-                <Card key={review.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <Avatar>
-                        <AvatarFallback>
-                          {review.userName.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold">{review.userName}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(review.date).toLocaleDateString("ar")}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${
-                                  i < review.rating
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-gray-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-muted-foreground">{review.comment}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {user && (
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-semibold mb-4">اكتب تقييمك</h3>
-                  <Button>إضافة تقييم</Button>
-                </CardContent>
-              </Card>
-            )}
+            <ProductReviews productId={product.id} />
           </TabsContent>
 
           {/* Specs Tab */}

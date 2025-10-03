@@ -1,54 +1,31 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, Truck, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-
-interface CartItem {
-  id: string;
-  productId: string;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  quantity: number;
-  stockQuantity: number;
-  inStock: boolean;
-}
+import { useCart } from "@/contexts/CartContext";
 
 export default function Cart() {
   const { toast } = useToast();
-  
-  // Mock cart data - في الواقع سيأتي من API أو Context
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      productId: "prod-1",
-      name: "ساعة ذكية - Apple Watch Series 9",
-      price: 4999,
-      originalPrice: 5999,
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300",
-      quantity: 1,
-      stockQuantity: 10,
-      inStock: true,
-    },
-    {
-      id: "2",
-      productId: "prod-2",
-      name: "سماعات لاسلكية - Sony WH-1000XM5",
-      price: 3499,
-      originalPrice: 3999,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300",
-      quantity: 2,
-      stockQuantity: 5,
-      inStock: true,
-    },
-  ]);
+  const { items: cartItems, removeItem, updateQuantity, clearCart, subtotal } = useCart();
+  const [discountCode, setDiscountCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    percentage: number;
+  } | null>(null);
 
-  const updateQuantity = (itemId: string, newQuantity: number) => {
+  // Mock discount codes
+  const DISCOUNT_CODES: Record<string, number> = {
+    "WELCOME10": 10,
+    "SAVE20": 20,
+    "SUMMER15": 15,
+  };
+
+  const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     
     const item = cartItems.find((i) => i.id === itemId);
@@ -63,47 +40,76 @@ export default function Cart() {
       return;
     }
 
-    setCartItems((items) =>
-      items.map((i) =>
-        i.id === itemId ? { ...i, quantity: newQuantity } : i
-      )
-    );
-
-    toast({
-      title: "تم التحديث",
-      description: "تم تحديث كمية المنتج",
-    });
+    updateQuantity(itemId, newQuantity);
   };
 
-  const removeItem = (itemId: string) => {
-    setCartItems((items) => items.filter((i) => i.id !== itemId));
+  const handleRemoveItem = (itemId: string) => {
+    removeItem(itemId);
     toast({
       title: "تمت الإزالة",
       description: "تم إزالة المنتج من السلة",
     });
   };
 
-  const clearCart = () => {
-    setCartItems([]);
+  const handleClearCart = () => {
+    clearCart();
     toast({
       title: "تم إفراغ السلة",
       description: "تم إزالة جميع المنتجات من السلة",
     });
   };
 
-  const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  
+  const handleApplyDiscount = () => {
+    const code = discountCode.trim().toUpperCase();
+    const percentage = DISCOUNT_CODES[code];
+
+    if (!percentage) {
+      toast({
+        title: "كود خاطئ",
+        description: "الكود الذي أدخلته غير صحيح",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (appliedDiscount?.code === code) {
+      toast({
+        title: "تم تطبيق الكود مسبقاً",
+        description: "هذا الكود مُطبق بالفعل",
+        variant: "default",
+      });
+      return;
+    }
+
+    setAppliedDiscount({ code, percentage });
+    toast({
+      title: "تم تطبيق الكود",
+      description: `تم خصم ${percentage}% من إجمالي المشتريات`,
+    });
+  };
+
+  const handleRemoveDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode("");
+    toast({
+      title: "تمت إزالة الخصم",
+      description: "تم إلغاء كود الخصم",
+    });
+  };
+
+  // Calculations
   const originalTotal = cartItems.reduce(
     (sum, item) => sum + (item.originalPrice || item.price) * item.quantity,
     0
   );
   
   const savings = originalTotal - subtotal;
-  const shipping = subtotal >= 500 ? 0 : 50;
-  const total = subtotal + shipping;
+  const discountAmount = appliedDiscount
+    ? Math.round(subtotal * (appliedDiscount.percentage / 100))
+    : 0;
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  const shipping = subtotalAfterDiscount >= 500 ? 0 : 50;
+  const total = subtotalAfterDiscount + shipping;
 
   if (cartItems.length === 0) {
     return (
@@ -152,7 +158,7 @@ export default function Cart() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={clearCart}
+                  onClick={handleClearCart}
                   className="text-destructive hover:text-destructive"
                 >
                   <Trash2 className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
@@ -187,6 +193,22 @@ export default function Cart() {
                           </h3>
                         </Link>
 
+                        {/* Color and Size */}
+                        {(item.color || item.size) && (
+                          <div className="flex items-center gap-2 mb-2">
+                            {item.color && (
+                              <Badge variant="outline" className="text-xs">
+                                اللون: {item.color}
+                              </Badge>
+                            )}
+                            {item.size && (
+                              <Badge variant="outline" className="text-xs">
+                                المقاس: {item.size}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+
                         <div className="flex items-center gap-2 mb-3">
                           <span className="text-lg font-bold text-primary">
                             {item.price.toLocaleString()} ج.م
@@ -209,141 +231,182 @@ export default function Cart() {
                           )}
                         </div>
 
-                        <div className="flex items-center justify-between">
-                          {/* Quantity Control */}
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-2">
                           <div className="flex items-center border rounded-lg">
                             <Button
                               variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
+                              size="sm"
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity - 1)
+                                handleUpdateQuantity(item.id, item.quantity - 1)
                               }
+                              disabled={item.quantity <= 1}
                             >
-                              <Minus className="h-3 w-3" />
+                              <Minus className="h-4 w-4" />
                             </Button>
-                            <span className="px-3 font-semibold min-w-[2.5rem] text-center">
+                            <span className="px-4 py-2 font-medium min-w-[3rem] text-center">
                               {item.quantity}
                             </span>
                             <Button
                               variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
+                              size="sm"
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
+                                handleUpdateQuantity(item.id, item.quantity + 1)
                               }
+                              disabled={item.quantity >= item.stockQuantity}
                             >
-                              <Plus className="h-3 w-3" />
+                              <Plus className="h-4 w-4" />
                             </Button>
                           </div>
 
-                          {/* Remove Button */}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeItem(item.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <span className="text-sm text-muted-foreground">
+                            متوفر: {item.stockQuantity}
+                          </span>
                         </div>
                       </div>
 
-                      {/* Item Total */}
-                      <div className="text-left hidden sm:block">
-                        <p className="font-bold text-lg">
-                          {(item.price * item.quantity).toLocaleString()} ج.م
-                        </p>
-                      </div>
+                      {/* Remove Button */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveItem(item.id)}
+                        className="flex-shrink-0"
+                      >
+                        <Trash2 className="h-5 w-5 text-destructive" />
+                      </Button>
                     </div>
                   </div>
                 ))}
               </CardContent>
             </Card>
-
-            {/* Continue Shopping */}
-            <Button variant="outline" asChild>
-              <Link to="/products">
-                متابعة التسوق
-                <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-              </Link>
-            </Button>
           </div>
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-4">
-              <CardHeader>
-                <CardTitle>ملخص الطلب</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      المجموع الفرعي ({cartItems.length} منتج)
-                    </span>
-                    <span className="font-semibold">
-                      {subtotal.toLocaleString()} ج.م
-                    </span>
-                  </div>
-
-                  {savings > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>التوفير</span>
-                      <span className="font-semibold">
-                        -{savings.toLocaleString()} ج.م
-                      </span>
+            <div className="sticky top-4 space-y-4">
+              {/* Discount Code */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Tag className="h-5 w-5" />
+                    كود الخصم
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {appliedDiscount ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+                        <div>
+                          <p className="font-semibold text-green-700 dark:text-green-300">
+                            {appliedDiscount.code}
+                          </p>
+                          <p className="text-sm text-green-600 dark:text-green-400">
+                            خصم {appliedDiscount.percentage}%
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleRemoveDiscount}
+                        >
+                          إزالة
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Input
+                        placeholder="أدخل كود الخصم"
+                        value={discountCode}
+                        onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleApplyDiscount();
+                          }
+                        }}
+                      />
+                      <Button
+                        className="w-full"
+                        onClick={handleApplyDiscount}
+                        disabled={!discountCode.trim()}
+                      >
+                        تطبيق الكود
+                      </Button>
+                      <div className="text-xs text-muted-foreground">
+                        <p className="font-semibold mb-1">أكواد متاحة:</p>
+                        <p>• WELCOME10 - خصم 10%</p>
+                        <p>• SAVE20 - خصم 20%</p>
+                        <p>• SUMMER15 - خصم 15%</p>
+                      </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
 
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">الشحن</span>
-                    <span className="font-semibold">
-                      {shipping === 0 ? (
-                        <Badge variant="secondary">مجاني</Badge>
-                      ) : (
-                        `${shipping} ج.م`
-                      )}
-                    </span>
+              {/* Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>ملخص الطلب</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">المجموع الفرعي</span>
+                      <span>{subtotal.toLocaleString()} ج.م</span>
+                    </div>
+
+                    {savings > 0 && (
+                      <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                        <span>وفرت</span>
+                        <span>- {savings.toLocaleString()} ج.م</span>
+                      </div>
+                    )}
+
+                    {appliedDiscount && (
+                      <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                        <span>خصم الكود ({appliedDiscount.percentage}%)</span>
+                        <span>- {discountAmount.toLocaleString()} ج.م</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between text-sm">
+                      <div className="flex items-center gap-1">
+                        <Truck className="h-4 w-4" />
+                        <span className="text-muted-foreground">الشحن</span>
+                      </div>
+                      <span className={shipping === 0 ? "text-green-600 dark:text-green-400" : ""}>
+                        {shipping === 0 ? "مجاني" : `${shipping} ج.م`}
+                      </span>
+                    </div>
+
+                    {subtotalAfterDiscount < 500 && (
+                      <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg text-xs text-blue-700 dark:text-blue-300">
+                        <Package className="h-4 w-4 inline-block ml-1" />
+                        اشترِ بـ {(500 - subtotalAfterDiscount).toLocaleString()} ج.م إضافية للحصول على شحن مجاني!
+                      </div>
+                    )}
                   </div>
-
-                  {shipping > 0 && subtotal < 500 && (
-                    <p className="text-xs text-muted-foreground bg-muted p-2 rounded">
-                      أضف منتجات بقيمة {(500 - subtotal).toLocaleString()} ج.م
-                      للحصول على شحن مجاني
-                    </p>
-                  )}
 
                   <Separator />
 
-                  <div className="flex justify-between text-lg">
-                    <span className="font-bold">الإجمالي</span>
-                    <span className="font-bold text-primary text-2xl">
-                      {total.toLocaleString()} ج.م
-                    </span>
+                  <div className="flex justify-between text-lg font-bold">
+                    <span>الإجمالي</span>
+                    <span className="text-primary">{total.toLocaleString()} ج.م</span>
                   </div>
-                </div>
 
-                <Button size="lg" className="w-full" asChild>
-                  <Link to="/checkout">
-                    إتمام الطلب
-                    <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-                  </Link>
-                </Button>
+                  <Button size="lg" className="w-full" asChild>
+                    <Link to="/checkout">
+                      إتمام الطلب
+                      <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
+                    </Link>
+                  </Button>
 
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p className="flex items-center gap-2">
-                    ✓ دفع آمن 100%
-                  </p>
-                  <p className="flex items-center gap-2">
-                    ✓ شحن سريع وموثوق
-                  </p>
-                  <p className="flex items-center gap-2">
-                    ✓ ضمان استرجاع المال
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                  <Button variant="outline" size="lg" className="w-full" asChild>
+                    <Link to="/products">متابعة التسوق</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

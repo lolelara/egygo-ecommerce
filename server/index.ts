@@ -29,6 +29,12 @@ import {
 } from "./routes/admin";
 import { login, register, forgotPassword, getCurrentUser } from "./routes/auth";
 import { getUserOrders, getOrderById } from "./routes/orders";
+import {
+  getProductReviews,
+  createReview,
+  updateReview,
+  deleteReview,
+} from "./routes/reviews";
 
 export function createServer() {
   const app = express();
@@ -90,6 +96,12 @@ export function createServer() {
   // User Orders API
   app.get("/api/orders", getUserOrders);
   app.get("/api/orders/:id", getOrderById);
+
+  // Reviews API
+  app.get("/api/products/:productId/reviews", getProductReviews);
+  app.post("/api/reviews", createReview);
+  app.put("/api/reviews/:id", updateReview);
+  app.delete("/api/reviews/:id", deleteReview);
 
   return app;
 }

@@ -199,6 +199,7 @@ export const queryKeys = {
   categoryProducts: (slug: string) => ["categories", slug, "products"] as const,
   orders: (userId: string) => ["orders", userId] as const,
   order: (id: string) => ["orders", id] as const,
+  reviews: (productId: string) => ["reviews", productId] as const,
 };
 
 // Orders API
@@ -248,6 +249,108 @@ export const ordersApi = {
     } catch (error) {
       console.error("Error fetching order details:", error);
       return null;
+    }
+  },
+};
+
+// Reviews API
+export const reviewsApi = {
+  getProductReviews: async (productId: string): Promise<any> => {
+    try {
+      if (!(await isApiAvailable())) {
+        console.log("API not available for reviews");
+        return { reviews: [], stats: { totalReviews: 0, averageRating: 0, ratingDistribution: [] } };
+      }
+
+      const response = await fetch(`${API_BASE}/api/products/${productId}/reviews`);
+      if (!response.ok) {
+        throw new Error("فشل في جلب المراجعات");
+      }
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      return { reviews: [], stats: { totalReviews: 0, averageRating: 0, ratingDistribution: [] } };
+    }
+  },
+
+  createReview: async (data: {
+    productId: string;
+    userId: string;
+    rating: number;
+    comment?: string;
+  }): Promise<any> => {
+    try {
+      if (!(await isApiAvailable())) {
+        throw new Error("API not available");
+      }
+
+      const response = await fetch(`${API_BASE}/api/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "فشل في إضافة المراجعة");
+      }
+
+      return response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateReview: async (
+    id: string,
+    data: {
+      userId: string;
+      rating?: number;
+      comment?: string;
+    }
+  ): Promise<any> => {
+    try {
+      if (!(await isApiAvailable())) {
+        throw new Error("API not available");
+      }
+
+      const response = await fetch(`${API_BASE}/api/reviews/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "فشل في تحديث المراجعة");
+      }
+
+      return response.json();
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteReview: async (id: string, userId: string): Promise<void> => {
+    try {
+      if (!(await isApiAvailable())) {
+        throw new Error("API not available");
+      }
+
+      const response = await fetch(`${API_BASE}/api/reviews/${id}?userId=${userId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "فشل في حذف المراجعة");
+      }
+    } catch (error) {
+      throw error;
     }
   },
 };

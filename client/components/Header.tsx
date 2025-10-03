@@ -21,6 +21,7 @@ import { fallbackCategoriesApi } from "../lib/api-fallback";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useCart } from "@/contexts/CartContext";
+import SearchBar from "./SearchBar";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -155,14 +156,7 @@ export function Header({ cartItemCount }: HeaderProps) {
 
         {/* Search Bar */}
         <div className="hidden lg:flex items-center max-w-sm flex-1 mx-6">
-          <div className="relative w-full">
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 rtl:right-3 rtl:left-auto" />
-            <Input
-              type="search"
-              placeholder="البحث عن المنتجات..."
-              className="pr-10 pl-4 w-full rtl:pr-10 rtl:pl-4"
-            />
-          </div>
+          <SearchBar className="w-full" />
         </div>
 
         {/* Right side actions */}
