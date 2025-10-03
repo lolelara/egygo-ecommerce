@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -26,47 +27,56 @@ const adminNavItems = [
     title: "لوحة التحكم",
     href: "/admin",
     icon: LayoutDashboard,
+    roles: ['admin'], // فقط المدير
   },
   {
     title: "إدارة المنتجات",
     href: "/admin/products",
     icon: Package,
+    roles: ['admin', 'merchant'], // المدير والتاجر
   },
   {
     title: "إدارة الفئات",
     href: "/admin/categories",
     icon: FolderOpen,
+    roles: ['admin', 'merchant'], // المدير والتاجر
   },
   {
     title: "إدارة المستخدمين",
     href: "/admin/users",
     icon: Users,
+    roles: ['admin'], // فقط المدير
   },
   {
     title: "إدارة الطلبات",
     href: "/admin/orders",
     icon: ShoppingCart,
+    roles: ['admin'], // فقط المدير
   },
   {
     title: "إدارة الشركاء",
     href: "/admin/affiliates",
     icon: UserCheck,
+    roles: ['admin'], // فقط المدير
   },
   {
     title: "إدارة العمولات",
     href: "/admin/commissions",
     icon: DollarSign,
+    roles: ['admin'], // فقط المدير
   },
   {
     title: "الإعدادات",
     href: "/admin/settings",
     icon: Settings,
+    roles: ['admin'], // فقط المدير
   },
 ];
 
 const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleLogout = () => {
     // TODO: Implement logout logic
@@ -74,14 +84,21 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
     onLinkClick?.();
   };
 
+  // تصفية القوائم حسب دور المستخدم
+  const filteredNavItems = adminNavItems.filter(item => 
+    item.roles.includes(user?.role || 'customer')
+  );
+
   return (
     <div className="flex flex-col h-full">
       <div className="p-6 border-b">
-        <h2 className="text-xl font-bold text-primary">لوحة تحكم الإدارة</h2>
+        <h2 className="text-xl font-bold text-primary">
+          {user?.role === 'merchant' ? 'لوحة تحكم التاجر' : 'لوحة تحكم الإدارة'}
+        </h2>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
-        {adminNavItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.href;
 

@@ -90,13 +90,6 @@ export default function Login() {
                 </div>
               )}
 
-              {/* Demo Credentials */}
-              <div className="p-3 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="font-medium mb-1">بيانات تجريبية:</p>
-                <p>مدير: admin@example.com / admin123</p>
-                <p>مدير عام: superadmin@example.com / superadmin123</p>
-              </div>
-
               {/* Email Field */}
               <div>
                 <Label htmlFor="email">البريد الإلكتروني</Label>

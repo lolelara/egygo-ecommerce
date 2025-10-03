@@ -16,7 +16,15 @@ export default defineConfig(({ mode }) => ({
       origin: "*",
       credentials: true,
     },
+    // Enable SPA routing support - redirects all requests to index.html
+    proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+      },
+    },
   },
+  appType: "spa", // This tells Vite to handle SPA routing properly
   build: {
     outDir: "../dist",
     rollupOptions: {

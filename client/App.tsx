@@ -33,6 +33,10 @@ import MyOrders from "./pages/MyOrders";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ReturnPolicy from "./pages/ReturnPolicy";
+import EnhancedAdminDashboard from "./pages/EnhancedAdminDashboard";
+import MerchantDashboard from "./pages/MerchantDashboard";
+import CustomerAccount from "./pages/CustomerAccount";
+import EnhancedAffiliateDashboard from "./pages/EnhancedAffiliateDashboard";
 
 const queryClient = new QueryClient();
 
@@ -70,14 +74,12 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route
-                path="/account"
-                element={<PlaceholderPage title="My Account" />}
-              />
+              <Route path="/account" element={<CustomerAccount />} />
+              <Route path="/my-account" element={<CustomerAccount />} />
               <Route path="/orders" element={<MyOrders />} />
               <Route
                 path="/affiliate/dashboard"
-                element={<AffiliateDashboard />}
+                element={<EnhancedAffiliateDashboard />}
               />
               <Route
                 path="/affiliate/withdraw"
@@ -93,7 +95,9 @@ const App = () => (
               />
 
               {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin" element={<EnhancedAdminDashboard />} />
+              <Route path="/admin/dashboard" element={<EnhancedAdminDashboard />} />
+              <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/users" element={<AdminUsers />} />
@@ -104,6 +108,8 @@ const App = () => (
                 path="/admin/settings"
                 element={<PlaceholderPage title="إعدادات النظام" />}
               />
+              <Route path="/account" element={<CustomerAccount />} />
+              <Route path="/my-account" element={<CustomerAccount />} />
 
               <Route
                 path="/about"

@@ -7,6 +7,7 @@ interface User {
   email: string;
   phone?: string;
   address?: string;
+  role?: 'admin' | 'merchant' | 'affiliate' | 'customer';
   isAffiliate?: boolean;
   affiliateCode?: string;
   commissionRate?: number;
@@ -58,13 +59,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Use user preferences instead of separate collection
         const prefs = currentUser.prefs as any || {};
         
+        // Determine user role
+        let userRole: 'admin' | 'merchant' | 'affiliate' | 'customer' = prefs.role || 'customer';
+        
+        // If role not set in prefs, determine from email or affiliate status
+        if (!prefs.role) {
+          if (currentUser.email.includes('admin')) {
+            userRole = 'admin';
+          } else if (currentUser.email.includes('merchant') || currentUser.email.includes('vendor')) {
+            userRole = 'merchant';
+          } else if (prefs.isAffiliate) {
+            userRole = 'affiliate';
+          } else {
+            userRole = 'customer';
+          }
+          
+          // Save the detected role
+          try {
+            await AppwriteService.updateUserPreferences({ role: userRole });
+          } catch (error) {
+            console.log('Could not save user role:', error);
+          }
+        }
+        
         setUser({
           $id: currentUser.$id,
           name: currentUser.name,
           email: currentUser.email,
+          role: userRole,
           phone: prefs.phone || '',
           address: prefs.address || '',
-          isAffiliate: prefs.isAffiliate || false,
+          isAffiliate: prefs.isAffiliate || userRole === 'affiliate',
           affiliateCode: prefs.affiliateCode || '',
           commissionRate: prefs.commissionRate || 0.15
         });

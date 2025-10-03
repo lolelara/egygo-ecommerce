@@ -8,17 +8,27 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Users,
   Package,
   ShoppingCart,
   DollarSign,
   TrendingUp,
+  TrendingDown,
   Clock,
   UserCheck,
   AlertTriangle,
+  Eye,
+  Download,
+  RefreshCw,
+  BarChart3,
+  PieChart,
+  Activity,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
 import type { AdminStats, Order, Product } from "@/shared/api";
 
 // Mock data for admin stats - in real app this would come from API
