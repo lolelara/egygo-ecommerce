@@ -99,7 +99,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
 
     createMutation.mutate({
       productId,
-      userId: user.id,
+      userId: user.$id,
       rating: selectedRating,
       comment: comment.trim() || undefined,
     });
@@ -108,7 +108,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
   const handleDeleteReview = (reviewId: string) => {
     if (!user) return;
     if (confirm("هل أنت متأكد من حذف التقييم؟")) {
-      deleteMutation.mutate({ id: reviewId, userId: user.id });
+      deleteMutation.mutate({ id: reviewId, userId: user.$id });
     }
   };
 

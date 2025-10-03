@@ -85,9 +85,9 @@ export default function MyOrders() {
     isError,
     error,
   } = useQuery({
-    queryKey: queryKeys.orders(user?.id || ""),
-    queryFn: () => ordersApi.getUserOrders(user?.id || ""),
-    enabled: !!user?.id, // Only fetch if user is logged in
+    queryKey: queryKeys.orders(user?.$id || ""),
+    queryFn: () => ordersApi.getUserOrders(user?.$id || ""),
+    enabled: !!user?.$id, // Only fetch if user is logged in
   });
 
   const toggleOrderExpand = (orderId: string) => {

@@ -18,6 +18,10 @@ export interface AdminStats {
   totalProducts: number;
   totalUsers: number;
   pendingOrders: number;
+  totalAffiliates: number;
+  pendingCommissions: number;
+  thisMonthRevenue: number;
+  thisMonthOrders: number;
   recentOrders: any[];
   topProducts: any[];
 }
@@ -71,6 +75,10 @@ export const adminDashboardApi = {
         totalProducts: productsResponse.total,
         totalUsers: usersResponse.total,
         pendingOrders,
+        totalAffiliates: 0, // TODO: Implement affiliate counting
+        pendingCommissions: 0, // TODO: Implement commission tracking
+        thisMonthRevenue: totalRevenue, // TODO: Calculate monthly revenue
+        thisMonthOrders: ordersResponse.total, // TODO: Calculate monthly orders
         recentOrders,
         topProducts: [],
       };
@@ -82,6 +90,10 @@ export const adminDashboardApi = {
         totalProducts: 0,
         totalUsers: 0,
         pendingOrders: 0,
+        totalAffiliates: 0,
+        pendingCommissions: 0,
+        thisMonthRevenue: 0,
+        thisMonthOrders: 0,
         recentOrders: [],
         topProducts: [],
       };

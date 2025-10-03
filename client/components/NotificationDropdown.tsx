@@ -68,13 +68,13 @@ export function NotificationDropdown() {
 
   // Mock query - replace with real API
   const { data: notifications = [] } = useQuery({
-    queryKey: ["notifications", user?.id],
+    queryKey: ["notifications", user?.$id],
     queryFn: async () => {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 300));
       return mockNotifications;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.$id,
   });
 
   // Mark as read mutation

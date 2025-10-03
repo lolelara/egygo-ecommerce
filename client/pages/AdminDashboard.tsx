@@ -45,7 +45,7 @@ const mockAdminStats: AdminStats = {
   pendingCommissions: 2340,
   thisMonthRevenue: 12450,
   thisMonthOrders: 87,
-  topSellingProducts: [
+  topProducts: [
     {
       product: {
         id: "1",
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {stats.topSellingProducts.map((item, index) => (
+                {stats.topProducts.map((item, index) => (
                   <div
                     key={item.product.id}
                     className="flex items-center gap-4"

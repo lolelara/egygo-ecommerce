@@ -53,8 +53,8 @@ export default function OrderTracking() {
   // Fetch order details
   const { data: order, isLoading } = useQuery({
     queryKey: queryKeys.order(orderId || ""),
-    queryFn: () => ordersApi.getOrderById(orderId || "", user?.id || ""),
-    enabled: !!orderId && !!user?.id,
+    queryFn: () => ordersApi.getOrderById(orderId || "", user?.$id || ""),
+    enabled: !!orderId && !!user?.$id,
   });
 
   if (isLoading) {

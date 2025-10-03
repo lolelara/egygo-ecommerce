@@ -19,17 +19,17 @@ export default function Wishlist() {
 
   // Fetch wishlist
   const { data: wishlistItems = [], isLoading } = useQuery({
-    queryKey: queryKeys.wishlist(user?.id || ""),
-    queryFn: () => wishlistApi.getUserWishlist(user?.id || ""),
-    enabled: !!user?.id,
+    queryKey: queryKeys.wishlist(user?.$id || ""),
+    queryFn: () => wishlistApi.getUserWishlist(user?.$id || ""),
+    enabled: !!user?.$id,
   });
 
   // Remove from wishlist mutation
   const removeFromWishlist = useMutation({
     mutationFn: ({ id }: { id: string }) =>
-      wishlistApi.removeFromWishlist(id, user?.id || ""),
+      wishlistApi.removeFromWishlist(id, user?.$id || ""),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.id || "") });
+      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.$id || "") });
       toast({
         title: "تم الحذف",
         description: "تم حذف المنتج من قائمة المفضلة",

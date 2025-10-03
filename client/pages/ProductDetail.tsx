@@ -458,7 +458,7 @@ export default function ProductDetail() {
             </Card>
 
             {/* Affiliate Info */}
-            {user?.role !== "USER" && (
+            {user?.role !== "customer" && (
               <Card className="bg-gradient-to-br from-primary/10 to-brand-purple/10">
                 <CardContent className="p-6">
                   <h3 className="font-semibold mb-2">عمولة الشركاء</h3>
