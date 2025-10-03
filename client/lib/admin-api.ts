@@ -1,7 +1,7 @@
 import { databases } from "./appwrite";
 import { Query } from "appwrite";
 
-const DATABASE_ID = "egygo";
+const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "68de037e003bd03c4d45";
 const COLLECTIONS = {
   PRODUCTS: "products",
   CATEGORIES: "categories",
