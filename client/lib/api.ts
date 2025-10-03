@@ -1,3 +1,5 @@
+import { databases } from "./appwrite";
+import { Query } from "appwrite";
 import {
   ProductListResponse,
   CategoryListResponse,
@@ -8,189 +10,259 @@ import {
 } from "@shared/prisma-types";
 import { fallbackProductsApi, fallbackCategoriesApi } from "./api-fallback";
 
-// Use Netlify functions for all API calls
-const API_BASE = "/.netlify/functions";
+// Appwrite configuration
+const DATABASE_ID = "egygo";
+const COLLECTIONS = {
+  PRODUCTS: "products",
+  CATEGORIES: "categories",
+  ORDERS: "orders",
+  REVIEWS: "reviews",
+  WISHLIST: "wishlist",
+  USERS: "users",
+};
 
-// Check if API is available with better error handling
-const isApiAvailable = async (): Promise<boolean> => {
+// Helper function to check if Appwrite is configured
+const isAppwriteConfigured = (): boolean => {
   try {
-    // Create a timeout promise to avoid hanging
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1000); // 1 second timeout
-
-    const response = await fetch(`${API_BASE}/ping`, {
-      method: "GET",
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-    return response.ok;
-  } catch (error) {
-    console.log("API not available, using fallback data:", error);
+    return !!DATABASE_ID;
+  } catch {
     return false;
   }
 };
 
-// Products API with robust fallback
+// Products API using Appwrite
 export const productsApi = {
   getAll: async (
     filters?: ProductFilters & PaginationParams,
   ): Promise<ProductListResponse> => {
     try {
-      if (!(await isApiAvailable())) {
-        console.log("API not available, using fallback data");
+      if (!isAppwriteConfigured()) {
+        console.log("Appwrite not configured, using fallback data");
         return fallbackProductsApi.getAll(filters);
       }
 
-      const params = new URLSearchParams();
-
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            params.append(key, value.toString());
-          }
-        });
+      const queries = [];
+      
+      // Add filters
+      if (filters?.categoryId) {
+        queries.push(Query.equal("categoryId", filters.categoryId));
+      }
+      if (filters?.inStock !== undefined) {
+        queries.push(Query.equal("inStock", filters.inStock));
+      }
+      if (filters?.minPrice !== undefined) {
+        queries.push(Query.greaterThanEqual("price", filters.minPrice));
+      }
+      if (filters?.maxPrice !== undefined) {
+        queries.push(Query.lessThanEqual("price", filters.maxPrice));
+      }
+      if (filters?.search) {
+        queries.push(Query.search("name", filters.search));
       }
 
-      const response = await fetch(`${API_BASE}/products?${params}`);
-      if (!response.ok) {
-        throw new Error("فشل في جلب المنتجات");
-      }
-      return response.json();
+      // Add pagination
+      const limit = filters?.limit || 20;
+      const offset = filters?.offset || 0;
+      queries.push(Query.limit(limit));
+      queries.push(Query.offset(offset));
+
+      // Add sorting
+      queries.push(Query.orderDesc("$createdAt"));
+
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.PRODUCTS,
+        queries
+      );
+
+      // Transform Appwrite documents to our format
+      const products = response.documents.map((doc: any) => ({
+        id: doc.$id,
+        name: doc.name,
+        description: doc.description,
+        price: doc.price,
+        originalPrice: doc.originalPrice,
+        inStock: doc.inStock,
+        stockQuantity: doc.stockQuantity || 0,
+        rating: doc.rating || 0,
+        reviewCount: doc.reviewCount || 0,
+        images: doc.images || [],
+        categoryId: doc.categoryId,
+        category: doc.category,
+        createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
+      }));
+
+      return {
+        products,
+        total: response.total,
+        page: Math.floor(offset / limit) + 1,
+        limit,
+      };
     } catch (error) {
-      console.log("Falling back to mock data due to error:", error);
+      console.error("Error fetching products from Appwrite:", error);
       return fallbackProductsApi.getAll(filters);
     }
   },
 
-  getById: async (id: string): Promise<ProductWithRelations> => {
+  getById: async (id: string): Promise<ProductWithRelations | null> => {
     try {
-      if (!(await isApiAvailable())) {
+      if (!isAppwriteConfigured()) {
         return fallbackProductsApi.getById(id);
       }
 
-      const response = await fetch(`${API_BASE}/products/${id}`);
-      if (!response.ok) {
-        throw new Error("فشل في جلب المنتج");
+      const doc = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.PRODUCTS,
+        id
+      );
+
+      // Fetch category if exists
+      let category = null;
+      if (doc.categoryId) {
+        try {
+          const categoryDoc = await databases.getDocument(
+            DATABASE_ID,
+            COLLECTIONS.CATEGORIES,
+            doc.categoryId
+          );
+          category = {
+            id: categoryDoc.$id,
+            name: categoryDoc.name,
+            slug: categoryDoc.slug,
+          };
+        } catch (err) {
+          console.log("Category not found:", err);
+        }
       }
-      return response.json();
+
+      return {
+        id: doc.$id,
+        name: doc.name,
+        description: doc.description,
+        price: doc.price,
+        originalPrice: doc.originalPrice,
+        inStock: doc.inStock,
+        stockQuantity: doc.stockQuantity || 0,
+        rating: doc.rating || 0,
+        reviewCount: doc.reviewCount || 0,
+        images: doc.images || [],
+        categoryId: doc.categoryId,
+        category,
+        colors: doc.colors || [],
+        sizes: doc.sizes || [],
+        specifications: doc.specifications || {},
+        createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
+      };
     } catch (error) {
+      console.error("Error fetching product from Appwrite:", error);
       return fallbackProductsApi.getById(id);
     }
   },
-
-  getByCategory: async (
-    categorySlug: string,
-    filters?: ProductFilters & PaginationParams,
-  ): Promise<ProductListResponse> => {
-    // Always use fallback data for now
-    return fallbackProductsApi.getByCategory(categorySlug, filters);
-
-    /*
-    // TODO: Re-enable when API server is properly integrated
-    try {
-      if (!(await isApiAvailable())) {
-        return fallbackProductsApi.getByCategory(categorySlug, filters);
-      }
-
-      const params = new URLSearchParams();
-
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            params.append(key, value.toString());
-          }
-        });
-      }
-
-      const response = await fetch(`${API_BASE}/categories/${categorySlug}/products?${params}`);
-      if (!response.ok) {
-        throw new Error('فشل في جلب منتجات الفئة');
-      }
-      return response.json();
-    } catch (error) {
-      return fallbackProductsApi.getByCategory(categorySlug, filters);
-    }
-    */
-  },
 };
 
-// Categories API with robust fallback
+// Categories API using Appwrite
 export const categoriesApi = {
   getAll: async (): Promise<CategoryListResponse> => {
     try {
-      if (!(await isApiAvailable())) {
-        console.log("API not available, using fallback data");
+      if (!isAppwriteConfigured()) {
+        console.log("Appwrite not configured, using fallback data");
         return fallbackCategoriesApi.getAll();
       }
 
-      const response = await fetch(`${API_BASE}/categories`);
-      if (!response.ok) {
-        throw new Error("فشل في جلب الفئات");
-      }
-      return response.json();
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.CATEGORIES,
+        [Query.orderAsc("name")]
+      );
+
+      const categories = response.documents.map((doc: any) => ({
+        id: doc.$id,
+        name: doc.name,
+        slug: doc.slug,
+        description: doc.description,
+        image: doc.image,
+        productCount: doc.productCount || 0,
+        createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
+      }));
+
+      return {
+        categories,
+        total: response.total,
+      };
     } catch (error) {
-      console.log("Falling back to mock data due to error:", error);
+      console.error("Error fetching categories from Appwrite:", error);
       return fallbackCategoriesApi.getAll();
     }
   },
 
-  getBySlug: async (slug: string): Promise<CategoryWithCount> => {
-    // Always use fallback data for now
-    return fallbackCategoriesApi.getBySlug(slug);
-
-    /*
-    // TODO: Re-enable when API server is properly integrated
+  getBySlug: async (slug: string): Promise<CategoryWithCount | null> => {
     try {
-      if (!(await isApiAvailable())) {
+      if (!isAppwriteConfigured()) {
         return fallbackCategoriesApi.getBySlug(slug);
       }
 
-      const response = await fetch(`${API_BASE}/categories/${slug}`);
-      if (!response.ok) {
-        throw new Error('فشل في جلب الفئة');
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.CATEGORIES,
+        [Query.equal("slug", slug), Query.limit(1)]
+      );
+
+      if (response.documents.length === 0) {
+        return null;
       }
-      return response.json();
+
+      const doc = response.documents[0];
+      return {
+        id: doc.$id,
+        name: doc.name,
+        slug: doc.slug,
+        description: doc.description,
+        image: doc.image,
+        productCount: doc.productCount || 0,
+        createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
+      };
     } catch (error) {
+      console.error("Error fetching category from Appwrite:", error);
       return fallbackCategoriesApi.getBySlug(slug);
     }
-    */
   },
 
-  updateProductCounts: async (): Promise<{ message: string }> => {
-    // Mock response for now
-    return { message: "تم تحديث عدد ا��منتجات (وضع التطوير)" };
-
-    /*
-    // TODO: Re-enable when API server is properly integrated
+  getProductsByCategory: async (
+    slug: string,
+    filters?: ProductFilters & PaginationParams,
+  ): Promise<ProductListResponse> => {
     try {
-      if (!(await isApiAvailable())) {
-        return { message: 'API غير متوفر' };
+      if (!isAppwriteConfigured()) {
+        return fallbackCategoriesApi.getProductsByCategory(slug, filters);
       }
 
-      const response = await fetch(`${API_BASE}/categories/update-counts`, {
-        method: 'POST',
-      });
-      if (!response.ok) {
-        throw new Error('فشل في تحديث عدد المنتجات');
+      // First get category by slug
+      const categoryResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.CATEGORIES,
+        [Query.equal("slug", slug), Query.limit(1)]
+      );
+
+      if (categoryResponse.documents.length === 0) {
+        return { products: [], total: 0, page: 1, limit: 20 };
       }
-      return response.json();
+
+      const categoryId = categoryResponse.documents[0].$id;
+
+      // Then get products for this category
+      return productsApi.getAll({ ...filters, categoryId });
     } catch (error) {
-      return { message: 'فشل في تحديث عدد المنتجات' };
+      console.error("Error fetching products by category from Appwrite:", error);
+      return fallbackCategoriesApi.getProductsByCategory(slug, filters);
     }
-    */
   },
 };
 
-// Helper function to handle API errors
-export const handleApiError = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return "حدث خطأ غير متوقع";
-};
-
-// React Query keys for caching
+// Query keys for React Query
 export const queryKeys = {
   products: ["products"] as const,
   product: (id: string) => ["products", id] as const,
@@ -204,73 +276,126 @@ export const queryKeys = {
   wishlistCheck: (userId: string, productId: string) => ["wishlist-check", userId, productId] as const,
 };
 
-// Orders API
+// Orders API using Appwrite
 export const ordersApi = {
   getUserOrders: async (userId: string): Promise<any[]> => {
     try {
-      if (!(await isApiAvailable())) {
-        console.log("API not available for orders");
+      if (!isAppwriteConfigured()) {
+        console.log("Appwrite not configured for orders");
         return [];
       }
 
-      const response = await fetch(`${API_BASE}/api?userId=${userId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error("فشل في جلب الطلبات");
-      }
-      
-      // The API endpoint is /api/orders, so we need to pass path parameter
-      const ordersResponse = await fetch(`${API_BASE}/api/orders?userId=${userId}`);
-      if (!ordersResponse.ok) {
-        throw new Error("فشل في جلب الطلبات");
-      }
-      return ordersResponse.json();
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.ORDERS,
+        [Query.equal("userId", userId), Query.orderDesc("$createdAt")]
+      );
+
+      return response.documents.map((doc: any) => ({
+        id: doc.$id,
+        orderNumber: doc.orderNumber,
+        status: doc.status,
+        total: doc.total,
+        subtotal: doc.subtotal,
+        shipping: doc.shipping || 0,
+        discount: doc.discount || 0,
+        items: doc.items || [],
+        shippingAddress: doc.shippingAddress,
+        paymentMethod: doc.paymentMethod,
+        paymentStatus: doc.paymentStatus,
+        createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
+      }));
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      console.error("Error fetching orders from Appwrite:", error);
       return [];
     }
   },
 
   getOrderById: async (id: string, userId: string): Promise<any> => {
     try {
-      if (!(await isApiAvailable())) {
-        console.log("API not available for order details");
+      if (!isAppwriteConfigured()) {
         return null;
       }
 
-      const response = await fetch(`${API_BASE}/api/orders/${id}?userId=${userId}`);
-      if (!response.ok) {
-        throw new Error("فشل في جلب تفاصيل الطلب");
+      const doc = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.ORDERS,
+        id
+      );
+
+      if (doc.userId !== userId) {
+        throw new Error("Unauthorized");
       }
-      return response.json();
+
+      return {
+        id: doc.$id,
+        orderNumber: doc.orderNumber,
+        status: doc.status,
+        total: doc.total,
+        subtotal: doc.subtotal,
+        shipping: doc.shipping || 0,
+        discount: doc.discount || 0,
+        items: doc.items || [],
+        shippingAddress: doc.shippingAddress,
+        billingAddress: doc.billingAddress,
+        paymentMethod: doc.paymentMethod,
+        paymentStatus: doc.paymentStatus,
+        createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
+      };
     } catch (error) {
-      console.error("Error fetching order details:", error);
+      console.error("Error fetching order details from Appwrite:", error);
       return null;
     }
   },
 };
 
-// Reviews API
+// Reviews API using Appwrite
 export const reviewsApi = {
   getProductReviews: async (productId: string): Promise<any> => {
     try {
-      if (!(await isApiAvailable())) {
-        console.log("API not available for reviews");
+      if (!isAppwriteConfigured()) {
         return { reviews: [], stats: { totalReviews: 0, averageRating: 0, ratingDistribution: [] } };
       }
 
-      const response = await fetch(`${API_BASE}/api/products/${productId}/reviews`);
-      if (!response.ok) {
-        throw new Error("فشل في جلب المراجعات");
-      }
-      return response.json();
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.REVIEWS,
+        [Query.equal("productId", productId), Query.orderDesc("$createdAt")]
+      );
+
+      const reviews = response.documents.map((doc: any) => ({
+        id: doc.$id,
+        userId: doc.userId,
+        userName: doc.userName || "مستخدم",
+        userAvatar: doc.userAvatar,
+        rating: doc.rating,
+        comment: doc.comment,
+        createdAt: doc.$createdAt,
+      }));
+
+      // Calculate stats
+      const totalReviews = reviews.length;
+      const averageRating = totalReviews > 0
+        ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / totalReviews
+        : 0;
+
+      const ratingDistribution = [5, 4, 3, 2, 1].map(rating => ({
+        rating,
+        count: reviews.filter((r: any) => r.rating === rating).length,
+      }));
+
+      return {
+        reviews,
+        stats: {
+          totalReviews,
+          averageRating,
+          ratingDistribution,
+        },
+      };
     } catch (error) {
-      console.error("Error fetching reviews:", error);
+      console.error("Error fetching reviews from Appwrite:", error);
       return { reviews: [], stats: { totalReviews: 0, averageRating: 0, ratingDistribution: [] } };
     }
   },
@@ -282,26 +407,38 @@ export const reviewsApi = {
     comment?: string;
   }): Promise<any> => {
     try {
-      if (!(await isApiAvailable())) {
-        throw new Error("API not available");
+      if (!isAppwriteConfigured()) {
+        throw new Error("Appwrite not configured");
       }
 
-      const response = await fetch(`${API_BASE}/api/reviews`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      // Check if user already reviewed this product
+      const existing = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.REVIEWS,
+        [
+          Query.equal("productId", data.productId),
+          Query.equal("userId", data.userId),
+        ]
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "فشل في إضافة المراجعة");
+      if (existing.documents.length > 0) {
+        throw new Error("لقد قمت بتقييم هذا المنتج بالفعل");
       }
 
-      return response.json();
-    } catch (error) {
-      throw error;
+      const review = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTIONS.REVIEWS,
+        "unique()",
+        data
+      );
+
+      return {
+        id: review.$id,
+        ...data,
+        createdAt: review.$createdAt,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في إضافة المراجعة");
     }
   },
 
@@ -314,124 +451,209 @@ export const reviewsApi = {
     }
   ): Promise<any> => {
     try {
-      if (!(await isApiAvailable())) {
-        throw new Error("API not available");
+      if (!isAppwriteConfigured()) {
+        throw new Error("Appwrite not configured");
       }
 
-      const response = await fetch(`${API_BASE}/api/reviews/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      // Verify ownership
+      const existing = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.REVIEWS,
+        id
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "فشل في تحديث المراجعة");
+      if (existing.userId !== data.userId) {
+        throw new Error("غير مصرح لك بتعديل هذه المراجعة");
       }
 
-      return response.json();
-    } catch (error) {
-      throw error;
+      const updateData: any = {};
+      if (data.rating !== undefined) updateData.rating = data.rating;
+      if (data.comment !== undefined) updateData.comment = data.comment;
+
+      const review = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTIONS.REVIEWS,
+        id,
+        updateData
+      );
+
+      return {
+        id: review.$id,
+        rating: review.rating,
+        comment: review.comment,
+        updatedAt: review.$updatedAt,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تحديث المراجعة");
     }
   },
 
   deleteReview: async (id: string, userId: string): Promise<void> => {
     try {
-      if (!(await isApiAvailable())) {
-        throw new Error("API not available");
+      if (!isAppwriteConfigured()) {
+        throw new Error("Appwrite not configured");
       }
 
-      const response = await fetch(`${API_BASE}/api/reviews/${id}?userId=${userId}`, {
-        method: "DELETE",
-      });
+      // Verify ownership
+      const existing = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.REVIEWS,
+        id
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "فشل في حذف المراجعة");
+      if (existing.userId !== userId) {
+        throw new Error("غير مصرح لك بحذف هذه المراجعة");
       }
-    } catch (error) {
-      throw error;
+
+      await databases.deleteDocument(
+        DATABASE_ID,
+        COLLECTIONS.REVIEWS,
+        id
+      );
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في حذف المراجعة");
     }
   },
 };
 
-// Wishlist API
+// Wishlist API using Appwrite
 export const wishlistApi = {
   getUserWishlist: async (userId: string): Promise<any[]> => {
     try {
-      if (!(await isApiAvailable())) {
-        console.log("API not available for wishlist");
+      if (!isAppwriteConfigured()) {
         return [];
       }
 
-      const response = await fetch(`${API_BASE}/api/wishlist?userId=${userId}`);
-      if (!response.ok) {
-        throw new Error("فشل في جلب قائمة المفضلة");
-      }
-      return response.json();
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.WISHLIST,
+        [Query.equal("userId", userId), Query.orderDesc("$createdAt")]
+      );
+
+      const wishlistItems = await Promise.all(
+        response.documents.map(async (item: any) => {
+          try {
+            const product = await databases.getDocument(
+              DATABASE_ID,
+              COLLECTIONS.PRODUCTS,
+              item.productId
+            );
+
+            return {
+              id: item.$id,
+              productId: item.productId,
+              addedAt: item.$createdAt,
+              product: {
+                id: product.$id,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                originalPrice: product.originalPrice,
+                inStock: product.inStock,
+                stockQuantity: product.stockQuantity || 0,
+                rating: product.rating || 0,
+                reviewCount: product.reviewCount || 0,
+                images: product.images || [],
+                category: product.category,
+              },
+            };
+          } catch (error) {
+            console.error(`Product ${item.productId} not found:`, error);
+            return null;
+          }
+        })
+      );
+
+      return wishlistItems.filter((item) => item !== null);
     } catch (error) {
-      console.error("Error fetching wishlist:", error);
+      console.error("Error fetching wishlist from Appwrite:", error);
       return [];
     }
   },
 
   addToWishlist: async (userId: string, productId: string): Promise<any> => {
     try {
-      if (!(await isApiAvailable())) {
-        throw new Error("API not available");
+      if (!isAppwriteConfigured()) {
+        throw new Error("Appwrite not configured");
       }
 
-      const response = await fetch(`${API_BASE}/api/wishlist`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId, productId }),
-      });
+      // Check if already in wishlist
+      const existing = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.WISHLIST,
+        [Query.equal("userId", userId), Query.equal("productId", productId)]
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "فشل في إضافة المنتج للمفضلة");
+      if (existing.documents.length > 0) {
+        throw new Error("المنتج موجود بالفعل في قائمة المفضلة");
       }
 
-      return response.json();
-    } catch (error) {
-      throw error;
+      const wishlistItem = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTIONS.WISHLIST,
+        "unique()",
+        {
+          userId,
+          productId,
+        }
+      );
+
+      return {
+        id: wishlistItem.$id,
+        productId: wishlistItem.productId,
+        addedAt: wishlistItem.$createdAt,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في إضافة المنتج للمفضلة");
     }
   },
 
   removeFromWishlist: async (id: string, userId: string): Promise<void> => {
     try {
-      if (!(await isApiAvailable())) {
-        throw new Error("API not available");
+      if (!isAppwriteConfigured()) {
+        throw new Error("Appwrite not configured");
       }
 
-      const response = await fetch(`${API_BASE}/api/wishlist/${id}?userId=${userId}`, {
-        method: "DELETE",
-      });
+      // Verify ownership
+      const item = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.WISHLIST,
+        id
+      );
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "فشل في حذف المنتج من المفضلة");
+      if (item.userId !== userId) {
+        throw new Error("غير مصرح لك بحذف هذا العنصر");
       }
-    } catch (error) {
-      throw error;
+
+      await databases.deleteDocument(
+        DATABASE_ID,
+        COLLECTIONS.WISHLIST,
+        id
+      );
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في حذف المنتج من المفضلة");
     }
   },
 
   isInWishlist: async (userId: string, productId: string): Promise<{ inWishlist: boolean; wishlistItemId: string | null }> => {
     try {
-      if (!(await isApiAvailable())) {
+      if (!isAppwriteConfigured()) {
         return { inWishlist: false, wishlistItemId: null };
       }
 
-      const response = await fetch(`${API_BASE}/api/wishlist/check?userId=${userId}&productId=${productId}`);
-      if (!response.ok) {
-        throw new Error("فشل في التحقق من قائمة المفضلة");
-      }
-      return response.json();
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.WISHLIST,
+        [
+          Query.equal("userId", userId),
+          Query.equal("productId", productId),
+        ]
+      );
+
+      const inWishlist = response.documents.length > 0;
+      const wishlistItemId = inWishlist ? response.documents[0].$id : null;
+
+      return { inWishlist, wishlistItemId };
     } catch (error) {
       console.error("Error checking wishlist:", error);
       return { inWishlist: false, wishlistItemId: null };
