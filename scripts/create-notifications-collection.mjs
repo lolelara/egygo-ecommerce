@@ -87,12 +87,12 @@ async function createNotificationsCollection() {
 
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // read - boolean (required, default: false)
+    // read - boolean (optional, default: false)
     await databases.createBooleanAttribute(
       DATABASE_ID,
       COLLECTION_ID,
       'read',
-      true,
+      false, // optional
       false // default value
     );
     console.log('✓ read attribute created');
