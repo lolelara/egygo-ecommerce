@@ -24,7 +24,8 @@ import {
 } from "@/components/ui/table";
 import { Plus, Edit, Trash2, Search, FolderOpen, Package } from "lucide-react";
 import type { Category } from "@/shared/api";
-import { fallbackCategoriesApi } from "@/lib/api-fallback";
+import { adminCategoriesApi } from "@/lib/admin-api";
+import { categoriesApi } from "@/lib/api";
 
 const CategoryForm = ({
   category,
@@ -170,8 +171,8 @@ export default function AdminCategories() {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const categoriesData = await fallbackCategoriesApi.getCategories();
-        setCategories(categoriesData);
+        const categoriesData = await categoriesApi.getAll();
+        setCategories(categoriesData.categories as any);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -187,35 +188,50 @@ export default function AdminCategories() {
       category.slug.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const handleAddCategory = (data: Omit<Category, "id" | "productCount">) => {
-    const newCategory: Category = {
-      id: Date.now().toString(),
-      ...data,
-      productCount: 0,
-    };
-    setCategories((prev) => [newCategory, ...prev]);
-    setIsAddDialogOpen(false);
+  const handleAddCategory = async (data: Omit<Category, "id" | "productCount">) => {
+    try {
+      const newCategory = await adminCategoriesApi.create(data);
+      setCategories((prev) => [newCategory as any, ...prev]);
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error("Error adding category:", error);
+      alert("فشل في إضافة الفئة");
+    }
   };
 
-  const handleUpdateCategory = (
+  const handleUpdateCategory = async (
     data: Omit<Category, "id" | "productCount">,
   ) => {
     if (!editingCategory) return;
 
-    setCategories((prev) =>
-      prev.map((category) =>
-        category.id === editingCategory.id
-          ? { ...category, ...data }
-          : category,
-      ),
-    );
-    setEditingCategory(null);
+    try {
+      const updatedCategory = await adminCategoriesApi.update(editingCategory.id, data);
+      setCategories((prev) =>
+        prev.map((category) =>
+          category.id === editingCategory.id
+            ? { ...category, ...updatedCategory }
+            : category,
+        ),
+      );
+      setEditingCategory(null);
+    } catch (error) {
+      console.error("Error updating category:", error);
+      alert("فشل في تحديث الفئة");
+    }
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    setCategories((prev) =>
-      prev.filter((category) => category.id !== categoryId),
-    );
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!confirm("هل أنت متأكد من حذف هذه الفئة؟")) return;
+    
+    try {
+      await adminCategoriesApi.delete(categoryId);
+      setCategories((prev) =>
+        prev.filter((category) => category.id !== categoryId),
+      );
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("فشل في حذف الفئة");
+    }
   };
 
   if (loading) {

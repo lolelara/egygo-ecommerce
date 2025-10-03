@@ -52,7 +52,8 @@ import type {
   AdminProductCreate,
   AdminProductUpdate,
 } from "@/shared/api";
-import { fallbackProductsApi, fallbackCategoriesApi } from "@/lib/api-fallback";
+import { adminProductsApi } from "@/lib/admin-api";
+import { productsApi, categoriesApi } from "@/lib/api";
 
 const ProductForm = ({
   product,
@@ -255,11 +256,11 @@ export default function AdminProducts() {
       setLoading(true);
       try {
         const [productsData, categoriesData] = await Promise.all([
-          fallbackProductsApi.getProducts({}),
-          fallbackCategoriesApi.getCategories(),
+          productsApi.getAll({}),
+          categoriesApi.getAll(),
         ]);
-        setProducts(productsData.products);
-        setCategories(categoriesData);
+        setProducts(productsData.products as any);
+        setCategories(categoriesData.categories as any);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -278,36 +279,44 @@ export default function AdminProducts() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleAddProduct = (data: AdminProductCreate) => {
-    const newProduct: Product = {
-      id: Date.now().toString(),
-      ...data,
-      category: data.categoryId,
-      inStock: true,
-      rating: 0,
-      reviewCount: 0,
-    };
-    setProducts((prev) => [newProduct, ...prev]);
-    setIsAddDialogOpen(false);
+  const handleAddProduct = async (data: AdminProductCreate) => {
+    try {
+      const newProduct = await adminProductsApi.create(data);
+      setProducts((prev) => [newProduct as any, ...prev]);
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("فشل في إضافة المنتج");
+    }
   };
 
-  const handleUpdateProduct = (data: AdminProductUpdate) => {
-    setProducts((prev) =>
-      prev.map((product) =>
-        product.id === data.id
-          ? {
-              ...product,
-              ...data,
-              category: data.categoryId || product.category,
-            }
-          : product,
-      ),
-    );
-    setEditingProduct(null);
+  const handleUpdateProduct = async (data: AdminProductUpdate) => {
+    try {
+      const updatedProduct = await adminProductsApi.update(data);
+      setProducts((prev) =>
+        prev.map((product) =>
+          product.id === data.id
+            ? ({ ...updatedProduct, category: data.categoryId || product.category } as any)
+            : product,
+        ),
+      );
+      setEditingProduct(null);
+    } catch (error) {
+      console.error("Error updating product:", error);
+      alert("فشل في تحديث المنتج");
+    }
   };
 
-  const handleDeleteProduct = (productId: string) => {
-    setProducts((prev) => prev.filter((product) => product.id !== productId));
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+    
+    try {
+      await adminProductsApi.delete(productId);
+      setProducts((prev) => prev.filter((product) => product.id !== productId));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("فشل في حذف المنتج");
+    }
   };
 
   if (loading) {

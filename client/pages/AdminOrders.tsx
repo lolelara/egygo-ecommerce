@@ -31,6 +31,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import type { Order } from "@/shared/api";
+import { adminOrdersApi } from "@/lib/admin-api";
 
 // Mock orders data
 const mockOrders: Order[] = [
@@ -222,36 +223,56 @@ const PaymentStatusBadge = ({ status }: { status: string }) => {
 };
 
 export default function AdminOrders() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
-  const [loading, setLoading] = useState(false);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      try {
+        const ordersData = await adminOrdersApi.getAll();
+        setOrders(ordersData);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        // Fallback to mock data
+        setOrders(mockOrders as any);
+      }
+      setLoading(false);
+    };
+
+    fetchOrders();
+  }, []);
+
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.user?.email.toLowerCase().includes(searchTerm.toLowerCase());
+      order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.userId?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
-    const matchesPayment =
-      paymentFilter === "all" || order.paymentStatus === paymentFilter;
-    return matchesSearch && matchesStatus && matchesPayment;
+    return matchesSearch && matchesStatus;
   });
 
-  const handleUpdateOrderStatus = (orderId: string, newStatus: string) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId
-          ? {
-              ...order,
-              status: newStatus as Order["status"],
-              updatedAt: new Date().toISOString(),
-            }
-          : order,
-      ),
-    );
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      await adminOrdersApi.updateStatus(orderId, newStatus);
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId
+            ? {
+                ...order,
+                status: newStatus,
+                updatedAt: new Date().toISOString(),
+              }
+            : order,
+        ),
+      );
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      alert("فشل في تحديث حالة الطلب");
+    }
   };
 
   // Statistics
