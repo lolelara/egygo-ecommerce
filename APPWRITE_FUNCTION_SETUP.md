@@ -10,7 +10,7 @@
 
 ### Build Settings:
 - **Root Directory**: `functions/openai-chat`
-- **Build Command**: `npm install`
+- **Build Command**: `npm install` (leave empty or use default)
 
 ### Execute Access:
 - **Execute Permissions**: `Any` (للسماح لأي مستخدم باستخدام الـ Function)
