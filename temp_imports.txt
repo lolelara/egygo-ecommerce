@@ -1,0 +1,4 @@
+﻿import ProductLanding from './pages/ProductLanding';
+import AffiliateLinkManager from './pages/AffiliateLinkManager';
+import AffiliateAnalytics from './pages/AffiliateAnalytics';
+import AffiliateCreatives from './pages/AffiliateCreatives';
