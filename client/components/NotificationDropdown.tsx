@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, Check, Trash2, Package, ShoppingCart, AlertCircle, Info } from "lucide-react";
+import { Bell, Check, Trash2, Package, ShoppingCart, AlertCircle, Info, DollarSign } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import {
@@ -12,34 +12,7 @@ import {
 } from "./ui/dropdown-menu";
 import { ScrollArea } from "./ui/scroll-area";
 import { useAuth } from "@/contexts/AuthContext";
-
-// Mock notifications API - replace with real API later
-const mockNotifications = [
-  {
-    id: "1",
-    type: "order",
-    title: "تم تأكيد طلبك",
-    message: "تم تأكيد طلبك #12345 وجاري التجهيز للشحن",
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
-  },
-  {
-    id: "2",
-    type: "shipping",
-    title: "تم شحن طلبك",
-    message: "طلبك #12344 في الطريق إليك",
-    read: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-  },
-  {
-    id: "3",
-    type: "delivery",
-    title: "تم تسليم طلبك",
-    message: "تم تسليم طلبك #12343 بنجاح",
-    read: true,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-  },
-];
+import { notificationService, type Notification } from "@/lib/notification-service";
 
 const notificationIcons = {
   order: Package,
@@ -47,6 +20,8 @@ const notificationIcons = {
   delivery: Check,
   alert: AlertCircle,
   info: Info,
+  commission: DollarSign,
+  affiliate: DollarSign,
 };
 
 function getTimeAgo(dateString: string): string {
@@ -66,53 +41,64 @@ export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  // Mock query - replace with real API
-  const { data: notifications = [] } = useQuery({
+  // Fetch notifications from Appwrite
+  const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["notifications", user?.$id],
-    queryFn: async () => {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      return mockNotifications;
-    },
+    queryFn: () => notificationService.getUserNotifications(user!.$id),
     enabled: !!user?.$id,
+    refetchInterval: 30000, // Refetch every 30 seconds
   });
+
+  // Subscribe to real-time notifications
+  useEffect(() => {
+    if (!user?.$id) return;
+
+    const unsubscribe = notificationService.subscribeToNotifications(
+      user.$id,
+      (newNotification) => {
+        // Add new notification to the list
+        queryClient.setQueryData<Notification[]>(
+          ["notifications", user.$id],
+          (old = []) => [newNotification, ...old]
+        );
+      }
+    );
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user?.$id, queryClient]);
 
   // Mark as read mutation
   const markAsRead = useMutation({
-    mutationFn: async (notificationId: string) => {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      return notificationId;
-    },
+    mutationFn: (notificationId: string) => 
+      notificationService.markAsRead(notificationId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", user?.$id] });
     },
   });
 
   // Mark all as read mutation
   const markAllAsRead = useMutation({
-    mutationFn: async () => {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 300));
-    },
+    mutationFn: () => notificationService.markAllAsRead(user!.$id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications", user?.$id] });
     },
   });
 
-  // Delete notification mutation
-  const deleteNotification = useMutation({
-    mutationFn: async (notificationId: string) => {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 200));
-      return notificationId;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-    },
-  });
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const unreadCount = notifications.filter((n: any) => !n.read).length;
+  const handleNotificationClick = (notification: Notification) => {
+    if (!notification.read) {
+      markAsRead.mutate(notification.$id);
+    }
+    setIsOpen(false);
+
+    // Navigate to related page if needed
+    if (notification.relatedId && notification.type === 'order') {
+      window.location.href = `/#/my-orders/${notification.relatedId}`;
+    }
+  };
 
   if (!user) {
     return null;
@@ -126,7 +112,7 @@ export function NotificationDropdown() {
           {unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
             >
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
@@ -134,9 +120,8 @@ export function NotificationDropdown() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-80 md:w-96">
-        {/* Header */}
-        <div className="flex items-center justify-between p-3 border-b">
+      <DropdownMenuContent align="end" className="w-80">
+        <div className="flex items-center justify-between px-4 py-2">
           <h3 className="font-semibold">الإشعارات</h3>
           {unreadCount > 0 && (
             <Button
@@ -144,93 +129,68 @@ export function NotificationDropdown() {
               size="sm"
               onClick={() => markAllAsRead.mutate()}
               disabled={markAllAsRead.isPending}
+              className="text-xs"
             >
+              <Check className="h-3 w-3 mr-1" />
               تحديد الكل كمقروء
             </Button>
           )}
         </div>
 
-        {/* Notifications List */}
-        {notifications.length === 0 ? (
-          <div className="p-8 text-center">
-            <Bell className="mx-auto h-12 w-12 text-gray-300 mb-3" />
-            <p className="text-gray-500">لا توجد إشعارات</p>
+        <DropdownMenuSeparator />
+
+        {isLoading ? (
+          <div className="px-4 py-8 text-center text-muted-foreground">
+            جاري التحميل...
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="px-4 py-8 text-center text-muted-foreground">
+            <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p>لا توجد إشعارات</p>
           </div>
         ) : (
           <ScrollArea className="h-[400px]">
-            <div className="p-2">
-              {notifications.map((notification: any) => {
-                const Icon = notificationIcons[notification.type as keyof typeof notificationIcons] || Info;
-
+            <div className="space-y-1">
+              {notifications.map((notification) => {
+                const Icon = notificationIcons[notification.type];
                 return (
-                  <div
-                    key={notification.id}
-                    className={`group flex items-start gap-3 p-3 rounded-lg hover:bg-accent cursor-pointer mb-1 ${
-                      !notification.read ? "bg-blue-50 hover:bg-blue-100" : ""
+                  <DropdownMenuItem
+                    key={notification.$id}
+                    className={`flex items-start gap-3 px-4 py-3 cursor-pointer ${
+                      !notification.read ? "bg-accent/50" : ""
                     }`}
-                    onClick={() => {
-                      if (!notification.read) {
-                        markAsRead.mutate(notification.id);
-                      }
-                    }}
+                    onClick={() => handleNotificationClick(notification)}
                   >
                     <div
-                      className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
-                        notification.type === "order"
-                          ? "bg-blue-100 text-blue-600"
-                          : notification.type === "shipping"
-                          ? "bg-purple-100 text-purple-600"
-                          : notification.type === "delivery"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-gray-100 text-gray-600"
+                      className={`mt-1 p-2 rounded-full ${
+                        !notification.read
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-4 w-4" />
                     </div>
-
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 space-y-1">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-sm">{notification.title}</p>
+                        <p className="font-medium text-sm leading-tight">
+                          {notification.title}
+                        </p>
                         {!notification.read && (
-                          <div className="h-2 w-2 rounded-full bg-blue-600 flex-shrink-0 mt-1.5" />
+                          <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-0.5 line-clamp-2">
+                      <p className="text-sm text-muted-foreground leading-tight">
                         {notification.message}
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {getTimeAgo(notification.createdAt)}
+                      <p className="text-xs text-muted-foreground">
+                        {getTimeAgo(notification.$createdAt)}
                       </p>
                     </div>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteNotification.mutate(notification.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
+                  </DropdownMenuItem>
                 );
               })}
             </div>
           </ScrollArea>
-        )}
-
-        {/* Footer */}
-        {notifications.length > 0 && (
-          <>
-            <DropdownMenuSeparator />
-            <div className="p-2">
-              <Button variant="ghost" className="w-full" size="sm">
-                عرض كل الإشعارات
-              </Button>
-            </div>
-          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

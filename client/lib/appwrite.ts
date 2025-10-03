@@ -216,12 +216,27 @@ export class AppwriteService {
 
   static async createOrder(orderData: any) {
     try {
-      return await databases.createDocument(
+      const order = await databases.createDocument(
         appwriteConfig.databaseId,
         appwriteConfig.collections.orders,
         'unique()',
         orderData
       );
+
+      // Send notification to user about order confirmation
+      try {
+        const { notificationService } = await import('./notification-service');
+        await notificationService.notifyOrderStatus(
+          orderData.userId,
+          order.$id,
+          'confirmed'
+        );
+      } catch (notifError) {
+        console.error('Error sending notification:', notifError);
+        // Don't fail order creation if notification fails
+      }
+
+      return order;
     } catch (error) {
       console.error('Error creating order:', error);
       throw error;
