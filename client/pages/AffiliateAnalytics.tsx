@@ -132,10 +132,22 @@ export default function AffiliateAnalytics() {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">
-              هذه الصفحة متاحة للمسوقين فقط
+          <CardContent className="p-12 text-center space-y-4">
+            <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+              <Activity className="h-8 w-8 text-orange-600" />
+            </div>
+            <h2 className="text-2xl font-bold">هذه الصفحة للمسوقين فقط</h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              يجب أن يكون حسابك مفعّلاً كحساب مسوق للوصول إلى لوحة التحليلات والإحصائيات
             </p>
+            <div className="flex gap-3 justify-center pt-4">
+              <a href="/#/update-affiliate-prefs" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                تفعيل حساب المسوق
+              </a>
+              <a href="/#/affiliate" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                معرفة المزيد
+              </a>
+            </div>
           </CardContent>
         </Card>
       </div>

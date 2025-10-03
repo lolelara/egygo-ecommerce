@@ -191,10 +191,26 @@ export default function AffiliateLinkManager() {
     return (
       <div className="container mx-auto px-4 py-8">
         <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground">
-              هذه الصفحة متاحة للمسوقين فقط
+          <CardContent className="p-12 text-center space-y-4">
+            <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+              <LinkIcon className="h-8 w-8 text-orange-600" />
+            </div>
+            <h2 className="text-2xl font-bold">هذه الصفحة للمسوقين فقط</h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              يجب أن يكون حسابك مفعّلاً كحساب مسوق للوصول إلى أدوات إنشاء الروابط التسويقية
             </p>
+            <div className="flex gap-3 justify-center pt-4">
+              <Button asChild variant="default">
+                <a href="/#/update-affiliate-prefs">
+                  تفعيل حساب المسوق
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href="/#/affiliate">
+                  معرفة المزيد عن التسويق بالعمولة
+                </a>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
