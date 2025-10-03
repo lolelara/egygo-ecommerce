@@ -26,8 +26,14 @@ interface AITip {
 }
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+if (!apiKey) {
+  console.error('⚠️ VITE_GEMINI_API_KEY is not set in .env file');
+}
+
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const model = genAI?.getGenerativeModel({ model: 'gemini-pro' }) || null;
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,7 +46,7 @@ export function AIAssistant() {
 
   // Initialize chat session
   useEffect(() => {
-    if (isOpen && !chatRef.current) {
+    if (isOpen && !chatRef.current && model) {
       const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر. 
 
 معلومات عن الموقع:
@@ -250,6 +256,11 @@ ${user ? `
     setIsTyping(true);
 
     try {
+      // Check if model is available
+      if (!model) {
+        throw new Error('Gemini API not initialized. Check API key configuration.');
+      }
+      
       // Generate AI response using Gemini
       if (!chatRef.current) {
         throw new Error('Chat session not initialized');
@@ -267,14 +278,24 @@ ${user ? `
       };
 
       setMessages((prev) => [...prev, botMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Gemini API Error:', error);
       
-      // Fallback response
+      // Detailed error message
+      let errorMessage = 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏';
+      
+      if (error?.message?.includes('API key')) {
+        errorMessage = 'في مشكلة في إعدادات الـ API. يرجى التواصل مع الدعم 🔑';
+      } else if (error?.message?.includes('quota') || error?.message?.includes('429')) {
+        errorMessage = 'وصلنا للحد الأقصى من الطلبات. جرب تاني بعد دقيقة ⏱️';
+      } else if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
+        errorMessage = 'في مشكلة في الاتصال بالإنترنت. تأكد من اتصالك وجرب تاني 🌐';
+      }
+      
       const botMessage: Message = {
         id: String(messages.length + 2),
         type: 'bot',
-        content: 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏',
+        content: errorMessage,
         timestamp: new Date(),
       };
 
