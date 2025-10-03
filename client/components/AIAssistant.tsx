@@ -25,28 +25,52 @@ interface AITip {
   };
 }
 
-// Initialize Gemini AI
+// Gemini configuration
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-if (!apiKey) {
-  console.error('⚠️ VITE_GEMINI_API_KEY is not set in .env file');
-}
-
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const model = genAI?.getGenerativeModel({ model: 'gemini-pro' }) || null;
+const GEMINI_MODEL = 'gemini-1.5-flash';
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isModelReady, setIsModelReady] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const chatRef = useRef<any>(null);
+  const modelRef = useRef<ReturnType<GoogleGenerativeAI['getGenerativeModel']> | null>(null);
+
+  // Lazily initialize Gemini client on the client-side only
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    if (modelRef.current || isModelReady) {
+      return;
+    }
+
+    if (!apiKey) {
+      console.error('⚠️ VITE_GEMINI_API_KEY is not set in .env file');
+      setInitError('missing-key');
+      return;
+    }
+
+    try {
+      const client = new GoogleGenerativeAI(apiKey);
+      modelRef.current = client.getGenerativeModel({ model: GEMINI_MODEL });
+      setIsModelReady(true);
+      setInitError(null);
+    } catch (error) {
+      console.error('Failed to initialize Gemini API:', error);
+      setInitError('init-failed');
+    }
+  }, [isModelReady]);
 
   // Initialize chat session
   useEffect(() => {
-    if (isOpen && !chatRef.current && model) {
+    if (isOpen && !chatRef.current && modelRef.current) {
       const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر. 
 
 معلومات عن الموقع:
@@ -76,7 +100,7 @@ ${user ? `
 
 ابدأ الآن بالرد على المستخدم.`;
 
-      chatRef.current = model.startChat({
+      chatRef.current = modelRef.current.startChat({
         history: [
           {
             role: 'user',
@@ -89,7 +113,7 @@ ${user ? `
         ],
       });
     }
-  }, [isOpen, user]);
+  }, [isOpen, user, isModelReady]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -257,13 +281,15 @@ ${user ? `
 
     try {
       // Check if model is available
-      if (!model) {
+      if (!modelRef.current) {
         throw new Error('Gemini API not initialized. Check API key configuration.');
       }
       
       // Generate AI response using Gemini
       if (!chatRef.current) {
-        throw new Error('Chat session not initialized');
+        chatRef.current = modelRef.current.startChat({
+          history: [],
+        });
       }
 
       const result = await chatRef.current.sendMessage(currentInput);
@@ -283,6 +309,14 @@ ${user ? `
       
       // Detailed error message
       let errorMessage = 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏';
+
+      if (!modelRef.current) {
+        if (initError === 'missing-key') {
+          errorMessage = 'المساعد الذكي مش متاح حالياً لأن إعدادات الـ API ناقصة. برجاء التواصل مع الدعم الفني. 🔑';
+        } else if (initError === 'init-failed') {
+          errorMessage = 'المساعد الذكي بيواجه مشكلة في الاتصال بالخدمة. هنحلها قريب جداً 🙏';
+        }
+      }
       
       if (error?.message?.includes('API key')) {
         errorMessage = 'في مشكلة في إعدادات الـ API. يرجى التواصل مع الدعم 🔑';
