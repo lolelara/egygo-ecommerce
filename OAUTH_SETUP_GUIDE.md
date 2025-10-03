@@ -1,5 +1,25 @@
 # دليل تفعيل OAuth وإعداد المشروع
 
+## ⚠️ حل مشكلة: redirect_uri_mismatch
+
+### المشكلة:
+```
+خطأ 400: redirect_uri_mismatch
+Access blocked: This app's request is invalid
+```
+
+### السبب:
+الموقع يستخدم **HashRouter** (`#/login`) لكن OAuth مُعد لـ BrowserRouter (`/login`)
+
+### ✅ الحل (تم بالفعل):
+تم تحديث الكود ليستخدم:
+```typescript
+const successUrl = `${baseUrl}/#/`;
+const failureUrl = `${baseUrl}/#/login`;
+```
+
+---
+
 ## 🔐 1. تفعيل Google OAuth
 
 ### الخطوات في Appwrite Console:
@@ -28,9 +48,16 @@ Client Secret: (سنحصل عليه من Google Cloud Console)
 5. اختر **Web application**
 6. املأ البيانات:
    - **Name**: Egygo Ecommerce
+   - **Authorized JavaScript origins**:
+     - `https://egygo-ecommerce.appwrite.network`
+     - `https://fra.cloud.appwrite.io`
+     - `http://localhost:8080` (للتطوير)
    - **Authorized redirect URIs**: 
      - `https://fra.cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/68d8b9db00134c41e7c8`
-     - `https://egygo-ecommerce.appwrite.network/login` (optional)
+     - `https://egygo-ecommerce.appwrite.network/#/` ⭐ (مهم للـ HashRouter)
+     - `https://egygo-ecommerce.appwrite.network/#/login`
+     - `http://localhost:8080/#/` (للتطوير)
+     - `http://localhost:8080/#/login` (للتطوير)
 7. انسخ **Client ID** و **Client Secret**
 8. ارجع لـ Appwrite Console والصقهم في إعدادات Google OAuth
 9. اضغط **Update**

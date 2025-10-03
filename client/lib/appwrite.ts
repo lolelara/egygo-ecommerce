@@ -72,9 +72,10 @@ export class AppwriteService {
   // OAuth methods
   static async loginWithGoogle() {
     try {
-      // Redirect to Google OAuth
-      const successUrl = `${window.location.origin}/`;
-      const failureUrl = `${window.location.origin}/login`;
+      // Use the actual deployed URL for HashRouter compatibility
+      const baseUrl = window.location.origin;
+      const successUrl = `${baseUrl}/#/`;
+      const failureUrl = `${baseUrl}/#/login`;
       
       return await account.createOAuth2Session(
         OAuthProvider.Google,
@@ -89,9 +90,10 @@ export class AppwriteService {
 
   static async loginWithFacebook() {
     try {
-      // Redirect to Facebook OAuth
-      const successUrl = `${window.location.origin}/`;
-      const failureUrl = `${window.location.origin}/login`;
+      // Use the actual deployed URL for HashRouter compatibility
+      const baseUrl = window.location.origin;
+      const successUrl = `${baseUrl}/#/`;
+      const failureUrl = `${baseUrl}/#/login`;
       
       return await account.createOAuth2Session(
         OAuthProvider.Facebook,
