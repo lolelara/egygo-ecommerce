@@ -15,6 +15,7 @@ interface SearchBarProps {
 export default function SearchBar({ className }: SearchBarProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,15 +29,24 @@ export default function SearchBar({ className }: SearchBarProps) {
     "كاميرا",
   ];
 
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   // Fetch search suggestions
   const { data: suggestions, isLoading } = useQuery({
-    queryKey: ["search-suggestions", searchQuery],
+    queryKey: ["search-suggestions", debouncedQuery],
     queryFn: () =>
       productsApi.getAll({
-        searchQuery,
+        searchQuery: debouncedQuery,
         limit: 5,
       }),
-    enabled: searchQuery.length >= 2,
+    enabled: debouncedQuery.length >= 2,
   });
 
   // Close dropdown when clicking outside

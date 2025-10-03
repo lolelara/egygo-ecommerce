@@ -2,28 +2,6 @@ import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
-// SPA routing middleware for dev server
-function spaFallbackPlugin(): Plugin {
-  return {
-    name: 'spa-fallback',
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        // Don't touch API routes or static assets
-        if (req.url?.startsWith('/api') || 
-            req.url?.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
-          return next();
-        }
-        
-        // For all other routes, serve index.html
-        if (req.url && !req.url.includes('.')) {
-          req.url = '/index.html';
-        }
-        next();
-      });
-    }
-  };
-}
-
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   root: "./client",
@@ -59,8 +37,7 @@ export default defineConfig(({ mode }) => ({
   },
   publicDir: "../public",
   plugins: [
-    react(),
-    spaFallbackPlugin() // Enable SPA routing in dev mode
+    react()
   ],
   resolve: {
     alias: {

@@ -46,6 +46,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
+import { ImageUploader } from "@/components/ImageUploader";
 import type {
   Product,
   Category,
@@ -72,7 +73,7 @@ const ProductForm = ({
     price: product?.price || 0,
     originalPrice: product?.originalPrice || 0,
     categoryId: product?.category || "",
-    images: product?.images?.join(", ") || "",
+    images: product?.images || [],
     tags: product?.tags?.join(", ") || "",
     stockQuantity: 100, // Default stock
     affiliateCommission: product?.affiliateCommission || 8,
@@ -83,10 +84,7 @@ const ProductForm = ({
 
     const submitData = {
       ...formData,
-      images: formData.images
-        .split(",")
-        .map((img) => img.trim())
-        .filter(Boolean),
+      images: formData.images,
       tags: formData.tags
         .split(",")
         .map((tag) => tag.trim())
@@ -207,14 +205,13 @@ const ProductForm = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="images">الصور (URLs منفصلة بفواصل)</Label>
-        <Input
-          id="images"
+        <Label>صور المنتج</Label>
+        <ImageUploader
           value={formData.images}
-          onChange={(e) =>
-            setFormData((prev) => ({ ...prev, images: e.target.value }))
+          onChange={(urls) =>
+            setFormData((prev) => ({ ...prev, images: urls }))
           }
-          placeholder="/placeholder.svg, /image2.jpg"
+          maxFiles={5}
         />
       </div>
 

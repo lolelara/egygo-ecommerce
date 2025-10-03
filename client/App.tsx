@@ -40,6 +40,7 @@ import EnhancedAffiliateDashboard from "./pages/EnhancedAffiliateDashboard";
 import Wishlist from "./pages/Wishlist";
 import OrderTracking from "./pages/OrderTracking";
 import Merchant from "./pages/Merchant";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -52,13 +53,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
             <Layout>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -144,6 +146,7 @@ const App = () => (
     </CartProvider>
   </AuthProvider>
 </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 createRoot(document.getElementById("root")!).render(<App />);
