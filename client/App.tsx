@@ -39,6 +39,7 @@ import CustomerAccount from "./pages/CustomerAccount";
 import EnhancedAffiliateDashboard from "./pages/EnhancedAffiliateDashboard";
 import Wishlist from "./pages/Wishlist";
 import OrderTracking from "./pages/OrderTracking";
+import Merchant from "./pages/Merchant";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => (
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/category/:slug" element={<Products />} />
                 <Route path="/affiliate" element={<Affiliate />} />
+                <Route path="/merchant" element={<Merchant />} />
 
                 {/* Placeholder routes */}
                 <Route

@@ -7,6 +7,8 @@ import {
   TrendingUp,
   Award,
   Loader2,
+  DollarSign,
+  BarChart3,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -473,6 +475,140 @@ export default function Index() {
           </div>
         </section>
       )}
+
+      {/* Merchant CTA Section - قسم دعوة التجار */}
+      <section className="bg-gradient-to-r from-brand-purple via-primary to-brand-orange text-white">
+        <div className="container mx-auto px-4 py-16">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-block">
+                <Badge variant="secondary" className="text-primary bg-white/90 text-lg px-4 py-2">
+                  🏪 للتجار والبائعين
+                </Badge>
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-bold leading-tight">
+                هل لديك منتجات للبيع؟
+                <br />
+                <span className="text-brand-yellow">ابدأ البيع معنا!</span>
+              </h2>
+              <p className="text-xl text-white/90">
+                انضم إلى أكثر من 500 تاجر ناجح على إيجي جو. عمولات منخفضة (5-10%)،
+                دفعات أسبوعية، ووصول لملايين العملاء المحتملين.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 py-6">
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-3xl font-bold mb-1">5-10%</div>
+                  <div className="text-sm text-white/80">عمولة فقط</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-3xl font-bold mb-1">+500</div>
+                  <div className="text-sm text-white/80">تاجر نشط</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-3xl font-bold mb-1">أسبوعي</div>
+                  <div className="text-sm text-white/80">دفع الأرباح</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+                  <div className="text-3xl font-bold mb-1">مجاني</div>
+                  <div className="text-sm text-white/80">بدون رسوم</div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="text-primary font-semibold"
+                  asChild
+                >
+                  <Link to="/register?type=merchant">
+                    ابدأ البيع الآن
+                    <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                  asChild
+                >
+                  <Link to="/merchant">
+                    اعرف المزيد
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            <div className="relative">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-6">
+                <CardHeader>
+                  <CardTitle className="text-white text-2xl mb-4">
+                    لماذا تبيع على إيجي جو؟
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-white/20 rounded-full p-2">
+                      <DollarSign className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">
+                        عمولات منخفضة
+                      </h4>
+                      <p className="text-sm text-white/80">
+                        ادفع 5-10% فقط - أقل من المنافسين
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="bg-white/20 rounded-full p-2">
+                      <BarChart3 className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">
+                        تحليلات متقدمة
+                      </h4>
+                      <p className="text-sm text-white/80">
+                        تتبع مبيعاتك وأدائك لحظياً
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="bg-white/20 rounded-full p-2">
+                      <Users className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">
+                        ملايين العملاء
+                      </h4>
+                      <p className="text-sm text-white/80">
+                        وصول لقاعدة عملاء ضخمة جاهزة للشراء
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="bg-white/20 rounded-full p-2">
+                      <Award className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">
+                        دعم مخصص
+                      </h4>
+                      <p className="text-sm text-white/80">
+                        فريق دعم متخصص لمساعدتك 24/7
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
