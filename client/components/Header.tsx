@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import {
@@ -78,6 +78,7 @@ export function Header({ cartItemCount }: HeaderProps) {
               </SheetTitle>
             </SheetHeader>
             <nav className="mt-6 space-y-4">
+              {/* Admin Panel */}
               {user?.role === 'admin' && (
                 <div className="space-y-2 mb-4">
                   <Link
@@ -86,6 +87,32 @@ export function Header({ cartItemCount }: HeaderProps) {
                   >
                     <Shield className="h-5 w-5" />
                     لوحة تحكم الإدارة
+                  </Link>
+                </div>
+              )}
+              
+              {/* Affiliate Panel */}
+              {user?.isAffiliate && (
+                <div className="space-y-2 mb-4">
+                  <Link
+                    to="/affiliate/dashboard"
+                    className="flex items-center gap-2 py-2 px-3 bg-orange-50 text-orange-600 rounded-lg font-semibold hover:bg-orange-100 transition-colors"
+                  >
+                    <TrendingUp className="h-5 w-5" />
+                    لوحة تحكم المسوق
+                  </Link>
+                </div>
+              )}
+              
+              {/* Merchant Panel */}
+              {user?.isMerchant && (
+                <div className="space-y-2 mb-4">
+                  <Link
+                    to="/merchant/dashboard"
+                    className="flex items-center gap-2 py-2 px-3 bg-purple-50 text-purple-600 rounded-lg font-semibold hover:bg-purple-100 transition-colors"
+                  >
+                    <Briefcase className="h-5 w-5" />
+                    لوحة تحكم التاجر
                   </Link>
                 </div>
               )}
@@ -223,6 +250,28 @@ export function Header({ cartItemCount }: HeaderProps) {
                         <Link to="/admin" className="text-primary font-semibold">
                           <Shield className="ml-2 h-4 w-4" />
                           لوحة تحكم الإدارة
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  {user.isAffiliate && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/affiliate/dashboard" className="text-orange-600 font-semibold">
+                          <TrendingUp className="ml-2 h-4 w-4" />
+                          لوحة تحكم المسوق
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  {user.isMerchant && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/merchant/dashboard" className="text-purple-600 font-semibold">
+                          <Briefcase className="ml-2 h-4 w-4" />
+                          لوحة تحكم التاجر
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />

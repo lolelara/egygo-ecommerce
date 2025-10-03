@@ -9,6 +9,7 @@ interface User {
   address?: string;
   role?: 'admin' | 'merchant' | 'affiliate' | 'customer';
   isAffiliate?: boolean;
+  isMerchant?: boolean;
   affiliateCode?: string;
   commissionRate?: number;
 }

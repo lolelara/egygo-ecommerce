@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -107,6 +108,49 @@ export default function EnhancedAffiliateDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Quick Access Menu */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <Link to="/affiliate/links">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-primary/20">
+              <CardContent className="p-4 text-center">
+                <LinkIcon className="h-8 w-8 mx-auto mb-2 text-primary" />
+                <h3 className="font-semibold text-sm">إدارة الروابط</h3>
+                <p className="text-xs text-muted-foreground mt-1">أنشئ وتتبع روابطك</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/affiliate/analytics">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-500/20">
+              <CardContent className="p-4 text-center">
+                <BarChart3 className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+                <h3 className="font-semibold text-sm">التحليلات</h3>
+                <p className="text-xs text-muted-foreground mt-1">رسوم بيانية وإحصائيات</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/affiliate/creatives">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-green-500/20">
+              <CardContent className="p-4 text-center">
+                <Sparkles className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                <h3 className="font-semibold text-sm">أدوات تسويقية</h3>
+                <p className="text-xs text-muted-foreground mt-1">بانرات ورموز QR</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to="/affiliate/withdraw">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-500/20">
+              <CardContent className="p-4 text-center">
+                <DollarSign className="h-8 w-8 mx-auto mb-2 text-purple-500" />
+                <h3 className="font-semibold text-sm">سحب الأرباح</h3>
+                <p className="text-xs text-muted-foreground mt-1">اسحب عمولاتك</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-start mb-4">
