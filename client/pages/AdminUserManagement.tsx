@@ -50,9 +50,14 @@ export default function AdminUserManagement() {
     password: '',
     name: '',
     phone: '',
-    role: 'customer' as 'customer' | 'affiliate' | 'merchant' | 'intermediary' | 'admin',
+    role: 'customer' as 'customer' | 'affiliate' | 'merchant' | 'admin',
     defaultMarkupPercentage: '20'
   });
+
+  // Activate Intermediary Dialog
+  const [activateIntermediaryOpen, setActivateIntermediaryOpen] = useState(false);
+  const [selectedUserForIntermediary, setSelectedUserForIntermediary] = useState<any>(null);
+  const [intermediaryMarkup, setIntermediaryMarkup] = useState('20');
 
   useEffect(() => {
     loadUsers();
@@ -92,15 +97,10 @@ export default function AdminUserManagement() {
     }
 
     try {
-      // Generate intermediary code if role is intermediary
-      let intermediaryCode = '';
-      if (newUser.role === 'intermediary') {
-        intermediaryCode = `INT${Date.now()}`;
-      }
-
       // Create account
       const userId = ID.unique();
       
+      // Note: Intermediary role removed from here - can only be activated for existing customers
       // In production, this should be done server-side
       // For now, we'll just create the preferences document
       await databases.createDocument(
@@ -116,10 +116,10 @@ export default function AdminUserManagement() {
           isAdmin: newUser.role === 'admin',
           isAffiliate: newUser.role === 'affiliate',
           isMerchant: newUser.role === 'merchant',
-          isIntermediary: newUser.role === 'intermediary',
+          isIntermediary: false, // Always false on creation
           affiliateCode: newUser.role === 'affiliate' ? `AFF${Date.now()}` : '',
-          intermediaryCode: intermediaryCode,
-          defaultMarkupPercentage: newUser.role === 'intermediary' ? parseFloat(newUser.defaultMarkupPercentage) : 0,
+          intermediaryCode: '', // Empty on creation
+          defaultMarkupPercentage: 0,
           commissionRate: newUser.role === 'affiliate' ? 10 : 0
         }
       );
@@ -147,6 +147,50 @@ export default function AdminUserManagement() {
         variant: "destructive"
       });
     }
+  };
+
+  const handleActivateIntermediary = async () => {
+    if (!selectedUserForIntermediary || !intermediaryMarkup) {
+      return;
+    }
+
+    try {
+      const intermediaryCode = `INT${Date.now()}`;
+      
+      await databases.updateDocument(
+        DATABASE_ID,
+        'userPreferences',
+        selectedUserForIntermediary.$id,
+        {
+          role: 'intermediary',
+          isIntermediary: true,
+          intermediaryCode: intermediaryCode,
+          defaultMarkupPercentage: parseFloat(intermediaryMarkup)
+        }
+      );
+
+      toast({
+        title: "تم التفعيل!",
+        description: `تم تفعيل دور الوسيط لـ ${selectedUserForIntermediary.name}`,
+      });
+
+      setActivateIntermediaryOpen(false);
+      setSelectedUserForIntermediary(null);
+      setIntermediaryMarkup('20');
+      
+      loadUsers();
+    } catch (error: any) {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل تفعيل دور الوسيط",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openActivateIntermediaryDialog = (userToActivate: any) => {
+    setSelectedUserForIntermediary(userToActivate);
+    setActivateIntermediaryOpen(true);
   };
 
   const handleDeleteUser = async (userId: string, userName: string) => {
@@ -313,6 +357,17 @@ export default function AdminUserManagement() {
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
+                            {/* Show "Activate Intermediary" button only for customers */}
+                            {u.role === 'customer' && !u.isIntermediary && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="bg-purple-600 hover:bg-purple-700"
+                                onClick={() => openActivateIntermediaryDialog(u)}
+                              >
+                                تفعيل الوسيط
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="outline"
@@ -394,23 +449,13 @@ export default function AdminUserManagement() {
                     <SelectItem value="customer">عميل</SelectItem>
                     <SelectItem value="affiliate">مسوق</SelectItem>
                     <SelectItem value="merchant">تاجر</SelectItem>
-                    <SelectItem value="intermediary">وسيط</SelectItem>
                     <SelectItem value="admin">مدير</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  ملاحظة: دور الوسيط يمكن تفعيله للعملاء من خلال الجدول
+                </p>
               </div>
-              
-              {newUser.role === 'intermediary' && (
-                <div className="space-y-2">
-                  <Label htmlFor="markup">نسبة الترميز الافتراضية (%)</Label>
-                  <Input
-                    id="markup"
-                    type="number"
-                    value={newUser.defaultMarkupPercentage}
-                    onChange={(e) => setNewUser({ ...newUser, defaultMarkupPercentage: e.target.value })}
-                  />
-                </div>
-              )}
             </div>
             
             <DialogFooter>
@@ -419,6 +464,73 @@ export default function AdminUserManagement() {
               </Button>
               <Button onClick={handleCreateUser}>
                 إنشاء الحساب
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Activate Intermediary Dialog */}
+        <Dialog open={activateIntermediaryOpen} onOpenChange={setActivateIntermediaryOpen}>
+          <DialogContent className="sm:max-w-[500px]" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>تفعيل دور الوسيط</DialogTitle>
+              <DialogDescription>
+                تفعيل دور الوسيط لـ {selectedUserForIntermediary?.name}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                <p className="text-sm text-purple-900 dark:text-purple-100">
+                  <strong>العميل:</strong> {selectedUserForIntermediary?.name}
+                </p>
+                <p className="text-sm text-purple-900 dark:text-purple-100">
+                  <strong>البريد:</strong> {selectedUserForIntermediary?.email}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="intermediary-markup">نسبة الترميز الافتراضية (%)</Label>
+                <Input
+                  id="intermediary-markup"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={intermediaryMarkup}
+                  onChange={(e) => setIntermediaryMarkup(e.target.value)}
+                  placeholder="مثال: 20"
+                />
+                <p className="text-xs text-muted-foreground">
+                  النسبة التي سيتم إضافتها على سعر المنتج الأصلي
+                </p>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  ℹ️ سيتم توليد كود وسيط فريد تلقائياً
+                </p>
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  ℹ️ سيتمكن الوسيط من إضافة المنتجات من روابط خارجية
+                </p>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setActivateIntermediaryOpen(false);
+                  setSelectedUserForIntermediary(null);
+                  setIntermediaryMarkup('20');
+                }}
+              >
+                إلغاء
+              </Button>
+              <Button 
+                onClick={handleActivateIntermediary}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                تفعيل الوسيط
               </Button>
             </DialogFooter>
           </DialogContent>

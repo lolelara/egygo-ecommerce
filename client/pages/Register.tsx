@@ -25,6 +25,7 @@ export default function Register() {
     password: "",
     confirmPassword: "",
   });
+  // Note: 'intermediary' role can only be activated by admin for existing customer accounts
   const [accountType, setAccountType] = useState<'customer' | 'affiliate' | 'merchant'>('customer');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
