@@ -56,6 +56,8 @@ import AffiliateResourcesPage from "./pages/AffiliateResourcesPage";
 import AffiliateSupportPage from "./pages/AffiliateSupportPage";
 import AdminSettingsPage from "./pages/AdminSettingsPage";
 import SettingsPage from "./pages/SettingsPage";
+import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminProductsAdvanced from "./pages/AdminProductsAdvanced";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AIAssistant } from "./components/AIAssistant";
@@ -121,14 +123,16 @@ const App = () => (
               {/* Admin Routes */}
               <Route path="/admin" element={<EnhancedAdminDashboard />} />
               <Route path="/admin/dashboard" element={<EnhancedAdminDashboard />} />
-              <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/products-advanced" element={<AdminProductsAdvanced />} />
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/affiliates" element={<AdminUsers />} />
               <Route path="/admin/commissions" element={<AdminCommissions />} />
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
+              <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
 
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />

@@ -29,9 +29,14 @@ import {
   XCircle,
   ArrowUpRight,
   ArrowDownRight,
+  LineChart,
+  Boxes,
+  Bell,
+  Zap,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { Link } from "react-router-dom";
 
 export default function EnhancedAdminDashboard() {
   const { user } = useAuth();
@@ -164,6 +169,91 @@ export default function EnhancedAdminDashboard() {
             trend="up"
           />
         </div>
+
+        {/* New Features Quick Access */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-primary" />
+                  الميزات الجديدة
+                </CardTitle>
+                <CardDescription>
+                  تم إضافة ميزات متقدمة جديدة لتحسين تجربتك
+                </CardDescription>
+              </div>
+              <Badge variant="default" className="animate-pulse">جديد</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Link to="/admin/analytics">
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-primary">
+                  <CardHeader className="pb-3">
+                    <LineChart className="h-8 w-8 text-blue-500 mb-2" />
+                    <CardTitle className="text-base">لوحة التحليلات</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pb-3">
+                    <p className="text-sm text-muted-foreground">
+                      رسوم بيانية احترافية وتحليلات شاملة
+                    </p>
+                    <div className="flex items-center text-xs text-primary mt-2">
+                      عرض التحليلات <ArrowUpRight className="h-3 w-3 mr-1" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Link to="/admin/products-advanced">
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-primary">
+                  <CardHeader className="pb-3">
+                    <Boxes className="h-8 w-8 text-green-500 mb-2" />
+                    <CardTitle className="text-base">إدارة متقدمة</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pb-3">
+                    <p className="text-sm text-muted-foreground">
+                      عمليات جماعية وتصدير/استيراد CSV
+                    </p>
+                    <div className="flex items-center text-xs text-primary mt-2">
+                      إدارة المنتجات <ArrowUpRight className="h-3 w-3 mr-1" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-primary">
+                <CardHeader className="pb-3">
+                  <Bell className="h-8 w-8 text-purple-500 mb-2" />
+                  <CardTitle className="text-base">مركز الإشعارات</CardTitle>
+                </CardHeader>
+                <CardContent className="pb-3">
+                  <p className="text-sm text-muted-foreground">
+                    موجود في الـ Header - اضغط الجرس 🔔
+                  </p>
+                  <Badge variant="secondary" className="mt-2 text-xs">
+                    متاح الآن
+                  </Badge>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-primary">
+                <CardHeader className="pb-3">
+                  <BarChart3 className="h-8 w-8 text-orange-500 mb-2" />
+                  <CardTitle className="text-base">المزيد قريباً</CardTitle>
+                </CardHeader>
+                <CardContent className="pb-3">
+                  <p className="text-sm text-muted-foreground">
+                    Kanban Board، Command Palette، وأكثر...
+                  </p>
+                  <Badge variant="outline" className="mt-2 text-xs">
+                    قيد التطوير
+                  </Badge>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Orders Status & Quick Actions */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

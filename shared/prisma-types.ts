@@ -111,3 +111,43 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
 }
+
+// Merchant types for dashboard
+export interface MerchantStats {
+  totalProducts: number;
+  activeProducts: number;
+  outOfStock: number;
+  totalSales: number;
+  totalRevenue: number;
+  revenueChange: number;
+  pendingOrders: number;
+  completedOrders: number;
+  avgRating: number;
+  totalReviews: number;
+}
+
+export interface MerchantProduct {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  stock: number;
+  sales: number;
+  revenue: number;
+  views: number;
+  rating: number;
+  status: 'active' | 'out_of_stock' | 'draft';
+  categoryId?: string;
+  description?: string;
+  merchantId: string;
+}
+
+export interface MerchantOrder {
+  id: string;
+  product: string;
+  customer: string;
+  amount: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  date: string;
+  orderId: string;
+}

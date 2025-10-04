@@ -51,6 +51,45 @@ export const adminDashboardApi = {
         [Query.limit(1000)]
       );
 
+      // Get affiliates (users with affiliate label)
+      // TODO: Implement affiliate counting - Using equal query instead of search
+      let totalAffiliates = 0;
+      try {
+        const affiliatesResponse = await databases.listDocuments(
+          DATABASE_ID,
+          COLLECTIONS.USERS,
+          [Query.equal("labels", ["affiliate"]), Query.limit(1000)]
+        );
+        totalAffiliates = affiliatesResponse.total;
+      } catch (error) {
+        console.error("Error fetching affiliates:", error);
+        // Fallback: count from all users
+        const allUsers = usersResponse.documents;
+        totalAffiliates = allUsers.filter((user: any) => 
+          user.labels && user.labels.includes("affiliate")
+        ).length;
+      }
+
+      // Get commissions
+      const commissionsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.COMMISSIONS,
+        [Query.limit(1000)]
+      );
+
+      // Calculate monthly stats
+      const firstDayOfMonth = new Date();
+      firstDayOfMonth.setDate(1);
+      firstDayOfMonth.setHours(0, 0, 0, 0);
+
+      const monthlyOrders = ordersResponse.documents.filter(
+        (order: any) => new Date(order.$createdAt) >= firstDayOfMonth
+      );
+
+      const thisMonthRevenue = monthlyOrders
+        .filter((order: any) => order.status !== "CANCELLED")
+        .reduce((sum: number, order: any) => sum + (order.total || 0), 0);
+
       // Calculate stats
       const totalRevenue = ordersResponse.documents
         .filter((order: any) => order.status !== "CANCELLED")
@@ -59,6 +98,10 @@ export const adminDashboardApi = {
       const pendingOrders = ordersResponse.documents.filter(
         (order: any) => order.status === "PENDING"
       ).length;
+
+      const pendingCommissions = commissionsResponse.documents
+        .filter((comm: any) => comm.status === "PENDING")
+        .reduce((sum: number, comm: any) => sum + (comm.amount || 0), 0);
 
       const recentOrders = ordersResponse.documents.slice(0, 10).map((order: any) => ({
         id: order.$id,
@@ -69,18 +112,39 @@ export const adminDashboardApi = {
         userId: order.userId,
       }));
 
+      // Calculate top products (from order items - simplified version)
+      const productSales: Record<string, { productId: string; quantity: number; revenue: number }> = {};
+      
+      // Note: This is a simplified version. In production, you'd query order_items collection
+      ordersResponse.documents.forEach((order: any) => {
+        if (order.items && Array.isArray(order.items)) {
+          order.items.forEach((item: any) => {
+            const productId = item.productId;
+            if (!productSales[productId]) {
+              productSales[productId] = { productId, quantity: 0, revenue: 0 };
+            }
+            productSales[productId].quantity += item.quantity || 0;
+            productSales[productId].revenue += (item.price || 0) * (item.quantity || 0);
+          });
+        }
+      });
+
+      const topProducts = Object.values(productSales)
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 5);
+
       return {
         totalRevenue,
         totalOrders: ordersResponse.total,
         totalProducts: productsResponse.total,
         totalUsers: usersResponse.total,
         pendingOrders,
-        totalAffiliates: 0, // TODO: Implement affiliate counting
-        pendingCommissions: 0, // TODO: Implement commission tracking
-        thisMonthRevenue: totalRevenue, // TODO: Calculate monthly revenue
-        thisMonthOrders: ordersResponse.total, // TODO: Calculate monthly orders
+        totalAffiliates,
+        pendingCommissions,
+        thisMonthRevenue,
+        thisMonthOrders: monthlyOrders.length,
         recentOrders,
-        topProducts: [],
+        topProducts,
       };
     } catch (error) {
       console.error("Error fetching admin stats:", error);
