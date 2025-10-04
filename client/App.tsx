@@ -35,6 +35,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import EnhancedAdminDashboard from "./pages/EnhancedAdminDashboard";
 import MerchantDashboard from "./pages/MerchantDashboard";
+import IntermediaryDashboard from "./pages/IntermediaryDashboard";
 import CustomerAccount from "./pages/CustomerAccount";
 import EnhancedAffiliateDashboard from "./pages/EnhancedAffiliateDashboard";
 import Wishlist from "./pages/Wishlist";
@@ -133,6 +134,7 @@ const App = () => (
               <Route path="/admin/commissions" element={<AdminCommissions />} />
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
               <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
+              <Route path="/intermediary/dashboard" element={<IntermediaryDashboard />} />
 
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />

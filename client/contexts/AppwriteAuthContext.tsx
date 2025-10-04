@@ -20,7 +20,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithFacebook: () => Promise<void>;
-  register: (email: string, password: string, name: string, accountType?: 'customer' | 'affiliate' | 'merchant') => Promise<void>;
+  register: (email: string, password: string, name: string, accountType?: 'customer' | 'affiliate' | 'merchant' | 'intermediary', phone?: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
 }
@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string, accountType: 'customer' | 'affiliate' | 'merchant' = 'customer') => {
+  const register = async (email: string, password: string, name: string, accountType: 'customer' | 'affiliate' | 'merchant' | 'intermediary' = 'customer', phone?: string) => {
     try {
       setLoading(true);
       
@@ -206,13 +206,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const preferences: any = {
         role: accountType,
         isAffiliate: accountType === 'affiliate',
-        isMerchant: accountType === 'merchant'
+        isMerchant: accountType === 'merchant',
+        isIntermediary: accountType === 'intermediary',
+        phone: phone || ''
       };
       
       // Generate affiliate code if needed
       if (accountType === 'affiliate') {
         preferences.affiliateCode = `AFF${Date.now().toString(36).toUpperCase()}`;
         preferences.commissionRate = 0.15; // 15% default commission
+      }
+      
+      // Generate intermediary code if needed
+      if (accountType === 'intermediary') {
+        preferences.intermediaryCode = `INT${Date.now().toString(36).toUpperCase()}`;
+        preferences.defaultMarkupPercentage = 0.20; // 20% default markup
       }
       
       await AppwriteService.updateUserPreferences(preferences);

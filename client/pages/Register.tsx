@@ -21,6 +21,7 @@ export default function Register() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -82,7 +83,8 @@ export default function Register() {
         formData.email,
         formData.password,
         formData.name,
-        accountType
+        accountType,
+        formData.phone
       );
 
       // Redirect to appropriate page based on account type
@@ -172,6 +174,29 @@ export default function Register() {
                     placeholder="أدخل بريدك الإلكتروني"
                     value={formData.email}
                     onChange={handleChange("email")}
+                    className="pr-10"
+                  />
+                </div>
+              </div>
+
+              {/* Phone Field */}
+              <div>
+                <Label htmlFor="phone">رقم الهاتف</Label>
+                <div className="relative mt-1">
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    required
+                    placeholder="أدخل رقم الهاتف"
+                    value={formData.phone}
+                    onChange={handleChange("phone")}
                     className="pr-10"
                   />
                 </div>
