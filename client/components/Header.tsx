@@ -24,6 +24,7 @@ import { useCart } from "@/contexts/CartContext";
 import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
+import { ThemeSelector } from "./ThemeSelector";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -298,7 +299,10 @@ export function Header({ cartItemCount }: HeaderProps) {
           {/* Notifications */}
           {user && <NotificationDropdown />}
 
-          {/* Theme Toggle */}
+          {/* Theme Selector (Color Themes) */}
+          <ThemeSelector />
+
+          {/* Theme Toggle (Dark/Light) */}
           <ThemeToggle />
 
           {/* Wishlist */}
