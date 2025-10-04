@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Enhanced Styles */
+@import './styles/animations.css';
+@import './styles/gradients.css';
+
 @layer base {
   /**
    * Tailwind CSS theme
@@ -18,24 +22,38 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 262 83% 58%;
+    /* Enhanced Primary Colors - Vibrant Purple */
+    --primary: 270 95% 60%;
+    --primary-start: 260 100% 65%;
+    --primary-end: 280 90% 55%;
+    --primary-light: 270 85% 70%;
+    --primary-dark: 270 80% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
+    /* Enhanced Secondary Colors - Vibrant Orange */
+    --secondary: 25 95% 58%;
+    --secondary-start: 20 100% 60%;
+    --secondary-end: 35 95% 55%;
+    --secondary-light: 25 90% 65%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 220 14.3% 95.9%;
     --muted-foreground: 220 8.9% 46.1%;
 
+    /* Accent Colors for Different States */
     --accent: 32 98% 83%;
     --accent-foreground: 25 95% 53%;
+    --accent-cyan: 190 95% 55%;
+    --accent-green: 145 85% 50%;
+    --accent-yellow: 45 100% 55%;
+    --accent-red: 0 85% 60%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 262 83% 58%;
+    --ring: 270 95% 60%;
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
@@ -43,26 +61,29 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
+    /* Brand Colors (Legacy Support) */
     --brand-orange: 25 95% 53%;
     --brand-purple: 262 83% 58%;
     --brand-yellow: 32 98% 83%;
 
+    /* Neutral Scale */
+    --neutral-50: 240 5% 98%;
+    --neutral-100: 240 5% 96%;
+    --neutral-200: 240 6% 90%;
+    --neutral-300: 240 5% 84%;
+    --neutral-700: 240 4% 30%;
+    --neutral-800: 240 5% 20%;
+    --neutral-900: 240 6% 10%;
+
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -76,24 +97,38 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 262 83% 58%;
+    /* Enhanced Primary Colors - Vibrant Purple (Dark Mode) */
+    --primary: 270 95% 60%;
+    --primary-start: 260 100% 65%;
+    --primary-end: 280 90% 55%;
+    --primary-light: 270 85% 70%;
+    --primary-dark: 270 80% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Enhanced Secondary Colors - Vibrant Orange (Dark Mode) */
+    --secondary: 25 95% 58%;
+    --secondary-start: 20 100% 60%;
+    --secondary-end: 35 95% 55%;
+    --secondary-light: 25 90% 65%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
+    /* Accent Colors for Different States (Dark Mode) */
     --accent: 32 98% 83%;
     --accent-foreground: 25 95% 53%;
+    --accent-cyan: 190 95% 65%;
+    --accent-green: 145 85% 60%;
+    --accent-yellow: 45 100% 65%;
+    --accent-red: 0 85% 70%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 262 83% 58%;
+    --ring: 270 95% 60%;
 
     --success: 142 69% 58%;
     --success-foreground: 0 0% 100%;
@@ -101,9 +136,20 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
+    /* Brand Colors (Legacy Support) */
     --brand-orange: 25 95% 53%;
     --brand-purple: 262 83% 58%;
     --brand-yellow: 32 98% 83%;
+
+    /* Neutral Scale (Dark Mode) */
+    --neutral-50: 240 6% 10%;
+    --neutral-100: 240 5% 15%;
+    --neutral-200: 240 6% 20%;
+    --neutral-300: 240 5% 30%;
+    --neutral-700: 240 4% 70%;
+    --neutral-800: 240 5% 80%;
+    --neutral-900: 240 6% 90%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

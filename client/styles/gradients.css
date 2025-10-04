@@ -1,0 +1,377 @@
+/**
+ * Modern Gradient System
+ * Beautiful gradients for modern UI
+ */
+
+/* ===== GRADIENT DEFINITIONS ===== */
+
+/* Primary Gradients */
+.gradient-primary {
+  background: linear-gradient(135deg, 
+    hsl(260 100% 65%), 
+    hsl(280 90% 55%)
+  );
+}
+
+.gradient-primary-light {
+  background: linear-gradient(135deg,
+    hsl(270 85% 70%),
+    hsl(280 80% 60%)
+  );
+}
+
+/* Secondary Gradients */
+.gradient-secondary {
+  background: linear-gradient(135deg, 
+    hsl(20 100% 60%), 
+    hsl(35 95% 55%)
+  );
+}
+
+.gradient-secondary-light {
+  background: linear-gradient(135deg,
+    hsl(25 90% 65%),
+    hsl(35 85% 60%)
+  );
+}
+
+/* Sunset Gradient (Purple to Orange) */
+.gradient-sunset {
+  background: linear-gradient(135deg,
+    hsl(270 95% 60%) 0%,
+    hsl(310 85% 55%) 50%,
+    hsl(25 95% 58%) 100%
+  );
+}
+
+/* Ocean Gradient (Cyan to Purple) */
+.gradient-ocean {
+  background: linear-gradient(135deg,
+    hsl(190 95% 55%) 0%,
+    hsl(220 90% 60%) 50%,
+    hsl(260 100% 65%) 100%
+  );
+}
+
+/* Candy Gradient (Pink to Purple to Blue) */
+.gradient-candy {
+  background: linear-gradient(135deg,
+    hsl(330 90% 65%) 0%,
+    hsl(270 85% 60%) 50%,
+    hsl(200 90% 60%) 100%
+  );
+}
+
+/* Forest Gradient (Green variations) */
+.gradient-forest {
+  background: linear-gradient(135deg,
+    hsl(140 80% 45%) 0%,
+    hsl(160 75% 50%) 50%,
+    hsl(180 70% 55%) 100%
+  );
+}
+
+/* Fire Gradient (Red to Orange) */
+.gradient-fire {
+  background: linear-gradient(135deg,
+    hsl(0 85% 60%) 0%,
+    hsl(15 90% 58%) 50%,
+    hsl(30 95% 56%) 100%
+  );
+}
+
+/* Ice Gradient (Cool Blues) */
+.gradient-ice {
+  background: linear-gradient(135deg,
+    hsl(190 95% 70%) 0%,
+    hsl(200 90% 65%) 50%,
+    hsl(210 85% 60%) 100%
+  );
+}
+
+/* Gold Gradient */
+.gradient-gold {
+  background: linear-gradient(135deg,
+    hsl(45 100% 55%) 0%,
+    hsl(40 95% 50%) 50%,
+    hsl(35 90% 45%) 100%
+  );
+}
+
+/* Dark Gradient (For Dark Mode) */
+.gradient-dark {
+  background: linear-gradient(135deg,
+    hsl(240 6% 10%) 0%,
+    hsl(240 5% 20%) 100%
+  );
+}
+
+/* ===== GRADIENT TEXT ===== */
+.gradient-text {
+  background: linear-gradient(135deg, 
+    hsl(260 100% 65%), 
+    hsl(25 95% 58%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+}
+
+.gradient-text-animated {
+  background: linear-gradient(135deg, 
+    hsl(260 100% 65%), 
+    hsl(280 90% 55%),
+    hsl(25 95% 58%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ===== GLASS MORPHISM ===== */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-heavy {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ===== MESH GRADIENT BACKGROUNDS ===== */
+.mesh-gradient {
+  background: 
+    radial-gradient(at 40% 20%, hsl(260 100% 65%) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsl(25 95% 58%) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsl(190 95% 55%) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsl(270 95% 60%) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsl(20 100% 60%) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, hsl(280 90% 55%) 0px, transparent 50%),
+    radial-gradient(at 0% 0%, hsl(190 95% 55%) 0px, transparent 50%);
+  background-color: hsl(240 5% 96%);
+}
+
+.mesh-gradient-dark {
+  background: 
+    radial-gradient(at 40% 20%, hsl(260 100% 35%) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsl(25 95% 28%) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsl(190 95% 25%) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsl(270 95% 30%) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsl(20 100% 30%) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, hsl(280 90% 25%) 0px, transparent 50%),
+    radial-gradient(at 0% 0%, hsl(190 95% 25%) 0px, transparent 50%);
+  background-color: hsl(240 6% 10%);
+}
+
+/* Animated Mesh Gradient */
+.mesh-gradient-animated {
+  background: 
+    radial-gradient(at 40% 20%, hsl(260 100% 65%) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, hsl(25 95% 58%) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, hsl(190 95% 55%) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, hsl(270 95% 60%) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsl(20 100% 60%) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, hsl(280 90% 55%) 0px, transparent 50%);
+  background-color: hsl(240 5% 96%);
+  background-size: 400% 400%;
+  animation: meshMove 15s ease infinite;
+}
+
+@keyframes meshMove {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+}
+
+/* ===== GRADIENT BORDERS ===== */
+.border-gradient {
+  border: 2px solid transparent;
+  background-image: 
+    linear-gradient(white, white),
+    linear-gradient(135deg, 
+      hsl(260 100% 65%), 
+      hsl(25 95% 58%)
+    );
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.border-gradient-animated {
+  border: 2px solid transparent;
+  background-image: 
+    linear-gradient(white, white),
+    linear-gradient(135deg, 
+      hsl(260 100% 65%), 
+      hsl(280 90% 55%),
+      hsl(25 95% 58%)
+    );
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+/* ===== HOVER GRADIENTS ===== */
+.hover-gradient {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.hover-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    hsl(260 100% 65%), 
+    hsl(280 90% 55%)
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.hover-gradient:hover::before {
+  opacity: 1;
+}
+
+.hover-gradient:hover {
+  color: white;
+}
+
+/* ===== GRADIENT OVERLAYS ===== */
+.gradient-overlay {
+  position: relative;
+}
+
+.gradient-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  pointer-events: none;
+}
+
+.gradient-overlay-top {
+  position: relative;
+}
+
+.gradient-overlay-top::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  pointer-events: none;
+}
+
+/* ===== SHIMMER GRADIENT ===== */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(240 5% 90%) 0%,
+    hsl(240 6% 95%) 20%,
+    hsl(240 5% 90%) 40%,
+    hsl(240 5% 90%) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Dark mode shimmer */
+.dark .shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(240 6% 15%) 0%,
+    hsl(240 5% 20%) 20%,
+    hsl(240 6% 15%) 40%,
+    hsl(240 6% 15%) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* ===== GRADIENT BUTTONS ===== */
+.btn-gradient {
+  background: linear-gradient(135deg, 
+    hsl(260 100% 65%), 
+    hsl(280 90% 55%)
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    hsl(280 90% 55%), 
+    hsl(260 100% 65%)
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-gradient:hover::before {
+  opacity: 1;
+}
+
+/* ===== GRADIENT SHADOWS ===== */
+.shadow-gradient {
+  box-shadow: 
+    0 10px 40px -10px hsl(260 100% 65% / 0.4),
+    0 20px 60px -15px hsl(25 95% 58% / 0.3);
+}
+
+.shadow-gradient-lg {
+  box-shadow: 
+    0 20px 60px -10px hsl(260 100% 65% / 0.5),
+    0 30px 80px -15px hsl(25 95% 58% / 0.4);
+}

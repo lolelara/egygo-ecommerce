@@ -1,0 +1,411 @@
+/**
+ * Enhanced Component Styles
+ * Modern, beautiful component designs
+ */
+
+/* ===== ENHANCED BUTTONS ===== */
+.btn-primary-modern {
+  @apply relative overflow-hidden;
+  @apply bg-gradient-to-r from-primary via-primary to-primary-end;
+  @apply text-white font-semibold px-6 py-3 rounded-xl;
+  @apply shadow-lg shadow-primary/30;
+  @apply hover:shadow-xl hover:shadow-primary/40;
+  @apply hover:scale-105 active:scale-95;
+  @apply transition-all duration-300;
+}
+
+.btn-primary-modern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.btn-primary-modern:hover::before {
+  transform: translateX(100%);
+}
+
+.btn-secondary-modern {
+  @apply relative overflow-hidden;
+  @apply bg-gradient-to-r from-secondary to-secondary-light;
+  @apply text-white font-semibold px-6 py-3 rounded-xl;
+  @apply shadow-lg shadow-orange-500/30;
+  @apply hover:shadow-xl hover:shadow-orange-500/40;
+  @apply hover:scale-105 active:scale-95;
+  @apply transition-all duration-300;
+}
+
+.btn-outline-modern {
+  @apply relative overflow-hidden;
+  @apply border-2 border-primary text-primary font-semibold px-6 py-3 rounded-xl;
+  @apply hover:text-white;
+  @apply transition-all duration-300;
+}
+
+.btn-outline-modern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    hsl(var(--primary)), 
+    hsl(var(--primary-end))
+  );
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.btn-outline-modern:hover::before {
+  transform: translateY(0);
+}
+
+.btn-glass {
+  @apply bg-white/10 backdrop-blur-lg border border-white/20;
+  @apply text-white font-semibold px-6 py-3 rounded-xl;
+  @apply hover:bg-white/20 hover:border-white/30;
+  @apply transition-all duration-300;
+}
+
+/* ===== ENHANCED CARDS ===== */
+.card-modern {
+  @apply bg-white dark:bg-neutral-800;
+  @apply rounded-2xl shadow-xl;
+  @apply border border-neutral-200 dark:border-neutral-700;
+  @apply hover:shadow-2xl hover:border-primary/30;
+  @apply transition-all duration-300;
+  @apply overflow-hidden;
+}
+
+.card-glass {
+  @apply backdrop-blur-lg;
+  @apply bg-white/70 dark:bg-neutral-900/70;
+  @apply border border-white/20 dark:border-white/10;
+  @apply rounded-2xl shadow-2xl;
+}
+
+.card-gradient {
+  @apply relative overflow-hidden;
+  @apply rounded-2xl shadow-2xl;
+  background: linear-gradient(135deg,
+    hsl(260 100% 65%) 0%,
+    hsl(280 90% 55%) 100%
+  );
+}
+
+.card-hover-lift {
+  @apply card-modern;
+  @apply hover:scale-105 hover:-translate-y-2;
+  @apply transition-all duration-300;
+}
+
+.card-animated-border {
+  @apply relative;
+  @apply bg-white dark:bg-neutral-800;
+  @apply rounded-2xl shadow-xl;
+  @apply overflow-hidden;
+}
+
+.card-animated-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, 
+    hsl(260 100% 65%), 
+    hsl(25 95% 58%)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* ===== PRODUCT CARDS ===== */
+.product-card {
+  @apply card-modern;
+  @apply hover:scale-105;
+  @apply transition-all duration-300;
+  @apply cursor-pointer;
+}
+
+.product-card-image {
+  @apply overflow-hidden rounded-t-2xl;
+  @apply relative;
+}
+
+.product-card-image img {
+  @apply transition-transform duration-500;
+  @apply w-full h-full object-cover;
+}
+
+.product-card:hover .product-card-image img {
+  @apply scale-110;
+}
+
+.product-card-badge {
+  @apply absolute top-4 right-4;
+  @apply bg-gradient-to-r from-primary to-secondary;
+  @apply text-white px-3 py-1 rounded-full text-xs font-bold;
+  @apply shadow-lg animate-pulse-slow;
+}
+
+.product-card-overlay {
+  @apply absolute inset-0;
+  @apply bg-gradient-to-t from-black/60 to-transparent;
+  @apply opacity-0 hover:opacity-100;
+  @apply transition-opacity duration-300;
+  @apply flex items-end p-4;
+}
+
+/* ===== ENHANCED INPUTS ===== */
+.input-modern {
+  @apply w-full px-4 py-3 rounded-xl;
+  @apply border-2 border-neutral-300 dark:border-neutral-600;
+  @apply bg-white dark:bg-neutral-800;
+  @apply focus:border-primary focus:ring-4 focus:ring-primary/20;
+  @apply transition-all duration-300;
+  @apply outline-none;
+}
+
+.input-glass {
+  @apply w-full px-4 py-3 rounded-xl;
+  @apply bg-white/10 backdrop-blur-lg;
+  @apply border border-white/20;
+  @apply text-white placeholder-white/60;
+  @apply focus:bg-white/20 focus:border-white/40;
+  @apply transition-all duration-300;
+  @apply outline-none;
+}
+
+.input-gradient-border {
+  @apply w-full px-4 py-3 rounded-xl;
+  @apply bg-white dark:bg-neutral-800;
+  @apply border-2 border-transparent;
+  background-image: 
+    linear-gradient(white, white),
+    linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  @apply focus:shadow-lg focus:shadow-primary/20;
+  @apply transition-all duration-300;
+  @apply outline-none;
+}
+
+/* ===== BADGES ===== */
+.badge-gradient {
+  @apply inline-flex items-center gap-1;
+  @apply bg-gradient-to-r from-primary to-secondary;
+  @apply text-white px-3 py-1 rounded-full text-xs font-bold;
+  @apply shadow-md;
+}
+
+.badge-glass {
+  @apply inline-flex items-center gap-1;
+  @apply bg-white/20 backdrop-blur-lg;
+  @apply border border-white/30;
+  @apply text-white px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-outline {
+  @apply inline-flex items-center gap-1;
+  @apply border-2 border-primary text-primary;
+  @apply px-3 py-1 rounded-full text-xs font-bold;
+  @apply hover:bg-primary hover:text-white;
+  @apply transition-all duration-300;
+}
+
+/* ===== LOADING STATES ===== */
+.skeleton {
+  @apply bg-gradient-to-r from-neutral-200 via-neutral-300 to-neutral-200;
+  @apply dark:from-neutral-700 dark:via-neutral-600 dark:to-neutral-700;
+  @apply animate-shimmer;
+  @apply rounded-lg;
+}
+
+.loading-spinner {
+  @apply inline-block w-6 h-6;
+  @apply border-4 border-primary/30 border-t-primary;
+  @apply rounded-full;
+  @apply animate-spin-slow;
+}
+
+.loading-dots {
+  @apply inline-flex gap-1;
+}
+
+.loading-dots span {
+  @apply w-2 h-2 bg-primary rounded-full;
+  @apply animate-bounce-slow;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ===== STATS CARDS ===== */
+.stat-card {
+  @apply card-modern p-6;
+  @apply hover:scale-105;
+  @apply transition-all duration-300;
+}
+
+.stat-card-icon {
+  @apply w-12 h-12 rounded-xl;
+  @apply flex items-center justify-center;
+  @apply bg-gradient-to-br from-primary to-primary-end;
+  @apply text-white;
+  @apply shadow-lg shadow-primary/30;
+}
+
+.stat-card-value {
+  @apply text-3xl font-bold;
+  @apply bg-gradient-to-r from-primary to-secondary;
+  @apply bg-clip-text text-transparent;
+}
+
+/* ===== TABLES ===== */
+.table-modern {
+  @apply w-full;
+}
+
+.table-modern thead {
+  @apply bg-gradient-to-r from-neutral-50 to-neutral-100;
+  @apply dark:from-neutral-800 dark:to-neutral-700;
+}
+
+.table-modern th {
+  @apply px-6 py-4 text-right font-semibold;
+  @apply text-neutral-700 dark:text-neutral-200;
+}
+
+.table-modern tbody tr {
+  @apply border-b border-neutral-200 dark:border-neutral-700;
+  @apply hover:bg-neutral-50 dark:hover:bg-neutral-800;
+  @apply transition-colors duration-200;
+}
+
+.table-modern td {
+  @apply px-6 py-4;
+}
+
+/* ===== NAVIGATION ===== */
+.nav-link {
+  @apply relative px-4 py-2;
+  @apply text-neutral-700 dark:text-neutral-200;
+  @apply hover:text-primary;
+  @apply transition-colors duration-300;
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute bottom-0 right-0 left-0;
+  @apply h-0.5 bg-gradient-to-r from-primary to-secondary;
+  @apply scale-x-0 origin-right;
+  @apply transition-transform duration-300;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  @apply scale-x-100 origin-left;
+}
+
+/* ===== MODALS ===== */
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 backdrop-blur-sm;
+  @apply z-50;
+  @apply animate-fade-in;
+}
+
+.modal-content {
+  @apply bg-white dark:bg-neutral-800;
+  @apply rounded-2xl shadow-2xl;
+  @apply max-w-2xl w-full mx-auto my-8;
+  @apply animate-scale-in;
+}
+
+.modal-glass {
+  @apply bg-white/80 dark:bg-neutral-900/80;
+  @apply backdrop-blur-xl;
+  @apply border border-white/20;
+  @apply rounded-2xl shadow-2xl;
+  @apply max-w-2xl w-full mx-auto my-8;
+}
+
+/* ===== TABS ===== */
+.tabs-modern {
+  @apply flex gap-2 border-b-2 border-neutral-200 dark:border-neutral-700;
+}
+
+.tab-modern {
+  @apply px-6 py-3 font-semibold;
+  @apply text-neutral-600 dark:text-neutral-400;
+  @apply hover:text-primary;
+  @apply transition-colors duration-300;
+  @apply relative;
+}
+
+.tab-modern.active {
+  @apply text-primary;
+}
+
+.tab-modern.active::after {
+  content: '';
+  @apply absolute bottom-0 right-0 left-0;
+  @apply h-0.5 bg-gradient-to-r from-primary to-secondary;
+}
+
+/* ===== TOOLTIPS ===== */
+.tooltip {
+  @apply absolute z-50 px-3 py-2;
+  @apply bg-neutral-900 text-white text-sm rounded-lg;
+  @apply opacity-0 pointer-events-none;
+  @apply transition-opacity duration-300;
+  @apply shadow-lg;
+}
+
+.tooltip-trigger:hover .tooltip {
+  @apply opacity-100;
+}
+
+/* ===== ALERTS ===== */
+.alert-modern {
+  @apply p-4 rounded-xl;
+  @apply flex items-start gap-3;
+  @apply border-l-4;
+  @apply animate-fade-in-right;
+}
+
+.alert-success {
+  @apply bg-green-50 dark:bg-green-900/20;
+  @apply border-green-500 text-green-700 dark:text-green-400;
+}
+
+.alert-warning {
+  @apply bg-yellow-50 dark:bg-yellow-900/20;
+  @apply border-yellow-500 text-yellow-700 dark:text-yellow-400;
+}
+
+.alert-error {
+  @apply bg-red-50 dark:bg-red-900/20;
+  @apply border-red-500 text-red-700 dark:text-red-400;
+}
+
+.alert-info {
+  @apply bg-blue-50 dark:bg-blue-900/20;
+  @apply border-blue-500 text-blue-700 dark:text-blue-400;
+}
