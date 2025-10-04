@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Package, DollarSign, ShoppingCart, ExternalLink, RefreshCw, Plus } from 'lucide-react';
+import { Package, DollarSign, ShoppingCart, ExternalLink, RefreshCw, Plus, Edit, RotateCw, Clock } from 'lucide-react';
 import { 
   importProductFromUrl, 
   bulkImportProducts, 
-  getIntermediaryProducts 
+  getIntermediaryProducts,
+  updateProductPrice,
+  updateProductDescription,
+  restoreOriginalDescription,
+  syncProductFromSource,
+  toggleProductAutoSync,
+  bulkSyncProducts
 } from '@/lib/intermediary-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +31,17 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -45,6 +62,16 @@ export default function IntermediaryDashboard() {
   const [bulkMarkupType, setBulkMarkupType] = useState<'percentage' | 'fixed'>('percentage');
   const [bulkMarkupValue, setBulkMarkupValue] = useState('20');
   const [bulkImporting, setBulkImporting] = useState(false);
+  
+  // Edit Product State
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editPrice, setEditPrice] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  
+  // Auto-Sync State
+  const [syncing, setSyncing] = useState(false);
+  const [autoSyncing, setAutoSyncing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -147,6 +174,118 @@ export default function IntermediaryDashboard() {
       });
     } finally {
       setBulkImporting(false);
+    }
+  };
+
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setEditPrice(product.price.toString());
+    setEditDescription(product.customDescription || product.description || '');
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingProduct) return;
+    
+    try {
+      // Update price if changed
+      const newPrice = parseFloat(editPrice);
+      if (newPrice !== editingProduct.price) {
+        await updateProductPrice(editingProduct.$id, newPrice);
+      }
+      
+      // Update description if changed
+      if (editDescription !== (editingProduct.customDescription || editingProduct.description)) {
+        await updateProductDescription(editingProduct.$id, editDescription);
+      }
+      
+      toast({
+        title: "نجح!",
+        description: "تم تحديث المنتج بنجاح"
+      });
+      
+      setEditDialogOpen(false);
+      loadProducts();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل تحديث المنتج",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSyncProduct = async (productId: string) => {
+    setSyncing(true);
+    try {
+      const result = await syncProductFromSource(productId);
+      
+      const changes = [];
+      if (result.changes.priceChanged) changes.push('السعر');
+      if (result.changes.descriptionUpdated) changes.push('الوصف');
+      if (result.changes.nameUpdated) changes.push('الاسم');
+      
+      toast({
+        title: "تم التحديث!",
+        description: changes.length > 0 
+          ? `تم تحديث: ${changes.join(', ')}` 
+          : 'لا توجد تغييرات'
+      });
+      
+      loadProducts();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل تحديث المنتج",
+        variant: "destructive"
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleToggleAutoSync = async (productId: string, enabled: boolean) => {
+    try {
+      await toggleProductAutoSync(productId, enabled, 10);
+      
+      toast({
+        title: enabled ? "تم التفعيل" : "تم التعطيل",
+        description: enabled 
+          ? "سيتم تحديث المنتج تلقائياً كل 10 دقائق" 
+          : "تم إيقاف التحديث التلقائي"
+      });
+      
+      loadProducts();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل تحديث الإعدادات",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleBulkSync = async () => {
+    if (!user) return;
+    
+    setAutoSyncing(true);
+    try {
+      const result = await bulkSyncProducts(user.$id);
+      
+      toast({
+        title: "اكتمل التحديث",
+        description: `تم تحديث ${result.synced} من ${result.total} منتج`
+      });
+      
+      loadProducts();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل التحديث الجماعي",
+        variant: "destructive"
+      });
+    } finally {
+      setAutoSyncing(false);
     }
   };
 
@@ -320,10 +459,16 @@ export default function IntermediaryDashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>منتجاتي المستوردة</CardTitle>
-              <Button onClick={loadProducts} variant="outline" size="sm">
-                <RefreshCw className="h-4 w-4 ml-2" />
-                تحديث
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleBulkSync} variant="outline" size="sm" disabled={autoSyncing}>
+                  <RotateCw className={`h-4 w-4 ml-2 ${autoSyncing ? 'animate-spin' : ''}`} />
+                  {autoSyncing ? 'جاري المزامنة...' : 'مزامنة الكل'}
+                </Button>
+                <Button onClick={loadProducts} variant="outline" size="sm">
+                  <RefreshCw className="h-4 w-4 ml-2" />
+                  تحديث
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -343,7 +488,9 @@ export default function IntermediaryDashboard() {
                       <TableHead>السعر الأصلي</TableHead>
                       <TableHead>الهامش</TableHead>
                       <TableHead>السعر النهائي</TableHead>
-                      <TableHead>الرابط</TableHead>
+                      <TableHead>تحديث تلقائي</TableHead>
+                      <TableHead>آخر تحديث</TableHead>
+                      <TableHead>إجراءات</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -356,26 +503,67 @@ export default function IntermediaryDashboard() {
                             className="w-12 h-12 object-cover rounded"
                           />
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate">
-                          {product.name}
+                        <TableCell className="max-w-[200px]">
+                          <div className="truncate">{product.name}</div>
+                          {product.customDescription && (
+                            <span className="text-xs text-muted-foreground">(وصف معدّل)</span>
+                          )}
                         </TableCell>
                         <TableCell>{product.originalPrice || product.price} جنيه</TableCell>
                         <TableCell>
                           {product.priceMarkup || 0} {product.priceMarkupType === 'percentage' ? '%' : 'جنيه'}
                         </TableCell>
-                        <TableCell className="font-bold">{product.price} جنيه</TableCell>
-                        <TableCell>
-                          {product.sourceUrl && (
-                            <a 
-                              href={product.sourceUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline flex items-center gap-1"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                              عرض
-                            </a>
+                        <TableCell className="font-bold">
+                          {product.price} جنيه
+                          {product.priceOverride && (
+                            <span className="text-xs text-muted-foreground block">(سعر مخصص)</span>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={product.autoSyncEnabled || false}
+                            onCheckedChange={(checked) => handleToggleAutoSync(product.$id, checked)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          {product.lastSyncedAt ? (
+                            <div className="text-sm">
+                              <Clock className="h-3 w-3 inline ml-1" />
+                              {new Date(product.lastSyncedAt).toLocaleString('ar-EG')}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">لم يتم</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEditProduct(product)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleSyncProduct(product.$id)}
+                              disabled={syncing || !product.sourceUrl}
+                            >
+                              <RotateCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+                            </Button>
+                            {product.sourceUrl && (
+                              <a 
+                                href={product.sourceUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                              >
+                                <Button size="sm" variant="outline">
+                                  <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </a>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -385,6 +573,66 @@ export default function IntermediaryDashboard() {
             )}
           </CardContent>
         </Card>
+        
+        {/* Edit Product Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>تعديل المنتج</DialogTitle>
+              <DialogDescription>
+                قم بتعديل سعر ووصف المنتج. سيتم الاحتفاظ بالنسخة الأصلية.
+              </DialogDescription>
+            </DialogHeader>
+            
+            {editingProduct && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-price">السعر النهائي</Label>
+                  <Input
+                    id="edit-price"
+                    type="number"
+                    step="0.01"
+                    value={editPrice}
+                    onChange={(e) => setEditPrice(e.target.value)}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    السعر الأصلي: {editingProduct.originalPrice} جنيه
+                  </p>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">الوصف</Label>
+                  <Textarea
+                    id="edit-description"
+                    rows={6}
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    className="resize-none"
+                  />
+                  {editingProduct.originalDescription && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditDescription(editingProduct.originalDescription)}
+                    >
+                      استعادة الوصف الأصلي
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                إلغاء
+              </Button>
+              <Button onClick={handleSaveEdit}>
+                حفظ التغييرات
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

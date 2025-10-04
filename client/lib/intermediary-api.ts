@@ -310,3 +310,270 @@ export async function updateProductMarkup(
     throw error;
   }
 }
+
+/**
+ * Update product custom price (override calculated price)
+ */
+export async function updateProductPrice(
+  productId: string,
+  newPrice: number
+) {
+  try {
+    await databases.updateDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId,
+      {
+        price: Math.round(newPrice * 100) / 100,
+        priceOverride: Math.round(newPrice * 100) / 100
+      }
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating product price:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update product custom description
+ */
+export async function updateProductDescription(
+  productId: string,
+  customDescription: string
+) {
+  try {
+    const product = await databases.getDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId
+    );
+    
+    // Save original description if not already saved
+    const updateData: any = {
+      description: customDescription,
+      customDescription: customDescription
+    };
+    
+    if (!product.originalDescription) {
+      updateData.originalDescription = product.description;
+    }
+    
+    await databases.updateDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId,
+      updateData
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating product description:', error);
+    throw error;
+  }
+}
+
+/**
+ * Restore original description
+ */
+export async function restoreOriginalDescription(productId: string) {
+  try {
+    const product = await databases.getDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId
+    );
+    
+    if (!product.originalDescription) {
+      throw new Error('لا يوجد وصف أصلي محفوظ');
+    }
+    
+    await databases.updateDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId,
+      {
+        description: product.originalDescription,
+        customDescription: null
+      }
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error restoring original description:', error);
+    throw error;
+  }
+}
+
+/**
+ * Sync product data from source URL
+ */
+export async function syncProductFromSource(productId: string) {
+  try {
+    const product = await databases.getDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId
+    );
+    
+    if (!product.sourceUrl) {
+      throw new Error('لا يوجد رابط مصدر للمنتج');
+    }
+    
+    // Scrape fresh data from source
+    const scrapedData = await scrapeProductFromUrl(product.sourceUrl);
+    
+    // Prepare update data
+    const updateData: any = {
+      lastSyncedAt: new Date().toISOString()
+    };
+    
+    // Update original price if changed
+    if (scrapedData.price && scrapedData.price !== product.originalPrice) {
+      updateData.originalPrice = scrapedData.price;
+      
+      // Recalculate final price based on markup (if no price override)
+      if (!product.priceOverride) {
+        if (product.priceMarkupType === 'percentage') {
+          updateData.price = scrapedData.price * (1 + (product.priceMarkup || 0) / 100);
+        } else {
+          updateData.price = scrapedData.price + (product.priceMarkup || 0);
+        }
+        updateData.price = Math.round(updateData.price * 100) / 100;
+      }
+    }
+    
+    // Update original description if no custom description
+    if (scrapedData.description && !product.customDescription) {
+      updateData.originalDescription = scrapedData.description;
+      updateData.description = scrapedData.description;
+    } else if (scrapedData.description) {
+      // Just update originalDescription, keep custom
+      updateData.originalDescription = scrapedData.description;
+    }
+    
+    // Update name if changed significantly
+    if (scrapedData.name && scrapedData.name !== product.name) {
+      // Only update if the product doesn't have a custom name
+      // We can check if name was modified by comparing with a stored original name
+      updateData.name = scrapedData.name;
+    }
+    
+    await databases.updateDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId,
+      updateData
+    );
+    
+    return { 
+      success: true, 
+      changes: {
+        priceChanged: !!updateData.originalPrice,
+        descriptionUpdated: !!updateData.originalDescription,
+        nameUpdated: !!updateData.name
+      }
+    };
+  } catch (error) {
+    console.error('Error syncing product:', error);
+    throw error;
+  }
+}
+
+/**
+ * Enable/disable auto-sync for a product
+ */
+export async function toggleProductAutoSync(
+  productId: string,
+  enabled: boolean,
+  intervalMinutes: number = 10
+) {
+  try {
+    await databases.updateDocument(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      productId,
+      {
+        autoSyncEnabled: enabled,
+        syncIntervalMinutes: intervalMinutes
+      }
+    );
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error toggling auto-sync:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get products that need syncing
+ */
+export async function getProductsNeedingSync(intermediaryId?: string) {
+  try {
+    const now = new Date();
+    const queries = [
+      Query.equal('autoSyncEnabled', true),
+      Query.isNotNull('sourceUrl'),
+      Query.limit(100)
+    ];
+    
+    if (intermediaryId) {
+      queries.push(Query.equal('intermediaryId', intermediaryId));
+    }
+    
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      PRODUCTS_COLLECTION_ID,
+      queries
+    );
+    
+    // Filter products that need syncing based on interval
+    const productsNeedingSync = response.documents.filter(product => {
+      if (!product.lastSyncedAt) return true; // Never synced
+      
+      const lastSync = new Date(product.lastSyncedAt);
+      const intervalMs = (product.syncIntervalMinutes || 10) * 60 * 1000;
+      const nextSync = new Date(lastSync.getTime() + intervalMs);
+      
+      return now >= nextSync;
+    });
+    
+    return productsNeedingSync;
+  } catch (error) {
+    console.error('Error getting products needing sync:', error);
+    throw error;
+  }
+}
+
+/**
+ * Bulk sync all products for an intermediary
+ */
+export async function bulkSyncProducts(intermediaryId: string) {
+  try {
+    const products = await getProductsNeedingSync(intermediaryId);
+    
+    const results = {
+      total: products.length,
+      synced: 0,
+      failed: 0,
+      errors: [] as string[]
+    };
+    
+    for (const product of products) {
+      try {
+        await syncProductFromSource(product.$id);
+        results.synced++;
+      } catch (error) {
+        results.failed++;
+        results.errors.push(`${product.name}: ${error.message}`);
+      }
+    }
+    
+    return results;
+  } catch (error) {
+    console.error('Error bulk syncing products:', error);
+    throw error;
+  }
+}

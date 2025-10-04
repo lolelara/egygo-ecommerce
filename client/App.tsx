@@ -6,11 +6,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { AuthProvider as OriginalAuthProvider } from "./contexts/AuthContext";
 import { AuthProvider } from "./contexts/AppwriteAuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import { startAutoSyncWorker } from "./lib/auto-sync-worker";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
@@ -24,6 +26,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminProducts from "./pages/AdminProducts";
 import AdminCategories from "./pages/AdminCategories";
 import AdminUsers from "./pages/AdminUsers";
+import AdminUserManagement from "./pages/AdminUserManagement";
 import AdminOrders from "./pages/AdminOrders";
 import AdminCommissions from "./pages/AdminCommissions";
 import ProductDetail from "./pages/ProductDetail";
@@ -66,14 +69,22 @@ import { HelmetProvider } from 'react-helmet-async';
 
 const queryClient = new QueryClient();
 
-const Layout = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen flex flex-col">
-    <Header cartItemCount={0} />
-    <main className="flex-1">{children}</main>
-    <Footer />
-    <AIAssistant />
-  </div>
-);
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  // Start auto-sync worker when app loads
+  useEffect(() => {
+    startAutoSyncWorker();
+    console.log('🔄 Auto-sync worker started');
+  }, []);
+  
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header cartItemCount={0} />
+      <main className="flex-1">{children}</main>
+      <Footer />
+      <AIAssistant />
+    </div>
+  );
+};
 
 const App = () => (
   <ErrorBoundary>
@@ -129,6 +140,7 @@ const App = () => (
               <Route path="/admin/products-advanced" element={<AdminProductsAdvanced />} />
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/user-management" element={<AdminUserManagement />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/affiliates" element={<AdminUsers />} />
               <Route path="/admin/commissions" element={<AdminCommissions />} />

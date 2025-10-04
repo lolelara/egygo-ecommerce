@@ -1,0 +1,429 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AppwriteAuthContext';
+import { Users, UserPlus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { databases, account } from '@/lib/appwrite';
+import { Query, ID } from 'appwrite';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
+
+const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
+
+export default function AdminUserManagement() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  
+  // Create User Dialog
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    email: '',
+    password: '',
+    name: '',
+    phone: '',
+    role: 'customer' as 'customer' | 'affiliate' | 'merchant' | 'intermediary' | 'admin',
+    defaultMarkupPercentage: '20'
+  });
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      // In a real application, you'd need a server-side endpoint to list all users
+      // For now, we'll get user preferences from the database
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        'userPreferences',
+        [Query.limit(100), Query.orderDesc('$createdAt')]
+      );
+      
+      setUsers(response.documents);
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل تحميل المستخدمين",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (!newUser.email || !newUser.password || !newUser.name) {
+      toast({
+        title: "تحذير",
+        description: "الرجاء ملء جميع الحقول المطلوبة",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Generate intermediary code if role is intermediary
+      let intermediaryCode = '';
+      if (newUser.role === 'intermediary') {
+        intermediaryCode = `INT${Date.now()}`;
+      }
+
+      // Create account
+      const userId = ID.unique();
+      
+      // In production, this should be done server-side
+      // For now, we'll just create the preferences document
+      await databases.createDocument(
+        DATABASE_ID,
+        'userPreferences',
+        userId,
+        {
+          userId: userId,
+          email: newUser.email,
+          name: newUser.name,
+          phone: newUser.phone || '',
+          role: newUser.role,
+          isAdmin: newUser.role === 'admin',
+          isAffiliate: newUser.role === 'affiliate',
+          isMerchant: newUser.role === 'merchant',
+          isIntermediary: newUser.role === 'intermediary',
+          affiliateCode: newUser.role === 'affiliate' ? `AFF${Date.now()}` : '',
+          intermediaryCode: intermediaryCode,
+          defaultMarkupPercentage: newUser.role === 'intermediary' ? parseFloat(newUser.defaultMarkupPercentage) : 0,
+          commissionRate: newUser.role === 'affiliate' ? 10 : 0
+        }
+      );
+
+      toast({
+        title: "نجح!",
+        description: `تم إنشاء حساب ${newUser.name} بنجاح`,
+      });
+
+      setCreateDialogOpen(false);
+      setNewUser({
+        email: '',
+        password: '',
+        name: '',
+        phone: '',
+        role: 'customer',
+        defaultMarkupPercentage: '20'
+      });
+      
+      loadUsers();
+    } catch (error: any) {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل إنشاء الحساب",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`هل أنت متأكد من حذف ${userName}؟`)) {
+      return;
+    }
+
+    try {
+      await databases.deleteDocument(
+        DATABASE_ID,
+        'userPreferences',
+        userId
+      );
+
+      toast({
+        title: "تم الحذف",
+        description: `تم حذف ${userName}`,
+      });
+
+      loadUsers();
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل حذف المستخدم",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getRoleBadge = (role: string) => {
+    const roleColors: Record<string, string> = {
+      admin: 'bg-red-100 text-red-800',
+      intermediary: 'bg-purple-100 text-purple-800',
+      merchant: 'bg-blue-100 text-blue-800',
+      affiliate: 'bg-green-100 text-green-800',
+      customer: 'bg-gray-100 text-gray-800'
+    };
+
+    const roleNames: Record<string, string> = {
+      admin: 'مدير',
+      intermediary: 'وسيط',
+      merchant: 'تاجر',
+      affiliate: 'مسوق',
+      customer: 'عميل'
+    };
+
+    return (
+      <Badge className={roleColors[role] || roleColors.customer}>
+        {roleNames[role] || role}
+      </Badge>
+    );
+  };
+
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = 
+      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.phone?.includes(searchTerm);
+    
+    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+    
+    return matchesSearch && matchesRole;
+  });
+
+  return (
+    <div className="container mx-auto p-6" dir="rtl">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Users className="h-8 w-8" />
+              إدارة المستخدمين
+            </h1>
+            <p className="text-muted-foreground">
+              إدارة حسابات المستخدمين والوسطاء
+            </p>
+          </div>
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <UserPlus className="h-4 w-4 ml-2" />
+            إضافة مستخدم
+          </Button>
+        </div>
+
+        {/* Filters */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>بحث</Label>
+                <div className="relative">
+                  <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="ابحث بالاسم، البريد، أو الهاتف..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pr-10"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label>تصفية حسب الدور</Label>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    <SelectItem value="admin">مدير</SelectItem>
+                    <SelectItem value="intermediary">وسيط</SelectItem>
+                    <SelectItem value="merchant">تاجر</SelectItem>
+                    <SelectItem value="affiliate">مسوق</SelectItem>
+                    <SelectItem value="customer">عميل</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Users Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              المستخدمون ({filteredUsers.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-8">جاري التحميل...</div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                لا توجد نتائج
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>الاسم</TableHead>
+                      <TableHead>البريد الإلكتروني</TableHead>
+                      <TableHead>الهاتف</TableHead>
+                      <TableHead>الدور</TableHead>
+                      <TableHead>الكود</TableHead>
+                      <TableHead>تاريخ الإنشاء</TableHead>
+                      <TableHead>إجراءات</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((u: any) => (
+                      <TableRow key={u.$id}>
+                        <TableCell className="font-medium">{u.name}</TableCell>
+                        <TableCell>{u.email}</TableCell>
+                        <TableCell>{u.phone || '-'}</TableCell>
+                        <TableCell>{getRoleBadge(u.role)}</TableCell>
+                        <TableCell>
+                          <code className="text-xs bg-muted px-2 py-1 rounded">
+                            {u.affiliateCode || u.intermediaryCode || '-'}
+                          </code>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(u.$createdAt).toLocaleDateString('ar-EG')}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteUser(u.$id, u.name)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Create User Dialog */}
+        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>إضافة مستخدم جديد</DialogTitle>
+              <DialogDescription>
+                أدخل بيانات المستخدم الجديد
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">الاسم *</Label>
+                <Input
+                  id="name"
+                  value={newUser.name}
+                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">البريد الإلكتروني *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password">كلمة المرور *</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="phone">الهاتف</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={newUser.phone}
+                  onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="role">الدور *</Label>
+                <Select 
+                  value={newUser.role} 
+                  onValueChange={(v: any) => setNewUser({ ...newUser, role: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="customer">عميل</SelectItem>
+                    <SelectItem value="affiliate">مسوق</SelectItem>
+                    <SelectItem value="merchant">تاجر</SelectItem>
+                    <SelectItem value="intermediary">وسيط</SelectItem>
+                    <SelectItem value="admin">مدير</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {newUser.role === 'intermediary' && (
+                <div className="space-y-2">
+                  <Label htmlFor="markup">نسبة الترميز الافتراضية (%)</Label>
+                  <Input
+                    id="markup"
+                    type="number"
+                    value={newUser.defaultMarkupPercentage}
+                    onChange={(e) => setNewUser({ ...newUser, defaultMarkupPercentage: e.target.value })}
+                  />
+                </div>
+              )}
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+                إلغاء
+              </Button>
+              <Button onClick={handleCreateUser}>
+                إنشاء الحساب
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}
