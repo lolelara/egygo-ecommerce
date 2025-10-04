@@ -36,6 +36,11 @@ export const themeDefinitions: Record<ColorTheme, {
   description: string;
   descriptionAr: string;
   icon: string;
+  // Text contrast adjustments for better readability
+  textOnPrimary: string;      // Text color on primary background
+  textOnSecondary: string;     // Text color on secondary background
+  lightModeForeground: string; // Main text color in light mode
+  darkModeForeground: string;  // Main text color in dark mode
 }> = {
   'purple-orange': {
     name: 'Purple & Orange',
@@ -47,6 +52,10 @@ export const themeDefinitions: Record<ColorTheme, {
     secondaryStart: '20 100% 60%',
     secondaryEnd: '35 95% 55%',
     accent: '190 95% 55%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '222.2 84% 4.9%',
+    darkModeForeground: '210 40% 98%',
     description: 'Vibrant and energetic',
     descriptionAr: 'نابض بالحياة والطاقة',
     icon: '🟣'
@@ -54,13 +63,17 @@ export const themeDefinitions: Record<ColorTheme, {
   'blue-cyan': {
     name: 'Blue & Cyan',
     nameAr: 'أزرق وسماوي',
-    primary: '210 100% 60%',
-    primaryStart: '200 100% 65%',
-    primaryEnd: '220 95% 55%',
-    secondary: '185 100% 50%',
-    secondaryStart: '175 100% 55%',
-    secondaryEnd: '195 95% 45%',
-    accent: '160 90% 50%',
+    primary: '210 100% 50%',        // Darkened for better contrast
+    primaryStart: '200 100% 55%',
+    primaryEnd: '220 95% 45%',
+    secondary: '185 100% 40%',      // Darkened for better contrast
+    secondaryStart: '175 100% 45%',
+    secondaryEnd: '195 95% 35%',
+    accent: '160 90% 45%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '210 100% 15%',  // Darker text for light mode
+    darkModeForeground: '210 40% 98%',
     description: 'Cool and professional',
     descriptionAr: 'بارد واحترافي',
     icon: '🔵'
@@ -68,13 +81,17 @@ export const themeDefinitions: Record<ColorTheme, {
   'green-teal': {
     name: 'Green & Teal',
     nameAr: 'أخضر وفيروزي',
-    primary: '145 85% 50%',
-    primaryStart: '135 90% 55%',
-    primaryEnd: '155 80% 45%',
-    secondary: '170 100% 45%',
-    secondaryStart: '160 100% 50%',
-    secondaryEnd: '180 95% 40%',
-    accent: '195 85% 50%',
+    primary: '145 85% 40%',         // Darkened for better contrast
+    primaryStart: '135 90% 45%',
+    primaryEnd: '155 80% 35%',
+    secondary: '170 100% 35%',      // Darkened for better contrast
+    secondaryStart: '160 100% 40%',
+    secondaryEnd: '180 95% 30%',
+    accent: '195 85% 45%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '145 85% 15%',
+    darkModeForeground: '145 40% 95%',
     description: 'Fresh and natural',
     descriptionAr: 'منعش وطبيعي',
     icon: '🟢'
@@ -82,13 +99,17 @@ export const themeDefinitions: Record<ColorTheme, {
   'pink-purple': {
     name: 'Pink & Purple',
     nameAr: 'وردي وبنفسجي',
-    primary: '330 85% 60%',
-    primaryStart: '320 90% 65%',
-    primaryEnd: '340 80% 55%',
-    secondary: '280 85% 60%',
-    secondaryStart: '270 90% 65%',
-    secondaryEnd: '290 80% 55%',
-    accent: '200 90% 60%',
+    primary: '330 85% 50%',         // Adjusted for contrast
+    primaryStart: '320 90% 55%',
+    primaryEnd: '340 80% 45%',
+    secondary: '280 85% 50%',       // Adjusted for contrast
+    secondaryStart: '270 90% 55%',
+    secondaryEnd: '290 80% 45%',
+    accent: '200 90% 55%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '330 60% 20%',
+    darkModeForeground: '330 40% 95%',
     description: 'Sweet and playful',
     descriptionAr: 'حلو ومرح',
     icon: '🩷'
@@ -96,13 +117,17 @@ export const themeDefinitions: Record<ColorTheme, {
   'red-orange': {
     name: 'Red & Orange',
     nameAr: 'أحمر وبرتقالي',
-    primary: '0 85% 60%',
-    primaryStart: '350 90% 65%',
-    primaryEnd: '10 80% 55%',
-    secondary: '30 100% 55%',
-    secondaryStart: '20 100% 60%',
-    secondaryEnd: '40 95% 50%',
-    accent: '45 100% 55%',
+    primary: '0 85% 50%',           // Darkened for better contrast
+    primaryStart: '350 90% 55%',
+    primaryEnd: '10 80% 45%',
+    secondary: '30 100% 45%',       // Darkened for better contrast
+    secondaryStart: '20 100% 50%',
+    secondaryEnd: '40 95% 40%',
+    accent: '45 100% 50%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '0 60% 20%',
+    darkModeForeground: '0 40% 98%',
     description: 'Bold and passionate',
     descriptionAr: 'جريء وعاطفي',
     icon: '🔴'
@@ -110,13 +135,17 @@ export const themeDefinitions: Record<ColorTheme, {
   'indigo-blue': {
     name: 'Indigo & Blue',
     nameAr: 'نيلي وأزرق',
-    primary: '240 85% 55%',
-    primaryStart: '230 90% 60%',
-    primaryEnd: '250 80% 50%',
-    secondary: '210 90% 60%',
-    secondaryStart: '200 95% 65%',
-    secondaryEnd: '220 85% 55%',
-    accent: '180 85% 55%',
+    primary: '240 85% 45%',         // Darkened for better contrast
+    primaryStart: '230 90% 50%',
+    primaryEnd: '250 80% 40%',
+    secondary: '210 90% 50%',       // Adjusted for contrast
+    secondaryStart: '200 95% 55%',
+    secondaryEnd: '220 85% 45%',
+    accent: '180 85% 50%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '240 60% 15%',
+    darkModeForeground: '240 40% 98%',
     description: 'Deep and trustworthy',
     descriptionAr: 'عميق وموثوق',
     icon: '🔷'
@@ -124,13 +153,17 @@ export const themeDefinitions: Record<ColorTheme, {
   'emerald-lime': {
     name: 'Emerald & Lime',
     nameAr: 'زمردي وليموني',
-    primary: '150 90% 45%',
-    primaryStart: '140 95% 50%',
-    primaryEnd: '160 85% 40%',
-    secondary: '80 90% 50%',
-    secondaryStart: '70 95% 55%',
-    secondaryEnd: '90 85% 45%',
-    accent: '50 100% 55%',
+    primary: '150 90% 35%',         // Darkened for better contrast
+    primaryStart: '140 95% 40%',
+    primaryEnd: '160 85% 30%',
+    secondary: '80 90% 40%',        // Darkened for better contrast
+    secondaryStart: '70 95% 45%',
+    secondaryEnd: '90 85% 35%',
+    accent: '50 100% 50%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '150 60% 15%',
+    darkModeForeground: '150 40% 95%',
     description: 'Bright and lively',
     descriptionAr: 'مشرق وحيوي',
     icon: '💚'
@@ -138,13 +171,17 @@ export const themeDefinitions: Record<ColorTheme, {
   'rose-pink': {
     name: 'Rose & Pink',
     nameAr: 'وردي فاتح',
-    primary: '340 90% 65%',
-    primaryStart: '330 95% 70%',
-    primaryEnd: '350 85% 60%',
-    secondary: '0 85% 70%',
-    secondaryStart: '350 90% 75%',
-    secondaryEnd: '10 80% 65%',
-    accent: '30 90% 60%',
+    primary: '340 90% 55%',         // Adjusted for better contrast
+    primaryStart: '330 95% 60%',
+    primaryEnd: '350 85% 50%',
+    secondary: '0 85% 60%',         // Adjusted for better contrast
+    secondaryStart: '350 90% 65%',
+    secondaryEnd: '10 80% 55%',
+    accent: '30 90% 55%',
+    textOnPrimary: '0 0% 100%',
+    textOnSecondary: '0 0% 100%',
+    lightModeForeground: '340 60% 20%',
+    darkModeForeground: '340 40% 98%',
     description: 'Romantic and elegant',
     descriptionAr: 'رومانسي وأنيق',
     icon: '🌸'
@@ -206,19 +243,32 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.style.setProperty('--primary-end', themeColors.primaryEnd);
     root.style.setProperty('--primary-light', themeColors.primary);
     root.style.setProperty('--primary-dark', themeColors.primaryEnd);
+    root.style.setProperty('--primary-foreground', themeColors.textOnPrimary);
     
     // Set secondary colors
     root.style.setProperty('--secondary', themeColors.secondary);
     root.style.setProperty('--secondary-start', themeColors.secondaryStart);
     root.style.setProperty('--secondary-end', themeColors.secondaryEnd);
     root.style.setProperty('--secondary-light', themeColors.secondary);
+    root.style.setProperty('--secondary-foreground', themeColors.textOnSecondary);
     
     // Set accent
     root.style.setProperty('--accent-cyan', themeColors.accent);
     
+    // Set foreground colors based on light/dark mode
+    if (actualTheme === 'light') {
+      root.style.setProperty('--foreground', themeColors.lightModeForeground);
+      root.style.setProperty('--card-foreground', themeColors.lightModeForeground);
+      root.style.setProperty('--popover-foreground', themeColors.lightModeForeground);
+    } else {
+      root.style.setProperty('--foreground', themeColors.darkModeForeground);
+      root.style.setProperty('--card-foreground', themeColors.darkModeForeground);
+      root.style.setProperty('--popover-foreground', themeColors.darkModeForeground);
+    }
+    
     // Save to localStorage
     localStorage.setItem('egygo-color-theme', colorTheme);
-  }, [colorTheme]);
+  }, [colorTheme, actualTheme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
