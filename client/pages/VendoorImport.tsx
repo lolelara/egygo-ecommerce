@@ -41,8 +41,21 @@ export default function VendoorImport() {
 
   /**
    * جلب جميع المنتجات من Ven-door
+   * ملاحظة: هذه الميزة تعمل فقط على localhost
    */
   const handleScrapeAll = async () => {
+    // التحقق من أننا على localhost
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    if (!isLocalhost) {
+      toast({
+        title: 'غير متاح في Production',
+        description: 'هذه الميزة تعمل فقط على localhost. الرجاء استخدام "رفع ملف JSON" بدلاً من ذلك.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     if (!vendoorEmail || !vendoorPassword) {
       toast({
         title: 'خطأ',
@@ -88,6 +101,39 @@ export default function VendoorImport() {
     } finally {
       setIsScrapingAll(false);
     }
+  };
+
+  /**
+   * رفع ملف JSON يحتوي على المنتجات
+   */
+  const handleUploadJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target?.result as string);
+        
+        // التحقق من صيغة الملف
+        if (json.products && Array.isArray(json.products)) {
+          setProducts(json.products);
+          toast({
+            title: 'نجح!',
+            description: `تم تحميل ${json.products.length} منتج من الملف`,
+          });
+        } else {
+          throw new Error('صيغة الملف غير صحيحة');
+        }
+      } catch (error) {
+        toast({
+          title: 'خطأ',
+          description: 'فشل قراءة الملف. تأكد أنه ملف JSON صحيح.',
+          variant: 'destructive'
+        });
+      }
+    };
+    reader.readAsText(file);
   };
 
   /**
@@ -201,24 +247,55 @@ export default function VendoorImport() {
                 </div>
               </div>
 
-              <Button
-                onClick={handleScrapeAll}
-                disabled={isScrapingAll || !vendoorEmail || !vendoorPassword}
-                className="w-full md:w-auto"
-                size="lg"
-              >
-                {isScrapingAll ? (
-                  <>
-                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                    جاري جلب المنتجات... ({scrapingProgress.current}/{scrapingProgress.total})
-                  </>
-                ) : (
-                  <>
-                    <Download className="ml-2 h-4 w-4" />
-                    جلب جميع المنتجات
-                  </>
-                )}
-              </Button>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={handleScrapeAll}
+                    disabled={isScrapingAll || !vendoorEmail || !vendoorPassword}
+                    className="flex-1"
+                    size="lg"
+                  >
+                    {isScrapingAll ? (
+                      <>
+                        <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                        جاري جلب المنتجات... ({scrapingProgress.current}/{scrapingProgress.total})
+                      </>
+                    ) : (
+                      <>
+                        <Download className="ml-2 h-4 w-4" />
+                        جلب المنتجات (localhost فقط)
+                      </>
+                    )}
+                  </Button>
+
+                  <Label htmlFor="json-upload" className="flex-1 cursor-pointer">
+                    <div className="flex items-center justify-center gap-2 w-full h-full px-4 py-3 bg-secondary hover:bg-secondary/80 rounded-md border border-input transition-colors text-sm font-medium">
+                      <Upload className="h-4 w-4" />
+                      <span>رفع ملف JSON</span>
+                    </div>
+                  </Label>
+                  <Input
+                    id="json-upload"
+                    type="file"
+                    accept=".json"
+                    onChange={handleUploadJSON}
+                    className="hidden"
+                  />
+                </div>
+
+                <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
+                  <div className="flex items-start gap-2">
+                    <span className="text-lg">💡</span>
+                    <div className="space-y-2">
+                      <p><strong>نصيحة:</strong> لجلب المنتجات في Production، قم بتشغيل السكريبت محلياً:</p>
+                      <code className="block p-2 bg-black/10 dark:bg-white/10 rounded font-mono text-xs">
+                        node scripts/fetch-vendoor-catalog.mjs
+                      </code>
+                      <p className="text-xs">ثم ارفع ملف <code className="px-1 py-0.5 bg-black/10 dark:bg-white/10 rounded">vendoor-products-detailed.json</code> باستخدام الزر أعلاه.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {isScrapingAll && (
                 <div className="space-y-2">
