@@ -36,6 +36,11 @@ import {
   updateReview,
   deleteReview,
 } from "./routes/reviews";
+import {
+  scrapeAllProducts,
+  getScrapingProgress,
+  importProduct,
+} from "./routes/vendoor";
 // Wishlist imports commented out for static deployment
 // import {
 //   getUserWishlist,
@@ -120,6 +125,11 @@ export function createServer() {
   // app.post("/api/wishlist", addToWishlist);
   // app.delete("/api/wishlist/:id", removeFromWishlist);
   // app.get("/api/wishlist/check", isInWishlist);
+
+  // Vendoor Import API
+  app.post("/api/vendoor/scrape-all", scrapeAllProducts);
+  app.get("/api/vendoor/progress", getScrapingProgress);
+  app.post("/api/vendoor/import-product", importProduct);
 
   return app;
 }

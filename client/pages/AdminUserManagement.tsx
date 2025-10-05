@@ -59,6 +59,17 @@ export default function AdminUserManagement() {
   const [selectedUserForIntermediary, setSelectedUserForIntermediary] = useState<any>(null);
   const [intermediaryMarkup, setIntermediaryMarkup] = useState('20');
 
+  // Edit User Dialog
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editUserData, setEditUserData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'customer' as 'customer' | 'affiliate' | 'merchant' | 'admin',
+    defaultMarkupPercentage: '20'
+  });
+
   useEffect(() => {
     loadUsers();
   }, []);
@@ -191,6 +202,65 @@ export default function AdminUserManagement() {
   const openActivateIntermediaryDialog = (userToActivate: any) => {
     setSelectedUserForIntermediary(userToActivate);
     setActivateIntermediaryOpen(true);
+  };
+
+  const openEditUserDialog = (userToEdit: any) => {
+    setEditingUser(userToEdit);
+    setEditUserData({
+      name: userToEdit.name || '',
+      email: userToEdit.email || '',
+      phone: userToEdit.phone || '',
+      role: userToEdit.role || 'customer',
+      defaultMarkupPercentage: userToEdit.defaultMarkupPercentage?.toString() || '20'
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editingUser || !editUserData.name || !editUserData.email) {
+      toast({
+        title: "تحذير",
+        description: "الرجاء ملء جميع الحقول المطلوبة",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        'userPreferences',
+        editingUser.$id,
+        {
+          name: editUserData.name,
+          email: editUserData.email,
+          phone: editUserData.phone || '',
+          role: editUserData.role,
+          isAdmin: editUserData.role === 'admin',
+          isAffiliate: editUserData.role === 'affiliate',
+          isMerchant: editUserData.role === 'merchant',
+          defaultMarkupPercentage: editingUser.isIntermediary 
+            ? parseFloat(editUserData.defaultMarkupPercentage) 
+            : editingUser.defaultMarkupPercentage || 0
+        }
+      );
+
+      toast({
+        title: "نجح!",
+        description: `تم تحديث ${editUserData.name} بنجاح`,
+      });
+
+      setEditDialogOpen(false);
+      setEditingUser(null);
+      
+      loadUsers();
+    } catch (error: any) {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل تحديث المستخدم",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDeleteUser = async (userId: string, userName: string) => {
@@ -371,6 +441,13 @@ export default function AdminUserManagement() {
                             <Button
                               size="sm"
                               variant="outline"
+                              onClick={() => openEditUserDialog(u)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => handleDeleteUser(u.$id, u.name)}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -531,6 +608,102 @@ export default function AdminUserManagement() {
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 تفعيل الوسيط
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit User Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>تعديل بيانات المستخدم</DialogTitle>
+              <DialogDescription>
+                قم بتعديل بيانات المستخدم وحفظ التغييرات
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">الاسم</Label>
+                <Input
+                  id="edit-name"
+                  value={editUserData.name}
+                  onChange={(e) => setEditUserData({ ...editUserData, name: e.target.value })}
+                  placeholder="أدخل اسم المستخدم"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-email">البريد الإلكتروني</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editUserData.email}
+                  onChange={(e) => setEditUserData({ ...editUserData, email: e.target.value })}
+                  placeholder="user@example.com"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-phone">رقم الهاتف</Label>
+                <Input
+                  id="edit-phone"
+                  value={editUserData.phone}
+                  onChange={(e) => setEditUserData({ ...editUserData, phone: e.target.value })}
+                  placeholder="+20 123 456 7890"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-role">الدور</Label>
+                <select
+                  id="edit-role"
+                  className="w-full p-2 border rounded-md bg-background"
+                  value={editUserData.role}
+                  onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value as 'customer' | 'affiliate' | 'merchant' | 'admin' })}
+                >
+                  <option value="customer">عميل</option>
+                  <option value="affiliate">مسوق بالعمولة</option>
+                  <option value="merchant">تاجر</option>
+                  <option value="admin">مدير</option>
+                </select>
+              </div>
+
+              {editingUser?.isIntermediary && (
+                <div className="space-y-2">
+                  <Label htmlFor="edit-markup">نسبة الهامش الربحي الافتراضية (%)</Label>
+                  <Input
+                    id="edit-markup"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={editUserData.defaultMarkupPercentage}
+                    onChange={(e) => setEditUserData({ ...editUserData, defaultMarkupPercentage: e.target.value })}
+                    placeholder="20"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    النسبة التي سيتم إضافتها على سعر المنتج الأصلي
+                  </p>
+                </div>
+              )}
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setEditDialogOpen(false);
+                  setEditingUser(null);
+                }}
+              >
+                إلغاء
+              </Button>
+              <Button 
+                onClick={handleUpdateUser}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                حفظ التعديلات
               </Button>
             </DialogFooter>
           </DialogContent>

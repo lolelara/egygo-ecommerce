@@ -48,6 +48,7 @@ import ProductLanding from "./pages/ProductLanding";
 import AffiliateLinkManager from "./pages/AffiliateLinkManager";
 import AffiliateAnalytics from "./pages/AffiliateAnalytics";
 import AffiliateCreatives from "./pages/AffiliateCreatives";
+import VendoorImport from "./pages/VendoorImport";
 import UpdateAffiliatePrefs from "./pages/UpdateAffiliatePrefs";
 import AffiliateCoupons from "./pages/AffiliateCoupons";
 import DealsPage from "./pages/DealsPage";
@@ -147,6 +148,8 @@ const App = () => (
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
               <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
               <Route path="/intermediary/dashboard" element={<IntermediaryDashboard />} />
+              <Route path="/intermediary/import" element={<VendoorImport />} />
+              <Route path="/admin/vendoor-import" element={<VendoorImport />} />
 
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
