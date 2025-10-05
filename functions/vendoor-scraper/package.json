@@ -1,0 +1,19 @@
+{
+  "name": "vendoor-scraper",
+  "version": "1.0.0",
+  "description": "Appwrite Function to scrape Vendoor products",
+  "main": "src/main.js",
+  "scripts": {
+    "test": "node test.js",
+    "build": "echo 'No build needed'",
+    "deploy": "appwrite deploy function"
+  },
+  "dependencies": {
+    "puppeteer": "^24.23.0",
+    "node-appwrite": "^13.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
