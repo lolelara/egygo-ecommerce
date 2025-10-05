@@ -1,4 +1,4 @@
-const { scrapeAllProducts, scrapePage } = require('./scraper-commonjs.js');
+import { scrapeAllProducts, scrapePage } from './scraper.js';
 
 /**
  * Appwrite Function Entry Point
@@ -9,28 +9,13 @@ const { scrapeAllProducts, scrapePage } = require('./scraper-commonjs.js');
  * - log: للـ logging
  * - error: للـ errors
  */
-module.exports = async ({ req, res, log, error }) => {
+export default async ({ req, res, log, error }) => {
   try {
     log('🚀 بدء Vendoor Scraper Function');
-    log(`Method: ${req.method}`);
-    log(`Body: ${req.body}`);
-    log(`Query: ${JSON.stringify(req.query || {})}`);
     
-    // قراءة الـ payload من body أو query parameters
-    let payload = {};
-    
-    if (req.body && req.body.trim() !== '') {
-      try {
-        payload = JSON.parse(req.body);
-      } catch (e) {
-        log('⚠️ خطأ في parse body، استخدام query parameters');
-        payload = req.query || {};
-      }
-    } else {
-      payload = req.query || {};
-    }
-    
-    const action = payload.action || 'scrape-page';
+    // قراءة الـ payload
+    const payload = JSON.parse(req.body || '{}');
+    const action = payload.action || 'scrape-all';
     
     // بيانات تسجيل الدخول
     const email = payload.email || process.env.VENDOOR_EMAIL || 'almlmibrahym574@gmail.com';

@@ -1,0 +1,21 @@
+{
+  "projectId": "68d8b9db00134c41e7c8",
+  "projectName": "egygo-ecommerce",
+  "functions": [
+    {
+      "$id": "vendoor-scraper",
+      "name": "Vendoor Scraper",
+      "runtime": "node-18.0",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true,
+      "entrypoint": "src/main.js",
+      "commands": "pnpm install && pnpm run build",
+      "specification": "s-4vcpu-4gb",
+      "path": "functions/vendoor-scraper"
+    }
+  ]
+}
