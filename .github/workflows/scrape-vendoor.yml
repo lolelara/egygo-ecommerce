@@ -1,0 +1,68 @@
+name: Scrape Vendoor Products
+
+on:
+  # يشتغل كل 6 ساعات تلقائيًا
+  schedule:
+    - cron: '0 */6 * * *'  # At minute 0 past every 6th hour
+  
+  # يمكن تشغيله يدويًا من GitHub UI
+  workflow_dispatch:
+  
+  # يشتغل عند push للـ main (للاختبار)
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/scrape-vendoor-cron.mjs'
+      - '.github/workflows/scrape-vendoor.yml'
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 📥 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - name: 📚 Install Dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: 🌐 Install Puppeteer Chrome
+        run: npx puppeteer browsers install chrome
+      
+      - name: 🚀 Run Vendoor Scraper
+        env:
+          VENDOOR_EMAIL: ${{ secrets.VENDOOR_EMAIL }}
+          VENDOOR_PASSWORD: ${{ secrets.VENDOOR_PASSWORD }}
+          APPWRITE_ENDPOINT: ${{ secrets.APPWRITE_ENDPOINT }}
+          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+          APPWRITE_API_KEY: ${{ secrets.APPWRITE_API_KEY }}
+        run: node scripts/scrape-vendoor-cron.mjs
+      
+      - name: 📊 Upload Products Data (Artifact)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vendoor-products-${{ github.run_number }}
+          path: vendoor-products.json
+          retention-days: 30
+      
+      - name: 📝 Show Summary
+        if: success()
+        run: |
+          echo "✅ Scraping completed successfully!"
+          echo "📦 Products data saved as artifact"
+          if [ -f vendoor-products.json ]; then
+            PRODUCT_COUNT=$(jq '. | length' vendoor-products.json)
+            echo "🎯 Total products scraped: $PRODUCT_COUNT"
+          fi
