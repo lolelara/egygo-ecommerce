@@ -27,6 +27,11 @@ interface VendoorProduct {
   stockDetails?: Record<string, number>;
 }
 
+// ⚙️ إعداد Cloudflare Worker URL
+// استبدل هذا بـ URL الـ Worker الخاص بك بعد النشر
+// مثال: https://vendoor-scraper.YOUR_USERNAME.workers.dev
+const WORKER_URL = import.meta.env.VITE_VENDOOR_WORKER_URL || '';
+
 export default function VendoorImport() {
   const { toast } = useToast();
   
@@ -41,58 +46,63 @@ export default function VendoorImport() {
 
   /**
    * جلب جميع المنتجات من Ven-door
-   * ملاحظة: هذه الميزة تعمل فقط على localhost
+   * يستخدم Cloudflare Worker في Production أو localhost API في التطوير
    */
   const handleScrapeAll = async () => {
-    // التحقق من أننا على localhost
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    if (!isLocalhost) {
-      toast({
-        title: 'غير متاح في Production',
-        description: 'هذه الميزة تعمل فقط على localhost. الرجاء استخدام "رفع ملف JSON" بدلاً من ذلك.',
-        variant: 'destructive'
-      });
-      return;
-    }
-    
-    if (!vendoorEmail || !vendoorPassword) {
-      toast({
-        title: 'خطأ',
-        description: 'الرجاء إدخال بيانات تسجيل الدخول لـ Ven-door',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     setIsScrapingAll(true);
     setScrapingProgress({ current: 0, total: 41 });
 
     try {
-      const response = await fetch('/api/vendoor/scrape-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: vendoorEmail,
-          password: vendoorPassword,
-          maxPages: 41
-        })
+      let apiUrl: string;
+      
+      // تحديد API URL بناءً على البيئة
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (WORKER_URL) {
+        // استخدام Cloudflare Worker
+        apiUrl = `${WORKER_URL}/scrape-all`;
+        console.log('✅ استخدام Cloudflare Worker:', apiUrl);
+      } else if (isLocalhost) {
+        // استخدام localhost API
+        apiUrl = '/api/vendoor/scrape-all';
+        console.log('✅ استخدام localhost API');
+      } else {
+        // لا يوجد Worker URL مُعرَّف
+        toast({
+          title: 'إعداد مطلوب',
+          description: 'يرجى إعداد Cloudflare Worker أولاً. راجع CLOUDFLARE_QUICK_START.md',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {
-        throw new Error('فشل جلب المنتجات');
+        const errorText = await response.text();
+        throw new Error(`فشل جلب المنتجات: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
       
-      setProducts(data.products);
-      
-      toast({
-        title: 'نجح!',
-        description: `تم جلب ${data.products.length} منتج من Ven-door`,
-      });
+      if (data.success && data.products) {
+        setProducts(data.products);
+        
+        toast({
+          title: 'نجح! 🎉',
+          description: `تم جلب ${data.totalProducts} منتج من ${data.totalPages} صفحة`,
+        });
+      } else {
+        throw new Error(data.error || 'فشل في جلب المنتجات');
+      }
 
     } catch (error: any) {
+      console.error('خطأ في جلب المنتجات:', error);
       toast({
         title: 'خطأ',
         description: error.message || 'فشل جلب المنتجات',
@@ -100,6 +110,7 @@ export default function VendoorImport() {
       });
     } finally {
       setIsScrapingAll(false);
+      setScrapingProgress({ current: 0, total: 0 });
     }
   };
 
@@ -251,7 +262,7 @@ export default function VendoorImport() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={handleScrapeAll}
-                    disabled={isScrapingAll || !vendoorEmail || !vendoorPassword}
+                    disabled={isScrapingAll}
                     className="flex-1"
                     size="lg"
                   >
@@ -263,7 +274,7 @@ export default function VendoorImport() {
                     ) : (
                       <>
                         <Download className="ml-2 h-4 w-4" />
-                        جلب المنتجات (localhost فقط)
+                        {WORKER_URL ? 'جلب جميع المنتجات' : 'جلب المنتجات (localhost فقط)'}
                       </>
                     )}
                   </Button>
@@ -283,18 +294,38 @@ export default function VendoorImport() {
                   />
                 </div>
 
-                <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg">💡</span>
-                    <div className="space-y-2">
-                      <p><strong>نصيحة:</strong> لجلب المنتجات في Production، قم بتشغيل السكريبت محلياً:</p>
-                      <code className="block p-2 bg-black/10 dark:bg-white/10 rounded font-mono text-xs">
-                        node scripts/fetch-vendoor-catalog.mjs
-                      </code>
-                      <p className="text-xs">ثم ارفع ملف <code className="px-1 py-0.5 bg-black/10 dark:bg-white/10 rounded">vendoor-products-detailed.json</code> باستخدام الزر أعلاه.</p>
+                {!WORKER_URL && (
+                  <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
+                    <div className="flex items-start gap-2">
+                      <span className="text-lg">💡</span>
+                      <div className="space-y-2">
+                        <p><strong>للعمل في Production:</strong></p>
+                        <p className="text-xs">
+                          الخيار 1: نشر Cloudflare Worker (راجع <code>CLOUDFLARE_QUICK_START.md</code>)
+                        </p>
+                        <p className="text-xs">
+                          الخيار 2: تشغيل السكريبت محلياً ورفع الملف:
+                        </p>
+                        <code className="block p-2 bg-black/10 dark:bg-white/10 rounded font-mono text-xs">
+                          node scripts/fetch-vendoor-catalog.mjs
+                        </code>
+                        <p className="text-xs">ثم ارفع ملف <code className="px-1 py-0.5 bg-black/10 dark:bg-white/10 rounded">vendoor-products-detailed.json</code> باستخدام زر "رفع ملف JSON".</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {WORKER_URL && (
+                  <div className="text-sm text-success bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-900">
+                    <div className="flex items-start gap-2">
+                      <span className="text-lg">✅</span>
+                      <div>
+                        <p><strong>Cloudflare Worker متصل</strong></p>
+                        <p className="text-xs mt-1 opacity-80">يمكنك الآن جلب المنتجات مباشرة من Production!</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {isScrapingAll && (

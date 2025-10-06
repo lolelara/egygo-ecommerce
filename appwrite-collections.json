@@ -1,0 +1,450 @@
+{
+  "projectId": "YOUR_APPWRITE_PROJECT_ID",
+  "databaseId": "egygo_database",
+  "collections": [
+    {
+      "collectionId": "roles",
+      "name": "Roles",
+      "permissions": ["read(\"any\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "name",
+          "type": "string",
+          "size": 100,
+          "required": true,
+          "array": false
+        },
+        {
+          "key": "permissions",
+          "type": "string",
+          "size": 5000,
+          "required": true,
+          "array": true,
+          "default": []
+        },
+        {
+          "key": "description",
+          "type": "string",
+          "size": 500,
+          "required": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "name_index",
+          "type": "key",
+          "attributes": ["name"],
+          "orders": ["ASC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "audit_logs",
+      "name": "Audit Logs",
+      "permissions": ["read(\"users\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "userId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "action",
+          "type": "string",
+          "size": 100,
+          "required": true
+        },
+        {
+          "key": "resource",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "ipAddress",
+          "type": "string",
+          "size": 45,
+          "required": false
+        },
+        {
+          "key": "success",
+          "type": "boolean",
+          "required": true,
+          "default": true
+        },
+        {
+          "key": "metadata",
+          "type": "string",
+          "size": 10000,
+          "required": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "userId_index",
+          "type": "key",
+          "attributes": ["userId"],
+          "orders": ["DESC"]
+        },
+        {
+          "key": "action_index",
+          "type": "key",
+          "attributes": ["action"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "created_at_index",
+          "type": "key",
+          "attributes": ["$createdAt"],
+          "orders": ["DESC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "smart_contracts",
+      "name": "Smart Contracts",
+      "permissions": ["read(\"users\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "userId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "type",
+          "type": "string",
+          "size": 50,
+          "required": true,
+          "array": false
+        },
+        {
+          "key": "terms",
+          "type": "string",
+          "size": 10000,
+          "required": true
+        },
+        {
+          "key": "performance",
+          "type": "string",
+          "size": 10000,
+          "required": false
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "size": 50,
+          "required": true,
+          "default": "draft"
+        }
+      ],
+      "indexes": [
+        {
+          "key": "userId_index",
+          "type": "key",
+          "attributes": ["userId"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "type_index",
+          "type": "key",
+          "attributes": ["type"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "status_index",
+          "type": "key",
+          "attributes": ["status"],
+          "orders": ["ASC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "ab_tests",
+      "name": "AB Tests",
+      "permissions": ["read(\"users\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "name",
+          "type": "string",
+          "size": 200,
+          "required": true
+        },
+        {
+          "key": "description",
+          "type": "string",
+          "size": 1000,
+          "required": false
+        },
+        {
+          "key": "variants",
+          "type": "string",
+          "size": 10000,
+          "required": true
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "size": 50,
+          "required": true,
+          "default": "draft"
+        },
+        {
+          "key": "winner",
+          "type": "string",
+          "size": 100,
+          "required": false
+        },
+        {
+          "key": "startDate",
+          "type": "string",
+          "size": 50,
+          "required": false
+        },
+        {
+          "key": "endDate",
+          "type": "string",
+          "size": 50,
+          "required": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "status_index",
+          "type": "key",
+          "attributes": ["status"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "created_at_index",
+          "type": "key",
+          "attributes": ["$createdAt"],
+          "orders": ["DESC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "family_groups",
+      "name": "Family Groups",
+      "permissions": ["read(\"users\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "adminUserId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "name",
+          "type": "string",
+          "size": 200,
+          "required": false,
+          "default": "عائلتي"
+        },
+        {
+          "key": "sharedCart",
+          "type": "string",
+          "size": 10000,
+          "required": false
+        },
+        {
+          "key": "sharedWishlist",
+          "type": "string",
+          "size": 10000,
+          "required": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "adminUserId_index",
+          "type": "key",
+          "attributes": ["adminUserId"],
+          "orders": ["ASC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "family_members",
+      "name": "Family Members",
+      "permissions": ["read(\"users\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "groupId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "userId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "role",
+          "type": "string",
+          "size": 50,
+          "required": true,
+          "default": "member"
+        }
+      ],
+      "indexes": [
+        {
+          "key": "groupId_index",
+          "type": "key",
+          "attributes": ["groupId"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "userId_index",
+          "type": "key",
+          "attributes": ["userId"],
+          "orders": ["ASC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "ar_models",
+      "name": "AR Models",
+      "permissions": ["read(\"any\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "productId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "modelUrl",
+          "type": "string",
+          "size": 500,
+          "required": true
+        },
+        {
+          "key": "format",
+          "type": "string",
+          "size": 50,
+          "required": true
+        },
+        {
+          "key": "scale",
+          "type": "string",
+          "size": 500,
+          "required": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "productId_index",
+          "type": "key",
+          "attributes": ["productId"],
+          "orders": ["ASC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "chat_messages",
+      "name": "Chat Messages",
+      "permissions": ["read(\"users\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "userId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "size": 5000,
+          "required": true
+        },
+        {
+          "key": "response",
+          "type": "string",
+          "size": 5000,
+          "required": false
+        },
+        {
+          "key": "context",
+          "type": "string",
+          "size": 10000,
+          "required": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "userId_index",
+          "type": "key",
+          "attributes": ["userId"],
+          "orders": ["DESC"]
+        },
+        {
+          "key": "created_at_index",
+          "type": "key",
+          "attributes": ["$createdAt"],
+          "orders": ["DESC"]
+        }
+      ]
+    },
+    {
+      "collectionId": "bundles",
+      "name": "Product Bundles",
+      "permissions": ["read(\"any\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "name",
+          "type": "string",
+          "size": 200,
+          "required": true
+        },
+        {
+          "key": "products",
+          "type": "string",
+          "size": 10000,
+          "required": true
+        },
+        {
+          "key": "discountPercentage",
+          "type": "float",
+          "required": true,
+          "min": 0,
+          "max": 100
+        },
+        {
+          "key": "active",
+          "type": "boolean",
+          "required": true,
+          "default": true
+        }
+      ],
+      "indexes": [
+        {
+          "key": "active_index",
+          "type": "key",
+          "attributes": ["active"],
+          "orders": ["ASC"]
+        }
+      ]
+    }
+  ]
+}

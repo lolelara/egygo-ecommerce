@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { UniversalSearch } from "./UniversalSearch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -196,8 +197,9 @@ export function Header({ cartItemCount }: HeaderProps) {
         </nav>
 
         {/* Search Bar */}
+        {/* Desktop Search */}
         <div className="hidden lg:flex items-center max-w-sm flex-1 mx-6">
-          <SearchBar className="w-full" />
+          <UniversalSearch />
         </div>
 
         {/* Right side actions */}

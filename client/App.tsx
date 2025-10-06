@@ -9,6 +9,8 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
+import { AnnouncementBar } from "./components/AnnouncementBar";
+import { ScrollToTopButton } from "./components/ScrollToTopButton";
 import { AuthProvider as OriginalAuthProvider } from "./contexts/AuthContext";
 import { AuthProvider } from "./contexts/AppwriteAuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -79,9 +81,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   
   return (
     <div className="min-h-screen flex flex-col">
+      <AnnouncementBar />
       <Header cartItemCount={0} />
       <main className="flex-1">{children}</main>
       <Footer />
+  <ScrollToTopButton />
       <AIAssistant />
     </div>
   );

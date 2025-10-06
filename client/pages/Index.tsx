@@ -9,6 +9,10 @@ import {
   Loader2,
   DollarSign,
   BarChart3,
+  ShieldCheck,
+  Headphones,
+  Truck,
+  Clock4,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -478,6 +482,100 @@ export default function Index() {
           </div>
         </section>
       )}
+
+      {/* Trust Signals & Customer Care */}
+      <section className="bg-muted/40">
+        <div className="container mx-auto px-4 py-16">
+          <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-center">
+            <div className="space-y-6">
+              <Badge className="bg-primary/10 text-primary">
+                لماذا إيجي جو؟
+              </Badge>
+              <h2 className="text-3xl lg:text-4xl font-bold leading-tight">
+                ثقة كاملة، دعم حقيقي، وتجربة تسوق ولا أسهل
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                بنقدم لك أقوى تجربة تسوق إلكتروني في مصر: منتجات أصلية مضمونة،
+                دعم عربي 24/7، وسياسة إرجاع سهلة. هدفنا إنك تشتري وتكسب وأنت مطمن.
+              </p>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {[{
+                  icon: ShieldCheck,
+                  title: "ضمان استرجاع 30 يوم",
+                  description: "في حالة المنتج مش مطابق للتوقعات، نرجعلك فلوسك بالكامل بدون أسئلة."
+                }, {
+                  icon: Truck,
+                  title: "شحن سريع داخل مصر",
+                  description: "شراكتنا مع أفضل شركات الشحن تضمن توصيل الطلب في 2-4 أيام عمل."
+                }, {
+                  icon: Headphones,
+                  title: "خدمة عملاء ودعم تسويقي",
+                  description: "فريق عربي جاهز يساعدك بالهاتف، الواتساب، أو الإيميل طول اليوم."
+                }, {
+                  icon: Clock4,
+                  title: "تتبع لحظي للطلبات",
+                  description: "تابع حالة الطلب لحظة بلحظة من حسابك أو عبر صفحة تتبع الطلبات."
+                }].map((item) => (
+                  <Card key={item.title} className="h-full">
+                    <CardContent className="flex h-full flex-col gap-3 p-5">
+                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <item.icon className="h-5 w-5" />
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-lg font-semibold">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {item.description}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-2xl">
+                  آراء عملائنا
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {[{
+                  name: "محمود السيد",
+                  role: "مسوق شريك",
+                  quote: "أرباحي زادت 3 أضعاف من أول شهر مع إيجي جو. لوحة التحكم واضحة، والعمولات بتتصرف في مواعيدها."
+                }, {
+                  name: "إسراء أحمد",
+                  role: "عميلة",
+                  quote: "تجربة الشراء كانت ممتازة، خدمة العملاء ساعدوني أختار الهدية المناسبة ووصلت في يومين."
+                }].map((testimonial) => (
+                  <div key={testimonial.name} className="rounded-xl bg-muted/80 p-5">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      “{testimonial.quote}”
+                    </p>
+                    <div className="mt-4 text-sm font-semibold">
+                      {testimonial.name}
+                      <span className="ms-2 text-xs text-muted-foreground">
+                        • {testimonial.role}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                <div className="rounded-xl border border-dashed border-primary/50 p-5 text-center">
+                  <h3 className="text-lg font-semibold mb-1">عايز تتأكد بنفسك؟</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    تواصل مع فريق الدعم أو اطلب مكالمة مجانية دلوقتي وهنرد عليك خلال دقائق.
+                  </p>
+                  <Button asChild variant="outline">
+                    <Link to="/contact">تواصل معنا الآن</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
 
       {/* Merchant CTA Section - قسم دعوة التجار */}
       <section className="bg-gradient-to-r from-brand-purple via-primary to-brand-orange text-white">

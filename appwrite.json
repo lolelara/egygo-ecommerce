@@ -1,489 +1,543 @@
 {
-  "projectId": "68d8b9db00134c41e7c8",
-  "projectName": "EgyGo E-commerce",
-  "databases": [
-    {
-      "databaseId": "ecommerce-db",
-      "name": "E-commerce Database",
-      "collections": [
+    "projectId": "68d8b9db00134c41e7c8",
+    "projectName": "EgyGo E-commerce",
+    "databases": [
         {
-          "collectionId": "users",
-          "name": "Users",
-          "documentSecurity": true,
-          "attributes": [
-            {
-              "key": "name",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "email",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "phone",
-              "type": "string",
-              "size": 20,
-              "required": false
-            },
-            {
-              "key": "address",
-              "type": "string",
-              "size": 500,
-              "required": false
-            },
-            {
-              "key": "isAffiliate",
-              "type": "boolean",
-              "required": false,
-              "default": false
-            },
-            {
-              "key": "affiliateCode",
-              "type": "string",
-              "size": 10,
-              "required": false
-            },
-            {
-              "key": "commissionRate",
-              "type": "double",
-              "required": false,
-              "default": 0.15
-            }
-          ],
-          "indexes": [
-            {
-              "key": "email_index",
-              "type": "unique",
-              "attributes": ["email"]
-            },
-            {
-              "key": "affiliate_code_index",
-              "type": "unique",
-              "attributes": ["affiliateCode"]
-            }
-          ]
-        },
-        {
-          "collectionId": "categories",
-          "name": "Categories",
-          "documentSecurity": false,
-          "attributes": [
-            {
-              "key": "name",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "description",
-              "type": "string",
-              "size": 1000,
-              "required": false
-            },
-            {
-              "key": "image",
-              "type": "string",
-              "size": 255,
-              "required": false
-            },
-            {
-              "key": "isActive",
-              "type": "boolean",
-              "required": false,
-              "default": true
-            }
-          ]
-        },
-        {
-          "collectionId": "products",
-          "name": "Products",
-          "documentSecurity": false,
-          "attributes": [
-            {
-              "key": "name",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "description",
-              "type": "string",
-              "size": 2000,
-              "required": true
-            },
-            {
-              "key": "price",
-              "type": "double",
-              "required": true
-            },
-            {
-              "key": "comparePrice",
-              "type": "double",
-              "required": false
-            },
-            {
-              "key": "stock",
-              "type": "integer",
-              "required": true,
-              "default": 0
-            },
-            {
-              "key": "images",
-              "type": "string",
-              "size": 2000,
-              "required": false,
-              "array": true
-            },
-            {
-              "key": "categoryId",
-              "type": "string",
-              "size": 36,
-              "required": true
-            },
-            {
-              "key": "tags",
-              "type": "string",
-              "size": 50,
-              "required": false,
-              "array": true
-            },
-            {
-              "key": "isActive",
-              "type": "boolean",
-              "required": false,
-              "default": true
-            },
-            {
-              "key": "isFeatured",
-              "type": "boolean",
-              "required": false,
-              "default": false
-            },
-            {
-              "key": "rating",
-              "type": "double",
-              "required": false,
-              "default": 0
-            },
-            {
-              "key": "reviewCount",
-              "type": "integer",
-              "required": false,
-              "default": 0
-            }
-          ],
-          "indexes": [
-            {
-              "key": "category_index",
-              "type": "key",
-              "attributes": ["categoryId"]
-            },
-            {
-              "key": "price_index",
-              "type": "key",
-              "attributes": ["price"]
-            },
-            {
-              "key": "featured_index",
-              "type": "key",
-              "attributes": ["isFeatured"]
-            }
-          ]
-        },
-        {
-          "collectionId": "orders",
-          "name": "Orders",
-          "documentSecurity": true,
-          "attributes": [
-            {
-              "key": "userId",
-              "type": "string",
-              "size": 36,
-              "required": true
-            },
-            {
-              "key": "total",
-              "type": "double",
-              "required": true
-            },
-            {
-              "key": "status",
-              "type": "string",
-              "size": 20,
-              "required": true,
-              "default": "pending"
-            },
-            {
-              "key": "customerName",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "customerEmail",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "customerPhone",
-              "type": "string",
-              "size": 20,
-              "required": true
-            },
-            {
-              "key": "shippingAddress",
-              "type": "string",
-              "size": 1000,
-              "required": true
-            },
-            {
-              "key": "paymentMethod",
-              "type": "string",
-              "size": 50,
-              "required": true
-            },
-            {
-              "key": "affiliateCode",
-              "type": "string",
-              "size": 10,
-              "required": false
-            },
-            {
-              "key": "affiliateCommission",
-              "type": "double",
-              "required": false,
-              "default": 0
-            }
-          ],
-          "indexes": [
-            {
-              "key": "user_orders_index",
-              "type": "key",
-              "attributes": ["userId"]
-            },
-            {
-              "key": "status_index",
-              "type": "key",
-              "attributes": ["status"]
-            },
-            {
-              "key": "affiliate_index",
-              "type": "key",
-              "attributes": ["affiliateCode"]
-            }
-          ]
-        },
-        {
-          "collectionId": "order-items",
-          "name": "Order Items",
-          "documentSecurity": true,
-          "attributes": [
-            {
-              "key": "orderId",
-              "type": "string",
-              "size": 36,
-              "required": true
-            },
-            {
-              "key": "productId",
-              "type": "string",
-              "size": 36,
-              "required": true
-            },
-            {
-              "key": "productName",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "productImage",
-              "type": "string",
-              "size": 255,
-              "required": false
-            },
-            {
-              "key": "price",
-              "type": "double",
-              "required": true
-            },
-            {
-              "key": "quantity",
-              "type": "integer",
-              "required": true
-            },
-            {
-              "key": "total",
-              "type": "double",
-              "required": true
-            }
-          ],
-          "indexes": [
-            {
-              "key": "order_items_index",
-              "type": "key",
-              "attributes": ["orderId"]
-            },
-            {
-              "key": "product_sales_index",
-              "type": "key",
-              "attributes": ["productId"]
-            }
-          ]
-        },
-        {
-          "collectionId": "reviews",
-          "name": "Reviews",
-          "documentSecurity": true,
-          "attributes": [
-            {
-              "key": "productId",
-              "type": "string",
-              "size": 36,
-              "required": true
-            },
-            {
-              "key": "userId",
-              "type": "string",
-              "size": 36,
-              "required": true
-            },
-            {
-              "key": "userName",
-              "type": "string",
-              "size": 255,
-              "required": true
-            },
-            {
-              "key": "rating",
-              "type": "integer",
-              "required": true
-            },
-            {
-              "key": "comment",
-              "type": "string",
-              "size": 1000,
-              "required": false
-            },
-            {
-              "key": "isApproved",
-              "type": "boolean",
-              "required": false,
-              "default": false
-            }
-          ],
-          "indexes": [
-            {
-              "key": "product_reviews_index",
-              "type": "key",
-              "attributes": ["productId"]
-            },
-            {
-              "key": "user_reviews_index",
-              "type": "key",
-              "attributes": ["userId"]
-            }
-          ]
-        },
-        {
-          "collectionId": "affiliates",
-          "name": "Affiliates",
-          "documentSecurity": true,
-          "attributes": [
-            {
-              "key": "userId",
-              "type": "string",
-              "size": 36,
-              "required": true
-            },
-            {
-              "key": "code",
-              "type": "string",
-              "size": 10,
-              "required": true
-            },
-            {
-              "key": "commissionRate",
-              "type": "double",
-              "required": false,
-              "default": 0.15
-            },
-            {
-              "key": "totalEarnings",
-              "type": "double",
-              "required": false,
-              "default": 0
-            },
-            {
-              "key": "totalSales",
-              "type": "integer",
-              "required": false,
-              "default": 0
-            },
-            {
-              "key": "isActive",
-              "type": "boolean",
-              "required": false,
-              "default": true
-            }
-          ],
-          "indexes": [
-            {
-              "key": "affiliate_code_index",
-              "type": "unique",
-              "attributes": ["code"]
-            },
-            {
-              "key": "user_affiliate_index",
-              "type": "unique",
-              "attributes": ["userId"]
-            }
-          ]
+            "databaseId": "ecommerce-db",
+            "name": "E-commerce Database",
+            "collections": [
+                {
+                    "collectionId": "users",
+                    "name": "Users",
+                    "documentSecurity": true,
+                    "attributes": [
+                        {
+                            "key": "name",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "email",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "phone",
+                            "type": "string",
+                            "size": 20,
+                            "required": false
+                        },
+                        {
+                            "key": "address",
+                            "type": "string",
+                            "size": 500,
+                            "required": false
+                        },
+                        {
+                            "key": "isAffiliate",
+                            "type": "boolean",
+                            "required": false,
+                            "default": false
+                        },
+                        {
+                            "key": "affiliateCode",
+                            "type": "string",
+                            "size": 10,
+                            "required": false
+                        },
+                        {
+                            "key": "commissionRate",
+                            "type": "double",
+                            "required": false,
+                            "default": 0.15
+                        }
+                    ],
+                    "indexes": [
+                        {
+                            "key": "email_index",
+                            "type": "unique",
+                            "attributes": [
+                                "email"
+                            ]
+                        },
+                        {
+                            "key": "affiliate_code_index",
+                            "type": "unique",
+                            "attributes": [
+                                "affiliateCode"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "collectionId": "categories",
+                    "name": "Categories",
+                    "documentSecurity": false,
+                    "attributes": [
+                        {
+                            "key": "name",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "description",
+                            "type": "string",
+                            "size": 1000,
+                            "required": false
+                        },
+                        {
+                            "key": "image",
+                            "type": "string",
+                            "size": 255,
+                            "required": false
+                        },
+                        {
+                            "key": "isActive",
+                            "type": "boolean",
+                            "required": false,
+                            "default": true
+                        }
+                    ]
+                },
+                {
+                    "collectionId": "products",
+                    "name": "Products",
+                    "documentSecurity": false,
+                    "attributes": [
+                        {
+                            "key": "name",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "description",
+                            "type": "string",
+                            "size": 2000,
+                            "required": true
+                        },
+                        {
+                            "key": "price",
+                            "type": "double",
+                            "required": true
+                        },
+                        {
+                            "key": "comparePrice",
+                            "type": "double",
+                            "required": false
+                        },
+                        {
+                            "key": "stock",
+                            "type": "integer",
+                            "required": true,
+                            "default": 0
+                        },
+                        {
+                            "key": "images",
+                            "type": "string",
+                            "size": 2000,
+                            "required": false,
+                            "array": true
+                        },
+                        {
+                            "key": "categoryId",
+                            "type": "string",
+                            "size": 36,
+                            "required": true
+                        },
+                        {
+                            "key": "tags",
+                            "type": "string",
+                            "size": 50,
+                            "required": false,
+                            "array": true
+                        },
+                        {
+                            "key": "isActive",
+                            "type": "boolean",
+                            "required": false,
+                            "default": true
+                        },
+                        {
+                            "key": "isFeatured",
+                            "type": "boolean",
+                            "required": false,
+                            "default": false
+                        },
+                        {
+                            "key": "rating",
+                            "type": "double",
+                            "required": false,
+                            "default": 0
+                        },
+                        {
+                            "key": "reviewCount",
+                            "type": "integer",
+                            "required": false,
+                            "default": 0
+                        }
+                    ],
+                    "indexes": [
+                        {
+                            "key": "category_index",
+                            "type": "key",
+                            "attributes": [
+                                "categoryId"
+                            ]
+                        },
+                        {
+                            "key": "price_index",
+                            "type": "key",
+                            "attributes": [
+                                "price"
+                            ]
+                        },
+                        {
+                            "key": "featured_index",
+                            "type": "key",
+                            "attributes": [
+                                "isFeatured"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "collectionId": "orders",
+                    "name": "Orders",
+                    "documentSecurity": true,
+                    "attributes": [
+                        {
+                            "key": "userId",
+                            "type": "string",
+                            "size": 36,
+                            "required": true
+                        },
+                        {
+                            "key": "total",
+                            "type": "double",
+                            "required": true
+                        },
+                        {
+                            "key": "status",
+                            "type": "string",
+                            "size": 20,
+                            "required": true,
+                            "default": "pending"
+                        },
+                        {
+                            "key": "customerName",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "customerEmail",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "customerPhone",
+                            "type": "string",
+                            "size": 20,
+                            "required": true
+                        },
+                        {
+                            "key": "shippingAddress",
+                            "type": "string",
+                            "size": 1000,
+                            "required": true
+                        },
+                        {
+                            "key": "paymentMethod",
+                            "type": "string",
+                            "size": 50,
+                            "required": true
+                        },
+                        {
+                            "key": "affiliateCode",
+                            "type": "string",
+                            "size": 10,
+                            "required": false
+                        },
+                        {
+                            "key": "affiliateCommission",
+                            "type": "double",
+                            "required": false,
+                            "default": 0
+                        }
+                    ],
+                    "indexes": [
+                        {
+                            "key": "user_orders_index",
+                            "type": "key",
+                            "attributes": [
+                                "userId"
+                            ]
+                        },
+                        {
+                            "key": "status_index",
+                            "type": "key",
+                            "attributes": [
+                                "status"
+                            ]
+                        },
+                        {
+                            "key": "affiliate_index",
+                            "type": "key",
+                            "attributes": [
+                                "affiliateCode"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "collectionId": "order-items",
+                    "name": "Order Items",
+                    "documentSecurity": true,
+                    "attributes": [
+                        {
+                            "key": "orderId",
+                            "type": "string",
+                            "size": 36,
+                            "required": true
+                        },
+                        {
+                            "key": "productId",
+                            "type": "string",
+                            "size": 36,
+                            "required": true
+                        },
+                        {
+                            "key": "productName",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "productImage",
+                            "type": "string",
+                            "size": 255,
+                            "required": false
+                        },
+                        {
+                            "key": "price",
+                            "type": "double",
+                            "required": true
+                        },
+                        {
+                            "key": "quantity",
+                            "type": "integer",
+                            "required": true
+                        },
+                        {
+                            "key": "total",
+                            "type": "double",
+                            "required": true
+                        }
+                    ],
+                    "indexes": [
+                        {
+                            "key": "order_items_index",
+                            "type": "key",
+                            "attributes": [
+                                "orderId"
+                            ]
+                        },
+                        {
+                            "key": "product_sales_index",
+                            "type": "key",
+                            "attributes": [
+                                "productId"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "collectionId": "reviews",
+                    "name": "Reviews",
+                    "documentSecurity": true,
+                    "attributes": [
+                        {
+                            "key": "productId",
+                            "type": "string",
+                            "size": 36,
+                            "required": true
+                        },
+                        {
+                            "key": "userId",
+                            "type": "string",
+                            "size": 36,
+                            "required": true
+                        },
+                        {
+                            "key": "userName",
+                            "type": "string",
+                            "size": 255,
+                            "required": true
+                        },
+                        {
+                            "key": "rating",
+                            "type": "integer",
+                            "required": true
+                        },
+                        {
+                            "key": "comment",
+                            "type": "string",
+                            "size": 1000,
+                            "required": false
+                        },
+                        {
+                            "key": "isApproved",
+                            "type": "boolean",
+                            "required": false,
+                            "default": false
+                        }
+                    ],
+                    "indexes": [
+                        {
+                            "key": "product_reviews_index",
+                            "type": "key",
+                            "attributes": [
+                                "productId"
+                            ]
+                        },
+                        {
+                            "key": "user_reviews_index",
+                            "type": "key",
+                            "attributes": [
+                                "userId"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "collectionId": "affiliates",
+                    "name": "Affiliates",
+                    "documentSecurity": true,
+                    "attributes": [
+                        {
+                            "key": "userId",
+                            "type": "string",
+                            "size": 36,
+                            "required": true
+                        },
+                        {
+                            "key": "code",
+                            "type": "string",
+                            "size": 10,
+                            "required": true
+                        },
+                        {
+                            "key": "commissionRate",
+                            "type": "double",
+                            "required": false,
+                            "default": 0.15
+                        },
+                        {
+                            "key": "totalEarnings",
+                            "type": "double",
+                            "required": false,
+                            "default": 0
+                        },
+                        {
+                            "key": "totalSales",
+                            "type": "integer",
+                            "required": false,
+                            "default": 0
+                        },
+                        {
+                            "key": "isActive",
+                            "type": "boolean",
+                            "required": false,
+                            "default": true
+                        }
+                    ],
+                    "indexes": [
+                        {
+                            "key": "affiliate_code_index",
+                            "type": "unique",
+                            "attributes": [
+                                "code"
+                            ]
+                        },
+                        {
+                            "key": "user_affiliate_index",
+                            "type": "unique",
+                            "attributes": [
+                                "userId"
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "buckets": [
-    {
-      "bucketId": "product-images",
-      "name": "Product Images",
-      "permissions": [
-        "read(\"any\")",
-        "create(\"users\")",
-        "update(\"users\")",
-        "delete(\"users\")"
-      ],
-      "fileSecurity": false,
-      "enabled": true,
-      "maximumFileSize": 10485760,
-      "allowedFileExtensions": ["jpg", "jpeg", "png", "webp", "gif"],
-      "compression": "gzip",
-      "encryption": true,
-      "antivirus": true
-    }
-  ],
-  "functions": [
-    {
-      "functionId": "openai-chat",
-      "name": "OpenAI Chat API",
-      "runtime": "node-18.0",
-      "execute": ["any"],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true,
-      "entrypoint": "src/main.js",
-      "commands": "npm install",
-      "path": "functions/openai-chat",
-      "variables": {
-        "OPENAI_API_KEY": ""
-      }
-    }
-  ]
+    ],
+    "buckets": [
+        {
+            "bucketId": "product-images",
+            "name": "Product Images",
+            "permissions": [
+                "read(\"any\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "fileSecurity": false,
+            "enabled": true,
+            "maximumFileSize": 10485760,
+            "allowedFileExtensions": [
+                "jpg",
+                "jpeg",
+                "png",
+                "webp",
+                "gif"
+            ],
+            "compression": "gzip",
+            "encryption": true,
+            "antivirus": true
+        }
+    ],
+    "functions": [
+        {
+            "functionId": "openai-chat",
+            "name": "OpenAI Chat API",
+            "runtime": "node-18.0",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "path": "functions/openai-chat",
+            "variables": {
+                "OPENAI_API_KEY": ""
+            }
+        },
+        {
+            "$id": "vendoor-scraper",
+            "execute": [
+                "any"
+            ],
+            "name": "Vendoor Scraper",
+            "enabled": true,
+            "logging": true,
+            "runtime": "node-18.0",
+            "scopes": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "entrypoint": "src/main.js",
+            "commands": "pnpm install && pnpm run build",
+            "specification": "s-4vcpu-4gb",
+            "path": "functions/Vendoor Scraper"
+        }
+    ]
 }

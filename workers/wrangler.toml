@@ -1,0 +1,24 @@
+# Cloudflare Worker Configuration for Vendoor Scraper
+
+name = "vendoor-scraper"
+main = "vendoor-scraper.js"
+compatibility_date = "2024-01-01"
+node_compat = true
+
+# Browser Rendering API Binding
+browser = { binding = "MYBROWSER" }
+
+# Routes - سيعمل على subdomain خاص
+# مثال: https://vendoor-scraper.yourname.workers.dev
+routes = []
+
+# Workers Paid Plan مطلوب لـ Browser Rendering API
+# السعر: $5 شهرياً + $0.50 لكل 1000 request (بعد أول 100,000 مجاناً)
+
+# Environment Variables (اختياري - يمكن تغيير البيانات في الكود)
+[vars]
+VENDOOR_EMAIL = "almlmibrahym574@gmail.com"
+
+# Secrets (للمعلومات الحساسة - يتم إضافتها عبر CLI)
+# wrangler secret put VENDOOR_PASSWORD
+# القيمة: hema2004

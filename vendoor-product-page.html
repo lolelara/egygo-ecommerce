@@ -1,0 +1,2007 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+    <meta charset="UTF-8">
+    <meta property="og:title" content="">
+    <meta property="og:description" content="Vendoor is an e-commerce company.">
+    <meta property="og:image" content="https://aff.ven-door.com/front_files/vendoor/file/logo2.png">
+    <meta property="og:url" content="https://aff.ven-door.com/affiliates/29631/orders/create">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="Ee8m9EFJ7mDjRGOYn0XhPicf7GTR1cYDs9G30RBk">
+    <script>
+        var base_url = "https://aff.ven-door.com";
+    </script>
+    <title> Vendoor | اضف اوردر</title>
+    <meta name="description" content="Vendoor Home">
+    <link href="https://aff.ven-door.com/front_files/vendoor/file/logo2.png" rel="shortcut icon">
+    <link href="https://aff.ven-door.com/front_files/vendoor/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://aff.ven-door.com/front_files/vendoor/css/templete.css">
+    <link href="https://aff.ven-door.com/front_files/vendoor/css/stely.css" rel="stylesheet">
+    <link href="https://aff.ven-door.com/front_files/vendoor/webfonts/fontawsome.css" rel="stylesheet">
+    <!-- <script src="https://kit.fontawesome.com/f339a7c60b.js"></script> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+    </style>
+    <link rel="stylesheet" href="https://aff.ven-door.com/dashboard_files/plugins/noty/noty.css">
+    <script src="https://aff.ven-door.com/dashboard_files/plugins/noty/noty.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">  
+    <style>[wire\:loading], [wire\:loading\.delay], [wire\:loading\.inline-block], [wire\:loading\.inline], [wire\:loading\.block], [wire\:loading\.flex], [wire\:loading\.table], [wire\:loading\.grid], [wire\:loading\.inline-flex] {display: none;}[wire\:loading\.delay\.shortest], [wire\:loading\.delay\.shorter], [wire\:loading\.delay\.short], [wire\:loading\.delay\.long], [wire\:loading\.delay\.longer], [wire\:loading\.delay\.longest] {display:none;}[wire\:offline] {display: none;}[wire\:dirty]:not(textarea):not(input):not(select) {display: none;}input:-webkit-autofill, select:-webkit-autofill, textarea:-webkit-autofill {animation-duration: 50000s;animation-name: livewireautofill;}@keyframes livewireautofill { from {} }</style>
+    <link rel="stylesheet" href="https://aff.ven-door.com/dashboard_files/select2/select2.min.css">
+<style>
+  
+  .hide-commissions{
+    display: none;
+  }
+  .addButton{
+    margin-top: 13px;
+    margin-bottom: -8px;
+  }
+  .hidden_reason{
+    display: none;
+  }
+  .error{
+    color:red;
+  }
+
+  @import  url('https://fonts.googleapis.com/css?family=Asap+Condensed:600i,700');
+
+/* body {
+  background: #fafafa;
+  display: flex;
+  text-transform: uppercase;
+  font-family: 'Asap Condensed', sans-serif;
+} */
+
+h1 {
+  font-size: 60px;
+}
+h3 {
+  font-size: 26px;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.card {
+  position: relative;
+  margin: auto;
+  width: 100%;
+  text-align: center;
+  background: linear-gradient(#E96874, #6E3663, #2B0830);
+  border-radius: 2px;
+  box-shadow: 0 6px 12px -3px rgba(0,0,0,.3);
+  color: #fff;
+  padding: 30px;
+}
+
+.card header {
+  position: absolute;
+  top: 31px;
+  left: 0;
+  width: 100%;
+  padding: 0 10%;
+  transform: translateY(-50%);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+}
+
+.card header > *:first-child {
+  text-align: left;
+}
+.card header > *:last-child {
+  text-align: right;
+}
+
+.logo {
+  font-size: 24px;
+  position: relative;
+}
+.logo:before,
+.logo:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  border-top: 3px solid currentColor;
+  transform: translateY(-50%);
+}
+
+.logo:before {
+  right: 158px;
+  width: 40%;
+}
+.logo:after {
+  left: 158px;
+  width: 55%;
+}
+
+.logo span {
+  /*border: solid currentColor;
+  border-width: 0 3px 3px 0;
+  position: absolute;
+  top: -22px;
+  width: 69px;
+  height: 70px;
+  left: 50%;
+  transform: translateX(-58%) rotate(58deg) skew(0deg, -30deg);*/
+  display: block;
+  position: absolute;
+  width: 100%;
+  top: calc(50% - 1px);
+}
+
+.announcement {
+  position: relative;
+  border-top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.announcement:before,
+.announcement:after {
+  content: '';
+  position: absolute;
+  top: 0px;
+  border-top: 3px solid currentColor;
+  height: 0;
+  width: 15px;
+}
+.announcement:before {
+  left: -3px;
+}
+.announcement:after {
+  right: -3px;
+}
+
+
+.inspiration {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+
+
+
+
+
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+a,
+a:visited,
+a:focus,
+a:active,
+a:link {
+  text-decoration: none;
+  outline: 0;
+}
+
+a {
+  color: currentColor;
+  transition: .2s ease-in-out;
+}
+
+h1, h2, h3, h4 {
+  margin: .15em 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+.hidden{
+  display: none;
+}
+
+table, th, td {
+  border:1px solid black;
+}
+
+
+</style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="component-header" style="height: 1080px;">
+        <!--stert-nav-->
+         <nav class="navbar navbar-expand-xl navbar-light">
+          
+               <a class="navbar-brand" href="https://aff.ven-door.com">
+                   <img src="https://aff.ven-door.com/front_files/vendoor/file/logo.png" alt="logo">
+               </a>
+               <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                       <span class="navbar-toggler-icon"></span>
+               </button>
+               <div class="collapse navbar-collapse" id="navbarNav">
+                  <div class="img-nav-item ml-auto">
+                    <a href="https://aff.ven-door.com/"><img src="https://aff.ven-door.com/front_files/vendoor/file/logo.png"><span> الرئيسية</span></a>
+                  </div>
+                    
+                    <ul class="navbar-nav ml-auto">
+                      
+                                           <li class="nav-item">
+
+                        <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/lang=en">اللغة الانجليزية</a>
+                      </li>
+                                          <li class="nav-item ">
+                       <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/dashboards/affiliates">لوحة التحكم </a>
+                     </li>
+                                                               <li class="nav-item  active ">
+                       <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/affiliates/29631/orders/create">أضف اوردر جديد </a>
+                     </li>
+                                          <li class="nav-item  ">
+                        <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/sellers"> الموردين</a>
+                     </li>       
+                     <li class="nav-item ">
+                        <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/products"> المنتجات </a>
+                     </li>
+                                          <li class="nav-item">
+                        <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/affiliate/reports">التقارير</a>
+                     </li>
+                                                               <li class="nav-item ">
+                        <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/tutorial">فيديو تعليمي </a>
+                     </li>
+                     <li class="nav-item">
+                        <a style="font-size: 16px;" class="nav-link" href="https://aff.ven-door.com/favourites"><i class="far fa-heart"></i> </a>
+                     </li>
+                                          
+                                                                    <li class="nav-item dropdown nav-car-bell">
+                          <a class="nav-link link-2" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="far fa-envelope"></i>
+                            <span class="badge badge-pill badge-danger ml-0 mr-2">0</span>
+                          </a>
+                          <div style="width: 334px;margin-left: 3px;overflow-y: scroll;height: 257px;" class="dropdown-menu " aria-labelledby="navbarDropdown">
+                                                  </div>
+                      </li>
+                                            <li class="nav-item dropdown nav-car-bell">
+                          <a class="nav-link link-2" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            <i class="far fa-bell"></i>
+                            <span class="badge badge-pill badge-danger ml-0 mr-2 notifications-count" onclick="changeNotificationStatus()">0</span>
+                          </a>
+                          <div style="width: 334px;margin-left: 3px;overflow-y: scroll;height: 257px;" class="dropdown-menu " aria-labelledby="navbarDropdown">
+                          <div class="drop-p">
+                             
+                                                           </div>
+                              <div>
+                              <a class="btn btn-secondary" target="_blank" href="https://aff.ven-door.com/view/all/notifications">
+                                    <span style="color: black;">
+                                        عرض الكل <i class="fa fa-eye"></i>
+                                    </span>
+                                </a>
+                                <button class="btn btn-secondary" onclick="clearAllNotifications()"> حذف الكل <i style="font-size: 13px;" class="fa fa-trash"></i></button>
+                              </div>
+                              
+                            
+                        </div>
+                         
+                      </li>
+                         <li class="nav-item dropdown nav-p">
+                          <a style="margin-top: -11px;" class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                          <img style="width: 35px;border-radius: 70%;border: 1px solid;" src="https://aff.ven-door.com/storage/affalite_profile/default.png" alt="logo">
+                            Ibrahem Mamdouh
+                          </a>
+                          <div style="margin-left: 49px;" class="dropdown-menu " aria-labelledby="navbarDropdown">
+                                                            <a class="dropdown-item" href="https://aff.ven-door.com/dashboards/affiliates">لوحة التحكم</a>
+                                                                                          <a class="dropdown-item" href="https://aff.ven-door.com/affiliate/payments">الحسابات</a>
+                                                            <a class="dropdown-item" href="https://aff.ven-door.com/logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">تسجيل الخروج</a>
+                              <form id="logout-form" action="https://aff.ven-door.com/logout" method="POST" style="display: none;">
+                                <input type="hidden" name="_token" value="Ee8m9EFJ7mDjRGOYn0XhPicf7GTR1cYDs9G30RBk">                              </form>
+                          </div>
+                       </li>
+                      
+                                         </ul>    
+               </div>
+            
+         </nav>    
+        <!--end-nav-->        
+
+
+<div class="component-rigster-join">
+  <div class="h-100 row">
+    <!--stert-rigster-tap-->
+    <div class="h-100 d-flex bg-white col-md-8 col-lg-8  creat-titke">
+      <div style="margin-left: 56px;" class=" app-login-box container">
+        <h6 class="had-what">أضف اوردر جديد   </h6>
+       
+        
+                
+        <div class="registra-now">
+          <form class="form-register" action="https://aff.ven-door.com/affiliates/29631/orders" method="post">
+          <div class="tab-content" id="v-pills-tabContent">
+            <!--stert-Customer-->
+            <div class="tab-pane fade show active tab-1" id="v-pills-Customer" role="tabpanel" aria-labelledby="v-pills-Customer-tab">
+                <input type="hidden" name="_token" value="Ee8m9EFJ7mDjRGOYn0XhPicf7GTR1cYDs9G30RBk">
+                <input type="hidden" name="_method" value="post"> 
+                                                                  <input type="hidden" name="grand_total" value="250" id="grand_total">  
+                <input type="hidden" name="grand_commission" value="0" id="grand_commission">  
+                <input type="hidden" name="commission_team_leader" value="0.00" id="commission_team_leader">  
+                <input type="hidden" name="commission_site" value="40.00" id="commission_site">  
+                <input type="hidden" id="affiliateId" name="affiliateId" value="">
+                <input type="hidden" id="code" name="code" value="">
+                <!--announcement-->
+                                  <div class="card">
+                    <p id="demoDate">10 يوم 5 ساعة 41 دقيقة 1 ثانية  </p>
+                    <div class="announcement">
+                    <img src="https://aff.ven-door.com/front_files/vendoor/file/Advertisee.png" class="cardee-img" style="width: 18%;" alt="Advertise">
+                      <h3> اعلان</h3>
+                      <h3 class="italic"> تم تجديد GLIDE STEP LEATHER SKECHERS SV66 بكمية كبيرة عند Movendo</h3>
+                    </div>
+                  </div>
+                  
+                <!--announcement-->
+                <br>
+                <div class="form-group">
+                  <label for="inputState">نوع الاوردر <span style="color: red;">*</span></label>
+                  <select style="width: 100%;" name="order_type" class="form-control" id="order_type" required="">
+                    <option value="اوردر جديد" selected="">اوردر جديد</option>
+                    <option value="اوردر تسليم جزئي">اوردر تسليم جزئي</option>
+                    <option value="اوردر استبدال">اوردر استبدال</option>
+                  </select>
+                </div>
+
+                <div class="ewe hidden">
+                  <label for="full_name">المبلغ المدفوع من العميل شامل الشحن في حالة الاستلام الجزئي <span style="color: red;">*</span></label>
+                  <input id="amount_paid_partial" type="number" min="0" value="" class="form-control" name="amount_paid_partial" placeholder="المبلغ المدفوع من العميل في حالة الاستلام الجزئي">
+                </div>
+
+                <div class="ewe hidden">
+                  <label> العميل هيستلم كام قطعة من الاوردر ؟<span style="color: red;">*</span></label>
+                  <input id="customer_receive_piece_of_order" type="text" value="" class="form-control" name="customer_receive_piece_of_order" placeholder="العميل هيستلم كام قطعة من الاوردر ؟">
+                </div>
+
+                <div class="ewwe hidden">
+                  <label> كود الاوردر القديم<span style="color: red;">*</span></label>
+                  <input id="old_order_number" type="text" value="" class="form-control" name="old_order_number" placeholder=" كود الاوردر القديم">
+                </div>
+
+                <div class="ewwe hidden">
+                  <label>سبب الاستبدال<span style="color: red;">*</span></label>
+                  <input id="reason_replacement" type="text" value="" class="form-control" name="reason_replacement" placeholder="سبب الاستبدال">
+                </div>
+
+                <div class="ewwe hidden">
+                  <label>المندوب هيستلم قطع<span style="color: red;">*</span></label>
+                  <input id="receives_pieces" type="text" value="" class="form-control" name="receives_pieces" placeholder="المندوب هيستلم قطع">
+                </div>
+
+                <div class="ewwe hidden">
+                  <label>عدد القطع المستلمة من العميل<span style="color: red;">*</span></label>
+                  <input id="new_pieces" type="text" value="" class="form-control" name="new_pieces" placeholder="عدد القطع المستلمة من العميل">
+                </div>
+
+                <div class="form-group ewwe hidden">
+                  <label for="inputState">العميل هيدفع مصاريف الشحن للاستبدال <span style="color: red;">*</span></label>
+                  <select style="width: 100%;" name="shipping_replacement_cost" class="form-control" id="shipping_replacement_cost">
+                    <option value="" disabled="" selected=""> اختر</option>
+                    <option value="1">نعم</option>
+                    <option value="">لا</option>
+                  </select>
+                </div>
+
+
+                <div class="form-group ">
+                  <label for="full_name">الاسم بالكامل  <span style="color: red;">*</span></label>
+                  <input placeholder="Full Name" id="full_name" type="text" value="" class="form-control" name="full_name" required="">
+                                    
+                </div>
+               
+                <div class="form-group">
+                  <label for="inputPhone">التليفون  <span style="color: red;">*</span><span style="color: red;" id="exist_order"></span></label>
+                  <input id="phone" type="text" autocomplete="off" class="phone form-control" name="phone" value="" placeholder="10000000" required="">
+                                    <p style="color: red;margin-left: 3px;" id="demo"></p>
+                </div>
+                <div class="form-group">
+                  <label for="inputPhone">هاتف آخر <span style="color: red;" id="exist_order_another"></span></label>
+                  <input id="another_phone" type="text" autocomplete="off" class="another_phone form-control" name="another_phone" value="" placeholder="10000000">
+                                    <p style="color: red;margin-left: 3px;" id="demo1"></p>
+                </div>
+                
+                <div class="form-group">
+                  <label for="inputState">المحافظة <span style="color: red;">*</span></label>
+                  <select style="width: 100%;" name="governrate" class="select2 form-control select2-hidden-accessible" id="category" required="" data-select2-id="category" tabindex="-1" aria-hidden="true">
+                    <option value="" data-select2-id="2">اختر المحافظة</option>
+                                          <option value="1">القاهرة</option>
+                                          <option value="2">الجيزة</option>
+                                          <option value="3">الأسكندرية</option>
+                                          <option value="4">الدقهلية</option>
+                                          <option value="5">البحر الأحمر</option>
+                                          <option value="6">البحيرة</option>
+                                          <option value="7">الفيوم</option>
+                                          <option value="8">الغربية</option>
+                                          <option value="9">الإسماعيلية</option>
+                                          <option value="10">المنوفية</option>
+                                          <option value="11">المنيا</option>
+                                          <option value="12">القليوبية</option>
+                                          <option value="14">السويس</option>
+                                          <option value="15">أسوان</option>
+                                          <option value="16">أسيوط</option>
+                                          <option value="17">بني سويف</option>
+                                          <option value="18">بور سعيد</option>
+                                          <option value="19">دمياط</option>
+                                          <option value="20">الشرقية</option>
+                                          <option value="21">جنوب سيناء</option>
+                                          <option value="22">كفر الشيخ</option>
+                                          <option value="23">مطروح</option>
+                                          <option value="24">الأقصر</option>
+                                          <option value="25">قنا</option>
+                                          <option value="26">شمال سيناء ( خارج التغطية )</option>
+                                          <option value="27">سوهاج</option>
+                                          <option value="28">الساحل الشمالي</option>
+                                      </select><span class="select2 select2-container select2-container--default" dir="rtl" data-select2-id="1" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-category-container"><span class="select2-selection__rendered" id="select2-category-container" role="textbox" aria-readonly="true" title="اختر المحافظة">اختر المحافظة</span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+                                    <p style="color: red;margin-left: 3px;" id="demo2"></p>
+                </div>
+                <div class="form-group">
+                  <label for="inputCity">المدينة  <span style="color: red;">*</span></label>
+  
+                  <select style="width: 100%;" class="select2 form-control select2-hidden-accessible" name="city" id="subcategory" data-select2-id="subcategory" tabindex="-1" aria-hidden="true">
+                           
+                  </select><span class="select2 select2-container select2-container--default" dir="rtl" data-select2-id="3" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-subcategory-container"><span class="select2-selection__rendered" id="select2-subcategory-container" role="textbox" aria-readonly="true"></span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+                                    <p style="color: red;margin-left: 3px;" id="demo3"></p>
+                </div>
+                <div class="form-group">
+                  <label for="inputAddress2">العنوان  <span style="color: red;">*</span></label>
+                  <input id="address" type="text" class="form-control" name="address" value="" placeholder="العنوان" required="" autofocus="">
+                                    <p style="color: red;margin-left: 3px;" id="demo4"></p>
+                </div>
+                                <div class="form-group">
+                  <label for="inputAddress2">اسم المودريتور</label>
+                  <input id="Modrator" type="text" class="form-control" name="modrator" value="" placeholder="اسم المودريتور" autofocus="">
+                </div>
+                                <div class="form-group ">
+                  <label for="full_name">صفحة العميل على الفيسبوك (اختياري)</label>
+                  <input placeholder="Facebook Name" id="facebook_name" type="text" value="" class="form-control" name="facebook_name">
+                                  </div>
+                <div class="form-group ">
+                  <label for="full_name">رابط صفحة العميل على الفيسبوك (اختياري)</label>
+                  <input placeholder="Facebook Link" id="facebook_link" type="text" value="" class="form-control" name="facebook_link">
+                                  </div>
+                
+                <div class="form-group">
+                  <label for="inputPhone">ملاحظات  (تظهر هذه الملاحظات للعميل)  </label>
+                  <textarea class="form-control" rows="5" name="notes" id="notes"></textarea>
+                                    <p style="color: red;margin-left: 3px;" id="demo1"></p>
+                </div>
+                <!-- <h6> لا يوجد شحن حاليا ( الصعيد – شمال وجنوب سيناء  –  مطروح) </h6> -->
+                <h6 class="text-customer"> إضافة المنتجات</h6>
+              
+              <input type="search" class="form-control input-search ui-autocomplete-input" id="search_data" autocomplete="off" placeholder="  ابحث بإسم المنتج">
+              <div class="addButton">
+               
+              </div>
+              <table class="table table-striped table-add
+              table-bordered">
+                <thead class="table-thead">
+                  <tr>
+                    <th>المنتج</th>
+                    <th>السعر</th>
+                    <th>الكوبون</th>
+                    <th>الكمية</th>
+                    <th>الإجمالي</th>
+
+                    <th>العمولة</th>
+                    <th>المقاس</th>
+                    <th>حذف</th>
+                  </tr>
+                </thead>
+                <tbody id="container" class="order-list">
+                                                          <tr>
+                      <td class="td-img-2" style="width: 31%;">
+                                              <img src="https://aff.ven-door.com/storage/products_image/lmZ2YNXKfPFHofS2Jm0fEJHGrblIhLPEnuFcWZcK.jpg">
+                                              <span id="proحذاء ليش Zara SV42 بدون رباط ( مخزن 127 )">حذاء ليش Zara SV42 بدون رباط ( مخزن 127 )</span>
+                      </td>
+                                                    
+                      <td>
+                      <span id="chanPri1759591133"> 250 </span> جنيه                        <input type="hidden" name="totalproprice[]" value="250" id="totalproprice1759591133">
+                        <input type="hidden" name="totalprocommission[]" value="0" id="totalprocommission1759591133">
+                        <input type="hidden" name="totalprocommissionteam[]" value="0.00" id="totalprocommissionteam1759591133">
+                        <input type="hidden" name="totalprocommissionsite[]" value="40.00" id="totalprocommissionsite1759591133">
+                        <span style="font-size: 12px;" class="td-span" data-toggle="modal" data-id="1759591133" data-team="0.00" data-commission="0" data-price="250" data-minimum_price="290" data-maximum_price="890" data-target="#examplechang1759591133">تغير السعر</span>
+                      </td>
+                      <td>
+                        <input type="text" name="coupon[]" product-price="250" product-id="3789" site-commission="40.00" product-commission="0" vendor-id="34996" class="check_coupon " value="" id="coupon_1759591133" id-coupon="1759591133">
+                        <input type="hidden" name="coupon_value[]" value="" data-id="1759591133" class="product-coupon" id="coupon_value_1759591133">
+                        <input type="hidden" name="affiliate_discount[]" value="" data-id="1759591133" class="" id="affiliate_discount_1759591133">
+                        <input type="hidden" name="site_discount[]" value="" data-id="1759591133" class="" id="site_discount_1759591133">
+                      </td>
+                      <td>
+                        <div class="def-number-input">
+                          <input class="quantity input-p product-quantity" data-id="1759591133" id="product-quantity1759591133" min="1" max="" name="productsQuantity[]" data-price="250" data-commission="0" data-teamleader="0.00" data-site="40.00" value="1" required="" type="number">
+                          <input type="hidden" name="product_id[]" value="3789">
+                      </div>
+                      </td>
+                      <td id="product-price1759591133" class="product-price"> 250 </td>
+                      <td id="chancommi1759591133" class="product-commission ">0</td>
+                      <td id="chanteamleader1759591133" class="teamleader-commission" style="display: none;">0.00</td>
+                      <td id="chancommissionsite1759591133" class="site-commission" style="display: none;">40.00</td>
+                      <td>
+                          <select style="font-size: 10px;" required="" name="sizePro[]" id="selSize3789" onclick="deleteCategory(3789)" class="fom-inpt from-select">
+                            <option class="option-s" value="">...</option>
+                                                          <option class="option-s" value="3789#بيج مقلم 41#بيج مقلم 41"><span>الكمية=&gt; (25)</span> - المقاس=&gt;(بيج مقلم 41) </option>
+                                                          <option class="option-s" value="3789#بيج مقلم 42#بيج مقلم 42"><span>الكمية=&gt; (9)</span> - المقاس=&gt;(بيج مقلم 42) </option>
+                                                          <option class="option-s" value="3789#بيج مقلم 43#بيج مقلم 43"><span>الكمية=&gt; (19)</span> - المقاس=&gt;(بيج مقلم 43) </option>
+                                                          <option class="option-s" value="3789#بيج مقلم 44#بيج مقلم 44"><span>الكمية=&gt; (32)</span> - المقاس=&gt;(بيج مقلم 44) </option>
+                                                          <option class="option-s" value="3789#بيج مقلم 45#بيج مقلم 45"><span>الكمية=&gt; (12)</span> - المقاس=&gt;(بيج مقلم 45) </option>
+                                                          <option class="option-s" value="3789#ستارز 44#ستارز 44"><span>الكمية=&gt; (-8)</span> - المقاس=&gt;(ستارز 44) </option>
+                                                          <option class="option-s" value="3789#ستارز 45#ستارز 45"><span>الكمية=&gt; (-8)</span> - المقاس=&gt;(ستارز 45) </option>
+                                                          <option class="option-s" value="3789#اوف وايت 41#اوف وايت 41"><span>الكمية=&gt; (22)</span> - المقاس=&gt;(اوف وايت 41) </option>
+                                                          <option class="option-s" value="3789#اوف وايت 42#اوف وايت 42"><span>الكمية=&gt; (13)</span> - المقاس=&gt;(اوف وايت 42) </option>
+                                                          <option class="option-s" value="3789#اوف وايت 43#اوف وايت 43"><span>الكمية=&gt; (12)</span> - المقاس=&gt;(اوف وايت 43) </option>
+                                                          <option class="option-s" value="3789#اوف وايت 44#اوف وايت 44"><span>الكمية=&gt; (23)</span> - المقاس=&gt;(اوف وايت 44) </option>
+                                                          <option class="option-s" value="3789#اوف وايت 45#اوف وايت 45"><span>الكمية=&gt; (30)</span> - المقاس=&gt;(اوف وايت 45) </option>
+                                                          <option class="option-s" value="3789#أزرق 41#أزرق 41"><span>الكمية=&gt; (39)</span> - المقاس=&gt;(أزرق 41) </option>
+                                                          <option class="option-s" value="3789#أزرق 42#أزرق 42"><span>الكمية=&gt; (8)</span> - المقاس=&gt;(أزرق 42) </option>
+                                                          <option class="option-s" value="3789#أزرق 43#أزرق 43"><span>الكمية=&gt; (34)</span> - المقاس=&gt;(أزرق 43) </option>
+                                                          <option class="option-s" value="3789#أزرق 44#أزرق 44"><span>الكمية=&gt; (24)</span> - المقاس=&gt;(أزرق 44) </option>
+                                                          <option class="option-s" value="3789#أزرق 45#أزرق 45"><span>الكمية=&gt; (17)</span> - المقاس=&gt;(أزرق 45) </option>
+                                                          <option class="option-s" value="3789#أصفر 41#أصفر 41"><span>الكمية=&gt; (44)</span> - المقاس=&gt;(أصفر 41) </option>
+                                                          <option class="option-s" value="3789#أصفر 42#أصفر 42"><span>الكمية=&gt; (40)</span> - المقاس=&gt;(أصفر 42) </option>
+                                                          <option class="option-s" value="3789#أصفر 43#أصفر 43"><span>الكمية=&gt; (50)</span> - المقاس=&gt;(أصفر 43) </option>
+                                                          <option class="option-s" value="3789#أصفر 44#أصفر 44"><span>الكمية=&gt; (31)</span> - المقاس=&gt;(أصفر 44) </option>
+                                                          <option class="option-s" value="3789#أصفر 45#أصفر 45"><span>الكمية=&gt; (45)</span> - المقاس=&gt;(أصفر 45) </option>
+                                                          <option class="option-s" value="3789#اسود 41#اسود 41"><span>الكمية=&gt; (61)</span> - المقاس=&gt;(اسود 41) </option>
+                                                          <option class="option-s" value="3789#اسود 42#اسود 42"><span>الكمية=&gt; (36)</span> - المقاس=&gt;(اسود 42) </option>
+                                                          <option class="option-s" value="3789#اسود 43#اسود 43"><span>الكمية=&gt; (31)</span> - المقاس=&gt;(اسود 43) </option>
+                                                          <option class="option-s" value="3789#اسود 44#اسود 44"><span>الكمية=&gt; (70)</span> - المقاس=&gt;(اسود 44) </option>
+                                                          <option class="option-s" value="3789#اسود 45#اسود 45"><span>الكمية=&gt; (26)</span> - المقاس=&gt;(اسود 45) </option>
+                              
+                          </select>
+                        </td>
+                      <td><button type="button" class="btn  x-btn remove-product-btn" data-id="3789"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                      </td>
+                    </tr>
+                   
+                </tbody>
+                <tfoot>
+                  <tr>
+                   <td colspan="5">الإجمالي</td>
+                   <td colspan="3" class="total-price text-left">250 جنيه</td>
+                   <!-- <td colspan="2" class="total-commission">0 LE</td> -->
+                   <!-- <td>Shipping 35 LE</td> -->
+                </tr>
+                <tr>
+                   <td colspan="5">تكلفة الشحن</td>
+                   <td class="text-left" colspan="3">60 جنيه</td>
+                </tr>
+                <tr>
+                   <td colspan="5">المبلغ الإجمالي الذي يدفعه العميل</td>
+                   <td class="text-left paid-total" colspan="3">310 جنيه</td>
+                </tr>
+              </tfoot>
+              </table>
+              <div>
+
+                  <div class="row form-shipping" style="align-items: center;">
+                    <h6><span>الشحن</span> </h6>
+                   
+                    <div class="form-check col-md-3 checkbox">
+                      <input type="checkbox" id="checkbox" name="later" class="checkappeardate">
+                      <label for="checkbox"><span>في وقت لاحق</span></label>
+                    </div>
+                     <input id="chipping" type="date" name="chipping" value="" class="form-control hidden_reason placeholder-no-fix" placeholder="3-5-2020">
+                                          <div class="form-check col-md-2 checkbox now">
+                      <input type="checkbox" class="nowq" id="checkboxs" name="chipping" value="2025-10-04">
+                      <label for="checkboxs"><span>الأن</span></label>
+                    </div>
+                    <div class="form-check col-md-5 " style="font-weight: bold">
+                      <label for="checkbox"><span>إجمالي العمولة</span></label>
+                      <span style="border: 1px solid;padding: 3px;" class="total-commission ">0 جنيه</span>
+                    </div>
+                    
+                  </div>
+                  <br>
+                  
+              <div class="actions form-link form-add-order">
+                <input class="nav-link btn-hader valiedbutton" id="submitBtn" type="submit">
+              </div>
+            
+               
+                
+              </div>
+               
+            </div>
+
+            
+           </div></form>
+
+        </div>
+      </div>
+   </div>
+   <!--end-rigster-tap-->
+   <!--stert-img-right-->
+     <div style="margin-right: -8px;" class=" d-lg-block col-md-4 img-right">
+      <div class="slick-slider">
+        <div class="slick-slider slide-img-add">
+          <div id="list-example" class="list-group" role="tablist" aria-orientation="vertical">
+             
+              <!--stert-profile-->
+              <a class="a-link-join" id="v-pills-profile-tab" data-toggle="pill" role="tab" aria-controls="v-pills-profile" aria-selected="true">
+               <span class="list-namber">1</span>
+               <span class="list-span-text">Order Information</span>
+              
+              </a>
+              <!--end-profile-->
+              <!--stert-messages-->
+              <a style="margin-top: 26%;" class="a-link-join" id="v-pills-messages-tab" data-toggle="pill" role="tab" aria-controls="v-pills-messages" aria-selected="true">
+               <span class="list-namber">2</span>
+               <span style="padding-left: 10px;" class="list-span-text"> Confirmation</span>             
+             </a>
+              <!--end-messages-->
+          </div>     
+        </div>
+      </div>
+     
+     </div>
+     <!--end-img-right-->
+  </div>
+   
+</div>
+<!--stert-modal-chang-price-->
+  <div class="modelPrice">
+    
+  </div>
+  <!--end-modal-chang-price-->           
+                <footer>
+            <div class="row component-footer">
+              <div class=" footer-link-left col-md-6">
+                <ul class="list-group list-group-horizontal-lg">
+                  <li class="list-group">
+                    <a class="logo-footer" href="https://aff.ven-door.com/">
+                        <img src="https://aff.ven-door.com/front_files/vendoor/file/logo.png" alt="logo"></a>
+                  </li>
+                  <li class="list-group"> 
+                      <a href="https://aff.ven-door.com/contact-us" class="a-list-group">اتصل بنا.</a>
+                    </li>
+                  <li class="list-group">  سياسة الخصوصية</li>
+                  <li class="list-group">تعليمات الاستخدام</li>
+                  <li class="list-group">سياسة الاسترداد والإلغاء</li>
+
+                </ul>
+              </div>
+              <div class="footer-link col-md-6 ml-auto">
+                <ul class="list-group list-group-horizontal-lg">
+                  <li class="list-group">
+                    <a class="icon" href="#" target="_blank">
+                      <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                    </a>
+                  </li>
+                  <li class="list-group">
+                    <a class="icon" href="#" target="_blank">
+                      <i class="fab fa-twitter" aria-hidden="true"></i>
+                    </a>
+                  </li>
+                  <li class="list-group">
+                    <a class="icon" href="#" target="_blank">
+                      <i class="fab fa-instagram" aria-hidden="true">
+                     </i>
+                  </a>
+                 </li>
+                  <li class="list-group">
+                    <a class="icon" href="#" target="_blank">
+                      <i class="fab fa-youtube" aria-hidden="true"></i>
+                    </a>
+                  </li>
+                  <li class="list-group"><a class="icon" href="#" target="_blank">
+                    <i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+                  </li>
+                  <li class="list-group copy-right">
+           
+                    Copyright ©  2025  Vendoor Program. All rights reserved
+                  </li>
+                </ul>
+              </div>
+            </div>
+        </footer>        <div class="navbar-button" style="position: fixed;bottom: 0;">
+           
+                    <a href="https://aff.ven-door.com/support/chat"><i class="fab fa-facebook-messenger"></i></a>
+                      </div>
+    </header></div>
+
+
+    <!--jav-script-stert-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.css">
+    <script src="https://aff.ven-door.com/front_files/vendoor/js/peper.js"></script>
+    <script src="https://aff.ven-door.com/front_files/vendoor/js/bootstrap.min.js"></script>
+    <script src="https://aff.ven-door.com/front_files/vendoor/js/hieght.js"></script>
+    <script src="https://aff.ven-door.com/front_files/vendoor/js/button-link.js"></script>
+    <script src="https://aff.ven-door.com/front_files/vendoor/js/tap.js"></script>
+     
+   
+    <script src="https://aff.ven-door.com/dashboard_files/select2/select2.min.js"></script>
+<script>
+    $('.select2').select2({
+        width:'100%',
+    });
+</script>
+<script src="https://aff.ven-door.com/front_files/vendoor/js/jquery.number.min.js" type="text/javascript"></script>
+
+<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+
+<script>
+  
+  $(document).on('change', '.check_coupon', function(e){
+    e.preventDefault();
+    var code = $(this).val();
+    var pro_id = $(this).attr('product-id');
+    var vendor_id = $(this).attr('vendor-id');
+    var id = $(this).attr('id-coupon');
+    var commission = $(this).attr('product-commission');
+    var commission_site = $(this).attr('site-commission');
+    var price = $(this).attr('product-price');
+    if (code.length == 0) {
+      $('#coupon_value_'+id).val('');
+      $('#affiliate_discount_'+id).val('');
+      $('#site_discount_'+id).val('');
+      
+      var quantity = Number($("#product-quantity"+id).val()); 
+      var newprice = document.getElementById("chanPri"+id);
+      var divpriceContent = newprice.innerHTML;
+      var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+      var newPrice = unitPrice - price;
+
+      $("#product-price"+id).html($.number(quantity * unitPrice, 2));
+      $("#chancommi"+id).html((Number(commission) + Number(newPrice)) * quantity);
+      $("#chancommissionsite"+id).html(commission_site * quantity);
+      $("#totalprocommission"+id).val($("#chancommi"+id).html());
+      $("#totalprocommissionsite"+id).val($("#chancommissionsite"+id).html());
+      calculateTotal();
+      calculateCommission();
+      teamleaderCommission();
+      siteCommission();
+      return false;
+    }
+
+    $.ajax({
+                
+      url:"https://aff.ven-door.com/save/coupon",
+      type:"POST",
+      data: {
+        code: code,
+        pro_id: pro_id,
+        vendor_id: vendor_id,
+      },
+     
+      success:function (data) {
+        if (data.status == true) {
+          var quantity = Number($("#product-quantity"+id).val()); //2
+          if (data.data.type == 3) {
+            // نسبه مئوية
+            var newprice = document.getElementById("chanPri"+id);
+            var divpriceContent = newprice.innerHTML;
+            var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+
+            $('#coupon_value_'+id).val((unitPrice * quantity) * Number(data.data.value /100));
+          }else if(data.data.type == 4){
+            // مبلغ ثابت
+            $('#coupon_value_'+id).val(Number(data.data.value) * quantity);
+            $('#affiliate_discount_'+id).val(Number(data.data.affiliate_discount) * quantity );
+            $('#site_discount_'+id).val(Number(data.data.site_discount) * quantity);
+            
+          }else if(data.data.type == 1){
+            // شحن مجاني
+            $('#coupon_value_'+id).val(0);
+          }else if(data.data.type == 2){
+            // خدمة مجانيه
+            $('#coupon_value_'+id).val(0);
+          }
+          $('.fa-spinner').css({"display": "none"});      
+          
+          var coupon = Number($("#coupon_value_"+id).val());
+          var newprice = document.getElementById("chanPri"+id);
+          var divpriceContent = newprice.innerHTML;
+          var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+
+          
+          var newprice = document.getElementById("chanPri"+id);
+          var xxc = newprice.innerHTML;
+          var  newpr = xxc-price;
+
+          $("#product-price"+id).html($.number((quantity * unitPrice) - coupon, 2));
+          $("#chancommi"+id).html(((commission * quantity) - (data.data.affiliate_discount * quantity)) + (newpr * quantity));
+          $("#chancommissionsite"+id).html((commission_site * quantity) - (data.data.site_discount * quantity));
+          $("#totalprocommission"+id).val($("#chancommi"+id).html());
+          $("#totalprocommissionsite"+id).val($("#chancommissionsite"+id).html());
+          calculateTotal();
+          calculateCommission();
+          teamleaderCommission();
+          siteCommission();
+          toastr.success(data.message, data.title);
+        }else{
+          $('#coupon_'+id).val("");
+          $('#affiliate_discount_'+id).val("");
+          
+          $('#site_discount_'+id).val("");
+          var newprice = document.getElementById("chanPri"+id);
+          var quantity = Number($("#product-quantity"+id).val()); //2
+          var divpriceContent = newprice.innerHTML;
+          var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+          $("#product-price"+id).html($.number((quantity * unitPrice), 2));
+          var  newpr = unitPrice-price;
+          $("#chancommi"+id).html((commission * quantity) + (newpr * quantity));
+          $("#chancommissionsite"+id).html(commission_site * quantity);
+          $("#totalprocommission"+id).val($("#chancommi"+id).html());
+          $("#totalprocommissionsite"+id).val($("#chancommissionsite"+id).html());
+          calculateTotal();
+          calculateCommission();
+          teamleaderCommission();
+          siteCommission();
+          $('.fa-spinner').css({"display": "none"});
+          toastr.error(data.message, data.title);
+        }
+        
+      }
+    })
+    
+  });
+
+  
+
+  $(document).ready(function(){  
+
+    $("#order_type").change(function () {
+      if ($(this).val() == 'اوردر تسليم جزئي') {
+        $('#amount_paid_partial').prop('required', true);
+        $('#customer_receive_piece_of_order').prop('required', true);
+        $('.ewe').removeClass('hidden');
+        $('.ewwe').addClass('hidden');
+        $('#old_order_number').prop('required', false);
+        $('#reason_replacement').prop('required', false);
+        $('#receives_pieces').prop('required', false);
+        $('#new_pieces').prop('required', false);
+        $('#shipping_replacement_cost').prop('required', false);
+        $("#old_order_number").val("")
+        $("#reason_replacement").val("")
+        $("#receives_pieces").val("")
+        $("#new_pieces").val("")
+        $("#shipping_replacement_cost").val("")
+      }else if($(this).val() == 'اوردر استبدال'){
+        $("#amount_paid_partial").val("")
+        $("#customer_receive_piece_of_order").val("")
+        $('#old_order_number').prop('required', true);
+        $('#reason_replacement').prop('required', true);
+        $('#receives_pieces').prop('required', true);
+        $('#new_pieces').prop('required', true);
+        $('#shipping_replacement_cost').prop('required', true);
+        $('.ewwe').removeClass('hidden');
+        $('#amount_paid_partial').prop('required', false);
+        $('#customer_receive_piece_of_order').prop('required', false);
+        $('.ewe').addClass('hidden');
+      }else{
+        $("#amount_paid_partial").val("")
+        $("#customer_receive_piece_of_order").val("")
+        $("#old_order_number").val("")
+        $("#reason_replacement").val("")
+        $("#receives_pieces").val("")
+        $("#new_pieces").val("")
+        $("#shipping_replacement_cost").val("")
+        $('#amount_paid_partial').prop('required', false);
+        $('#customer_receive_piece_of_order').prop('required', false);
+        $('#old_order_number').prop('required', false);
+        $('#reason_replacement').prop('required', false);
+        $('#receives_pieces').prop('required', false);
+        $('#shipping_replacement_cost').prop('required', false);
+        $('#new_pieces').prop('required', false);
+        $('.ewe').addClass('hidden');
+        $('.ewwe').addClass('hidden');
+      }
+    })
+     
+      $('body').on('keyup change', '.product-quantity', function() {
+        var id = $(this).data('id');
+        var quantity = Number($(this).val()); //2
+        var code =$("#coupon_"+id).val(); 
+        var pro_id =$("#coupon_"+id).attr('product-id');
+        var vendor_id =$("#coupon_"+id).attr('vendor-id');
+        var commission = $("#coupon_"+id).attr('product-commission');
+        var commission_site = $("#coupon_"+id).attr('site-commission');
+        var price = $("#coupon_"+id).attr('product-price');
+        //#calculate coupon
+        if (code.length != 0) {
+          $.ajax({
+                  
+            url:"https://aff.ven-door.com/save/coupon",
+            type:"POST",
+            data: {
+              code: code,
+              pro_id: pro_id,
+              vendor_id: vendor_id,
+            },
+            
+            success:function (data) {
+              if (data.status == true) {
+                var quantity = Number($("#product-quantity"+id).val()); //2
+                if (data.data.type == 3) {
+                  // نسبه مئوية
+                  var newprice = document.getElementById("chanPri"+id);
+                  var divpriceContent = newprice.innerHTML;
+                  var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+      
+                  $('#coupon_value_'+id).val((unitPrice * quantity) * Number(data.data.value /100));
+                }else if(data.data.type == 4){
+                  // مبلغ ثابت
+                  $('#coupon_value_'+id).val(Number(data.data.value) * quantity);
+                  $('#affiliate_discount_'+id).val(Number(data.data.affiliate_discount) * quantity);
+                  $('#site_discount_'+id).val(Number(data.data.site_discount) * quantity);
+                }else if(data.data.type == 1){
+                  // شحن مجاني
+                  $('#coupon_value_'+id).val(0);
+                }else if(data.data.type == 2){
+                  // خدمة مجانيه
+                  $('#coupon_value_'+id).val(0);
+                }
+                $('.fa-spinner').css({"display": "none"});      
+                
+                var coupon = Number($("#coupon_value_"+id).val());
+                var newprice = document.getElementById("chanPri"+id);
+                var divpriceContent = newprice.innerHTML;
+                var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                var xxc = newprice.innerHTML;
+                var  newpr = xxc-price;
+
+                $("#product-price"+id).html($.number((quantity * unitPrice) - coupon, 2));
+                $("#chancommi"+id).html(((commission * quantity) - (data.data.affiliate_discount * quantity)) + (newpr * quantity));
+                $("#chancommissionsite"+id).html((commission_site * quantity) - data.data.site_discount);
+                $("#totalprocommission"+id).val($("#chancommi"+id).html());
+                $("#totalprocommissionsite"+id).val((commission_site * quantity) - data.data.site_discount);
+          
+          
+          
+
+
+                calculateTotal();
+                calculateCommission();
+                teamleaderCommission();
+                siteCommission();
+                // toastr.success(data.message, data.title);
+              }else{
+                $('#coupon').val("");
+                $('.fa-spinner').css({"display": "none"});
+                toastr.error(data.message, data.title);
+              }
+              
+            }
+          })
+        }else{
+          var newprice = document.getElementById("chanPri"+id);
+          var divpriceContent = newprice.innerHTML;
+          var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); 
+
+          console.log(unitPrice);
+          $(this).closest('tr').find('.product-price').html($.number((quantity * unitPrice), 2));
+
+        }
+
+        
+        calculateTotal();
+        calculateCommission();
+        teamleaderCommission();
+        siteCommission();
+      });//end of product quantity change
+
+      
+      
+      $('body').on('keyup change', '.product-quantity', function() {
+        //#calculate coupon
+        var id = $(this).data('id');
+        var price = $(this).data('price');
+        var commissionc = $(this).data('commission');
+        //alert(price);
+        var quantity = Number($(this).val()); //2
+        var newprice = document.getElementById("chanPri"+id);
+        var xxc = newprice.innerHTML;
+        var  newpr = xxc-price;
+        var newCom = Number(commissionc)+Number(newpr);
+        $(this).closest('tr').find('.product-commission').html($.number(quantity * newCom, 2));
+        calculateTotal();
+        calculateCommission();
+        teamleaderCommission();
+        siteCommission();
+      });//end of product quantity change
+
+      $('body').on('click', '.product-quantity', function(e) {
+        e.preventDefault();
+        //#calculate coupon
+        var id = $(this).data('id');
+        var newcommission = document.getElementById("chancommi"+id);
+        var newcommissionteam = document.getElementById("chanteamleader"+id);
+        var newcommissionsite = document.getElementById("chancommissionsite"+id);
+        var divcommissionContent = newcommission.innerHTML;
+        var divcommissionteamContent = newcommissionteam.innerHTML;
+        var divcommissionsiteContent = newcommissionsite.innerHTML;
+        $("#totalprocommission"+id).val(divcommissionContent);
+        $("#totalprocommissionteam"+id).val(divcommissionteamContent);
+        $("#totalprocommissionsite"+id).val(divcommissionsiteContent);
+  
+      });//end of remove product btn
+
+      $('body').on('keyup change', '.product-quantity', function() {
+        //#calculate coupon
+        var id = $(this).data('id');
+        var price = $(this).data('price');
+        var quantity = Number($(this).val()); //2
+        var team = $(this).data('teamleader');
+        var newprice = document.getElementById("chanPri"+id);
+        var xxc = newprice.innerHTML;
+        var  newpr = xxc-price;
+        
+        var newCom = Number(team)+Number(newpr);
+        $(this).closest('tr').find('.teamleader-commission').html($.number(quantity * newCom, 2));
+        calculateTotal();
+        calculateCommission();
+        teamleaderCommission();
+        siteCommission();
+      });
+
+      $('body').on('keyup change', '.product-quantity', function() {
+        //#calculate coupon
+        var id = $(this).data('id');
+        var quantity = Number($(this).val()); //2
+        var site = $(this).data('site');
+        $(this).closest('tr').find('.site-commission').html($.number(quantity * site, 2));
+        calculateTotal();
+        calculateCommission();
+        teamleaderCommission();
+        siteCommission();
+      });
+
+    $('#search_data').autocomplete({
+      source: 'https://aff.ven-door.com/search',
+      minLength: 1,
+      cacheLength: 0,
+      select: function(event, ui)
+      {
+        $('#search_data').val(ui.item.value);
+        var xx = $('#search_data').val();
+        //alert(xx);
+        $.ajax({
+            url: base_url+"/search/"+xx, 
+            type: 'get',
+            cache: false,
+            success:function(html){
+            document.getElementById("search_data").value = "";
+           
+            $('.order-list').append(html);
+            $(document).on('click', '.td-span', function(){
+              var id = $(this).data('id');
+              //alert(id);
+              var minimum_price = $(this).data('minimum_price');
+              var maximum_price = $(this).data('maximum_price');
+              var commissionc = $(this).data('commission');
+              var team = $(this).data('team');
+              var price = $(this).data('price');
+             // alert(commission)
+              var mdePrice =
+                `<div class="modal fade" id="examplechang${id}" tabindex="-1" role="dialog" aria-labelledby="examplechang" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      
+                      <div class="modal-body text-center">
+                        <h5 class="modal-title text-product" id="staticBackdropLabel">رينج السعر</h5>
+                         <div class="main">
+                          
+                          <input type="range"  min="${minimum_price}"  max="${maximum_price}" value="${minimum_price}" class="slider" id="myRange${id}">
+                          <p style="display: inline-block;float: right;">
+                            <span id="min${id}">${minimum_price}</span>
+                            <span style="display: block;font-size: 12px;">الحد الادني</span>
+                          </p>
+                          <p style="display: inline-block;">
+                            <span style="display: none;" id="demmo${id}"></span>
+                            <input type="number" class="edit_price form-control" id="edit_price${id}"  data-id="${id}" min="${minimum_price}" max="${maximum_price}" value="${minimum_price}">
+                          </p>
+                          <p style="display: inline-block;float: left;">
+                            <span id="max${id}">${maximum_price}</span>
+                            <span style="display: block;font-size: 12px;">الحد الاقصي</span>
+                          </p>
+
+                           
+                           
+                          </div>
+                        
+                        <div class="text-center">
+                          <button type="button" class="btn btn-save changePrice${id}" data-dismiss="modal">تغير السعر </button>
+                
+                        </div>
+                      
+                      </div>
+                      
+                    </div>
+                  </div>
+                </div>`;  
+                $('.modelPrice').append(mdePrice);
+                var slider = document.getElementById("myRange"+id);
+                var output = document.getElementById("demmo"+id);
+                output.innerHTML = slider.value;
+                $('body').on('click', '.changePrice'+id, function(e) {
+                  
+                  e.preventDefault();
+                  // #============================
+                  var code = $("#coupon_"+id).val();
+                  var pro_id = $("#coupon_"+id).attr('product-id');
+                  var vendor_id = $("#coupon_"+id).attr('vendor-id');
+                  if (code.length == 0) {
+                    $('#coupon_value_'+id).val('');
+                    var quantity = Number($("#product-quantity"+id).val()); //2
+                    var newprice = document.getElementById("chanPri"+id);
+                    var divpriceContent = newprice.innerHTML;
+                    var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                    $("#product-price"+id).html($.number(quantity * unitPrice, 2));
+                    $("#chancommi"+id).html(commission);
+                    $("#totalprocommission"+id).val($("#chancommi"+id).html());
+
+
+
+
+                    var slider = document.getElementById("myRange"+id);
+                    var xxc = slider.value;
+                    var newprice = document.getElementById("chanPri"+id);
+                    newprice.innerHTML = xxc;
+                    var divpriceContent = newprice.innerHTML;
+                    //alert(divpriceContent);
+                    var  newpr = xxc-price;
+                
+                    var newCom = Number(commissionc)+Number(newpr);
+                    var newComTeam = Number(team)+Number(newpr);
+                    var commission = document.getElementById("chancommi"+id);
+                    var teamleader = document.getElementById("chanteamleader"+id);
+                  
+                    // alert(commission.innerHTML);
+                    var newprice = document.getElementById("chanPri"+id);
+                    
+                    var newcommission = document.getElementById("chancommi"+id);
+                    var newcommissionteam = document.getElementById("chanteamleader"+id);
+                    var newcommissionsite = document.getElementById("chancommissionsite"+id);
+                    var quantity = Number($("#product-quantity"+id).val());
+                    commission.innerHTML = newCom * quantity;
+                    teamleader.innerHTML = newComTeam * quantity;
+                    console.log(newprice);
+                    var divpriceContent = newprice.innerHTML;
+                    var divcommissionContent = newcommission.innerHTML;
+                    var divcommissionteamContent = newcommissionteam.innerHTML;
+                    var divcommissionsiteContent = newcommissionsite.innerHTML;
+                    var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                    console.log(unitPrice);
+                    var quan = document.getElementById("product-price"+id);
+                    quan.innerHTML = $.number((quantity * unitPrice) , 2);
+                    $("#totalproprice"+id).val(divpriceContent);
+                    $("#totalprocommission"+id).val(divcommissionContent);
+                    $("#totalprocommissionteam"+id).val(divcommissionteamContent);
+                    $("#totalprocommissionsite"+id).val(divcommissionsiteContent);
+                    
+                    calculateTotal();
+                    calculateCommission();
+                    teamleaderCommission();
+                    siteCommission();
+                    return false;
+                  }
+
+                  $.ajax({
+                              
+                    url:"https://aff.ven-door.com/save/coupon",
+                    type:"POST",
+                    data: {
+                      code: code,
+                      pro_id: pro_id,
+                      vendor_id: vendor_id,
+                    },
+     
+                    success:function (data) {
+                      if (data.status == true) {
+                        if (data.data.type == 3) {
+                          // نسبه مئوية
+                          var quantity = Number($("#product-quantity"+id).val()); //2
+                          var newprice = document.getElementById("chanPri"+id);
+                          var divpriceContent = newprice.innerHTML;
+                          var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                          $('#coupon_value_'+id).val((unitPrice * quantity) * Number(data.data.value /100));
+                        }else if(data.data.type == 4){
+                          // مبلغ ثابت
+                          var quantity = Number($("#product-quantity"+id).val());
+                          $('#coupon_value_'+id).val(Number(data.data.value) * quantity);
+                          $('#affiliate_discount_'+id).val(Number(data.data.affiliate_discount) * quantity);
+                          $('#site_discount_'+id).val(Number(data.data.site_discount)  * quantity);
+                        }else if(data.data.type == 1){
+                          // شحن مجاني
+                          $('#coupon_value_'+id).val(0);
+                        }else if(data.data.type == 2){
+                          // خدمة مجانيه
+                          $('#coupon_value_'+id).val(0);
+                        }
+                        $('.fa-spinner').css({"display": "none"});      
+                        var quantity = Number($("#product-quantity"+id).val()); //2
+                        var coupon = Number($("#coupon_value_"+id).val());
+                        var newprice = document.getElementById("chanPri"+id);
+                        var divpriceContent = newprice.innerHTML;
+                        var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                        
+                        $("#product-price"+id).html($.number((quantity * unitPrice) - coupon, 2));
+                        
+                        calculateTotal();
+                        calculateCommission();
+                        teamleaderCommission();
+                        siteCommission();
+                        toastr.success(data.message, data.title);
+                      }else{
+                        $('#coupon').val("");
+                        $('.fa-spinner').css({"display": "none"});
+                        toastr.error(data.message, data.title);
+                      }
+                      
+                    }
+                  })
+
+                  // #---------------------------------
+                  var slider = document.getElementById("myRange"+id);
+                  var xxc = slider.value;
+                  var newprice = document.getElementById("chanPri"+id);
+                  newprice.innerHTML = xxc;
+                  var divpriceContent = newprice.innerHTML;
+                  //alert(divpriceContent);
+                  var  newpr = xxc-price;
+               
+                  var newCom = Number(commissionc)+Number(newpr);
+                  var newComTeam = Number(team)+Number(newpr);
+                  var commission = document.getElementById("chancommi"+id);
+                  var teamleader = document.getElementById("chanteamleader"+id);
+                
+                 // alert(commission.innerHTML);
+                  var newprice = document.getElementById("chanPri"+id);
+                  
+                  var newcommission = document.getElementById("chancommi"+id);
+                  var newcommissionteam = document.getElementById("chanteamleader"+id);
+                  var newcommissionsite = document.getElementById("chancommissionsite"+id);
+                  var quantity = Number($("#product-quantity"+id).val());
+                  var com_discount = Number($("#affiliate_discount_"+id).val());
+                  commission.innerHTML = (newCom * quantity) - com_discount; 
+                  teamleader.innerHTML = newComTeam * quantity;
+                  console.log(newprice);
+                  var divpriceContent = newprice.innerHTML;
+                  var divcommissionContent = newcommission.innerHTML;
+                  var divcommissionteamContent = newcommissionteam.innerHTML;
+                  var divcommissionsiteContent = newcommissionsite.innerHTML;
+                  var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                  console.log(unitPrice);
+                  var quan = document.getElementById("product-price"+id);
+                  var coupon = Number($("#coupon_value_"+id).val());
+                  
+                  quan.innerHTML = $.number((quantity * unitPrice) - coupon, 2);
+                  $("#totalproprice"+id).val(divpriceContent);
+                  $("#totalprocommission"+id).val(divcommissionContent);
+                  $("#totalprocommissionteam"+id).val(divcommissionteamContent);
+                  $("#totalprocommissionsite"+id).val(divcommissionsiteContent);
+                  
+                  calculateTotal();
+                  calculateCommission();
+                  teamleaderCommission();
+                  siteCommission();
+                });
+
+                
+
+                
+                
+              slider.oninput = function() {
+                output.innerHTML = this.value;
+                $('#edit_price'+id).val(this.value);
+
+              }  
+            });
+            
+            calculateTotal();
+            calculateCommission();
+            teamleaderCommission();
+             siteCommission();
+           }
+        });
+      }
+    }).data('ui-autocomplete')._renderItem = function(ul, item){
+      return $("<li class='ui-autocomplete-row'></li>")
+        .data("item.autocomplete", item)
+        .append(item.label)
+        .appendTo(ul);
+    };
+
+    $(document).on('click', '.td-span', function(){
+      var id = $(this).data('id');
+      //alert(id);
+      var minimum_price = $(this).data('minimum_price');
+      var maximum_price = $(this).data('maximum_price');
+      var commissionc = $(this).data('commission');
+      var team = $(this).data('team');
+      var price = $(this).data('price');
+      // alert(commission)
+      var mdePrice =
+        `<div class="modal fade" id="examplechang${id}" tabindex="-1" role="dialog" aria-labelledby="examplechang" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              
+              <div class="modal-body text-center">
+                <h5 class="modal-title text-product" id="staticBackdropLabel">رينج السعر</h5>
+                  <div class="main">
+                  
+                  <input type="range"  min="${minimum_price}"  max="${maximum_price}" value="${minimum_price}" class="slider" id="myRange${id}">
+                  <p style="display: inline-block;float: right;">
+                    <span id="min${id}">${minimum_price}</span>
+                    <span style="display: block;font-size: 12px;">الحد الادني</span>
+                  </p>
+                  <p style="display: inline-block;">
+                    <span style="display: none;" id="demmo${id}"></span>
+                    <input type="number" class="edit_price form-control" id="edit_price${id}"  data-id="${id}" min="${minimum_price}" max="${maximum_price}" value="${minimum_price}">
+                  </p>
+                  <p style="display: inline-block;float: left;">
+                    <span id="max${id}">${maximum_price}</span>
+                    <span style="display: block;font-size: 12px;">الحد الاقصي</span>
+                  </p>
+
+                    
+                    
+                  </div>
+                
+                <div class="text-center">
+                  <button type="button" class="btn btn-save changePrice${id}" data-dismiss="modal">تغير السعر </button>
+        
+                </div>
+              
+              </div>
+              
+            </div>
+          </div>
+        </div>`;  
+        $('.modelPrice').append(mdePrice);
+        var slider = document.getElementById("myRange"+id);
+        var output = document.getElementById("demmo"+id);
+        output.innerHTML = slider.value;
+        $('body').on('click', '.changePrice'+id, function(e) {
+          e.preventDefault();
+           // #============================
+           var code = $("#coupon_"+id).val();
+          var pro_id = $("#coupon_"+id).attr('product-id');
+          var vendor_id = $("#coupon_"+id).attr('vendor-id');
+         
+          if (code.length == 0) {
+            $('#coupon_value_'+id).val('');
+            var quantity = Number($("#product-quantity"+id).val()); //2
+            var newprice = document.getElementById("chanPri"+id);
+            var divpriceContent = newprice.innerHTML;
+            var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+            $("#product-price"+id).html($.number(quantity * unitPrice, 2));
+            $("#chancommi"+id).html(commission);
+            $("#totalprocommission"+id).val($("#chancommi"+id).html());
+
+
+
+
+            var slider = document.getElementById("myRange"+id);
+            var xxc = slider.value;
+            var newprice = document.getElementById("chanPri"+id);
+            newprice.innerHTML = xxc;
+            var divpriceContent = newprice.innerHTML;
+            //alert(divpriceContent);
+            var  newpr = xxc-price;
+        
+            var newCom = Number(commissionc)+Number(newpr);
+            var newComTeam = Number(team)+Number(newpr);
+            var commission = document.getElementById("chancommi"+id);
+            var teamleader = document.getElementById("chanteamleader"+id);
+          
+            // alert(commission.innerHTML);
+            var newprice = document.getElementById("chanPri"+id);
+            
+            var newcommission = document.getElementById("chancommi"+id);
+            var newcommissionteam = document.getElementById("chanteamleader"+id);
+            var newcommissionsite = document.getElementById("chancommissionsite"+id);
+            var quantity = Number($("#product-quantity"+id).val());
+            commission.innerHTML = newCom * quantity;
+            teamleader.innerHTML = newComTeam * quantity;
+            console.log(newprice);
+            var divpriceContent = newprice.innerHTML;
+            var divcommissionContent = newcommission.innerHTML;
+            var divcommissionteamContent = newcommissionteam.innerHTML;
+            var divcommissionsiteContent = newcommissionsite.innerHTML;
+            var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+            console.log(unitPrice);
+            var quan = document.getElementById("product-price"+id);
+            quan.innerHTML = $.number((quantity * unitPrice) , 2);
+            $("#totalproprice"+id).val(divpriceContent);
+            $("#totalprocommission"+id).val(divcommissionContent);
+            $("#totalprocommissionteam"+id).val(divcommissionteamContent);
+            $("#totalprocommissionsite"+id).val(divcommissionsiteContent);
+            
+            calculateTotal();
+            calculateCommission();
+            teamleaderCommission();
+            siteCommission();
+            return false;
+          }
+
+          $.ajax({
+                      
+            url:"https://aff.ven-door.com/save/coupon",
+            type:"POST",
+            data: {
+              code: code,
+              pro_id: pro_id,
+              vendor_id: vendor_id,
+            },
+
+            success:function (data) {
+                if (data.status == true) {
+                  if (data.data.type == 3) {
+                    // نسبه مئوية
+                    var quantity = Number($("#product-quantity"+id).val()); //2
+                    var newprice = document.getElementById("chanPri"+id);
+                    var divpriceContent = newprice.innerHTML;
+                    var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                    $('#coupon_value_'+id).val((unitPrice * quantity) * Number(data.data.value /100));
+                  }else if(data.data.type == 4){
+                    var quantity = Number($("#product-quantity"+id).val());
+                    // مبلغ ثابت
+                    $('#coupon_value_'+id).val(Number(data.data.value) * quantity);
+                  }else if(data.data.type == 1){
+                    // شحن مجاني
+                    $('#coupon_value_'+id).val(0);
+                  }else if(data.data.type == 2){
+                    // خدمة مجانيه
+                    $('#coupon_value_'+id).val(0);
+                  }
+                  $('.fa-spinner').css({"display": "none"});      
+                  var quantity = Number($("#product-quantity"+id).val()); //2
+                  var coupon = Number($("#coupon_value_"+id).val());
+                  var newprice = document.getElementById("chanPri"+id);
+                  var divpriceContent = newprice.innerHTML;
+                  var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+                  
+                  $("#product-price"+id).html($.number((quantity * unitPrice) - coupon, 2));
+                  calculateTotal();
+                  calculateCommission();
+                  teamleaderCommission();
+                  siteCommission();
+                  toastr.success(data.message, data.title);
+                }else{
+                  $('#coupon').val("");
+                  $('.fa-spinner').css({"display": "none"});
+                  toastr.error(data.message, data.title);
+                }
+                
+              }
+          })
+
+          // #---------------------------------
+          var slider = document.getElementById("myRange"+id);
+          var xxc = slider.value;
+          var newprice = document.getElementById("chanPri"+id);
+          newprice.innerHTML = xxc;
+          var divpriceContent = newprice.innerHTML;
+          //alert(divpriceContent);
+          //commissioncommissioncommissioncommissioncommissioncommissioncommission
+          var  newpr = xxc-price;
+        
+          var newCom = Number(commissionc)+Number(newpr);
+          var newComTeam = Number(team)+Number(newpr);
+          var commission = document.getElementById("chancommi"+id);
+          var teamleader = document.getElementById("chanteamleader"+id);
+        
+          // alert(commission.innerHTML);
+          var newprice = document.getElementById("chanPri"+id);
+          
+          var newcommission = document.getElementById("chancommi"+id);
+          var newcommissionteam = document.getElementById("chanteamleader"+id);
+          var newcommissionsite = document.getElementById("chancommissionsite"+id);
+          var quantity = Number($("#product-quantity"+id).val());
+          var com_discount = Number($("#affiliate_discount_"+id).val());
+          commission.innerHTML = (newCom * quantity) - com_discount; 
+          teamleader.innerHTML = newComTeam * quantity;
+          console.log(newprice);
+          var divpriceContent = newprice.innerHTML;
+          var divcommissionContent = newcommission.innerHTML;
+          var divcommissionteamContent = newcommissionteam.innerHTML;
+          var divcommissionsiteContent = newcommissionsite.innerHTML;
+          var unitPrice = parseFloat(divpriceContent.replace(/,/g, '')); //150
+          console.log(unitPrice);
+          var quan = document.getElementById("product-price"+id);
+          quan.innerHTML = $.number(quantity * unitPrice, 2);
+          $("#totalproprice"+id).val(divpriceContent);
+          $("#totalprocommission"+id).val(divcommissionContent);
+          $("#totalprocommissionteam"+id).val(divcommissionteamContent);
+          $("#totalprocommissionsite"+id).val(divcommissionsiteContent);
+          calculateTotal();
+          calculateCommission();
+          teamleaderCommission();
+          siteCommission();
+        });
+
+        
+
+        
+        
+      slider.oninput = function() {
+        output.innerHTML = this.value;
+        $('#edit_price'+id).val(this.value);
+
+      }  
+    });
+
+  });
+</script>
+<script>
+
+  $(document).ready(function () {
+    
+    $('body').on('change', '.edit_price', function(e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      $('#demmo'+id).html($(this).val());
+      $('#myRange'+id).val($(this).val());
+      
+    });
+    
+    //disabled btn
+    $('body').on('click', '.add-product-btn', function(e) {
+
+        e.preventDefault();
+
+    });//end of disabled
+
+    //remove product btn
+    $('body').on('click', '.remove-product-btn', function(e) {
+      e.preventDefault();
+      $(this).closest('tr').remove();
+      //to calculate total price
+      calculateTotal();
+      calculateCommission();
+      teamleaderCommission();
+      siteCommission();
+    });//end of remove product btn
+
+    
+
+});//end of document ready
+
+//calculate the total
+function calculateTotal() {
+
+  var price = 0;
+  var chipping = 60;
+
+  $('.order-list .product-price').each(function(index) {
+    price += parseFloat($(this).html().replace(/,/g, ''));
+  });
+
+  $('.total-price').html($.number(price, 2) +" جنيه");
+  $("#grand_total").val(price); 
+
+  if ($('#discount_type').val() > 0) {
+    if ($('#discount_type').val() == 3) {
+      var discount = (price * Number($('#discount').val()));
+    }else if ($('#discount_type').val() == 4) {
+      var discount = Number($('#discount').val());
+    }else if ($('#discount_type').val() == 1) {
+      var discount = chipping;
+      $('#shipping_cost').val(0);
+    }else if ($('#discount_type').val() == 2) {
+      var discount = 0;
+      $('.total_servicecost').each(function() {
+        discount += parseFloat($(this).html());
+      });
+    } 
+  }else{
+    var discount = 0;
+  }
+  
+  $("#discount_val").val(discount); 
+  $(".paid-total").html((price + chipping)  - discount +" جنيه"); 
+
+  if (price > 0) {
+    $('#add-order-form-btn').removeClass('disabled')
+  } else {
+    $('#add-order-form-btn').addClass('disabled')
+  }
+
+}
+
+
+//calculate the total
+function calculateCommission() {
+
+    var commission = 0;
+
+    $('.order-list .product-commission').each(function(index) {  
+      commission += parseFloat($(this).html().replace(/,/g, ''));
+    });//end of product price
+
+    $('.total-commission').html($.number(commission, 2)+' LE');
+    $("#grand_commission").val(commission); 
+
+    //check if price > 0
+    if (commission > 0) {
+      $('#add-order-form-btn').removeClass('disabled')
+    } else {
+      $('#add-order-form-btn').addClass('disabled')
+    }//end of else
+
+}//end of calculate total
+
+function teamleaderCommission() {
+
+    var teamleader = 0;
+
+    $('.order-list .teamleader-commission').each(function(index) {  
+      teamleader += parseFloat($(this).html().replace(/,/g, ''));
+    });//end of product price
+
+    //$('.total-commission').html($.number(commission, 2)+' LE');
+    $("#commission_team_leader").val(teamleader); 
+
+}//end of calculate total
+
+function siteCommission() {
+
+var teamleader = 0;
+
+$('.order-list .site-commission').each(function(index) {  
+  teamleader += parseFloat($(this).html().replace(/,/g, ''));
+});//end of product price
+
+//$('.total-commission').html($.number(commission, 2)+' LE');
+$("#commission_site").val(teamleader); 
+
+}//end of calculate total
+ 
+jQuery(document).ready(function(){
+  jQuery('.winHeight').css('height', $(window).height());
+  
+  $('a[data-toggle="tab"]').click(function(){
+        window.location.hash = $(this).attr('href');
+     });
+ });
+   if(window.location.hash)
+  {
+    $(document).ready(function() {  
+        var hash = window.location.hash; 
+        hash && $('a[href="' + hash + '"]').tab('show');
+        return $("html, body").animate({scrollTop:0},600);
+    });
+  }
+</script>
+<script type="text/javascript">
+  $.ajaxSetup({
+      headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
+  });
+
+  $(document).ready(function () {
+            $('#category').on('change',function(e) {
+       var cat_id = e.target.value;
+       //alert(cat_id);
+       $.ajax({
+             
+             url:"https://aff.ven-door.com/cities",
+             type:"POST",
+             data: {
+                 cat_id: cat_id
+              },
+            
+             success:function (data) {
+
+              $('#subcategory').empty();
+              $('#subcategory').html(data);
+             }
+         })
+      });
+
+  });
+</script>
+
+
+<script>
+  function deleteCategory(id) {
+      $("#selSize"+id).change(function(){
+        var idsize = $(this).val();
+        //alert(idsize);
+        if(idsize==""){
+          return false;
+        }
+        $.ajax({
+          type:'get',
+          url:base_url+'/get-product-stock',
+          data:{idsize:idsize},
+          success:function(resp){
+            var arr = resp.split('#');
+            //alert(arr);
+            var arr1 = arr[1].split('-');
+            //alert(arr1);
+            $("#product-quantity"+id).attr({
+            "max" : arr1,
+            "min" : 1
+            });
+          },error:function(){
+            alert("Error");
+          }
+        });
+      });
+    }  
+  $(document).on('change', '.phone', function(){
+      val  = $(this).val() ? $(this).val() :0;
+      $.ajax({
+        url:base_url+"/searchPhone/"+val,
+        success:function(data)
+        {
+          if (data.status == true) {
+            if (data.data != 0) {
+              $('#exist_order').html(' عدد تكرار رقم العميل ' + (data.data) + ' - ' + '  حالة اخر طلب : ' + ' ' + [data.status_name] + ' - ' + data.date + '</br>'+ data.prodetails);
+            } else {
+              $('#exist_order').html('');
+            }
+          }else{
+            toastr.error(data.message, data.title);
+          }
+        },error(response){
+          toastr.error("app.does not have any of the necessary access rights");
+        }
+      })
+  });
+
+  $(document).on('change', '.another_phone', function(){
+      val  = $(this).val() ? $(this).val() :0;
+      $.ajax({
+        url:base_url+"/searchPhone/"+val,
+        success:function(data)
+        {
+          if (data.status == true) {
+            if (data.data != 0) {
+              $('#exist_order_another').html(' عدد تكرار رقم العميل ' + (data.data) + ' - ' + '  حالة اخر طلب : ' + ' ' + [data.status_name] + ' - ' + data.date + '</br>'+ data.prodetails);
+            } else {
+              $('#exist_order_another').html('');
+            }
+          }else{
+            toastr.error(data.message, data.title);
+          }
+        },error(response){
+          toastr.error("app.does not have any of the necessary access rights");
+        }
+      })
+  });
+
+  
+</script>
+<!-- <script>
+
+  $('.form-group input').on('keyup', function() {
+    var empty = false;
+
+    $('.field input').each(function() {
+      empty = $(this).val().length == 0;
+    });
+
+    if (empty)
+      $('.actions input').attr('disabled', 'disabled');
+    else
+      $('.actions input').attr('disabled', false);
+  });
+</script> -->
+<script>
+// onsubmit="return myFunction()"
+function myFunction() {
+  var x, text;
+
+
+  // Get the value of the input field with id="numb"
+  x = document.getElementById("phone").value;
+ 
+  // If x is Not a Number or less than one or greater than 10
+  if ((x.length < 11)) {
+    text = "يجب ان يكون رقم التليفون 11 رقم";
+    document.getElementById("demo").innerHTML = text;
+    return false;
+  }
+  //alert(text1);
+  
+  
+}
+
+// function myFunctionsub() {
+//  var xssss = document.getElementById("vvv").value;
+//   alert(xssss);
+// }
+
+// $(document).on('change', '#v-pills-Confirmation-tab', function() {
+
+//   xz = $('.from-select').val().length; 
+//     alert(xz);
+//   });
+
+
+</script>
+<!-- <script>
+  var isEmpty = document.getElementById('container').innerHTML === "";
+  if (isEmpty) {
+    alert('container');
+  }else{
+    alert('ccccccccccccc');
+  }
+</script> -->
+<script>
+  $('.checkappeardate').change(function() {
+    if(this.checked) {
+      $('#chipping').removeClass('hidden_reason');
+      $('.now').addClass('hidden_reason');
+      $('.btn-hader').removeClass('valiedbutton');
+    }else{
+      $('#chipping').addClass('hidden_reason');
+      $('.now').removeClass('hidden_reason');
+    }        
+  });
+</script>
+<script>
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  })
+  
+  // $('body').on('click', '.valiedbutton', function(e) {
+  //   e.preventDefault();
+  //   selectPaymentMethod();
+  // });//end of remove product btn
+  
+function selectPaymentMethod(){
+	if($('.checkappeardate').is(':checked') || $('.nowq').is(':checked')){
+	}else{
+		alert("Please select Shipping date");
+	  return false;
+	}
+}
+
+$('.nowq').change(function() {
+  if(this.checked) {
+    $('.btn-hader').removeClass('valiedbutton');
+  }       
+});
+
+
+</script>
+
+<script>
+    // Set the date we're counting down to
+    // 1. JavaScript
+    // var countDownDate = new Date("Sep 5, 2018 15:37:25").getTime();
+    // 2. PHP
+    var countDownDate = 1760475600 * 1000;
+     var now = 1759591133 * 1000;
+    //var now = 1610229600 * 1000;
+
+    // Update the count down every 1 second
+    var x = setInterval(function() {
+
+        // Get todays date and time
+        // 1. JavaScript
+        // var now = new Date().getTime();
+        // 2. PHP
+        now = now + 1000;
+
+        // Find the distance between now an the count down date
+        var distance = countDownDate - now;
+
+        // Time calculations for days, hours, minutes and seconds
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Output the result in an element with id="demo"
+        document.getElementById("demoDate").innerHTML = days + " يوم " + hours + " ساعة " +
+            minutes + " دقيقة " + seconds + " ثانية  ";
+
+        // If the count down is over, write some text 
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("demoDate").innerHTML = "EXPIRED";
+            $('.card').addClass('hidden_reason');
+        }
+    }, 1000);
+    </script>
+    
+<script>
+document.getElementById("submitBtn").addEventListener("click", function() {
+    this.disabled = true; 
+    this.value = "جارٍ الإرسال..."; 
+    // selectPaymentMethod();
+    this.form.submit(); 
+});
+</script>
+
+<script>
+    $(document).ready(function () {
+        $(".checkappeardate, .nowq").on("change", function () {
+            if ($(this).is(":checked")) {
+                $(".checkappeardate, .nowq").not(this).prop("checked", false);
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $(".checkappeardate, .nowq").on("change", function () {
+            if ($(".nowq").is(":checked")) {
+                $("#chipping").hide().val(""); 
+            } else {
+                $("#chipping").show();
+            }
+        });
+    });
+</script>
+    <script>
+    $(document).ready(function () {
+
+        $("#new_pwd").click(function(){
+            var current_pwd = $("#current_pwd").val();
+            $.ajax({
+                type:'get',
+                url:base_url+'/admin/check-pwd',
+                data:{current_pwd:current_pwd},
+                success:function(resp){
+                    //alert(resp);
+                    if(resp=="false"){
+                        $("#chkPwd").html("<font color='red'>The current password is Incorrect</font>");
+                    }else if(resp=="true"){
+                        $("#chkPwd").html("<font color='green'>The current password is correct</font>");
+                    }
+                },error:function(){
+                    alert("Error");
+                }
+            });
+        });
+    });//end of document ready
+</script>
+
+<script>
+
+                
+    function changeNotificationStatus() {
+        $.ajax({
+            url: base_url+'/notifications/read',
+            type: 'GET',
+        });
+        $('.notifications-count').html('0');
+        
+    }
+
+
+
+    function clearAllNotifications() {
+        $.ajax({
+            url: base_url+'/notifications/clear',
+            type: 'GET',
+        });
+        
+        $('.notifications-count').html('0');
+        $('.notifications-container').html('' +
+        '<li>\n' +
+        '<a href="#">\n' +
+        '<i class="icon-bell"></i> لايوجد اشعارات\n' +
+        '<span class="time">\n' +
+        '</li>\n');
+    }
+
+
+    </script>
+
+    
+ <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script><script type="text/javascript">toastr.options = {"closeButton":true,"closeClass":"toast-close-button","closeDuration":300,"closeEasing":"swing","closeHtml":"<button><i class=\"icon-off\"><\/i><\/button>","closeMethod":"fadeOut","closeOnHover":true,"containerId":"toast-container","debug":false,"escapeHtml":false,"extendedTimeOut":10000,"hideDuration":1000,"hideEasing":"linear","hideMethod":"fadeOut","iconClass":"toast-info","iconClasses":{"error":"toast-error","info":"toast-info","success":"toast-success","warning":"toast-warning"},"messageClass":"toast-message","newestOnTop":false,"onHidden":null,"onShown":null,"positionClass":"toast-top-left","preventDuplicates":true,"progressBar":true,"progressClass":"toast-progress","rtl":false,"showDuration":300,"showEasing":"swing","showMethod":"fadeIn","tapToDismiss":true,"target":"body","timeOut":5000,"titleClass":"toast-title","toastClass":"toast"};</script>  
+<script src="https://aff.ven-door.com/vendor/livewire/livewire.js?id=90730a3b0e7144480175" data-turbo-eval="false" data-turbolinks-eval="false"></script><script data-turbo-eval="false" data-turbolinks-eval="false">window.livewire = new Livewire();window.Livewire = window.livewire;window.livewire_app_url = 'https://aff.ven-door.com';window.livewire_token = 'Ee8m9EFJ7mDjRGOYn0XhPicf7GTR1cYDs9G30RBk';window.deferLoadingAlpine = function (callback) {window.addEventListener('livewire:load', function () {callback();});};let started = false;window.addEventListener('alpine:initializing', function () {if (! started) {window.livewire.start();started = true;}});document.addEventListener("DOMContentLoaded", function () {if (! started) {window.livewire.start();started = true;}});</script>
+
+
+<ul id="ui-id-1" tabindex="0" class="ui-menu ui-widget ui-widget-content ui-autocomplete ui-front" style="display: none;"></ul><div role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></div></body></html>

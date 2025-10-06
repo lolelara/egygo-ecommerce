@@ -1,7 +1,6 @@
-import "./global.css";
+/**
+ * ملف قديم تم الإبقاء عليه للتوافق فقط.
+ * التطبيق الرئيسي موجود في `client/App.tsx`.
+ */
 
-import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tantml:invoke>
+export {}; 
