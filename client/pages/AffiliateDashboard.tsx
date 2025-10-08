@@ -15,6 +15,7 @@ import {
   BarChart3,
   LinkIcon,
   Share2,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,63 +33,52 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fallbackProductsApi } from "../lib/api-fallback";
+import { affiliateApi } from "@/lib/affiliate-api";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { useToast } from "@/hooks/use-toast";
 import type { ProductWithRelations } from "@shared/prisma-types";
 
-// Mock affiliate user data
-const affiliateUser = {
-  id: "affiliate-001",
-  name: "أحمد محمد",
-  email: "ahmed@example.com",
-  affiliateCode: "AHMED2024",
-  commissionRate: 15,
-  totalEarnings: 2847.5,
-  pendingEarnings: 450.75,
-  thisMonthEarnings: 680.25,
-  referralCount: 34,
-  status: "ACTIVE" as const,
-  joinedAt: "2024-01-15",
-  tier: "Silver",
-};
-
-// Mock performance data
-const performanceData = {
-  clicksThisMonth: 1247,
-  conversionsThisMonth: 28,
-  conversionRate: 2.25,
-  averageOrderValue: 186.5,
-  topCountries: ["السعودية", "الإمارات", "مصر", "الكويت"],
-  recentActivity: [
-    {
-      date: "2024-12-23",
-      type: "sale",
-      amount: 25.5,
-      product: "سماعات لاسلكية احترافية",
-    },
-    { date: "2024-12-22", type: "click", clicks: 12, source: "Instagram" },
-    {
-      date: "2024-12-21",
-      type: "sale",
-      amount: 18.75,
-      product: "ساعة ذكية للياقة البدنية",
-    },
-    { date: "2024-12-20", type: "click", clicks: 8, source: "Facebook" },
-  ],
-};
-
 export default function AffiliateDashboard() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [products, setProducts] = useState<ProductWithRelations[]>([]);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load products for link generation
-    fallbackProductsApi.getAll({ limit: 6 }).then((data) => {
-      setProducts(data.products);
-    });
-  }, []);
+    loadData();
+  }, [user]);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      
+      // Load products for link generation
+      const productsData = await fallbackProductsApi.getAll({ limit: 6 });
+      setProducts(productsData.products);
+
+      // Load affiliate stats if user is logged in
+      if (user?.$id) {
+        const statsData = await affiliateApi.getStats(user.$id);
+        setStats(statsData);
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في تحميل البيانات",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const generateAffiliateLink = (productId: string) => {
     const baseUrl = window.location.origin;
-    return `${baseUrl}/products/${productId}?ref=${affiliateUser.affiliateCode}`;
+    const code = stats?.affiliateCode || "NOCODE";
+    return `${baseUrl}/products/${productId}?ref=${code}`;
   };
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -96,8 +86,17 @@ export default function AffiliateDashboard() {
       await navigator.clipboard.writeText(text);
       setCopiedLink(id);
       setTimeout(() => setCopiedLink(null), 2000);
+      toast({
+        title: "تم النسخ",
+        description: "تم نسخ الرابط بنجاح",
+      });
     } catch (err) {
       console.error("فشل في نسخ الرابط:", err);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في نسخ الرابط",
+      });
     }
   };
 
@@ -116,41 +115,43 @@ export default function AffiliateDashboard() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        <div>
-          <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
-            مرحباً، {affiliateUser.name}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            إليك نظرة عامة على أداء شراكتك
-          </p>
+      {loading ? (
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-        <div className="flex items-center gap-3">
-          <Badge className={`${getTierColor(affiliateUser.tier)} text-white`}>
-            {affiliateUser.tier} Partner
-          </Badge>
-          <Button variant="outline">
-            <Download className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
-            تحميل التقرير
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              إجمالي الأرباح
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${affiliateUser.totalEarnings.toFixed(2)}
+      ) : stats ? (
+        <>
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                مرحباً، {user?.name || "الشريك"}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                إليك نظرة عامة على أداء شراكتك
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <div className="flex items-center gap-3">
+              <Badge className="bg-green-500 text-white">
+                شريك نشط
+              </Badge>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  إجمالي الأرباح
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {stats.totalEarnings.toFixed(2)} ج.م
+                </div>
+                <p className="text-xs text-muted-foreground">
               +12.5% من الشهر الماضي
             </p>
           </CardContent>
@@ -165,7 +166,7 @@ export default function AffiliateDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${affiliateUser.thisMonthEarnings.toFixed(2)}
+              {stats.thisMonthEarnings.toFixed(2)} ج.م
             </div>
             <p className="text-xs text-muted-foreground">
               +8.2% من الشهر الماضي
@@ -182,10 +183,10 @@ export default function AffiliateDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {performanceData.clicksThisMonth.toLocaleString()}
+              {stats.clicks?.toLocaleString() || 0}
             </div>
             <p className="text-xs text-muted-foreground">
-              +15.3% من الشهر الماضي
+              إجمالي النقرات
             </p>
           </CardContent>
         </Card>
@@ -197,7 +198,7 @@ export default function AffiliateDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {performanceData.conversionRate}%
+              {stats.conversionRate}%
             </div>
             <p className="text-xs text-muted-foreground">
               +0.8% من الشهر الماضي

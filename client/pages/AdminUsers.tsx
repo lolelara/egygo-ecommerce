@@ -22,88 +22,12 @@ import {
   CheckCircle,
   DollarSign,
   Calendar,
+  Loader2,
 } from "lucide-react";
-import type { User, AffiliateUser } from "@/shared/api";
+import type { User, AffiliateUser } from "@shared/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-// Mock data for users and affiliates
-const mockUsers: User[] = [
-  {
-    id: "1",
-    email: "ahmed@example.com",
-    name: "أحمد محمد",
-    avatar: "",
-    role: "USER",
-    isActive: true,
-    createdAt: "2024-01-10T10:00:00Z",
-    updatedAt: "2024-01-15T10:00:00Z",
-  },
-  {
-    id: "2",
-    email: "fatima@example.com",
-    name: "فاطمة علي",
-    avatar: "",
-    role: "USER",
-    isActive: true,
-    createdAt: "2024-01-12T14:30:00Z",
-    updatedAt: "2024-01-15T14:30:00Z",
-  },
-  {
-    id: "3",
-    email: "omar@example.com",
-    name: "عمر حسن",
-    avatar: "",
-    role: "ADMIN",
-    isActive: true,
-    createdAt: "2024-01-08T09:15:00Z",
-    updatedAt: "2024-01-15T09:15:00Z",
-  },
-];
-
-const mockAffiliates: (AffiliateUser & { user: User })[] = [
-  {
-    id: "1",
-    email: "affiliate1@example.com",
-    name: "سارة أحمد",
-    affiliateCode: "SARAH2024",
-    commissionRate: 10,
-    totalEarnings: 2450,
-    pendingEarnings: 340,
-    referralCount: 23,
-    joinedAt: "2024-01-05T08:00:00Z",
-    user: {
-      id: "4",
-      email: "affiliate1@example.com",
-      name: "سارة أحمد",
-      avatar: "",
-      role: "USER",
-      isActive: true,
-      createdAt: "2024-01-05T08:00:00Z",
-      updatedAt: "2024-01-15T08:00:00Z",
-    },
-  },
-  {
-    id: "2",
-    email: "affiliate2@example.com",
-    name: "محمد خالد",
-    affiliateCode: "MOHAMED2024",
-    commissionRate: 8,
-    totalEarnings: 1890,
-    pendingEarnings: 280,
-    referralCount: 18,
-    joinedAt: "2024-01-08T12:30:00Z",
-    user: {
-      id: "5",
-      email: "affiliate2@example.com",
-      name: "محمد خالد",
-      avatar: "",
-      role: "USER",
-      isActive: true,
-      createdAt: "2024-01-08T12:30:00Z",
-      updatedAt: "2024-01-15T12:30:00Z",
-    },
-  },
-];
+import { adminUsersApi } from "@/lib/admin-api";
+import { useToast } from "@/hooks/use-toast";
 
 const RoleBadge = ({ role }: { role: string }) => {
   const roleConfig = {
@@ -123,12 +47,38 @@ const StatusBadge = ({ isActive }: { isActive: boolean }) => (
 );
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [affiliates, setAffiliates] =
-    useState<(AffiliateUser & { user: User })[]>(mockAffiliates);
-  const [loading, setLoading] = useState(false);
+    useState<(AffiliateUser & { user: User })[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [affiliateSearchTerm, setAffiliateSearchTerm] = useState("");
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [usersData, affiliatesData] = await Promise.all([
+        adminUsersApi.getAll(),
+        adminUsersApi.getAllAffiliates(),
+      ]);
+      setUsers(usersData);
+      setAffiliates(affiliatesData);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في تحميل البيانات",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredUsers = users.filter(
     (user) =>
@@ -149,20 +99,49 @@ export default function AdminUsers() {
         .includes(affiliateSearchTerm.toLowerCase()),
   );
 
-  const handleToggleUserStatus = (userId: string) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === userId ? { ...user, isActive: !user.isActive } : user,
-      ),
-    );
+  const handleToggleUserStatus = async (userId: string) => {
+    try {
+      const user = users.find((u) => u.id === userId);
+      if (!user) return;
+
+      await adminUsersApi.updateStatus(userId, !user.isActive);
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId ? { ...user, isActive: !user.isActive } : user,
+        ),
+      );
+      toast({
+        title: "تم التحديث",
+        description: "تم تحديث حالة المستخدم بنجاح",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: error.message || "فشل في تحديث حالة المستخدم",
+      });
+    }
   };
 
-  const handleChangeUserRole = (userId: string, newRole: string) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === userId ? { ...user, role: newRole as User["role"] } : user,
-      ),
-    );
+  const handleChangeUserRole = async (userId: string, newRole: string) => {
+    try {
+      await adminUsersApi.updateRole(userId, newRole);
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === userId ? { ...user, role: newRole as User["role"] } : user,
+        ),
+      );
+      toast({
+        title: "تم التحديث",
+        description: "تم تحديث دور المستخدم بنجاح",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: error.message || "فشل في تحديث دور المستخدم",
+      });
+    }
   };
 
   const totalUsers = users.length;
@@ -189,60 +168,66 @@ export default function AdminUsers() {
           </h1>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                إجمالي المستخدمين
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalUsers}</div>
-              <p className="text-xs text-muted-foreground">{activeUsers} نشط</p>
-            </CardContent>
-          </Card>
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[400px]">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    إجمالي المستخدمين
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalUsers}</div>
+                  <p className="text-xs text-muted-foreground">{activeUsers} نشط</p>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">المديرين</CardTitle>
-              <UserCheck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{adminUsers}</div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">المديرين</CardTitle>
+                  <UserCheck className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{adminUsers}</div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                إجمالي الشركاء
-              </CardTitle>
-              <UserCheck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalAffiliates}</div>
-              <p className="text-xs text-muted-foreground">
-                {totalAffiliateEarnings.toLocaleString()} ج.م إجمالي الأرباح
-              </p>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    إجمالي الشركاء
+                  </CardTitle>
+                  <UserCheck className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalAffiliates}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {totalAffiliateEarnings.toLocaleString()} ج.م إجمالي الأرباح
+                  </p>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                الأرباح المعلقة
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {totalPendingEarnings.toLocaleString()} ج.م
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    الأرباح المعلقة
+                  </CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {totalPendingEarnings.toLocaleString()} ج.م
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
         <Tabs defaultValue="users" className="space-y-4">
           <TabsList>
@@ -434,6 +419,8 @@ export default function AdminUsers() {
             </Card>
           </TabsContent>
         </Tabs>
+          </>
+        )}
       </div>
     </AdminLayout>
   );

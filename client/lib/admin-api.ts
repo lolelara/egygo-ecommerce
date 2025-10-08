@@ -316,16 +316,18 @@ export const adminUsersApi = {
       const response = await databases.listDocuments(
         DATABASE_ID,
         COLLECTIONS.USERS,
-        [Query.orderDesc("$createdAt")]
+        [Query.orderDesc("$createdAt"), Query.limit(1000)]
       );
 
       return response.documents.map((doc: any) => ({
         id: doc.$id,
         email: doc.email,
-        name: doc.name,
-        role: doc.role,
-        isActive: doc.isActive,
+        name: doc.name || doc.email.split('@')[0],
+        avatar: doc.avatar || "",
+        role: doc.labels?.includes("admin") ? "ADMIN" : "USER",
+        isActive: doc.isActive !== false,
         createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
       }));
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -333,22 +335,77 @@ export const adminUsersApi = {
     }
   },
 
+  getAllAffiliates: async (): Promise<any[]> => {
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.USERS,
+        [Query.search("labels", "affiliate"), Query.limit(1000)]
+      );
+
+      return response.documents.map((doc: any) => ({
+        id: doc.$id,
+        email: doc.email,
+        name: doc.name || doc.email.split('@')[0],
+        affiliateCode: doc.affiliateCode || `AFF${doc.$id.substring(0, 6).toUpperCase()}`,
+        commissionRate: doc.commissionRate || 10,
+        totalEarnings: doc.totalEarnings || 0,
+        pendingEarnings: doc.pendingEarnings || 0,
+        referralCount: doc.referralCount || 0,
+        joinedAt: doc.$createdAt,
+        user: {
+          id: doc.$id,
+          email: doc.email,
+          name: doc.name || doc.email.split('@')[0],
+          avatar: doc.avatar || "",
+          role: "USER",
+          isActive: doc.isActive !== false,
+          createdAt: doc.$createdAt,
+          updatedAt: doc.$updatedAt,
+        },
+      }));
+    } catch (error) {
+      console.error("Error fetching affiliates:", error);
+      return [];
+    }
+  },
+
   updateRole: async (id: string, role: string): Promise<any> => {
+    try {
+      const labels = role === "ADMIN" ? ["admin"] : [];
+      const doc = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTIONS.USERS,
+        id,
+        { labels }
+      );
+
+      return {
+        id: doc.$id,
+        role: doc.labels?.includes("admin") ? "ADMIN" : "USER",
+        updatedAt: doc.$updatedAt,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تحديث دور المستخدم");
+    }
+  },
+
+  updateStatus: async (id: string, isActive: boolean): Promise<any> => {
     try {
       const doc = await databases.updateDocument(
         DATABASE_ID,
         COLLECTIONS.USERS,
         id,
-        { role }
+        { isActive }
       );
 
       return {
         id: doc.$id,
-        role: doc.role,
+        isActive: doc.isActive,
         updatedAt: doc.$updatedAt,
       };
     } catch (error: any) {
-      throw new Error(error.message || "فشل في تحديث دور المستخدم");
+      throw new Error(error.message || "فشل في تحديث حالة المستخدم");
     }
   },
 };

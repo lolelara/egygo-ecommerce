@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -33,44 +33,41 @@ import {
   Boxes,
   Bell,
   Zap,
+  Loader2,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { Link } from "react-router-dom";
+import { adminDashboardApi } from "@/lib/admin-api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function EnhancedAdminDashboard() {
   const { user } = useAuth();
   const [timeRange, setTimeRange] = useState("month");
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Mock data - في التطبيق الحقيقي ستأتي من API
-  const stats = {
-    totalRevenue: 125680,
-    revenueChange: 12.5,
-    totalOrders: 1547,
-    ordersChange: 8.3,
-    totalProducts: 234,
-    productsChange: -2.1,
-    totalUsers: 3892,
-    usersChange: 15.7,
-    pendingOrders: 23,
-    completedOrders: 1456,
-    cancelledOrders: 68,
-    totalAffiliates: 156,
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const data = await adminDashboardApi.getStats();
+      setStats(data);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في تحميل الإحصائيات",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const recentActivity = [
-    { type: "order", message: "طلب جديد #12456", time: "منذ 5 دقائق", status: "success" },
-    { type: "product", message: "تم إضافة منتج جديد", time: "منذ 15 دقيقة", status: "info" },
-    { type: "user", message: "مستخدم جديد انضم", time: "منذ 30 دقيقة", status: "success" },
-    { type: "order", message: "تم إلغاء طلب #12445", time: "منذ ساعة", status: "warning" },
-  ];
-
-  const topProducts = [
-    { name: "سماعات بلوتوث", sales: 234, revenue: 29850, trend: 12 },
-    { name: "ساعة ذكية", sales: 189, revenue: 85050, trend: 8 },
-    { name: "كاميرا رقمية", sales: 145, revenue: 145000, trend: -3 },
-    { name: "شاحن لاسلكي", sales: 298, revenue: 14900, trend: 15 },
-  ];
 
   const StatCard = ({ title, value, change, icon: Icon, trend }: any) => (
     <Card>
@@ -117,40 +114,42 @@ export default function EnhancedAdminDashboard() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 ml-2" />
-              تصدير التقرير
-            </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={fetchStats}>
               <RefreshCw className="h-4 w-4 ml-2" />
               تحديث
             </Button>
           </div>
         </div>
 
-        {/* Time Range Selector */}
-        <Tabs defaultValue="month" className="w-full">
-          <TabsList>
-            <TabsTrigger value="today">اليوم</TabsTrigger>
-            <TabsTrigger value="week">هذا الأسبوع</TabsTrigger>
-            <TabsTrigger value="month">هذا الشهر</TabsTrigger>
-            <TabsTrigger value="year">هذا العام</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[400px]">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+        ) : stats ? (
+          <>
+            {/* Time Range Selector */}
+            <Tabs defaultValue="month" className="w-full">
+              <TabsList>
+                <TabsTrigger value="today">اليوم</TabsTrigger>
+                <TabsTrigger value="week">هذا الأسبوع</TabsTrigger>
+                <TabsTrigger value="month">هذا الشهر</TabsTrigger>
+                <TabsTrigger value="year">هذا العام</TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-        {/* Main Stats */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="إجمالي الإيرادات"
-            value={`$${stats.totalRevenue.toLocaleString()}`}
-            change={stats.revenueChange}
-            icon={DollarSign}
-            trend="up"
-          />
-          <StatCard
-            title="إجمالي الطلبات"
-            value={stats.totalOrders.toLocaleString()}
-            change={stats.ordersChange}
+            {/* Main Stats */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                title="إجمالي الإيرادات"
+                value={`${stats.totalRevenue.toLocaleString()} ج.م`}
+                change={stats.revenueChange || 0}
+                icon={DollarSign}
+                trend="up"
+              />
+              <StatCard
+                title="إجمالي الطلبات"
+                value={stats.totalOrders.toLocaleString()}
+                change={stats.ordersChange || 0}
             icon={ShoppingCart}
             trend="up"
           />
@@ -322,29 +321,45 @@ export default function EnhancedAdminDashboard() {
           <Card className="col-span-4">
             <CardHeader>
               <CardTitle>النشاط الأخير</CardTitle>
-              <CardDescription>آخر الأحداث في الموقع</CardDescription>
+              <CardDescription>آخر الطلبات في الموقع</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {recentActivity.map((activity, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <div
-                      className={`h-2 w-2 rounded-full ${
-                        activity.status === "success"
-                          ? "bg-green-500"
-                          : activity.status === "warning"
-                          ? "bg-yellow-500"
-                          : "bg-blue-500"
-                      }`}
-                    />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{activity.message}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.time}
-                      </p>
+                {stats.recentOrders && stats.recentOrders.length > 0 ? (
+                  stats.recentOrders.slice(0, 5).map((order: any, i: number) => (
+                    <div key={order.id} className="flex items-center gap-4">
+                      <div
+                        className={`h-2 w-2 rounded-full ${
+                          order.status === "completed"
+                            ? "bg-green-500"
+                            : order.status === "pending"
+                            ? "bg-yellow-500"
+                            : order.status === "cancelled"
+                            ? "bg-red-500"
+                            : "bg-blue-500"
+                        }`}
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">
+                          طلب #{order.id.substring(0, 8)} - {order.total.toLocaleString()} ج.م
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(order.createdAt).toLocaleString("ar-EG")}
+                        </p>
+                      </div>
+                      <Badge variant={
+                        order.status === "completed" ? "default" :
+                        order.status === "pending" ? "secondary" : "destructive"
+                      }>
+                        {order.status === "completed" ? "مكتمل" :
+                         order.status === "pending" ? "قيد المراجعة" :
+                         order.status === "cancelled" ? "ملغي" : order.status}
+                      </Badge>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">لا توجد طلبات حديثة</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -357,33 +372,29 @@ export default function EnhancedAdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {topProducts.map((product, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium">{product.name}</p>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {product.sales} مبيعة
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          ${product.revenue.toLocaleString()}
-                        </span>
+                {stats.topProducts && stats.topProducts.length > 0 ? (
+                  stats.topProducts.slice(0, 5).map((product: any, i: number) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <div className="flex-1 space-y-1">
+                        <p className="text-sm font-medium">{product.name}</p>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {product.quantity} مبيعة
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {product.revenue.toLocaleString()} ج.م
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center text-xs text-muted-foreground">
+                        <TrendingUp className="h-3 w-3 text-green-500 ml-1" />
+                        <span>{i + 1}#</span>
                       </div>
                     </div>
-                    <div
-                      className={`flex items-center text-xs ${
-                        product.trend > 0 ? "text-green-500" : "text-red-500"
-                      }`}
-                    >
-                      {product.trend > 0 ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3" />
-                      )}
-                      <span className="mr-1">{Math.abs(product.trend)}%</span>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">لا توجد بيانات منتجات</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -442,6 +453,10 @@ export default function EnhancedAdminDashboard() {
             </CardContent>
           </Card>
         </div>
+          </>
+        ) : (
+          <div className="text-center text-muted-foreground">لا توجد بيانات</div>
+        )}
       </div>
     </AdminLayout>
   );
