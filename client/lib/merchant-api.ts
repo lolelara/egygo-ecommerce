@@ -11,23 +11,26 @@ const COLLECTIONS = appwriteConfig.collections;
 /**
  * Get merchant statistics
  * إحصائيات التاجر الكاملة من قاعدة البيانات
+ * 
+ * Note: Since products collection doesn't have merchantId attribute,
+ * this returns stats for ALL products. To implement per-merchant filtering,
+ * add merchantId attribute to products collection in Appwrite.
  */
 export async function getMerchantStats(userId: string): Promise<MerchantStats> {
   try {
-    // 1. Get all merchant products
+    console.log('Fetching merchant stats for user:', userId);
+    
+    // 1. Get all products (no merchantId filter available in current schema)
     const productsResponse = await databases.listDocuments(
       DATABASE_ID,
       COLLECTIONS.products,
-      [
-        Query.equal('merchantId', userId),
-        Query.limit(1000) // Get all products
-      ]
+      [Query.limit(1000)]
     );
 
     const products = productsResponse.documents;
     const totalProducts = products.length;
-    const activeProducts = products.filter(p => p.stock > 0).length;
-    const outOfStock = products.filter(p => p.stock === 0).length;
+    const activeProducts = products.filter((p: any) => p.stock > 0).length;
+    const outOfStock = products.filter((p: any) => p.stock === 0).length;
 
     // 2. Get all orders for merchant's products
     const productIds = products.map(p => p.$id);
@@ -165,15 +168,18 @@ export async function getMerchantStats(userId: string): Promise<MerchantStats> {
 /**
  * Get merchant products with statistics
  * منتجات التاجر مع إحصائيات كل منتج
+ * 
+ * Note: Returns all products since merchantId attribute doesn't exist
  */
 export async function getMerchantProducts(userId: string): Promise<MerchantProduct[]> {
   try {
-    // Get all merchant products
+    console.log('Fetching merchant products for user:', userId);
+    
+    // Get all products (no merchantId filter available)
     const productsResponse = await databases.listDocuments(
       DATABASE_ID,
       COLLECTIONS.products,
       [
-        Query.equal('merchantId', userId),
         Query.orderDesc('$createdAt'),
         Query.limit(100)
       ]
@@ -220,24 +226,24 @@ export async function getMerchantProducts(userId: string): Promise<MerchantProdu
       let status: 'active' | 'out_of_stock' | 'draft' = 'active';
       if (product.stock === 0) {
         status = 'out_of_stock';
-      } else if (product.draft === true) {
+      } else if (product.isActive === false) {
         status = 'draft';
       }
 
       merchantProducts.push({
         id: product.$id,
         name: product.name || '',
-        image: product.image || product.images?.[0] || '/placeholder.svg',
+        image: product.images?.[0] || '/placeholder.svg',
         price: product.price || 0,
         stock: product.stock || 0,
         sales,
         revenue,
-        views: product.views || 0, // If you track views
+        views: 0, // Not tracked in current schema
         rating: parseFloat(rating.toFixed(1)),
         status,
         categoryId: product.categoryId,
         description: product.description,
-        merchantId: product.merchantId,
+        merchantId: userId, // Use passed userId since not in schema
       });
     }
 
@@ -251,34 +257,18 @@ export async function getMerchantProducts(userId: string): Promise<MerchantProdu
 /**
  * Get orders for merchant's products
  * طلبات منتجات التاجر
+ * 
+ * Note: Returns all orders since merchantId doesn't exist in products
  */
 export async function getMerchantOrders(userId: string): Promise<MerchantOrder[]> {
   try {
-    // Get all merchant products
-    const productsResponse = await databases.listDocuments(
+    console.log('Fetching merchant orders for user:', userId);
+    
+    // Get all orders (since we can't filter by merchantId)
+    const ordersResponse = await databases.listDocuments(
       DATABASE_ID,
-      COLLECTIONS.products,
+      COLLECTIONS.orders,
       [
-        Query.equal('merchantId', userId),
-        Query.limit(1000)
-      ]
-    );
-
-    const productIds = productsResponse.documents.map(p => p.$id);
-    const productMap = new Map(
-      productsResponse.documents.map(p => [p.$id, p.name])
-    );
-
-    if (productIds.length === 0) {
-      return [];
-    }
-
-    // Get order items for merchant's products
-    const orderItemsResponse = await databases.listDocuments(
-      DATABASE_ID,
-      COLLECTIONS.orderItems,
-      [
-        Query.equal('productId', productIds),
         Query.orderDesc('$createdAt'),
         Query.limit(100)
       ]
@@ -286,40 +276,24 @@ export async function getMerchantOrders(userId: string): Promise<MerchantOrder[]
 
     const merchantOrders: MerchantOrder[] = [];
 
-    for (const item of orderItemsResponse.documents) {
-      try {
-        // Get order details
-        const order = await databases.getDocument(
-          DATABASE_ID,
-          COLLECTIONS.orders,
-          item.orderId
-        );
+    for (const order of ordersResponse.documents) {
+      // Get order items
+      const items = order.items || [];
+      
+      // Calculate total
+      const total = items.reduce((sum: number, item: any) => 
+        sum + ((item.price || 0) * (item.quantity || 0)), 0
+      );
 
-        // Get customer details
-        let customerName = 'غير معروف';
-        try {
-          const customer = await databases.getDocument(
-            DATABASE_ID,
-            COLLECTIONS.users,
-            order.userId
-          );
-          customerName = customer.name || customer.email || 'غير معروف';
-        } catch (error) {
-          console.error('Error fetching customer:', error);
-        }
-
-        merchantOrders.push({
-          id: item.$id,
-          orderId: order.$id,
-          product: productMap.get(item.productId) || 'منتج غير معروف',
-          customer: customerName,
-          amount: (item.price || 0) * (item.quantity || 0),
-          status: order.status || 'pending',
-          date: new Date(order.$createdAt).toISOString().split('T')[0],
-        });
-      } catch (error) {
-        console.error('Error fetching order details:', error);
-      }
+      merchantOrders.push({
+        id: order.$id,
+        orderId: order.$id,
+        product: items.length > 0 ? items[0].name : 'منتج',
+        customer: order.customerName || order.customerEmail || 'عميل',
+        amount: total,
+        status: order.status || 'pending',
+        date: new Date(order.$createdAt).toISOString().split('T')[0],
+      });
     }
 
     return merchantOrders;
