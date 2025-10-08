@@ -86,6 +86,42 @@ export const storageUtils = {
   },
 
   /**
+   * Convert images array to URLs
+   * Handles both file IDs and existing URLs
+   */
+  getImageUrl: (image: string | { url: string } | undefined): string => {
+    if (!image) return "/placeholder.svg";
+    
+    // If it's already an object with url property
+    if (typeof image === 'object' && 'url' in image) {
+      return image.url;
+    }
+    
+    // If it's a string
+    if (typeof image === 'string') {
+      // If it's already a full URL, return it
+      if (image.startsWith('http://') || image.startsWith('https://')) {
+        return image;
+      }
+      // If it's a file ID, convert to URL
+      return storage.getFileView(BUCKET_ID, image).toString();
+    }
+    
+    return "/placeholder.svg";
+  },
+
+  /**
+   * Convert array of images to URLs
+   */
+  getImageUrls: (images: (string | { url: string })[] | undefined): string[] => {
+    if (!images || !Array.isArray(images) || images.length === 0) {
+      return ["/placeholder.svg"];
+    }
+    
+    return images.map(img => storageUtils.getImageUrl(img));
+  },
+
+  /**
    * Extract fileId from URL
    * URL format: https://fra.cloud.appwrite.io/v1/storage/buckets/product-images/files/{fileId}/view
    */
@@ -142,3 +178,8 @@ export const storageUtils = {
     };
   },
 };
+
+// Helper functions for easy access
+export const getImageUrl = storageUtils.getImageUrl;
+export const getImageUrls = storageUtils.getImageUrls;
+export const getFileUrl = storageUtils.getFileUrl;

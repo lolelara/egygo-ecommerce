@@ -5,6 +5,7 @@ import { productsApi } from "@/lib/api";
 import { databases } from "@/lib/appwrite";
 import { Query, ID } from "appwrite";
 import { useCart } from "@/contexts/CartContext";
+import { getImageUrl, getImageUrls } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -98,9 +99,7 @@ export default function ProductLanding() {
   const handleAddToCart = () => {
     if (!product) return;
 
-    const imageUrl = typeof product.images?.[0] === 'string' 
-      ? product.images[0] 
-      : product.images?.[0]?.url || "/placeholder.svg";
+    const imageUrl = getImageUrl(product.images?.[0]);
 
     addItem({
       productId: product.id,
@@ -108,8 +107,8 @@ export default function ProductLanding() {
       price: product.price,
       image: imageUrl,
       quantity: 1,
-      stockQuantity: product.stockQuantity || 0,
-      inStock: product.inStock,
+      stockQuantity: (product as any).stock || product.stockQuantity || 0,
+      inStock: (product as any).isActive ?? product.inStock ?? true,
     });
 
     // Navigate to cart
@@ -119,9 +118,7 @@ export default function ProductLanding() {
   const handleBuyNow = () => {
     if (!product) return;
 
-    const imageUrl = typeof product.images?.[0] === 'string' 
-      ? product.images[0] 
-      : product.images?.[0]?.url || "/placeholder.svg";
+    const imageUrl = getImageUrl(product.images?.[0]);
 
     addItem({
       productId: product.id,
@@ -129,8 +126,8 @@ export default function ProductLanding() {
       price: product.price,
       image: imageUrl,
       quantity: 1,
-      stockQuantity: product.stockQuantity || 0,
-      inStock: product.inStock,
+      stockQuantity: (product as any).stock || product.stockQuantity || 0,
+      inStock: (product as any).isActive ?? product.inStock ?? true,
     });
 
     // Navigate directly to checkout
@@ -171,7 +168,7 @@ export default function ProductLanding() {
       <SEO
         title={`${product.name} - عرض خاص`}
         description={product.description}
-        ogImage={typeof product.images?.[0] === 'string' ? product.images[0] : product.images?.[0]?.url}
+        ogImage={getImageUrl(product.images?.[0])}
       />
 
       {/* Hero Section with Gradient */}
@@ -198,7 +195,7 @@ export default function ProductLanding() {
           <div>
             <Card className="overflow-hidden shadow-xl">
               <img
-                src={typeof product.images?.[0] === 'string' ? product.images[0] : product.images?.[0]?.url || "/placeholder.svg"}
+                src={getImageUrl(product.images?.[0])}
                 alt={product.name}
                 className="w-full aspect-square object-cover"
               />
@@ -208,7 +205,7 @@ export default function ProductLanding() {
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-2 mt-4">
                 {product.images.slice(1, 5).map((img, idx: number) => {
-                  const imageUrl = typeof img === 'string' ? img : img.url;
+                  const imageUrl = getImageUrl(img);
                   return (
                     <Card key={idx} className="overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary transition-all">
                       <img

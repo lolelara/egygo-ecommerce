@@ -18,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getImageUrl } from "@/lib/storage";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
 
@@ -127,7 +128,7 @@ export default function Index() {
                       <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
                         <CardContent className="p-4">
                           <img
-                            src={product.images[0]?.url || "/placeholder.svg"}
+                            src={getImageUrl(product.images?.[0])}
                             alt={product.name}
                             className="w-full h-32 object-cover rounded-lg mb-3"
                           />
@@ -148,7 +149,7 @@ export default function Index() {
                       <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
                         <CardContent className="p-4">
                           <img
-                            src={product.images[0]?.url || "/placeholder.svg"}
+                            src={getImageUrl(product.images?.[0])}
                             alt={product.name}
                             className="w-full h-32 object-cover rounded-lg mb-3"
                           />
@@ -233,7 +234,7 @@ export default function Index() {
               <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                 <div className="relative">
                   <img
-                    src={product.images[0]?.url || "/placeholder.svg"}
+                    src={getImageUrl(product.images?.[0])}
                     alt={product.name}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -425,7 +426,7 @@ export default function Index() {
                 <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
                   <div className="relative">
                     <img
-                      src={product.images[0]?.url || "/placeholder.svg"}
+                      src={getImageUrl(product.images?.[0])}
                       alt={product.name}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
