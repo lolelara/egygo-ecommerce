@@ -18,7 +18,7 @@ const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "";
 export default function Checkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { items: cartItems, total: cartTotal } = useCart();
+  const { items: cartItems } = useCart();
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -38,7 +38,7 @@ export default function Checkout() {
     }
   }, [cartItems, navigate, toast]);
 
-  const subtotal = cartTotal || cartItems.reduce(
+  const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
