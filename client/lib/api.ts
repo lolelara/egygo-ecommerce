@@ -430,8 +430,13 @@ export const reviewsApi = {
           ratingDistribution,
         },
       };
-    } catch (error) {
-      console.error("Error fetching reviews from Appwrite:", error);
+    } catch (error: any) {
+      // Silently handle missing collection error
+      if (error?.code === 404 || error?.type === 'collection_not_found') {
+        console.log('Reviews collection not found - feature disabled');
+      } else {
+        console.error("Error fetching reviews from Appwrite:", error);
+      }
       return { reviews: [], stats: { totalReviews: 0, averageRating: 0, ratingDistribution: [] } };
     }
   },
