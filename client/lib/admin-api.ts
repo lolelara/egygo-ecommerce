@@ -211,6 +211,8 @@ export const adminDashboardApi = {
 export const adminProductsApi = {
   create: async (product: any): Promise<any> => {
     try {
+      console.log("Creating product with data:", product);
+      
       const doc = await databases.createDocument(
         DATABASE_ID,
         COLLECTIONS.PRODUCTS,
@@ -219,25 +221,38 @@ export const adminProductsApi = {
           name: product.name,
           description: product.description,
           price: product.price,
-          originalPrice: product.originalPrice || product.price,
+          comparePrice: product.comparePrice || product.originalPrice || null,
+          stock: product.stock || product.stockQuantity || 0,
           categoryId: product.categoryId,
-          inStock: product.inStock ?? true,
-          stockQuantity: product.stockQuantity || 0,
           images: product.images || [],
-          colors: product.colors || [],
-          sizes: product.sizes || [],
-          specifications: product.specifications || {},
+          tags: product.tags || [],
+          isActive: product.isActive ?? true,
+          isFeatured: product.isFeatured ?? false,
           rating: 0,
           reviewCount: 0,
         }
       );
 
+      console.log("Product created successfully:", doc);
+
       return {
         id: doc.$id,
-        ...product,
+        name: doc.name,
+        description: doc.description,
+        price: doc.price,
+        comparePrice: doc.comparePrice,
+        stock: doc.stock,
+        categoryId: doc.categoryId,
+        images: doc.images,
+        tags: doc.tags,
+        isActive: doc.isActive,
+        isFeatured: doc.isFeatured,
+        rating: doc.rating,
+        reviewCount: doc.reviewCount,
         createdAt: doc.$createdAt,
       };
     } catch (error: any) {
+      console.error("Product creation error:", error);
       throw new Error(error.message || "فشل في إنشاء المنتج");
     }
   },
@@ -246,16 +261,46 @@ export const adminProductsApi = {
     try {
       const { id, ...updateData } = product;
       
+      // Map fields to match schema
+      const mappedData: any = {};
+      if (updateData.name) mappedData.name = updateData.name;
+      if (updateData.description) mappedData.description = updateData.description;
+      if (updateData.price !== undefined) mappedData.price = updateData.price;
+      if (updateData.comparePrice !== undefined || updateData.originalPrice !== undefined) {
+        mappedData.comparePrice = updateData.comparePrice || updateData.originalPrice || null;
+      }
+      if (updateData.stock !== undefined || updateData.stockQuantity !== undefined) {
+        mappedData.stock = updateData.stock ?? updateData.stockQuantity ?? 0;
+      }
+      if (updateData.categoryId) mappedData.categoryId = updateData.categoryId;
+      if (updateData.images) mappedData.images = updateData.images;
+      if (updateData.tags) mappedData.tags = updateData.tags;
+      if (updateData.isActive !== undefined) mappedData.isActive = updateData.isActive;
+      if (updateData.isFeatured !== undefined) mappedData.isFeatured = updateData.isFeatured;
+      if (updateData.rating !== undefined) mappedData.rating = updateData.rating;
+      if (updateData.reviewCount !== undefined) mappedData.reviewCount = updateData.reviewCount;
+      
       const doc = await databases.updateDocument(
         DATABASE_ID,
         COLLECTIONS.PRODUCTS,
         id,
-        updateData
+        mappedData
       );
 
       return {
         id: doc.$id,
-        ...updateData,
+        name: doc.name,
+        description: doc.description,
+        price: doc.price,
+        comparePrice: doc.comparePrice,
+        stock: doc.stock,
+        categoryId: doc.categoryId,
+        images: doc.images,
+        tags: doc.tags,
+        isActive: doc.isActive,
+        isFeatured: doc.isFeatured,
+        rating: doc.rating,
+        reviewCount: doc.reviewCount,
         updatedAt: doc.$updatedAt,
       };
     } catch (error: any) {
