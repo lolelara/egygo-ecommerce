@@ -9,6 +9,7 @@ import {
   PaginationParams,
 } from "@shared/prisma-types";
 import { fallbackProductsApi, fallbackCategoriesApi } from "./api-fallback";
+import { getImageUrl } from "./storage";
 
 // Appwrite configuration
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "68de037e003bd03c4d45";
@@ -90,7 +91,14 @@ export const productsApi = {
         rating: doc.rating || 0,
         reviewCount: doc.reviewCount || 0,
         affiliateCommission: doc.affiliateCommission || 0,
-        images: doc.images || [],
+        images: Array.isArray(doc.images)
+          ? doc.images.map((img: any) => {
+              if (typeof img === 'string') {
+                return { url: getImageUrl(img) };
+              }
+              return img;
+            })
+          : [],
         tags: doc.tags || [],
         reviews: doc.reviews || [],
         categoryId: doc.categoryId,
@@ -155,7 +163,15 @@ export const productsApi = {
         rating: doc.rating || 0,
         reviewCount: doc.reviewCount || 0,
         affiliateCommission: doc.affiliateCommission || 0,
-        images: doc.images || [],
+        images: Array.isArray(doc.images) 
+          ? doc.images.map((img: any) => {
+              if (typeof img === 'string') {
+                // Convert file ID to URL
+                return { url: getImageUrl(img) };
+              }
+              return img; // Already an object with url
+            })
+          : [],
         tags: doc.tags || [],
         reviews: doc.reviews || [],
         categoryId: doc.categoryId,
