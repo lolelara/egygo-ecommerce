@@ -14,7 +14,7 @@ import { ScrollToTopButton } from "./components/ScrollToTopButton";
 import { AuthProvider as OriginalAuthProvider } from "./contexts/AuthContext";
 import { AuthProvider } from "./contexts/AppwriteAuthContext";
 import { CartProvider } from "./contexts/CartContext";
-import { startAutoSyncWorker } from "./lib/auto-sync-worker";
+// import { startAutoSyncWorker } from "./lib/auto-sync-worker"; // Disabled - attributes removed
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
@@ -73,11 +73,11 @@ import { HelmetProvider } from 'react-helmet-async';
 const queryClient = new QueryClient();
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  // Start auto-sync worker when app loads
-  useEffect(() => {
-    startAutoSyncWorker();
-    console.log('🔄 Auto-sync worker started');
-  }, []);
+  // Auto-sync worker disabled - attributes removed (autoSyncEnabled, sourceUrl, etc.)
+  // useEffect(() => {
+  //   startAutoSyncWorker();
+  //   console.log('🔄 Auto-sync worker started');
+  // }, []);
   
   return (
     <div className="min-h-screen flex flex-col">

@@ -485,11 +485,10 @@ export default function IntermediaryDashboard() {
                     <TableRow>
                       <TableHead>الصورة</TableHead>
                       <TableHead>الاسم</TableHead>
-                      <TableHead>السعر الأصلي</TableHead>
-                      <TableHead>الهامش</TableHead>
-                      <TableHead>السعر النهائي</TableHead>
-                      <TableHead>تحديث تلقائي</TableHead>
-                      <TableHead>آخر تحديث</TableHead>
+                      <TableHead>السعر</TableHead>
+                      {/* Auto-sync columns hidden - attributes removed */}
+                      {/* <TableHead>تحديث تلقائي</TableHead> */}
+                      {/* <TableHead>آخر تحديث</TableHead> */}
                       <TableHead>إجراءات</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -505,21 +504,10 @@ export default function IntermediaryDashboard() {
                         </TableCell>
                         <TableCell className="max-w-[200px]">
                           <div className="truncate">{product.name}</div>
-                          {product.customDescription && (
-                            <span className="text-xs text-muted-foreground">(وصف معدّل)</span>
-                          )}
                         </TableCell>
-                        <TableCell>{product.originalPrice || product.price} جنيه</TableCell>
-                        <TableCell>
-                          {product.priceMarkup || 0} {product.priceMarkupType === 'percentage' ? '%' : 'جنيه'}
-                        </TableCell>
-                        <TableCell className="font-bold">
-                          {product.price} جنيه
-                          {product.priceOverride && (
-                            <span className="text-xs text-muted-foreground block">(سعر مخصص)</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
+                        <TableCell className="font-bold">{product.price} جنيه</TableCell>
+                        {/* Auto-sync cells hidden - attributes removed */}
+                        {/* <TableCell>
                           <Switch
                             checked={product.autoSyncEnabled || false}
                             onCheckedChange={(checked) => handleToggleAutoSync(product.$id, checked)}
@@ -534,7 +522,7 @@ export default function IntermediaryDashboard() {
                           ) : (
                             <span className="text-muted-foreground text-sm">لم يتم</span>
                           )}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell>
                           <div className="flex gap-2">
                             <Button
@@ -544,7 +532,8 @@ export default function IntermediaryDashboard() {
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button
+                            {/* Sync button hidden - sourceUrl attribute removed */}
+                            {/* <Button
                               size="sm"
                               variant="outline"
                               onClick={() => handleSyncProduct(product.$id)}
@@ -562,7 +551,7 @@ export default function IntermediaryDashboard() {
                                   <ExternalLink className="h-4 w-4" />
                                 </Button>
                               </a>
-                            )}
+                            )} */}
                           </div>
                         </TableCell>
                       </TableRow>
