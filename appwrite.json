@@ -198,6 +198,12 @@
                             "size": 50,
                             "required": false,
                             "array": true
+                        },
+                        {
+                            "key": "colorSizeInventory",
+                            "type": "string",
+                            "size": 5000,
+                            "required": false
                         }
                     ],
                     "indexes": [

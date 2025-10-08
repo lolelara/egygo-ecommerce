@@ -243,6 +243,7 @@ export const adminProductsApi = {
       
       if (product.colors && Array.isArray(product.colors)) documentData.colors = product.colors;
       if (product.sizes && Array.isArray(product.sizes)) documentData.sizes = product.sizes;
+      if (product.colorSizeInventory) documentData.colorSizeInventory = product.colorSizeInventory;
 
       const doc = await databases.createDocument(
         DATABASE_ID,
@@ -302,6 +303,7 @@ export const adminProductsApi = {
       if (updateData.merchantId) mappedData.merchantId = updateData.merchantId;
       if (updateData.colors) mappedData.colors = updateData.colors;
       if (updateData.sizes) mappedData.sizes = updateData.sizes;
+      if (updateData.colorSizeInventory) mappedData.colorSizeInventory = updateData.colorSizeInventory;
       
       const doc = await databases.updateDocument(
         DATABASE_ID,

@@ -81,9 +81,40 @@ const ProductForm = ({
     colors: (product as any)?.colors?.join(", ") || "",
     sizes: (product as any)?.sizes?.join(", ") || "",
   });
+  
+  // Inventory management state
+  const [colorSizeInventory, setColorSizeInventory] = useState<Array<{color: string, size: string, quantity: number}>>(() => {
+    try {
+      const existing = (product as any)?.colorSizeInventory;
+      return existing ? JSON.parse(existing) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const colorsArray = formData.colors
+      .split(",")
+      .map((color) => color.trim())
+      .filter(Boolean);
+    
+    const sizesArray = formData.sizes
+      .split(",")
+      .map((size) => size.trim())
+      .filter(Boolean);
+
+    // Build inventory data for each color/size combination
+    const inventoryData: Array<{color: string, size: string, quantity: number}> = [];
+    
+    if (colorsArray.length > 0 && sizesArray.length > 0) {
+      // Use inventory from colorSizeInventory state
+      inventoryData.push(...colorSizeInventory);
+    }
+
+    // Calculate total stock from inventory
+    const totalStock = inventoryData.reduce((sum, item) => sum + item.quantity, 0);
 
     const submitData = {
       ...formData,
@@ -92,14 +123,10 @@ const ProductForm = ({
         .split(",")
         .map((tag) => tag.trim())
         .filter(Boolean),
-      colors: formData.colors
-        .split(",")
-        .map((color) => color.trim())
-        .filter(Boolean),
-      sizes: formData.sizes
-        .split(",")
-        .map((size) => size.trim())
-        .filter(Boolean),
+      colors: colorsArray,
+      sizes: sizesArray,
+      colorSizeInventory: JSON.stringify(inventoryData),
+      stock: totalStock || formData.stockQuantity || 0, // Use total from inventory or default
     };
 
     if (product) {
@@ -107,6 +134,43 @@ const ProductForm = ({
     } else {
       onSubmit(submitData as AdminProductCreate);
     }
+  };
+  
+  // Generate inventory grid when colors/sizes change
+  const handleColorsOrSizesChange = () => {
+    const colorsArray = formData.colors.split(",").map(c => c.trim()).filter(Boolean);
+    const sizesArray = formData.sizes.split(",").map(s => s.trim()).filter(Boolean);
+    
+    if (colorsArray.length > 0 && sizesArray.length > 0) {
+      const newInventory: Array<{color: string, size: string, quantity: number}> = [];
+      
+      colorsArray.forEach(color => {
+        sizesArray.forEach(size => {
+          // Check if this combination already exists
+          const existing = colorSizeInventory.find(
+            item => item.color === color && item.size === size
+          );
+          
+          newInventory.push({
+            color,
+            size,
+            quantity: existing?.quantity || 0
+          });
+        });
+      });
+      
+      setColorSizeInventory(newInventory);
+    }
+  };
+  
+  const updateInventoryQuantity = (color: string, size: string, quantity: number) => {
+    setColorSizeInventory(prev => 
+      prev.map(item => 
+        item.color === color && item.size === size 
+          ? { ...item, quantity: Math.max(0, quantity) }
+          : item
+      )
+    );
   };
 
   return (
@@ -244,9 +308,10 @@ const ProductForm = ({
           <Input
             id="colors"
             value={formData.colors}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, colors: e.target.value }))
-            }
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, colors: e.target.value }));
+            }}
+            onBlur={handleColorsOrSizesChange}
             placeholder="أحمر, أزرق, أخضر"
           />
           <p className="text-xs text-muted-foreground">
@@ -259,9 +324,10 @@ const ProductForm = ({
           <Input
             id="sizes"
             value={formData.sizes}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, sizes: e.target.value }))
-            }
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, sizes: e.target.value }));
+            }}
+            onBlur={handleColorsOrSizesChange}
             placeholder="S, M, L, XL"
           />
           <p className="text-xs text-muted-foreground">
@@ -269,6 +335,40 @@ const ProductForm = ({
           </p>
         </div>
       </div>
+
+      {/* Inventory Grid */}
+      {colorSizeInventory.length > 0 && (
+        <div className="space-y-3 border rounded-lg p-4 bg-muted/20">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">المخزون لكل لون ومقاس</Label>
+            <p className="text-xs text-muted-foreground">
+              إجمالي المخزون: {colorSizeInventory.reduce((sum, item) => sum + item.quantity, 0)}
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-[300px] overflow-y-auto">
+            {colorSizeInventory.map((item, index) => (
+              <div key={index} className="space-y-1 border rounded p-2 bg-background">
+                <div className="text-xs font-medium text-center">
+                  {item.color} - {item.size}
+                </div>
+                <Input
+                  type="number"
+                  min="0"
+                  value={item.quantity}
+                  onChange={(e) => updateInventoryQuantity(item.color, item.size, Number(e.target.value))}
+                  className="h-8 text-center"
+                  placeholder="0"
+                />
+              </div>
+            ))}
+          </div>
+          
+          <p className="text-xs text-muted-foreground">
+            💡 أدخل الكمية المتاحة لكل تركيبة لون ومقاس. المخزون الإجمالي سيتم حسابه تلقائياً.
+          </p>
+        </div>
+      )}
 
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>

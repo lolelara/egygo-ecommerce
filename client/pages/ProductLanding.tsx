@@ -37,6 +37,9 @@ export default function ProductLanding() {
   const [clickTracked, setClickTracked] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<string[]>([]);
+  const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
   const queryClient = useQueryClient();
 
   // Fetch affiliate link data
@@ -98,6 +101,50 @@ export default function ProductLanding() {
       sessionStorage.setItem("referralLinkCode", linkCode || "");
     }
   }, [affiliateLink, clickTracked]);
+  
+  // Process inventory data and filter available colors/sizes
+  useEffect(() => {
+    if (!product) return;
+    
+    try {
+      const inventoryData = (product as any).colorSizeInventory;
+      if (inventoryData) {
+        const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
+        setInventory(parsed);
+        
+        // Get unique colors and sizes that have quantity > 0
+        const availColorsSet = new Set<string>();
+        const availSizesSet = new Set<string>();
+        
+        parsed.forEach(item => {
+          if (item.quantity > 0) {
+            availColorsSet.add(item.color);
+            availSizesSet.add(item.size);
+          }
+        });
+        
+        setAvailableColors(Array.from(availColorsSet));
+        setAvailableSizes(Array.from(availSizesSet));
+        
+        // Auto-select first available options
+        if (availColorsSet.size > 0 && !selectedColor) {
+          setSelectedColor(Array.from(availColorsSet)[0]);
+        }
+        if (availSizesSet.size > 0 && !selectedSize) {
+          setSelectedSize(Array.from(availSizesSet)[0]);
+        }
+      } else {
+        // Fallback to old system if no inventory data
+        setAvailableColors((product as any).colors || []);
+        setAvailableSizes((product as any).sizes || []);
+      }
+    } catch (error) {
+      console.error('Error parsing inventory:', error);
+      // Fallback to showing all colors/sizes
+      setAvailableColors((product as any).colors || []);
+      setAvailableSizes((product as any).sizes || []);
+    }
+  }, [product]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -300,11 +347,11 @@ export default function ProductLanding() {
             )}
 
             {/* Colors Selection */}
-            {(product as any).colors && (product as any).colors.length > 0 && (
+            {availableColors.length > 0 && (
               <div className="space-y-3">
                 <Label className="text-base font-semibold">اختر اللون:</Label>
                 <div className="flex flex-wrap gap-2">
-                  {(product as any).colors.map((color: string, index: number) => (
+                  {availableColors.map((color: string, index: number) => (
                     <Button
                       key={index}
                       variant={selectedColor === color ? "default" : "outline"}
@@ -315,15 +362,20 @@ export default function ProductLanding() {
                     </Button>
                   ))}
                 </div>
+                {selectedColor && (
+                  <p className="text-sm text-muted-foreground">
+                    تم اختيار: <span className="font-semibold">{selectedColor}</span>
+                  </p>
+                )}
               </div>
             )}
 
             {/* Sizes Selection */}
-            {(product as any).sizes && (product as any).sizes.length > 0 && (
+            {availableSizes.length > 0 && (
               <div className="space-y-3">
                 <Label className="text-base font-semibold">اختر المقاس:</Label>
                 <div className="flex flex-wrap gap-2">
-                  {(product as any).sizes.map((size: string, index: number) => (
+                  {availableSizes.map((size: string, index: number) => (
                     <Button
                       key={index}
                       variant={selectedSize === size ? "default" : "outline"}
@@ -334,6 +386,13 @@ export default function ProductLanding() {
                     </Button>
                   ))}
                 </div>
+                {selectedSize && selectedColor && inventory.length > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    الكمية المتاحة: <span className="font-semibold">
+                      {inventory.find(item => item.color === selectedColor && item.size === selectedSize)?.quantity || 0} قطعة
+                    </span>
+                  </p>
+                )}
               </div>
             )}
 
