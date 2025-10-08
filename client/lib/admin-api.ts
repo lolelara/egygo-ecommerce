@@ -24,6 +24,9 @@ export interface AdminStats {
   thisMonthOrders: number;
   recentOrders: any[];
   topProducts: any[];
+  conversionRate: number;
+  averageOrderValue: number;
+  customerSatisfaction: number;
 }
 
 // Admin Dashboard API
@@ -133,6 +136,40 @@ export const adminDashboardApi = {
         .sort((a, b) => b.quantity - a.quantity)
         .slice(0, 5);
 
+      // Calculate conversion rate (completed orders / total orders)
+      const completedOrders = ordersResponse.documents.filter(
+        (order: any) => order.status === "COMPLETED"
+      ).length;
+      const conversionRate = ordersResponse.total > 0 
+        ? (completedOrders / ordersResponse.total) * 100 
+        : 0;
+
+      // Calculate average order value
+      const averageOrderValue = ordersResponse.total > 0
+        ? totalRevenue / ordersResponse.total
+        : 0;
+
+      // Calculate customer satisfaction from reviews (if reviews collection exists)
+      let customerSatisfaction = 0;
+      try {
+        const reviewsResponse = await databases.listDocuments(
+          DATABASE_ID,
+          COLLECTIONS.REVIEWS,
+          [Query.limit(1000)]
+        );
+        if (reviewsResponse.total > 0) {
+          const totalRating = reviewsResponse.documents.reduce(
+            (sum: number, review: any) => sum + (review.rating || 0),
+            0
+          );
+          customerSatisfaction = totalRating / reviewsResponse.total;
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        // If no reviews, default to 0
+        customerSatisfaction = 0;
+      }
+
       return {
         totalRevenue,
         totalOrders: ordersResponse.total,
@@ -145,6 +182,9 @@ export const adminDashboardApi = {
         thisMonthOrders: monthlyOrders.length,
         recentOrders,
         topProducts,
+        conversionRate,
+        averageOrderValue,
+        customerSatisfaction,
       };
     } catch (error) {
       console.error("Error fetching admin stats:", error);
@@ -160,6 +200,9 @@ export const adminDashboardApi = {
         thisMonthOrders: 0,
         recentOrders: [],
         topProducts: [],
+        conversionRate: 0,
+        averageOrderValue: 0,
+        customerSatisfaction: 0,
       };
     }
   },

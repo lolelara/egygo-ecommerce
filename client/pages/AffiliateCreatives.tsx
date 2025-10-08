@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { databases } from "@/lib/appwrite";
 import { Query } from "appwrite";
@@ -51,6 +52,7 @@ const BANNER_SIZES = [
 export default function AffiliateCreatives() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [selectedLinkCode, setSelectedLinkCode] = useState("");
   const [selectedSize, setSelectedSize] = useState(BANNER_SIZES[0]);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
@@ -202,12 +204,12 @@ export default function AffiliateCreatives() {
               يجب أن يكون حسابك مفعّلاً كحساب مسوق للوصول إلى البانرات والأدوات التسويقية
             </p>
             <div className="flex gap-3 justify-center pt-4">
-              <a href="/#/update-affiliate-prefs" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+              <Button onClick={() => navigate("/update-affiliate-prefs")}>
                 تفعيل حساب المسوق
-              </a>
-              <a href="/#/affiliate" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/affiliate")}>
                 معرفة المزيد
-              </a>
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -224,7 +226,7 @@ export default function AffiliateCreatives() {
             <p className="text-muted-foreground">
               أنشئ رابط تسويقي أولاً لتتمكن من إنشاء البانرات
             </p>
-            <Button onClick={() => (window.location.href = "/affiliate/dashboard")}>
+            <Button onClick={() => navigate("/affiliate/dashboard")}>
               إنشاء رابط الآن
             </Button>
           </CardContent>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { databases } from "@/lib/appwrite";
 import { Query, ID } from "appwrite";
@@ -58,6 +59,7 @@ const generateLinkCode = () => {
 export default function AffiliateLinkManager() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedProductId, setSelectedProductId] = useState("");
   const [customCode, setCustomCode] = useState("");
@@ -200,15 +202,11 @@ export default function AffiliateLinkManager() {
               يجب أن يكون حسابك مفعّلاً كحساب مسوق للوصول إلى أدوات إنشاء الروابط التسويقية
             </p>
             <div className="flex gap-3 justify-center pt-4">
-              <Button asChild variant="default">
-                <a href="/#/update-affiliate-prefs">
-                  تفعيل حساب المسوق
-                </a>
+              <Button onClick={() => navigate("/update-affiliate-prefs")}>
+                تفعيل حساب المسوق
               </Button>
-              <Button asChild variant="outline">
-                <a href="/#/affiliate">
-                  معرفة المزيد عن التسويق بالعمولة
-                </a>
+              <Button variant="outline" onClick={() => navigate("/affiliate")}>
+                معرفة المزيد عن التسويق بالعمولة
               </Button>
             </div>
           </CardContent>

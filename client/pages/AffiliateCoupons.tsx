@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases } from "@/lib/appwrite";
 import { ID, Query } from "appwrite";
@@ -31,6 +32,7 @@ interface Coupon {
 export default function AffiliateCoupons() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -164,7 +166,7 @@ export default function AffiliateCoupons() {
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => (window.location.href = "/#/update-affiliate-prefs")}
+              onClick={() => navigate("/update-affiliate-prefs")}
               className="w-full"
             >
               تفعيل حساب المسوق

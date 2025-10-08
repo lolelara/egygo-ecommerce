@@ -191,7 +191,7 @@ export function AIAssistant() {
           message: 'سجل دخول عشان تقدر تتابع طلباتك وتستفيد من كل المميزات',
           action: {
             label: 'تسجيل الدخول',
-            link: '/#/login',
+            link: '/login',
           },
         },
       ];
@@ -208,7 +208,7 @@ export function AIAssistant() {
           message: 'ركز على المنتجات اللي فيها عمولة أعلى وشاركها على السوشيال ميديا بشكل منتظم',
           action: {
             label: 'شوف أفضل المنتجات',
-            link: '/#/affiliate/dashboard',
+            link: '/affiliate/dashboard',
           },
         },
         {
@@ -217,7 +217,7 @@ export function AIAssistant() {
           message: 'عندنا بنرات وصور جاهزة تقدر تستخدمها في حملاتك التسويقية',
           action: {
             label: 'شوف الأدوات',
-            link: '/#/affiliate/creatives',
+            link: '/affiliate/creatives',
           },
         }
       );
@@ -232,7 +232,7 @@ export function AIAssistant() {
           message: 'المنتجات اللي فيها صور واضحة بتبيع أكتر بنسبة 70%. حط صور احترافية لمنتجاتك',
           action: {
             label: 'إدارة المنتجات',
-            link: '/#/admin/products',
+            link: '/admin/products',
           },
         },
         {
@@ -241,7 +241,7 @@ export function AIAssistant() {
           message: 'راجع تقارير المبيعات بتاعتك واعرف أكتر المنتجات مبيعاً',
           action: {
             label: 'شوف التقارير',
-            link: '/#/merchant/dashboard',
+            link: '/merchant/dashboard',
           },
         }
       );
@@ -256,7 +256,7 @@ export function AIAssistant() {
           message: 'فيه طلبات محتاجة مراجعة. اتأكد من معالجتها بسرعة عشان رضا العملاء',
           action: {
             label: 'الطلبات',
-            link: '/#/admin/orders',
+            link: '/admin/orders',
           },
         },
         {
@@ -265,7 +265,7 @@ export function AIAssistant() {
           message: 'راجع إحصائيات الموقع واعرف المنتجات الأكتر مبيعاً والأقسام الأكتر زيارة',
           action: {
             label: 'لوحة التحكم',
-            link: '/#/admin',
+            link: '/admin',
           },
         }
       );

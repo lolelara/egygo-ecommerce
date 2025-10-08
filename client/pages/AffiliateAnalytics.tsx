@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { databases } from "@/lib/appwrite";
 import { Query } from "appwrite";
@@ -11,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   LineChart,
@@ -44,6 +46,7 @@ const COLORS = ["#f97316", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"];
 
 export default function AffiliateAnalytics() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState("7days");
 
   // Fetch affiliate's links
@@ -141,12 +144,12 @@ export default function AffiliateAnalytics() {
               يجب أن يكون حسابك مفعّلاً كحساب مسوق للوصول إلى لوحة التحليلات والإحصائيات
             </p>
             <div className="flex gap-3 justify-center pt-4">
-              <a href="/#/update-affiliate-prefs" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+              <Button onClick={() => navigate("/update-affiliate-prefs")}>
                 تفعيل حساب المسوق
-              </a>
-              <a href="/#/affiliate" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/affiliate")}>
                 معرفة المزيد
-              </a>
+              </Button>
             </div>
           </CardContent>
         </Card>

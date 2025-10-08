@@ -91,7 +91,7 @@ export function EnhancedSEO({
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${DEFAULT_SEO.siteUrl}/#/products?search={search_term_string}`,
+        urlTemplate: `${window.location.origin}/#/products?search={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },

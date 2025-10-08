@@ -409,8 +409,10 @@ export default function EnhancedAdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3.24%</div>
-              <Progress value={32} className="mt-2" />
+              <div className="text-2xl font-bold">
+                {stats?.conversionRate?.toFixed(2) || 0}%
+              </div>
+              <Progress value={stats?.conversionRate || 0} className="mt-2" />
               <p className="text-xs text-muted-foreground mt-2">
                 من إجمالي الزيارات
               </p>
@@ -424,10 +426,15 @@ export default function EnhancedAdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$81.25</div>
+              <div className="text-2xl font-bold">
+                ${stats?.averageOrderValue?.toFixed(2) || 0}
+              </div>
               <div className="flex items-center text-xs mt-2">
                 <TrendingUp className="h-3 w-3 text-green-500 ml-1" />
-                <span className="text-green-500">+5.2%</span>
+                <span className="text-green-500">
+                  {stats?.totalOrders > 0 ? '+' : ''}
+                  {((stats?.thisMonthOrders / Math.max(stats?.totalOrders, 1)) * 100).toFixed(1)}%
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -439,13 +446,17 @@ export default function EnhancedAdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">4.8/5.0</div>
+              <div className="text-2xl font-bold">
+                {stats?.customerSatisfaction?.toFixed(1) || 0}/5.0
+              </div>
               <div className="flex gap-1 mt-2">
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
                     className={`h-2 flex-1 rounded ${
-                      i < 5 ? "bg-yellow-400" : "bg-gray-200"
+                      i < Math.round(stats?.customerSatisfaction || 0) 
+                        ? "bg-yellow-400" 
+                        : "bg-gray-200"
                     }`}
                   />
                 ))}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { account } from "@/lib/appwrite";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertCircle } from "lucide-react";
 
 export default function UpdateAffiliatePrefs() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [currentPrefs, setCurrentPrefs] = useState<any>(null);
@@ -42,9 +44,9 @@ export default function UpdateAffiliatePrefs() {
       // Reload preferences
       await loadCurrentPrefs();
       
-      // Reload page after 2 seconds
+      // Navigate after 2 seconds
       setTimeout(() => {
-        window.location.href = '/affiliate/dashboard';
+        navigate('/affiliate/dashboard');
       }, 2000);
 
     } catch (error: any) {

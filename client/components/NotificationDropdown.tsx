@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, Check, Trash2, Package, ShoppingCart, AlertCircle, Info, DollarSign } from "lucide-react";
 import { Button } from "./ui/button";
@@ -38,6 +39,7 @@ function getTimeAgo(dateString: string): string {
 
 export function NotificationDropdown() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -96,7 +98,7 @@ export function NotificationDropdown() {
 
     // Navigate to related page if needed
     if (notification.relatedId && notification.type === 'order') {
-      window.location.href = `/#/my-orders/${notification.relatedId}`;
+      navigate(`/my-orders/${notification.relatedId}`);
     }
   };
 
