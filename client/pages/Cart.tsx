@@ -18,11 +18,13 @@ export default function Cart() {
     percentage: number;
   } | null>(null);
 
-  // Mock discount codes
+  // Discount codes - يمكن نقلها لـ Database لاحقاً
+  // TODO: Create coupons collection in Appwrite
   const DISCOUNT_CODES: Record<string, number> = {
     "WELCOME10": 10,
     "SAVE20": 20,
     "SUMMER15": 15,
+    "EGYGO25": 25, // كود خاص بموقع egygo
   };
 
   const handleUpdateQuantity = (itemId: string, newQuantity: number) => {

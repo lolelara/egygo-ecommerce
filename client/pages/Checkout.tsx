@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CreditCard, Truck, MapPin, Phone, Mail, User, ArrowRight, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 import { databases } from "@/lib/appwrite";
 import { Query } from "appwrite";
 
@@ -17,6 +18,7 @@ const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "";
 export default function Checkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { items: cartItems, total: cartTotal } = useCart();
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cash");
@@ -24,25 +26,19 @@ export default function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [isCheckingCoupon, setIsCheckingCoupon] = useState(false);
   
-  // Mock cart data
-  const cartItems = [
-    {
-      id: "1",
-      name: "ساعة ذكية - Apple Watch Series 9",
-      price: 4999,
-      quantity: 1,
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100",
-    },
-    {
-      id: "2",
-      name: "سماعات لاسلكية - Sony WH-1000XM5",
-      price: 3499,
-      quantity: 2,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100",
-    },
-  ];
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      toast({
+        title: "السلة فارغة",
+        description: "الرجاء إضافة منتجات للسلة أولاً",
+        variant: "destructive",
+      });
+      navigate("/products");
+    }
+  }, [cartItems, navigate, toast]);
 
-  const subtotal = cartItems.reduce(
+  const subtotal = cartTotal || cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
