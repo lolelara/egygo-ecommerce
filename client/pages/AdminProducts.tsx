@@ -495,7 +495,43 @@ export default function AdminProducts() {
       console.error("Error deleting product:", error);
       alert("فشل في حذف المنتج");
     }
-  };  if (loading) {
+  };
+  
+  // Helper function to check if product is available based on inventory
+  const isProductAvailable = (product: any): boolean => {
+    // Try to get stock from colorSizeInventory first
+    if (product.colorSizeInventory) {
+      try {
+        const inventory = JSON.parse(product.colorSizeInventory);
+        if (Array.isArray(inventory) && inventory.length > 0) {
+          const totalStock = inventory.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+          return totalStock > 0;
+        }
+      } catch (e) {
+        console.error('Error parsing inventory for product:', product.id, e);
+      }
+    }
+    
+    // Fallback: check if product has colors/sizes (assume available)
+    if (product.colors?.length > 0 || product.sizes?.length > 0) {
+      return true;
+    }
+    
+    // Fallback: check stock field
+    if (product.stock !== undefined && product.stock > 0) {
+      return true;
+    }
+    
+    // Fallback: check inStock field
+    if (product.inStock !== undefined) {
+      return product.inStock;
+    }
+    
+    // Default: assume available
+    return true;
+  };
+
+  if (loading) {
     return (
       <AdminLayout>
         <div className="space-y-6">
@@ -567,7 +603,7 @@ export default function AdminProducts() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {products.filter((p) => p.inStock).length}
+                {products.filter((p) => isProductAvailable(p)).length}
               </div>
             </CardContent>
           </Card>
@@ -581,7 +617,7 @@ export default function AdminProducts() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {products.filter((p) => !p.inStock).length}
+                {products.filter((p) => !isProductAvailable(p)).length}
               </div>
             </CardContent>
           </Card>
