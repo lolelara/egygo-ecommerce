@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -42,6 +42,8 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState("");
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
+  const [totalStock, setTotalStock] = useState<number>(0);
+  const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
 
   // Available colors (يمكن جلبها من API لاحقاً)
   const availableColors = [
@@ -61,6 +63,44 @@ export default function ProductDetail() {
     queryFn: () => productsApi.getById(id!),
     enabled: !!id,
   });
+  
+  // Calculate total stock from inventory system
+  useEffect(() => {
+    if (!product) return;
+    
+    try {
+      const inventoryData = (product as any).colorSizeInventory;
+      
+      if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
+        const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
+        
+        if (parsed.length > 0) {
+          setInventory(parsed);
+          const total = parsed.reduce((sum, item) => sum + (item.quantity || 0), 0);
+          setTotalStock(total);
+          console.log('📦 Product inventory loaded:', { total, inventory: parsed });
+          return;
+        }
+      }
+      
+      // Fallback: Check if product has colors/sizes
+      const colors = (product as any).colors || [];
+      const sizes = (product as any).sizes || [];
+      
+      if (colors.length > 0 || sizes.length > 0) {
+        setTotalStock(999);
+        console.log('✅ Product has colors/sizes, defaulting to stock: 999');
+      } else {
+        const oldStock = (product as any).stock || product.stockQuantity || 0;
+        setTotalStock(oldStock > 0 ? oldStock : 999);
+        console.log('📦 Using old stock or default:', oldStock || 999);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error parsing inventory:', error);
+      setTotalStock(999);
+    }
+  }, [product]);
 
   if (isLoading) {
     return (
@@ -120,8 +160,8 @@ export default function ProductDetail() {
       originalPrice: product.originalPrice,
       image: images[0]?.url || "",
       quantity,
-      stockQuantity: product.stockQuantity,
-      inStock: product.inStock,
+      stockQuantity: totalStock,
+      inStock: totalStock > 0,
       color: colorName,
       size: selectedSize || undefined,
     });
@@ -255,8 +295,8 @@ export default function ProductDetail() {
                   </span>
                 </div>
                 <Separator orientation="vertical" className="h-5" />
-                <Badge variant={product.inStock ? "default" : "destructive"}>
-                  {product.inStock ? `متوفر (${product.stockQuantity})` : "غير متوفر"}
+                <Badge variant={totalStock > 0 ? "default" : "destructive"}>
+                  {totalStock > 0 ? `متوفر (${totalStock})` : "غير متوفر"}
                 </Badge>
               </div>
             </div>
@@ -361,7 +401,7 @@ export default function ProductDetail() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={!product.inStock}
+                    disabled={totalStock === 0}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
@@ -372,15 +412,15 @@ export default function ProductDetail() {
                     variant="ghost"
                     size="icon"
                     onClick={() =>
-                      setQuantity(Math.min(product.stockQuantity, quantity + 1))
+                      setQuantity(Math.min(totalStock, quantity + 1))
                     }
-                    disabled={!product.inStock}
+                    disabled={totalStock === 0}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  ({product.stockQuantity} متوفر)
+                  ({totalStock} متوفر)
                 </span>
               </div>
 
@@ -389,7 +429,7 @@ export default function ProductDetail() {
                   size="lg"
                   className="flex-1"
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={totalStock === 0}
                 >
                   <ShoppingCart className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
                   أضف إلى السلة
@@ -413,7 +453,7 @@ export default function ProductDetail() {
                 variant="secondary"
                 className="w-full"
                 asChild
-                disabled={!product.inStock}
+                disabled={totalStock === 0}
               >
                 <Link to="/cart">
                   اشتر الآن
@@ -503,11 +543,11 @@ export default function ProductDetail() {
                   </div>
                   <div className="grid grid-cols-2 gap-4 py-2 border-b">
                     <span className="font-semibold">الحالة</span>
-                    <span>{product.inStock ? "متوفر" : "غير متوفر"}</span>
+                    <span>{totalStock > 0 ? "متوفر" : "غير متوفر"}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 py-2">
                     <span className="font-semibold">الكمية المتوفرة</span>
-                    <span>{product.stockQuantity}</span>
+                    <span>{totalStock}</span>
                   </div>
                 </div>
               </CardContent>
