@@ -62,10 +62,22 @@ export default function AdminUsers() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      console.log("Starting to fetch users and affiliates...");
+      
       const [usersData, affiliatesData] = await Promise.all([
-        adminUsersApi.getAll(),
-        adminUsersApi.getAllAffiliates(),
+        adminUsersApi.getAll().catch(err => {
+          console.error("Failed to fetch users:", err);
+          return [];
+        }),
+        adminUsersApi.getAllAffiliates().catch(err => {
+          console.error("Failed to fetch affiliates:", err);
+          return [];
+        }),
       ]);
+      
+      console.log("Users data:", usersData);
+      console.log("Affiliates data:", affiliatesData);
+      
       setUsers(usersData);
       setAffiliates(affiliatesData);
     } catch (error) {
@@ -238,27 +250,58 @@ export default function AdminUsers() {
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
+            {/* Info Message */}
+            {users.length === 0 && !loading && (
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <Users className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <h3 className="font-semibold text-blue-900 mb-1">
+                        لا يوجد مستخدمين حالياً
+                      </h3>
+                      <p className="text-sm text-blue-700">
+                        المستخدمين سيظهرون هنا تلقائياً عند تسجيل حسابات جديدة.
+                        يمكنك أيضاً إدارة المستخدمين من{" "}
+                        <a
+                          href="https://cloud.appwrite.io/console"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline font-medium"
+                        >
+                          Appwrite Console
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             {/* Users Search */}
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="البحث في المستخدمين..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+            {users.length > 0 && (
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Input
+                      placeholder="البحث في المستخدمين..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Users Table */}
-            <Card>
-              <CardHeader>
-                <CardTitle>المستخدمين ({filteredUsers.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
+            {users.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>المستخدمين ({filteredUsers.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -325,6 +368,7 @@ export default function AdminUsers() {
                 </Table>
               </CardContent>
             </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="affiliates" className="space-y-4">

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Heart, ShoppingCart, Trash2, Package } from "lucide-react";
 import SEO from "@/components/SEO";
+import { getImageUrl } from "@/lib/storage";
 
 export default function Wishlist() {
   const { user } = useAuth();
@@ -50,10 +51,10 @@ export default function Wishlist() {
       productId: product.id,
       name: product.name,
       price: product.price,
-      image: product.images?.[0]?.url || "/placeholder.png",
+      image: getImageUrl(product.images?.[0]),
       quantity: 1,
-      stockQuantity: product.stockQuantity || 0,
-      inStock: product.inStock,
+      stockQuantity: product.stockQuantity || product.stock || 0,
+      inStock: product.inStock ?? product.isActive ?? true,
     });
     toast({
       title: "تم الإضافة",
@@ -131,7 +132,7 @@ export default function Wishlist() {
                   <Link to={`/products/${item.productId}`}>
                     <div className="relative aspect-square mb-4 rounded-lg overflow-hidden bg-gray-100">
                       <img
-                        src={item.product.images?.[0]?.url || "/placeholder.png"}
+                        src={getImageUrl(item.product.images?.[0])}
                         alt={item.product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />

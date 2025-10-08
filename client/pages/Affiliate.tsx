@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { fallbackProductsApi } from "../lib/api-fallback";
 import { useState, useEffect } from "react";
 import type { ProductWithRelations } from "@shared/prisma-types";
+import { getImageUrl } from "@/lib/storage";
 
 export default function Affiliate() {
   const [featuredProducts, setFeaturedProducts] = useState<
@@ -400,7 +401,7 @@ export default function Affiliate() {
             >
               <div className="relative">
                 <img
-                  src={product.images[0]?.url || "/placeholder.svg"}
+                  src={getImageUrl(product.images?.[0])}
                   alt={product.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />

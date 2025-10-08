@@ -200,7 +200,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Appwrite غير مُعد. يرجى التحقق من إعدادات المشروع.');
       }
 
+      // Register user in Appwrite Auth
       await AppwriteService.register(email, password, name);
+      
+      // Get the current user to get their ID
+      const currentUser = await AppwriteService.getCurrentUser();
       
       // Set user role and preferences after registration
       const preferences: any = {
@@ -224,6 +228,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       await AppwriteService.updateUserPreferences(preferences);
+      
+      // Create user document in users collection for admin dashboard
+      try {
+        const databases = (await import('@/lib/appwrite')).databases;
+        const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || '';
+        
+        await databases.createDocument(
+          DATABASE_ID,
+          'users',
+          currentUser.$id,
+          {
+            email: email,
+            name: name,
+            phone: phone || '',
+            isAffiliate: accountType === 'affiliate',
+            isMerchant: accountType === 'merchant',
+            isIntermediary: accountType === 'intermediary',
+            affiliateCode: preferences.affiliateCode || null,
+            commissionRate: preferences.commissionRate || null,
+            isActive: true,
+          }
+        );
+      } catch (docError) {
+        console.error('Failed to create user document:', docError);
+        // Don't fail registration if document creation fails
+      }
+      
       await checkAuthUser();
     } catch (error) {
       console.error('Registration error:', error);

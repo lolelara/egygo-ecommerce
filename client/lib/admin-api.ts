@@ -418,11 +418,15 @@ export const adminCategoriesApi = {
 export const adminUsersApi = {
   getAll: async (): Promise<any[]> => {
     try {
+      console.log("Fetching all users from database...");
       const response = await databases.listDocuments(
         DATABASE_ID,
         COLLECTIONS.USERS,
         [Query.orderDesc("$createdAt"), Query.limit(1000)]
       );
+
+      console.log("Users response:", response);
+      console.log("Total users found:", response.documents.length);
 
       return response.documents.map((doc: any) => ({
         id: doc.$id,
@@ -434,9 +438,10 @@ export const adminUsersApi = {
         createdAt: doc.$createdAt,
         updatedAt: doc.$updatedAt,
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching users:", error);
-      return [];
+      console.error("Error details:", error.message, error.code, error.type);
+      throw error; // Throw the error instead of returning empty array
     }
   },
 

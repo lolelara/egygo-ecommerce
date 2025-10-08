@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/sheet";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { ProductFilters } from "@shared/prisma-types";
+import { getImageUrl } from "@/lib/storage";
 
 type SortOption = "featured" | "price_asc" | "price_desc" | "rating" | "newest";
 
@@ -390,7 +391,7 @@ export default function Products() {
                   >
                     <div className="relative">
                       <img
-                        src={product.images[0]?.url || "/placeholder.svg"}
+                        src={getImageUrl(product.images?.[0])}
                         alt={product.name}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
