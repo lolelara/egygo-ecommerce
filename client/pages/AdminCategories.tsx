@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Edit, Trash2, Search, FolderOpen, Package } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { Category } from "@shared/api";
 import { adminCategoriesApi } from "@/lib/admin-api";
 import { categoriesApi } from "@/lib/api";
@@ -161,6 +162,7 @@ const CategoryForm = ({
 };
 
 export default function AdminCategories() {
+  const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -190,12 +192,23 @@ export default function AdminCategories() {
 
   const handleAddCategory = async (data: Omit<Category, "id" | "productCount">) => {
     try {
+      console.log("Creating category with data:", data);
       const newCategory = await adminCategoriesApi.create(data);
+      console.log("Category created successfully:", newCategory);
       setCategories((prev) => [newCategory as any, ...prev]);
       setIsAddDialogOpen(false);
-    } catch (error) {
+      toast({
+        title: "تم بنجاح",
+        description: "تم إضافة الفئة بنجاح",
+      });
+    } catch (error: any) {
       console.error("Error adding category:", error);
-      alert("فشل في إضافة الفئة");
+      const errorMessage = error?.message || error?.toString() || "فشل في إضافة الفئة";
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: errorMessage,
+      });
     }
   };
 

@@ -54,14 +54,13 @@ export const adminDashboardApi = {
         [Query.limit(1000)]
       );
 
-      // Get affiliates (users with affiliate label)
-      // TODO: Implement affiliate counting - Using equal query instead of search
+      // Get affiliates (users with isAffiliate = true)
       let totalAffiliates = 0;
       try {
         const affiliatesResponse = await databases.listDocuments(
           DATABASE_ID,
           COLLECTIONS.USERS,
-          [Query.equal("labels", ["affiliate"]), Query.limit(1000)]
+          [Query.equal("isAffiliate", true), Query.limit(1000)]
         );
         totalAffiliates = affiliatesResponse.total;
       } catch (error) {
@@ -69,7 +68,7 @@ export const adminDashboardApi = {
         // Fallback: count from all users
         const allUsers = usersResponse.documents;
         totalAffiliates = allUsers.filter((user: any) => 
-          user.labels && user.labels.includes("affiliate")
+          user.isAffiliate === true
         ).length;
       }
 
@@ -283,29 +282,38 @@ export const adminProductsApi = {
 export const adminCategoriesApi = {
   create: async (category: any): Promise<any> => {
     try {
+      // Generate slug from name if not provided
+      const slug = category.slug || category.name
+        .toLowerCase()
+        .replace(/[أ-ي\s]+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+
       const doc = await databases.createDocument(
         DATABASE_ID,
         COLLECTIONS.CATEGORIES,
         "unique()",
         {
           name: category.name,
-          slug: category.slug,
           description: category.description || "",
           image: category.image || "",
-          productCount: 0,
+          isActive: true,
         }
       );
 
       return {
         id: doc.$id,
         name: doc.name,
-        slug: doc.slug,
+        slug: slug, // Return slug for frontend use (even though not stored)
         description: doc.description,
         image: doc.image,
-        productCount: doc.productCount,
+        productCount: 0,
         createdAt: doc.$createdAt,
       };
     } catch (error: any) {
+      console.error("Category creation error:", error);
       throw new Error(error.message || "فشل في إنشاء الفئة");
     }
   },
@@ -318,21 +326,30 @@ export const adminCategoriesApi = {
         id,
         {
           name: category.name,
-          slug: category.slug,
           description: category.description,
           image: category.image,
         }
       );
 
+      // Generate slug for frontend use
+      const slug = category.name
+        .toLowerCase()
+        .replace(/[أ-ي\s]+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+
       return {
         id: doc.$id,
         name: doc.name,
-        slug: doc.slug,
+        slug: slug,
         description: doc.description,
         image: doc.image,
         updatedAt: doc.$updatedAt,
       };
     } catch (error: any) {
+      console.error("Category update error:", error);
       throw new Error(error.message || "فشل في تحديث الفئة");
     }
   },
@@ -383,7 +400,7 @@ export const adminUsersApi = {
       const response = await databases.listDocuments(
         DATABASE_ID,
         COLLECTIONS.USERS,
-        [Query.search("labels", "affiliate"), Query.limit(1000)]
+        [Query.equal("isAffiliate", true), Query.limit(1000)]
       );
 
       return response.documents.map((doc: any) => ({
@@ -391,7 +408,7 @@ export const adminUsersApi = {
         email: doc.email,
         name: doc.name || doc.email.split('@')[0],
         affiliateCode: doc.affiliateCode || `AFF${doc.$id.substring(0, 6).toUpperCase()}`,
-        commissionRate: doc.commissionRate || 10,
+        commissionRate: doc.commissionRate || 15,
         totalEarnings: doc.totalEarnings || 0,
         pendingEarnings: doc.pendingEarnings || 0,
         referralCount: doc.referralCount || 0,
@@ -415,20 +432,23 @@ export const adminUsersApi = {
 
   updateRole: async (id: string, role: string): Promise<any> => {
     try {
-      const labels = role === "ADMIN" ? ["admin"] : [];
+      // Note: Role management should be done through Appwrite's Teams/Roles system
+      // For now, we'll just update the user document if there's a role field
+      // In a real system, you'd use Appwrite's permissions and teams
       const doc = await databases.updateDocument(
         DATABASE_ID,
         COLLECTIONS.USERS,
         id,
-        { labels }
+        { role: role }
       );
 
       return {
         id: doc.$id,
-        role: doc.labels?.includes("admin") ? "ADMIN" : "USER",
+        role: doc.role || "USER",
         updatedAt: doc.$updatedAt,
       };
     } catch (error: any) {
+      console.error("Error updating role:", error);
       throw new Error(error.message || "فشل في تحديث دور المستخدم");
     }
   },
