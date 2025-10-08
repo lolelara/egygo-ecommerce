@@ -55,6 +55,7 @@ import type {
 } from "@shared/api";
 import { adminProductsApi } from "@/lib/admin-api";
 import { productsApi, categoriesApi } from "@/lib/api";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
 
 const ProductForm = ({
   product,
@@ -282,6 +283,7 @@ const ProductForm = ({
 };
 
 export default function AdminProducts() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -298,7 +300,19 @@ export default function AdminProducts() {
           productsApi.getAll({}),
           categoriesApi.getAll(),
         ]);
-        setProducts(productsData.products as any);
+        
+        let filteredProducts = productsData.products as any;
+        
+        // Filter products by merchantId if user is a merchant (not admin)
+        if (user && (user as any).labels && !(user as any).labels.includes('admin')) {
+          console.log('Filtering products for merchant:', user.$id);
+          filteredProducts = (productsData.products as any[]).filter((p: any) => {
+            return p.merchantId === user.$id;
+          });
+          console.log('Merchant products:', filteredProducts.length);
+        }
+        
+        setProducts(filteredProducts);
         setCategories(categoriesData.categories as any);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -307,7 +321,7 @@ export default function AdminProducts() {
     };
 
     fetchData();
-  }, []);
+  }, [user]);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -320,7 +334,8 @@ export default function AdminProducts() {
 
   const handleAddProduct = async (data: AdminProductCreate) => {
     try {
-      const newProduct = await adminProductsApi.create(data);
+      // Pass user ID as merchantId for merchant users
+      const newProduct = await adminProductsApi.create(data, user?.$id);
       setProducts((prev) => [newProduct as any, ...prev]);
       setIsAddDialogOpen(false);
     } catch (error) {
@@ -331,6 +346,16 @@ export default function AdminProducts() {
 
   const handleUpdateProduct = async (data: AdminProductUpdate) => {
     try {
+      // Check if user has permission to edit this product (must be admin or the merchant who owns it)
+      const product = products.find(p => p.id === data.id);
+      const isAdmin = user && (user as any).labels?.includes('admin');
+      const isMerchantOwner = product && (product as any).merchantId === user?.$id;
+      
+      if (!isAdmin && !isMerchantOwner) {
+        alert("ليس لديك صلاحية لتعديل هذا المنتج");
+        return;
+      }
+      
       const updatedProduct = await adminProductsApi.update(data);
       setProducts((prev) =>
         prev.map((product) =>
@@ -348,17 +373,25 @@ export default function AdminProducts() {
 
   const handleDeleteProduct = async (productId: string) => {
     if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
-    
+
     try {
+      // Check if user has permission to delete this product
+      const product = products.find(p => p.id === productId);
+      const isAdmin = user && (user as any).labels?.includes('admin');
+      const isMerchantOwner = product && (product as any).merchantId === user?.$id;
+      
+      if (!isAdmin && !isMerchantOwner) {
+        alert("ليس لديك صلاحية لحذف هذا المنتج");
+        return;
+      }
+      
       await adminProductsApi.delete(productId);
       setProducts((prev) => prev.filter((product) => product.id !== productId));
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("فشل في حذف المنتج");
     }
-  };
-
-  if (loading) {
+  };  if (loading) {
     return (
       <AdminLayout>
         <div className="space-y-6">

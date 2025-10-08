@@ -209,9 +209,10 @@ export const adminDashboardApi = {
 
 // Admin Products API
 export const adminProductsApi = {
-  create: async (product: any): Promise<any> => {
+  create: async (product: any, userId?: string): Promise<any> => {
     try {
       console.log("Creating product with data:", product);
+      console.log("User ID (merchantId):", userId);
       
       // Prepare document data with optional merchantId, colors, and sizes
       const documentData: any = {
@@ -231,7 +232,15 @@ export const adminProductsApi = {
 
       // Add optional fields if they exist in the product data
       // These will be silently ignored if attributes don't exist in Appwrite
-      if (product.merchantId) documentData.merchantId = product.merchantId;
+      // If userId is provided, use it as merchantId (for merchant users)
+      // If product.merchantId is explicitly provided, use that instead (for admin)
+      if (product.merchantId) {
+        documentData.merchantId = product.merchantId;
+      } else if (userId) {
+        documentData.merchantId = userId;
+        console.log("Auto-assigned merchantId:", userId);
+      }
+      
       if (product.colors && Array.isArray(product.colors)) documentData.colors = product.colors;
       if (product.sizes && Array.isArray(product.sizes)) documentData.sizes = product.sizes;
 
