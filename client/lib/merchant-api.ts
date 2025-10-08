@@ -12,20 +12,35 @@ const COLLECTIONS = appwriteConfig.collections;
  * Get merchant statistics
  * إحصائيات التاجر الكاملة من قاعدة البيانات
  * 
- * Note: Since products collection doesn't have merchantId attribute,
- * this returns stats for ALL products. To implement per-merchant filtering,
- * add merchantId attribute to products collection in Appwrite.
+ * Supports merchantId filtering if the attribute exists in products collection.
+ * Falls back to showing all products if merchantId is not available.
  */
 export async function getMerchantStats(userId: string): Promise<MerchantStats> {
   try {
     console.log('Fetching merchant stats for user:', userId);
     
-    // 1. Get all products (no merchantId filter available in current schema)
-    const productsResponse = await databases.listDocuments(
-      DATABASE_ID,
-      COLLECTIONS.products,
-      [Query.limit(1000)]
-    );
+    // Try to get products filtered by merchantId
+    // If attribute doesn't exist, fall back to all products
+    let productsResponse;
+    try {
+      productsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.products,
+        [
+          Query.equal('merchantId', userId),
+          Query.limit(1000)
+        ]
+      );
+      console.log('Fetched products with merchantId filter:', productsResponse.documents.length);
+    } catch (error: any) {
+      // If merchantId attribute doesn't exist, get all products
+      console.warn('merchantId attribute not found, fetching all products:', error.message);
+      productsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.products,
+        [Query.limit(1000)]
+      );
+    }
 
     const products = productsResponse.documents;
     const totalProducts = products.length;
@@ -169,21 +184,36 @@ export async function getMerchantStats(userId: string): Promise<MerchantStats> {
  * Get merchant products with statistics
  * منتجات التاجر مع إحصائيات كل منتج
  * 
- * Note: Returns all products since merchantId attribute doesn't exist
+ * Supports merchantId filtering if the attribute exists in products collection.
  */
 export async function getMerchantProducts(userId: string): Promise<MerchantProduct[]> {
   try {
     console.log('Fetching merchant products for user:', userId);
     
-    // Get all products (no merchantId filter available)
-    const productsResponse = await databases.listDocuments(
-      DATABASE_ID,
-      COLLECTIONS.products,
-      [
-        Query.orderDesc('$createdAt'),
-        Query.limit(100)
-      ]
-    );
+    // Try to get products filtered by merchantId
+    let productsResponse;
+    try {
+      productsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.products,
+        [
+          Query.equal('merchantId', userId),
+          Query.orderDesc('$createdAt'),
+          Query.limit(100)
+        ]
+      );
+      console.log('Fetched products with merchantId filter:', productsResponse.documents.length);
+    } catch (error: any) {
+      console.warn('merchantId attribute not found, fetching all products');
+      productsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.products,
+        [
+          Query.orderDesc('$createdAt'),
+          Query.limit(100)
+        ]
+      );
+    }
 
     const merchantProducts: MerchantProduct[] = [];
 

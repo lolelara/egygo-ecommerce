@@ -213,24 +213,33 @@ export const adminProductsApi = {
     try {
       console.log("Creating product with data:", product);
       
+      // Prepare document data with optional merchantId, colors, and sizes
+      const documentData: any = {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        comparePrice: product.comparePrice || product.originalPrice || null,
+        stock: product.stock || product.stockQuantity || 0,
+        categoryId: product.categoryId,
+        images: product.images || [],
+        tags: product.tags || [],
+        isActive: product.isActive ?? true,
+        isFeatured: product.isFeatured ?? false,
+        rating: 0,
+        reviewCount: 0,
+      };
+
+      // Add optional fields if they exist in the product data
+      // These will be silently ignored if attributes don't exist in Appwrite
+      if (product.merchantId) documentData.merchantId = product.merchantId;
+      if (product.colors && Array.isArray(product.colors)) documentData.colors = product.colors;
+      if (product.sizes && Array.isArray(product.sizes)) documentData.sizes = product.sizes;
+
       const doc = await databases.createDocument(
         DATABASE_ID,
         COLLECTIONS.PRODUCTS,
         "unique()",
-        {
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          comparePrice: product.comparePrice || product.originalPrice || null,
-          stock: product.stock || product.stockQuantity || 0,
-          categoryId: product.categoryId,
-          images: product.images || [],
-          tags: product.tags || [],
-          isActive: product.isActive ?? true,
-          isFeatured: product.isFeatured ?? false,
-          rating: 0,
-          reviewCount: 0,
-        }
+        documentData
       );
 
       console.log("Product created successfully:", doc);
@@ -279,6 +288,11 @@ export const adminProductsApi = {
       if (updateData.isFeatured !== undefined) mappedData.isFeatured = updateData.isFeatured;
       if (updateData.rating !== undefined) mappedData.rating = updateData.rating;
       if (updateData.reviewCount !== undefined) mappedData.reviewCount = updateData.reviewCount;
+      
+      // Add optional fields (will be ignored if attributes don't exist)
+      if (updateData.merchantId) mappedData.merchantId = updateData.merchantId;
+      if (updateData.colors) mappedData.colors = updateData.colors;
+      if (updateData.sizes) mappedData.sizes = updateData.sizes;
       
       const doc = await databases.updateDocument(
         DATABASE_ID,
