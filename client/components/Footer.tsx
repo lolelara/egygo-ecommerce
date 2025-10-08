@@ -12,7 +12,7 @@ export function Footer() {
           {/* Company Info */}
           <div className="space-y-4">
             <Link to="/" className="text-2xl font-bold text-primary">
-              شوب كو
+              EgyGo
             </Link>
             <p className="text-sm text-muted-foreground">
               وجهتك الوحيدة للمنتجات عالية الجودة مع أفضل برنامج شراكة في
@@ -154,7 +154,7 @@ export function Footer() {
         <Separator className="my-8" />
 
         <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-muted-foreground">
-          <p>&copy; 2024 شوب كو. جميع الحقوق محفوظة.</p>
+          <p>&copy; 2024 EgyGo. جميع الحقوق محفوظة.</p>
           <div className="flex space-x-4 rtl:space-x-reverse mt-4 sm:mt-0">
             <Link
               to="/privacy"

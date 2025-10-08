@@ -19,7 +19,7 @@ export default function TermsOfService() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                مرحباً بك في شوب كو. باستخدامك لموقعنا، فإنك توافق على الالتزام بشروط
+                مرحباً بك في إيجي جو (EgyGo). باستخدامك لموقعنا، فإنك توافق على الالتزام بشروط
                 الاستخدام التالية. يرجى قراءتها بعناية قبل استخدام خدماتنا.
               </p>
               <p>

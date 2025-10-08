@@ -41,7 +41,7 @@ export default function ForgotPassword() {
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <Link to="/" className="text-3xl font-bold text-primary">
-              شوب كو
+              EgyGo
             </Link>
           </div>
 

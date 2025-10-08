@@ -13,7 +13,7 @@ export const appwriteConfig = {
     products: 'products',
     categories: 'categories',
     orders: 'orders',
-    orderItems: 'order_items',
+    orderItems: 'order-items',
     reviews: 'reviews',
     affiliates: 'affiliates'
   }

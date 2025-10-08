@@ -10,7 +10,7 @@ interface SEOProps {
 }
 
 export default function SEO({
-  title = "شوب كو - متجر إلكتروني مع برنامج شراكة",
+  title = "EgyGo - متجر إلكتروني مع برنامج شراكة",
   description = "تسوق منتجات عالية الجودة وانضم إلى برنامج الشراكة لتكسب عمولة تصل إلى 25% على كل عملية بيع",
   keywords = "تسوق اونلاين, متجر الكتروني, برنامج شراكة, عمولات, منتجات, مصر",
   ogType = "website",
@@ -45,7 +45,7 @@ export default function SEO({
     updateMetaTag("og:type", ogType, true);
     updateMetaTag("og:image", ogImage, true);
     updateMetaTag("og:url", canonicalUrl || window.location.href, true);
-    updateMetaTag("og:site_name", "شوب كو", true);
+    updateMetaTag("og:site_name", "EgyGo", true);
 
     // Twitter Card tags
     updateMetaTag("twitter:card", "summary_large_image");

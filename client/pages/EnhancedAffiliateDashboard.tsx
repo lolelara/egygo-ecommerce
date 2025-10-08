@@ -1,5 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { affiliateApi } from "@/lib/affiliate-api";
+import { databases } from "@/lib/appwrite";
+import { Query } from "appwrite";
 import {
   Card,
   CardContent,
@@ -30,70 +34,93 @@ import {
   Sparkles,
   Gift,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "68de037e003bd03c4d45";
+
 export default function EnhancedAffiliateDashboard() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
+  const [recentSales, setRecentSales] = useState<any[]>([]);
+  const [topProducts, setTopProducts] = useState<any[]>([]);
 
-  const affiliateCode = "AHMED2024";
-  const affiliateLink = `https://egygo.com/ref/${affiliateCode}`;
+  useEffect(() => {
+    if (user?.$id) {
+      fetchAffiliateData();
+    }
+  }, [user]);
 
-  const stats = {
-    totalEarnings: 2847.5,
-    pendingEarnings: 450.75,
-    thisMonthEarnings: 680.25,
-    availableForWithdraw: 2396.75,
-    totalClicks: 1234,
-    totalSales: 89,
-    conversionRate: 7.2,
-    referralCount: 34,
+  const fetchAffiliateData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get affiliate stats
+      const affiliateStats = await affiliateApi.getStats(user!.$id);
+      setStats(affiliateStats);
+
+      // Get commissions for recent sales
+      const commissionsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        "commissions",
+        [
+          Query.equal("affiliateId", user!.$id),
+          Query.orderDesc("$createdAt"),
+          Query.limit(10)
+        ]
+      );
+
+      const salesData = await Promise.all(
+        commissionsResponse.documents.slice(0, 3).map(async (comm: any) => {
+          try {
+            const order = await databases.getDocument(
+              DATABASE_ID,
+              "orders",
+              comm.orderId
+            );
+            return {
+              id: order.orderNumber || comm.$id,
+              product: order.items?.[0]?.name || "منتج",
+              customer: `عميل ${order.userId?.substring(0, 4)}`,
+              amount: comm.orderAmount || 0,
+              commission: comm.amount || 0,
+              date: new Date(comm.$createdAt).toLocaleDateString("ar-EG"),
+              status: comm.status === "PAID" ? "completed" : "pending",
+            };
+          } catch (error) {
+            return {
+              id: comm.$id,
+              product: "منتج",
+              customer: "عميل",
+              amount: comm.orderAmount || 0,
+              commission: comm.amount || 0,
+              date: new Date(comm.$createdAt).toLocaleDateString("ar-EG"),
+              status: comm.status === "PAID" ? "completed" : "pending",
+            };
+          }
+        })
+      );
+
+      setRecentSales(salesData);
+      
+    } catch (error) {
+      console.error("Error fetching affiliate data:", error);
+      toast({
+        variant: "destructive",
+        title: "خطأ",
+        description: "فشل في تحميل بيانات المسوق",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const tierProgress = {
-    current: "Silver",
-    next: "Gold",
-    salesNeeded: 150,
-    currentSales: 89,
-    percentage: (89 / 150) * 100,
-  };
-
-  const recentSales = [
-    {
-      id: "#12456",
-      product: "سماعات بلوتوث",
-      customer: "عميل 1234",
-      amount: 299,
-      commission: 44.85,
-      date: "2025-10-02",
-      status: "completed",
-    },
-    {
-      id: "#12455",
-      product: "ساعة ذكية",
-      customer: "عميل 5678",
-      amount: 899,
-      commission: 134.85,
-      date: "2025-10-01",
-      status: "pending",
-    },
-    {
-      id: "#12454",
-      product: "شاحن لاسلكي",
-      customer: "عميل 9012",
-      amount: 89,
-      commission: 13.35,
-      date: "2025-10-01",
-      status: "completed",
-    },
-  ];
-
-  const topProducts = [
-    { name: "سماعات بلوتوث", sales: 23, commission: 345.75, clicks: 456 },
-    { name: "ساعة ذكية", sales: 18, commission: 242.10, clicks: 389 },
-    { name: "شاحن لاسلكي", sales: 34, commission: 153.00, clicks: 578 },
-  ];
+  const affiliateCode = (user as any)?.prefs?.affiliateCode || user?.$id?.substring(0, 8) || "AFFILIATE";
+  const affiliateLink = `${window.location.origin}/#/ref/${affiliateCode}`;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -103,6 +130,41 @@ export default function EnhancedAffiliateDashboard() {
       description: "تم نسخ الرابط إلى الحافظة",
     });
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">جاري تحميل بيانات المسوق...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>خطأ</CardTitle>
+            <CardDescription>فشل في تحميل بيانات المسوق</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={fetchAffiliateData}>إعادة المحاولة</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const tierProgress = {
+    current: "Bronze",
+    next: "Silver",
+    salesNeeded: 50,
+    currentSales: stats.conversions || 0,
+    percentage: ((stats.conversions || 0) / 50) * 100,
   };
 
   return (
@@ -197,7 +259,7 @@ export default function EnhancedAffiliateDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${stats.totalEarnings.toFixed(2)}
+                ${(stats.totalEarnings || 0).toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 منذ الانضمام
@@ -212,11 +274,14 @@ export default function EnhancedAffiliateDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${stats.thisMonthEarnings.toFixed(2)}
+                ${(stats.thisMonthEarnings || 0).toFixed(2)}
               </div>
               <div className="flex items-center text-xs mt-1">
                 <TrendingUp className="h-3 w-3 text-green-500 ml-1" />
-                <span className="text-green-500">+12.5%</span>
+                <span className="text-green-500">
+                  {stats.thisMonthEarnings > 0 ? '+' : ''}
+                  {((stats.thisMonthEarnings / Math.max(stats.totalEarnings, 1)) * 100).toFixed(1)}%
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -230,10 +295,10 @@ export default function EnhancedAffiliateDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {stats.conversionRate}%
+                {(stats.conversionRate || 0).toFixed(1)}%
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats.totalSales} مبيعة من {stats.totalClicks} زيارة
+                {stats.conversions || 0} مبيعة من {stats.referralCount || 0} إحالة
               </p>
             </CardContent>
           </Card>
@@ -247,11 +312,13 @@ export default function EnhancedAffiliateDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
-                ${stats.availableForWithdraw.toFixed(2)}
+                ${((stats.totalEarnings || 0) - (stats.pendingEarnings || 0)).toFixed(2)}
               </div>
-              <Button size="sm" className="mt-2">
-                سحب الآن
-              </Button>
+              <Link to="/affiliate/withdraw">
+                <Button size="sm" className="mt-2 w-full">
+                  سحب الآن
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
