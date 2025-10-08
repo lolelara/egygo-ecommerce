@@ -77,6 +77,8 @@ const ProductForm = ({
     tags: product?.tags?.join(", ") || "",
     stockQuantity: 100, // Default stock
     affiliateCommission: product?.affiliateCommission || 8,
+    colors: (product as any)?.colors?.join(", ") || "",
+    sizes: (product as any)?.sizes?.join(", ") || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,6 +90,14 @@ const ProductForm = ({
       tags: formData.tags
         .split(",")
         .map((tag) => tag.trim())
+        .filter(Boolean),
+      colors: formData.colors
+        .split(",")
+        .map((color) => color.trim())
+        .filter(Boolean),
+      sizes: formData.sizes
+        .split(",")
+        .map((size) => size.trim())
         .filter(Boolean),
     };
 
@@ -225,6 +235,38 @@ const ProductForm = ({
           }
           placeholder="إلكترونيات, سماعات, بلوتوث"
         />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="colors">الألوان المتاحة (منفصلة بفواصل)</Label>
+          <Input
+            id="colors"
+            value={formData.colors}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, colors: e.target.value }))
+            }
+            placeholder="أحمر, أزرق, أخضر"
+          />
+          <p className="text-xs text-muted-foreground">
+            مثال: أحمر, أزرق, أسود أو Red, Blue, Black
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="sizes">المقاسات المتاحة (منفصلة بفواصل)</Label>
+          <Input
+            id="sizes"
+            value={formData.sizes}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, sizes: e.target.value }))
+            }
+            placeholder="S, M, L, XL"
+          />
+          <p className="text-xs text-muted-foreground">
+            مثال: S, M, L, XL أو 38, 40, 42, 44
+          </p>
+        </div>
       </div>
 
       <DialogFooter>

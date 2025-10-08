@@ -9,6 +9,7 @@ import { getImageUrl, getImageUrls } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ProductGridSkeleton } from "@/components/LoadingSkeletons";
 import { ErrorDisplay } from "@/components/ErrorBoundary";
@@ -34,6 +35,8 @@ export default function ProductLanding() {
   const { addItem } = useCart();
   const [linkData, setLinkData] = useState<any>(null);
   const [clickTracked, setClickTracked] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string>("");
   const queryClient = useQueryClient();
 
   // Fetch affiliate link data
@@ -109,7 +112,9 @@ export default function ProductLanding() {
       quantity: 1,
       stockQuantity: (product as any).stock || product.stockQuantity || 0,
       inStock: (product as any).isActive ?? product.inStock ?? true,
-    });
+      selectedColor: selectedColor || undefined,
+      selectedSize: selectedSize || undefined,
+    } as any);
 
     // Navigate to cart
     navigate("/cart");
@@ -128,7 +133,9 @@ export default function ProductLanding() {
       quantity: 1,
       stockQuantity: (product as any).stock || product.stockQuantity || 0,
       inStock: (product as any).isActive ?? product.inStock ?? true,
-    });
+      selectedColor: selectedColor || undefined,
+      selectedSize: selectedSize || undefined,
+    } as any);
 
     // Navigate directly to checkout
     navigate("/checkout");
@@ -289,6 +296,44 @@ export default function ProductLanding() {
             ) : (
               <div className="text-red-600 font-semibold">
                 غير متوفر حالياً
+              </div>
+            )}
+
+            {/* Colors Selection */}
+            {(product as any).colors && (product as any).colors.length > 0 && (
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">اختر اللون:</Label>
+                <div className="flex flex-wrap gap-2">
+                  {(product as any).colors.map((color: string, index: number) => (
+                    <Button
+                      key={index}
+                      variant={selectedColor === color ? "default" : "outline"}
+                      className="min-w-[80px]"
+                      onClick={() => setSelectedColor(color)}
+                    >
+                      {color}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sizes Selection */}
+            {(product as any).sizes && (product as any).sizes.length > 0 && (
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">اختر المقاس:</Label>
+                <div className="flex flex-wrap gap-2">
+                  {(product as any).sizes.map((size: string, index: number) => (
+                    <Button
+                      key={index}
+                      variant={selectedSize === size ? "default" : "outline"}
+                      className="min-w-[60px]"
+                      onClick={() => setSelectedSize(size)}
+                    >
+                      {size}
+                    </Button>
+                  ))}
+                </div>
               </div>
             )}
 
