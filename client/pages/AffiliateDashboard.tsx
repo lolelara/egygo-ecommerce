@@ -234,13 +234,13 @@ export default function AffiliateDashboard() {
                       <Label className="text-sm font-medium">كود الشراكة</Label>
                       <div className="flex items-center gap-2 mt-1">
                         <code className="bg-muted px-2 py-1 rounded text-sm">
-                          {affiliateUser.affiliateCode}
+                          {stats.affiliateCode}
                         </code>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() =>
-                            copyToClipboard(affiliateUser.affiliateCode, "code")
+                            copyToClipboard(stats.affiliateCode, "code")
                           }
                         >
                           <Copy className="h-3 w-3" />
@@ -252,7 +252,7 @@ export default function AffiliateDashboard() {
                         معدل العمولة
                       </Label>
                       <p className="text-lg font-semibold text-brand-orange mt-1">
-                        {affiliateUser.commissionRate}%
+                        {stats.commissionRate}%
                       </p>
                     </div>
                   </div>
@@ -265,7 +265,7 @@ export default function AffiliateDashboard() {
                         عدد الإحالات
                       </Label>
                       <p className="text-lg font-semibold mt-1">
-                        {affiliateUser.referralCount}
+                        {stats.referralCount}
                       </p>
                     </div>
                     <div>
@@ -273,9 +273,7 @@ export default function AffiliateDashboard() {
                         تاريخ الانضمام
                       </Label>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {new Date(affiliateUser.joinedAt).toLocaleDateString(
-                          "ar",
-                        )}
+                        {new Date().toLocaleDateString("ar")}
                       </p>
                     </div>
                   </div>
@@ -289,46 +287,38 @@ export default function AffiliateDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {performanceData.recentActivity.map((activity, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          {activity.type === "sale" ? (
+                    {stats.recentCommissions && stats.recentCommissions.length > 0 ? (
+                      stats.recentCommissions.slice(0, 5).map((commission: any) => (
+                        <div
+                          key={commission.id}
+                          className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                               <DollarSign className="h-4 w-4 text-green-600" />
                             </div>
-                          ) : (
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <Eye className="h-4 w-4 text-blue-600" />
+                            <div>
+                              <p className="font-medium">عمولة جديدة</p>
+                              <p className="text-sm text-muted-foreground">
+                                طلب #{commission.orderId.substring(0, 8)}
+                              </p>
                             </div>
-                          )}
-                          <div>
-                            <p className="font-medium">
-                              {activity.type === "sale" ? "عملية بيع" : "نقرات"}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-green-600">
+                              +{commission.amount.toFixed(2)} ج.م
                             </p>
-                            <p className="text-sm text-muted-foreground">
-                              {"product" in activity
-                                ? activity.product
-                                : `${activity.clicks} نقرة من ${activity.source}`}
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(commission.createdAt).toLocaleDateString("ar")}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold">
-                            {"amount" in activity
-                              ? `$${activity.amount}`
-                              : new Date(activity.date).toLocaleDateString(
-                                  "ar",
-                                )}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(activity.date).toLocaleDateString("ar")}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        لا يوجد نشاط حديث
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -377,13 +367,13 @@ export default function AffiliateDashboard() {
                 <CardContent>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-brand-orange">
-                      ${affiliateUser.pendingEarnings.toFixed(2)}
+                      {stats.pendingEarnings.toFixed(2)} ج.م
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
                       سيتم دفعها خلال 7 أيام
                     </p>
-                    <Button size="sm" className="mt-3">
-                      عرض التفاصيل
+                    <Button size="sm" className="mt-3" asChild>
+                      <Link to="/affiliate/withdraw">عرض التفاصيل</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -476,23 +466,23 @@ export default function AffiliateDashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">
-                      {performanceData.clicksThisMonth}
+                      {stats.clicks || 0}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      نقرات هذا الشهر
+                      إجمالي النقرات
                     </div>
                   </div>
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">
-                      {performanceData.conversionsThisMonth}
+                      {stats.conversions || 0}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      تحويلات هذا الشهر
+                      إجمالي التحويلات
                     </div>
                   </div>
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">
-                      {performanceData.conversionRate}%
+                      {stats.conversionRate || 0}%
                     </div>
                     <div className="text-sm text-muted-foreground">
                       معدل التحويل
@@ -500,38 +490,12 @@ export default function AffiliateDashboard() {
                   </div>
                   <div className="text-center p-4 bg-muted/50 rounded-lg">
                     <div className="text-2xl font-bold">
-                      ${performanceData.averageOrderValue}
+                      {stats.referralCount || 0}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      متوسط قيمة الطلب
+                      عدد الإحالات
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>أفضل البلدان</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {performanceData.topCountries.map((country, index) => (
-                    <div
-                      key={country}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-xs font-medium">
-                          {index + 1}
-                        </div>
-                        <span>{country}</span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {Math.floor(Math.random() * 50) + 10} تحويل
-                      </div>
-                    </div>
-                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -592,6 +556,15 @@ export default function AffiliateDashboard() {
           </div>
         </TabsContent>
       </Tabs>
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
+          <p className="text-muted-foreground mb-4">لم يتم العثور على بيانات الشريك</p>
+          <Button asChild>
+            <Link to="/">العودة للرئيسية</Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
