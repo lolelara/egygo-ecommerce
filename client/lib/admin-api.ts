@@ -243,33 +243,77 @@ export const adminProductsApi = {
       
       if (product.colors && Array.isArray(product.colors)) documentData.colors = product.colors;
       if (product.sizes && Array.isArray(product.sizes)) documentData.sizes = product.sizes;
-      if (product.colorSizeInventory) documentData.colorSizeInventory = product.colorSizeInventory;
+      // Only add colorSizeInventory if it exists and has data
+      if (product.colorSizeInventory && product.colorSizeInventory !== '[]') {
+        documentData.colorSizeInventory = product.colorSizeInventory;
+      }
 
-      const doc = await databases.createDocument(
-        DATABASE_ID,
-        COLLECTIONS.PRODUCTS,
-        "unique()",
-        documentData
-      );
+      try {
+        const doc = await databases.createDocument(
+          DATABASE_ID,
+          COLLECTIONS.PRODUCTS,
+          "unique()",
+          documentData
+        );
 
-      console.log("Product created successfully:", doc);
+        console.log("Product created successfully:", doc);
 
-      return {
-        id: doc.$id,
-        name: doc.name,
-        description: doc.description,
-        price: doc.price,
-        comparePrice: doc.comparePrice,
-        stock: doc.stock,
-        categoryId: doc.categoryId,
-        images: doc.images,
-        tags: doc.tags,
-        isActive: doc.isActive,
-        isFeatured: doc.isFeatured,
-        rating: doc.rating,
-        reviewCount: doc.reviewCount,
-        createdAt: doc.$createdAt,
-      };
+        return {
+          id: doc.$id,
+          name: doc.name,
+          description: doc.description,
+          price: doc.price,
+          comparePrice: doc.comparePrice,
+          stock: doc.stock,
+          categoryId: doc.categoryId,
+          images: doc.images,
+          tags: doc.tags,
+          isActive: doc.isActive,
+          isFeatured: doc.isFeatured,
+          rating: doc.rating,
+          reviewCount: doc.reviewCount,
+          createdAt: doc.$createdAt,
+        };
+      } catch (error: any) {
+        // If error is about unknown attribute, retry without optional fields
+        if (error.message?.includes('Unknown attribute')) {
+          console.warn('Retrying without optional attributes:', error.message);
+          
+          // Remove optional attributes that might not exist
+          delete documentData.colorSizeInventory;
+          delete documentData.merchantId;
+          delete documentData.colors;
+          delete documentData.sizes;
+          
+          const doc = await databases.createDocument(
+            DATABASE_ID,
+            COLLECTIONS.PRODUCTS,
+            "unique()",
+            documentData
+          );
+
+          console.log("Product created successfully (without optional fields):", doc);
+
+          return {
+            id: doc.$id,
+            name: doc.name,
+            description: doc.description,
+            price: doc.price,
+            comparePrice: doc.comparePrice,
+            stock: doc.stock,
+            categoryId: doc.categoryId,
+            images: doc.images,
+            tags: doc.tags,
+            isActive: doc.isActive,
+            isFeatured: doc.isFeatured,
+            rating: doc.rating,
+            reviewCount: doc.reviewCount,
+            createdAt: doc.$createdAt,
+          };
+        }
+        
+        throw error;
+      }
     } catch (error: any) {
       console.error("Product creation error:", error);
       throw new Error(error.message || "فشل في إنشاء المنتج");
@@ -303,31 +347,72 @@ export const adminProductsApi = {
       if (updateData.merchantId) mappedData.merchantId = updateData.merchantId;
       if (updateData.colors) mappedData.colors = updateData.colors;
       if (updateData.sizes) mappedData.sizes = updateData.sizes;
-      if (updateData.colorSizeInventory) mappedData.colorSizeInventory = updateData.colorSizeInventory;
+      if (updateData.colorSizeInventory && updateData.colorSizeInventory !== '[]') {
+        mappedData.colorSizeInventory = updateData.colorSizeInventory;
+      }
       
-      const doc = await databases.updateDocument(
-        DATABASE_ID,
-        COLLECTIONS.PRODUCTS,
-        id,
-        mappedData
-      );
+      try {
+        const doc = await databases.updateDocument(
+          DATABASE_ID,
+          COLLECTIONS.PRODUCTS,
+          id,
+          mappedData
+        );
 
-      return {
-        id: doc.$id,
-        name: doc.name,
-        description: doc.description,
-        price: doc.price,
-        comparePrice: doc.comparePrice,
-        stock: doc.stock,
-        categoryId: doc.categoryId,
-        images: doc.images,
-        tags: doc.tags,
-        isActive: doc.isActive,
-        isFeatured: doc.isFeatured,
-        rating: doc.rating,
-        reviewCount: doc.reviewCount,
-        updatedAt: doc.$updatedAt,
-      };
+        return {
+          id: doc.$id,
+          name: doc.name,
+          description: doc.description,
+          price: doc.price,
+          comparePrice: doc.comparePrice,
+          stock: doc.stock,
+          categoryId: doc.categoryId,
+          images: doc.images,
+          tags: doc.tags,
+          isActive: doc.isActive,
+          isFeatured: doc.isFeatured,
+          rating: doc.rating,
+          reviewCount: doc.reviewCount,
+          updatedAt: doc.$updatedAt,
+        };
+      } catch (error: any) {
+        // If error is about unknown attribute, retry without optional fields
+        if (error.message?.includes('Unknown attribute')) {
+          console.warn('Retrying update without optional attributes:', error.message);
+          
+          // Remove optional attributes that might not exist
+          delete mappedData.colorSizeInventory;
+          delete mappedData.merchantId;
+          delete mappedData.colors;
+          delete mappedData.sizes;
+          
+          const doc = await databases.updateDocument(
+            DATABASE_ID,
+            COLLECTIONS.PRODUCTS,
+            id,
+            mappedData
+          );
+
+          return {
+            id: doc.$id,
+            name: doc.name,
+            description: doc.description,
+            price: doc.price,
+            comparePrice: doc.comparePrice,
+            stock: doc.stock,
+            categoryId: doc.categoryId,
+            images: doc.images,
+            tags: doc.tags,
+            isActive: doc.isActive,
+            isFeatured: doc.isFeatured,
+            rating: doc.rating,
+            reviewCount: doc.reviewCount,
+            updatedAt: doc.$updatedAt,
+          };
+        }
+        
+        throw error;
+      }
     } catch (error: any) {
       throw new Error(error.message || "فشل في تحديث المنتج");
     }

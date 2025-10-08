@@ -41,7 +41,6 @@ import {
   Edit,
   Trash2,
   Search,
-  Eye,
   Package,
   TrendingUp,
   TrendingDown,
@@ -704,10 +703,6 @@ export default function AdminProducts() {
                       <TableCell>{product.affiliateCommission}%</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-
                           <Dialog
                             open={editingProduct?.id === product.id}
                             onOpenChange={(open) =>
