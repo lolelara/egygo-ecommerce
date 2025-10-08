@@ -243,9 +243,10 @@ export const adminProductsApi = {
       
       if (product.colors && Array.isArray(product.colors)) documentData.colors = product.colors;
       if (product.sizes && Array.isArray(product.sizes)) documentData.sizes = product.sizes;
-      // Only add colorSizeInventory if it exists and has data
-      if (product.colorSizeInventory && product.colorSizeInventory !== '[]') {
+      // Add colorSizeInventory - even if empty, we want to store it
+      if (product.colorSizeInventory) {
         documentData.colorSizeInventory = product.colorSizeInventory;
+        console.log("📦 Saving colorSizeInventory:", product.colorSizeInventory);
       }
 
       try {
@@ -347,8 +348,9 @@ export const adminProductsApi = {
       if (updateData.merchantId) mappedData.merchantId = updateData.merchantId;
       if (updateData.colors) mappedData.colors = updateData.colors;
       if (updateData.sizes) mappedData.sizes = updateData.sizes;
-      if (updateData.colorSizeInventory && updateData.colorSizeInventory !== '[]') {
+      if (updateData.colorSizeInventory !== undefined) {
         mappedData.colorSizeInventory = updateData.colorSizeInventory;
+        console.log("📦 Updating colorSizeInventory:", updateData.colorSizeInventory);
       }
       
       try {

@@ -114,6 +114,9 @@ const ProductForm = ({
 
     // Calculate total stock from inventory
     const totalStock = inventoryData.reduce((sum, item) => sum + item.quantity, 0);
+    
+    console.log('📦 Inventory data being saved:', inventoryData);
+    console.log('📊 Total stock calculated:', totalStock);
 
     const submitData = {
       ...formData,
@@ -127,6 +130,8 @@ const ProductForm = ({
       colorSizeInventory: JSON.stringify(inventoryData),
       stock: totalStock || formData.stockQuantity || 0, // Use total from inventory or default
     };
+    
+    console.log('💾 Submit data:', submitData);
 
     if (product) {
       onSubmit({ ...submitData, id: product.id } as AdminProductUpdate);

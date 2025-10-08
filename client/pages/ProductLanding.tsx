@@ -40,7 +40,17 @@ export default function ProductLanding() {
   const [availableColors, setAvailableColors] = useState<string[]>([]);
   const [availableSizes, setAvailableSizes] = useState<string[]>([]);
   const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
+  const [totalStock, setTotalStock] = useState<number>(0);
   const queryClient = useQueryClient();
+  
+  // Get quantity for selected color/size combo
+  const getAvailableQuantity = () => {
+    if (!selectedColor || !selectedSize || inventory.length === 0) {
+      return 0;
+    }
+    const item = inventory.find(i => i.color === selectedColor && i.size === selectedSize);
+    return item?.quantity || 0;
+  };
 
   // Fetch affiliate link data
   const { data: affiliateLink, isLoading: linkLoading, error: linkError } = useQuery({
@@ -106,43 +116,79 @@ export default function ProductLanding() {
   useEffect(() => {
     if (!product) return;
     
+    console.log('🔍 Product data:', product);
+    console.log('📦 colorSizeInventory:', (product as any).colorSizeInventory);
+    console.log('🎨 colors:', (product as any).colors);
+    console.log('📏 sizes:', (product as any).sizes);
+    
     try {
       const inventoryData = (product as any).colorSizeInventory;
-      if (inventoryData) {
+      
+      // Check if inventory data exists and is not empty
+      if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
         const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
-        setInventory(parsed);
+        console.log('✅ Parsed inventory:', parsed);
         
-        // Get unique colors and sizes that have quantity > 0
-        const availColorsSet = new Set<string>();
-        const availSizesSet = new Set<string>();
-        
-        parsed.forEach(item => {
-          if (item.quantity > 0) {
-            availColorsSet.add(item.color);
-            availSizesSet.add(item.size);
+        if (parsed.length > 0) {
+          setInventory(parsed);
+          
+          // Calculate total stock
+          const total = parsed.reduce((sum, item) => sum + (item.quantity || 0), 0);
+          setTotalStock(total);
+          console.log('📊 Total stock:', total);
+          
+          // Get unique colors and sizes that have quantity > 0
+          const availColorsSet = new Set<string>();
+          const availSizesSet = new Set<string>();
+          
+          parsed.forEach(item => {
+            if (item.quantity > 0) {
+              availColorsSet.add(item.color);
+              availSizesSet.add(item.size);
+            }
+          });
+          
+          setAvailableColors(Array.from(availColorsSet));
+          setAvailableSizes(Array.from(availSizesSet));
+          
+          // Auto-select first available options
+          if (availColorsSet.size > 0 && !selectedColor) {
+            setSelectedColor(Array.from(availColorsSet)[0]);
           }
-        });
-        
-        setAvailableColors(Array.from(availColorsSet));
-        setAvailableSizes(Array.from(availSizesSet));
-        
-        // Auto-select first available options
-        if (availColorsSet.size > 0 && !selectedColor) {
-          setSelectedColor(Array.from(availColorsSet)[0]);
+          if (availSizesSet.size > 0 && !selectedSize) {
+            setSelectedSize(Array.from(availSizesSet)[0]);
+          }
+          
+          return; // Exit early if inventory system is active
         }
-        if (availSizesSet.size > 0 && !selectedSize) {
-          setSelectedSize(Array.from(availSizesSet)[0]);
-        }
-      } else {
-        // Fallback to old system if no inventory data
-        setAvailableColors((product as any).colors || []);
-        setAvailableSizes((product as any).sizes || []);
       }
+      
+      // Fallback: No inventory system or empty inventory
+      console.log('⚠️ No inventory data, using fallback');
+      const colors = (product as any).colors || [];
+      const sizes = (product as any).sizes || [];
+      setAvailableColors(colors);
+      setAvailableSizes(sizes);
+      
+      // If product has colors/sizes, assume it's available
+      if (colors.length > 0 || sizes.length > 0) {
+        setTotalStock(999);
+        console.log('✅ Product has colors/sizes, setting stock to 999');
+      } else {
+        // If no colors/sizes, check old stock field
+        const oldStock = (product as any).stock || (product as any).stockQuantity || 0;
+        setTotalStock(oldStock > 0 ? oldStock : 999);
+        console.log('📦 Using old stock:', oldStock || 999);
+      }
+      
     } catch (error) {
-      console.error('Error parsing inventory:', error);
-      // Fallback to showing all colors/sizes
-      setAvailableColors((product as any).colors || []);
-      setAvailableSizes((product as any).sizes || []);
+      console.error('❌ Error parsing inventory:', error);
+      // Fallback on error
+      const colors = (product as any).colors || [];
+      const sizes = (product as any).sizes || [];
+      setAvailableColors(colors);
+      setAvailableSizes(sizes);
+      setTotalStock(999); // Assume available on error
     }
   }, [product]);
 
@@ -150,6 +196,9 @@ export default function ProductLanding() {
     if (!product) return;
 
     const imageUrl = getImageUrl(product.images?.[0]);
+    const availableStock = inventory.length > 0 && selectedColor && selectedSize 
+      ? getAvailableQuantity() 
+      : totalStock;
 
     addItem({
       productId: product.id,
@@ -157,8 +206,8 @@ export default function ProductLanding() {
       price: product.price,
       image: imageUrl,
       quantity: 1,
-      stockQuantity: (product as any).stock || product.stockQuantity || 0,
-      inStock: (product as any).isActive ?? product.inStock ?? true,
+      stockQuantity: availableStock,
+      inStock: totalStock > 0,
       selectedColor: selectedColor || undefined,
       selectedSize: selectedSize || undefined,
     } as any);
@@ -171,6 +220,9 @@ export default function ProductLanding() {
     if (!product) return;
 
     const imageUrl = getImageUrl(product.images?.[0]);
+    const availableStock = inventory.length > 0 && selectedColor && selectedSize 
+      ? getAvailableQuantity() 
+      : totalStock;
 
     addItem({
       productId: product.id,
@@ -178,8 +230,8 @@ export default function ProductLanding() {
       price: product.price,
       image: imageUrl,
       quantity: 1,
-      stockQuantity: (product as any).stock || product.stockQuantity || 0,
-      inStock: (product as any).isActive ?? product.inStock ?? true,
+      stockQuantity: availableStock,
+      inStock: totalStock > 0,
       selectedColor: selectedColor || undefined,
       selectedSize: selectedSize || undefined,
     } as any);
@@ -335,10 +387,15 @@ export default function ProductLanding() {
             </Card>
 
             {/* Stock Status */}
-            {product.inStock ? (
+            {totalStock > 0 ? (
               <div className="flex items-center gap-2 text-green-600">
                 <Check className="h-5 w-5" />
                 <span className="font-semibold">متوفر في المخزون</span>
+                {inventory.length > 0 && selectedColor && selectedSize && (
+                  <span className="text-sm text-muted-foreground">
+                    ({getAvailableQuantity()} متوفر)
+                  </span>
+                )}
               </div>
             ) : (
               <div className="text-red-600 font-semibold">
@@ -402,7 +459,7 @@ export default function ProductLanding() {
                 onClick={handleBuyNow}
                 size="lg"
                 className="w-full text-lg h-14 bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-600"
-                disabled={!product.inStock}
+                disabled={totalStock === 0}
               >
                 <ShoppingCart className="ml-2 h-6 w-6" />
                 اشترِ الآن - وفّر {discount}%
@@ -413,7 +470,7 @@ export default function ProductLanding() {
                 variant="outline"
                 size="lg"
                 className="w-full text-lg h-14"
-                disabled={!product.inStock}
+                disabled={totalStock === 0}
               >
                 أضف إلى السلة
               </Button>
