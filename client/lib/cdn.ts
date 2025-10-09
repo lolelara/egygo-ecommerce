@@ -227,5 +227,6 @@ export function addCacheBuster(url: string): string {
 }
 
 // Export CDN configuration for external use
-export { cdnConfig };
+
 export type { CDNConfig, ImageParams };
+

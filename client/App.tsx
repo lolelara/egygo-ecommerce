@@ -1,13 +1,13 @@
 ﻿import "./global.css";
 
-import { Toaster } from "@/components/ui/toaster";
 import { createRoot } from "react-dom/client";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { Header } from "./components/Header";
+
 import { Footer } from "./components/Footer";
 import { AnnouncementBar } from "./components/AnnouncementBar";
 import { ScrollToTopButton } from "./components/ScrollToTopButton";
@@ -73,6 +73,7 @@ import AdminAdvancedSettings from "./pages/AdminAdvancedSettings";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AIAssistant } from "./components/AIAssistant";
+import { Breadcrumbs } from "./components/Breadcrumbs";
 import { HelmetProvider } from 'react-helmet-async';
 import { initPerformanceOptimizations } from './lib/performance';
 
@@ -81,7 +82,10 @@ const queryClient = new QueryClient();
 // Initialize performance optimizations
 initPerformanceOptimizations();
 
+import { useLocation } from "react-router-dom";
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
   // Auto-sync worker disabled - attributes removed (autoSyncEnabled, sourceUrl, etc.)
   // useEffect(() => {
   //   startAutoSyncWorker();
@@ -92,9 +96,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen flex flex-col">
       <AnnouncementBar />
       <Header cartItemCount={0} />
+      {/* Breadcrumbs: hide on home page only */}
+      {location.pathname !== "/" && <Breadcrumbs />}
       <main className="flex-1">{children}</main>
       <Footer />
-  <ScrollToTopButton />
+      <ScrollToTopButton />
       <AIAssistant />
     </div>
   );
@@ -108,8 +114,7 @@ const App = () => (
           <AuthProvider>
             <CartProvider>
               <TooltipProvider>
-                <Toaster />
-                <Sonner />
+                <Toaster position="top-center" richColors closeButton />
                 <HashRouter>
               <Layout>
                 <Routes>

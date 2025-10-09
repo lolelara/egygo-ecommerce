@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { databases } from "@/lib/appwrite";
@@ -21,6 +22,7 @@ export default function Checkout() {
   const { items: cartItems } = useCart();
   
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
@@ -123,17 +125,26 @@ export default function Checkout() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsProcessing(true);
-
+    setProgress(0);
+    // Animate progress bar
+    let val = 0;
+    const interval = setInterval(() => {
+      val += Math.random() * 30;
+      setProgress(Math.min(val, 100));
+    }, 200);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
-
+    clearInterval(interval);
+    setProgress(100);
     toast({
       title: "تم إرسال الطلب بنجاح!",
       description: "سيتم التواصل معك قريباً لتأكيد الطلب",
     });
-
-    setIsProcessing(false);
-    navigate("/orders");
+    setTimeout(() => {
+      setIsProcessing(false);
+      setProgress(0);
+      navigate("/orders");
+    }, 800);
   };
 
   return (
@@ -147,6 +158,15 @@ export default function Checkout() {
         </div>
 
         <form onSubmit={handleSubmit}>
+          {/* Checkout Progress Bar */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-muted-foreground">السلة</span>
+              <span className="text-xs font-medium text-primary">البيانات</span>
+              <span className="text-xs font-medium text-muted-foreground">تأكيد</span>
+            </div>
+            <Progress value={66} className="h-2 bg-muted" />
+          </div>
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Checkout Form */}
             <div className="lg:col-span-2 space-y-6">
@@ -301,7 +321,15 @@ export default function Checkout() {
                         <div className="flex items-center gap-3">
                           <CreditCard className="h-5 w-5 text-primary" />
                           <div>
-                            <p className="font-semibold">الدفع بالبطاقة</p>
+                            <p className="font-semibold flex items-center gap-2">
+                              الدفع بالبطاقة
+                              {/* Payment icons */}
+                              <span className="inline-flex gap-1 ml-2">
+                                <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><rect width="24" height="14" rx="2" fill="#fff"/><text x="3" y="11" font-size="8" fill="#1a237e">VISA</text></svg>
+                                <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><rect width="24" height="14" rx="2" fill="#fff"/><circle cx="8" cy="7" r="5" fill="#f44336"/><circle cx="16" cy="7" r="5" fill="#ff9800"/><text x="5" y="12" font-size="6" fill="#222">MC</text></svg>
+                                <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><rect width="24" height="14" rx="2" fill="#fff"/><text x="2" y="11" font-size="8" fill="#1976d2">AMEX</text></svg>
+                              </span>
+                            </p>
                             <p className="text-sm text-muted-foreground">
                               Visa, Mastercard, American Express
                             </p>
@@ -423,21 +451,26 @@ export default function Checkout() {
                   </div>
 
                   {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full"
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      "جاري المعالجة..."
-                    ) : (
-                      <>
-                        تأكيد الطلب
-                        <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-                      </>
+                  <div className="space-y-2">
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full"
+                      disabled={isProcessing}
+                    >
+                      {isProcessing ? (
+                        "جاري المعالجة..."
+                      ) : (
+                        <>
+                          تأكيد الطلب
+                          <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
+                        </>
+                      )}
+                    </Button>
+                    {isProcessing && (
+                      <Progress value={progress} className="h-2 bg-muted" />
                     )}
-                  </Button>
+                  </div>
 
                   {/* Security Note */}
                   <div className="space-y-2 text-xs text-muted-foreground text-center">

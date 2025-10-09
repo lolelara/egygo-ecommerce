@@ -401,12 +401,5 @@ export function initPerformanceOptimizations(): void {
   });
 }
 
-// Export all utilities
-export {
-  ResourcePreloader,
-  CodeSplitter,
-  PerformanceMonitor,
-  ResourceHints,
-  BundleAnalyzer,
-  ServiceWorkerManager
-};
+
+

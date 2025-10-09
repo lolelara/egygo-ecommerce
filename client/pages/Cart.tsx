@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 export default function Cart() {
   const { toast } = useToast();
@@ -45,12 +46,25 @@ export default function Cart() {
     updateQuantity(itemId, newQuantity);
   };
 
+
+  const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
+
   const handleRemoveItem = (itemId: string) => {
-    removeItem(itemId);
-    toast({
-      title: "تمت الإزالة",
-      description: "تم إزالة المنتج من السلة",
-    });
+    setPendingRemoveId(itemId);
+    setRemoveDialogOpen(true);
+  };
+
+  const confirmRemoveItem = () => {
+    if (pendingRemoveId) {
+      removeItem(pendingRemoveId);
+      toast({
+        title: "تمت الإزالة",
+        description: "تم إزالة المنتج من السلة",
+      });
+    }
+    setRemoveDialogOpen(false);
+    setPendingRemoveId(null);
   };
 
   const handleClearCart = () => {
@@ -268,14 +282,28 @@ export default function Cart() {
                       </div>
 
                       {/* Remove Button */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemoveItem(item.id)}
-                        className="flex-shrink-0"
-                      >
-                        <Trash2 className="h-5 w-5 text-destructive" />
-                      </Button>
+                      <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="flex-shrink-0"
+                          >
+                            <Trash2 className="h-5 w-5 text-destructive" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>تأكيد إزالة المنتج</DialogTitle>
+                          </DialogHeader>
+                          <p>هل أنت متأكد أنك تريد إزالة هذا المنتج من السلة؟</p>
+                          <DialogFooter>
+                            <Button variant="destructive" onClick={confirmRemoveItem}>نعم، إزالة</Button>
+                            <Button variant="outline" onClick={() => setRemoveDialogOpen(false)}>إلغاء</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 ))}

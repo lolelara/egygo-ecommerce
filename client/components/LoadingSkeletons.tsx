@@ -8,23 +8,18 @@ export function ProductCardSkeleton() {
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
-        {/* Image Skeleton */}
-        <Skeleton className="aspect-square w-full" />
-        
+        {/* Image Skeleton with shimmer */}
+        <Skeleton className="aspect-square w-full" shimmer />
         <div className="p-4 space-y-3">
           {/* Category Badge */}
           <Skeleton className="h-5 w-20" />
-          
           {/* Title */}
           <Skeleton className="h-6 w-full" />
           <Skeleton className="h-6 w-3/4" />
-          
           {/* Rating */}
           <Skeleton className="h-4 w-24" />
-          
-          {/* Price */}
-          <Skeleton className="h-8 w-32" />
-          
+          {/* Price with shimmer */}
+          <Skeleton className="h-8 w-32" shimmer />
           {/* Button */}
           <Skeleton className="h-10 w-full" />
         </div>
