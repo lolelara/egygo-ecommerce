@@ -10,6 +10,11 @@ interface SEOProps {
   price?: number;
   currency?: string;
   availability?: 'in stock' | 'out of stock';
+  brand?: string;
+  sku?: string;
+  rating?: number;
+  reviewCount?: number;
+  category?: string;
 }
 
 const DEFAULT_SEO = {
@@ -30,6 +35,11 @@ export function EnhancedSEO({
   price,
   currency = 'EGP',
   availability,
+  brand,
+  sku,
+  rating,
+  reviewCount,
+  category,
 }: SEOProps) {
   const location = useLocation();
   const currentUrl = `${DEFAULT_SEO.siteUrl}${location.pathname}`;
@@ -42,12 +52,18 @@ export function EnhancedSEO({
   const seoKeywords = keywords || DEFAULT_SEO.keywords;
   const seoImage = image || DEFAULT_SEO.image;
 
-  // Structured data for products
+  // Enhanced structured data for products
   const productSchema = type === 'product' && price ? {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: title,
     description: seoDescription,
+    brand: brand ? {
+      '@type': 'Brand',
+      name: brand
+    } : undefined,
+    sku: sku,
+    category: category,
     image: seoImage,
     offers: {
       '@type': 'Offer',

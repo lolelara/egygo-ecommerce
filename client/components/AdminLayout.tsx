@@ -13,6 +13,7 @@ import {
   FolderOpen,
   DollarSign,
   UserCheck,
+  Bell,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,6 +64,12 @@ const adminNavItems = [
     title: "إدارة العمولات",
     href: "/admin/commissions",
     icon: DollarSign,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "الإشعارات",
+    href: "/admin/notifications",
+    icon: Bell,
     roles: ['admin'], // فقط المدير
   },
   {
