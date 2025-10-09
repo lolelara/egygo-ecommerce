@@ -66,15 +66,14 @@ export default function Index() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <Badge variant="secondary" className="text-primary bg-white/90">
-                  🎉 وصول جديد
+                  ✨ منتجات مميزة
                 </Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                  اكتشف منتجات مذهلة و
-                  <span className="text-brand-yellow"> اكسب أكتر</span>
+                  تسوق بذكاء،
+                  <span className="text-brand-yellow"> اربح أكثر</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
-                  تسوق منتجات عالية الجودة وانضم لبرنامج الشراكة عشان تكسب عمولة
-                  لحد 25% على كل عملية بيع.
+                  اكتشف مجموعة متنوعة من المنتجات عالية الجودة وانضم لبرنامج الشراكة لتحقيق دخل إضافي مميز.
                 </p>
               </div>
 

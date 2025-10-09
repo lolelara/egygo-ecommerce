@@ -22,12 +22,14 @@ export default function Register() {
     name: "",
     email: "",
     phone: "",
+    alternativePhone: "",
     password: "",
     confirmPassword: "",
   });
   // Note: 'intermediary' role can only be activated by admin for existing customer accounts
   const [accountType, setAccountType] = useState<'customer' | 'affiliate' | 'merchant'>('customer');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [phoneAvailableOnWhatsApp, setPhoneAvailableOnWhatsApp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -66,6 +68,16 @@ export default function Register() {
       return;
     }
 
+    if (!formData.phone) {
+      setError("رقم الهاتف مطلوب");
+      return;
+    }
+
+    if (!phoneAvailableOnWhatsApp) {
+      setError("يجب تأكيد توفر رقم الهاتف على WhatsApp أو للاتصال");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError("كلمات المرور غير متطابقة");
       return;
@@ -85,15 +97,22 @@ export default function Register() {
         formData.password,
         formData.name,
         accountType,
-        formData.phone
+        formData.phone,
+        formData.alternativePhone
       );
 
-      // Redirect to appropriate page based on account type
-      if (accountType === 'affiliate') {
-        navigate("/affiliate/dashboard");
-      } else if (accountType === 'merchant') {
-        navigate("/merchant/dashboard");
+      // Show different messages based on account type
+      if (accountType === 'affiliate' || accountType === 'merchant') {
+        const accountTypeArabic = accountType === 'affiliate' ? 'مسوق' : 'تاجر';
+        alert(
+          `تم إنشاء حسابك كـ${accountTypeArabic} بنجاح!\n\n` +
+          `⏳ حسابك قيد المراجعة من قبل الإدارة\n` +
+          `📧 سيتم إخطارك عبر البريد الإلكتروني فور الموافقة\n` +
+          `⚠️ لن تتمكن من الوصول لكامل المميزات حتى تتم الموافقة على حسابك`
+        );
+        navigate("/login");
       } else {
+        // Customer accounts are active immediately
         navigate("/");
       }
     } catch (err: any) {
@@ -182,7 +201,9 @@ export default function Register() {
 
               {/* Phone Field */}
               <div>
-                <Label htmlFor="phone">رقم الهاتف</Label>
+                <Label htmlFor="phone">
+                  رقم الهاتف <span className="text-red-500">*</span>
+                </Label>
                 <div className="relative mt-1">
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,12 +216,64 @@ export default function Register() {
                     type="tel"
                     autoComplete="tel"
                     required
-                    placeholder="أدخل رقم الهاتف"
+                    placeholder="مثال: 01012345678"
                     value={formData.phone}
                     onChange={handleChange("phone")}
                     className="pr-10"
                   />
                 </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  سيتم استخدام هذا الرقم للتواصل معك
+                </p>
+              </div>
+
+              {/* WhatsApp Confirmation */}
+              <div className="flex items-start space-x-2 rtl:space-x-reverse">
+                <Checkbox
+                  id="whatsapp-available"
+                  checked={phoneAvailableOnWhatsApp}
+                  onCheckedChange={(checked) =>
+                    setPhoneAvailableOnWhatsApp(!!checked)
+                  }
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label
+                    htmlFor="whatsapp-available"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    هذا الرقم متاح على WhatsApp أو للاتصال <span className="text-red-500">*</span>
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    تأكد من إمكانية التواصل معك عبر هذا الرقم
+                  </p>
+                </div>
+              </div>
+
+              {/* Alternative Phone Field (Optional) */}
+              <div>
+                <Label htmlFor="alternativePhone">
+                  رقم هاتف بديل (اختياري)
+                </Label>
+                <div className="relative mt-1">
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <Input
+                    id="alternativePhone"
+                    name="alternativePhone"
+                    type="tel"
+                    autoComplete="tel"
+                    placeholder="رقم إضافي للتواصل (اختياري)"
+                    value={formData.alternativePhone}
+                    onChange={handleChange("alternativePhone")}
+                    className="pr-10"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  يمكنك إضافة رقم آخر للتواصل معك
+                </p>
               </div>
 
               {/* Password Field */}
@@ -314,7 +387,10 @@ export default function Register() {
                     <div className="flex-1">
                       <div className="font-medium text-brand-orange">💰 مسوق بالعمولة</div>
                       <p className="text-xs text-brand-orange/80 mt-0.5">
-                        اكسب عمولة تصل إلى 25% من كل عملية بيع
+                        اكسب عمولة على كل عملية بيع
+                      </p>
+                      <p className="text-xs text-amber-600 mt-1 font-medium">
+                        ⏳ يتطلب موافقة الإدارة
                       </p>
                     </div>
                   </div>
@@ -338,7 +414,10 @@ export default function Register() {
                     <div className="flex-1">
                       <div className="font-medium text-brand-purple">🏪 تاجر</div>
                       <p className="text-xs text-brand-purple/80 mt-0.5">
-                        بيع منتجاتك على المنصة
+                        اعرض وبع منتجاتك على المنصة
+                      </p>
+                      <p className="text-xs text-purple-600 mt-1 font-medium">
+                        ⏳ يتطلب موافقة الإدارة
                       </p>
                     </div>
                   </div>

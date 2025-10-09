@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   Search,
@@ -385,16 +385,18 @@ export default function Products() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
-                  <Card
+                  <Link
                     key={product.id}
-                    className="group overflow-hidden hover:shadow-lg transition-all duration-300"
+                    to={`/product/${product.id}`}
+                    className="block"
                   >
-                    <div className="relative">
-                      <img
-                        src={getImageUrl(product.images?.[0])}
-                        alt={product.name}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
+                      <div className="relative">
+                        <img
+                          src={getImageUrl(product.images?.[0])}
+                          alt={product.name}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       {product.originalPrice &&
                         product.originalPrice > product.price && (
                           <Badge className="absolute top-2 left-2 bg-destructive text-destructive-foreground">
@@ -444,13 +446,20 @@ export default function Products() {
                               )}
                           </div>
                         </div>
-                        <Button size="sm">
+                        <Button 
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Add to cart functionality here
+                          }}
+                        >
                           <ShoppingCart className="h-4 w-4 ml-1 rtl:ml-0 rtl:mr-1" />
                           إضافة للسلة
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
+                  </Link>
                 ))}
               </div>
 

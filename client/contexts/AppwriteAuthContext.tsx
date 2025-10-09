@@ -192,7 +192,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string, accountType: 'customer' | 'affiliate' | 'merchant' | 'intermediary' = 'customer', phone?: string) => {
+  const register = async (
+    email: string, 
+    password: string, 
+    name: string, 
+    accountType: 'customer' | 'affiliate' | 'merchant' | 'intermediary' = 'customer', 
+    phone?: string,
+    alternativePhone?: string
+  ) => {
     try {
       setLoading(true);
       
@@ -206,13 +213,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Get the current user to get their ID
       const currentUser = await AppwriteService.getCurrentUser();
       
+      // Determine if account needs approval (merchants and affiliates)
+      const needsApproval = accountType === 'affiliate' || accountType === 'merchant';
+      const accountStatus = needsApproval ? 'pending' : 'approved';
+      
       // Set user role and preferences after registration
       const preferences: any = {
         role: accountType,
         isAffiliate: accountType === 'affiliate',
         isMerchant: accountType === 'merchant',
         isIntermediary: accountType === 'intermediary',
-        phone: phone || ''
+        phone: phone || '',
+        alternativePhone: alternativePhone || '',
+        accountStatus: accountStatus,
+        approvedAt: needsApproval ? null : new Date().toISOString(),
       };
       
       // Generate affiliate code if needed
@@ -242,12 +256,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             email: email,
             name: name,
             phone: phone || '',
+            alternativePhone: alternativePhone || '',
             isAffiliate: accountType === 'affiliate',
             isMerchant: accountType === 'merchant',
             isIntermediary: accountType === 'intermediary',
             affiliateCode: preferences.affiliateCode || null,
             commissionRate: preferences.commissionRate || null,
-            isActive: true,
+            accountStatus: accountStatus,
+            approvedAt: preferences.approvedAt,
+            isActive: !needsApproval, // Only active if doesn't need approval
           }
         );
       } catch (docError) {

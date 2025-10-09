@@ -53,17 +53,6 @@ export function Header({ cartItemCount }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {/* Top banner */}
-      <div className="bg-primary text-primary-foreground py-2 text-center text-sm">
-        <span>🎉 انضم إلى برنامج الشراكة واكسب عمولة تصل إلى 25%! </span>
-        <Link
-          to="/affiliate"
-          className="underline hover:no-underline font-medium"
-        >
-          اعرف المزيد
-        </Link>
-      </div>
-
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Mobile menu */}
         <Sheet>
