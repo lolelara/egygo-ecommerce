@@ -221,6 +221,23 @@ export default function EnhancedAdminDashboard() {
                 </Card>
               </Link>
 
+              <Link to="/admin/pending-accounts">
+                <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-yellow-500 bg-yellow-50/50">
+                  <CardHeader className="pb-3">
+                    <Clock className="h-8 w-8 text-yellow-600 mb-2" />
+                    <CardTitle className="text-base">الحسابات المعلقة</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pb-3">
+                    <p className="text-sm text-muted-foreground">
+                      مراجعة والموافقة على حسابات المسوقين والتجار
+                    </p>
+                    <div className="flex items-center text-xs text-primary mt-2">
+                      عرض المعلقة <ArrowUpRight className="h-3 w-3 mr-1" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
               <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-primary">
                 <CardHeader className="pb-3">
                   <Bell className="h-8 w-8 text-purple-500 mb-2" />

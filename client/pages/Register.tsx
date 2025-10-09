@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { databases, appwriteConfig } from "@/lib/appwrite";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,7 +93,7 @@ export default function Register() {
 
     try {
       // Register with account type
-      await register(
+      const registeredUser = await register(
         formData.email,
         formData.password,
         formData.name,
@@ -100,6 +101,29 @@ export default function Register() {
         formData.phone,
         formData.alternativePhone
       );
+
+      // Create welcome notification
+      if (registeredUser) {
+        try {
+          await databases.createDocument(
+            appwriteConfig.databaseId,
+            'notifications',
+            'unique()',
+            {
+              userId: registeredUser.$id,
+              title: '👋 مرحباً بك في إيجي جو',
+              message: accountType === 'customer' 
+                ? 'نتمنى لك تجربة تسوق ممتعة! ابدأ باستكشاف منتجاتنا الآن'
+                : '⏳ تم استلام طلبك وجاري المراجعة. سنخطرك فوراً عند الموافقة على حسابك',
+              type: 'info',
+              isRead: false,
+              link: accountType === 'customer' ? '/products' : undefined,
+            }
+          );
+        } catch (notifError) {
+          console.error('Error creating welcome notification:', notifError);
+        }
+      }
 
       // Show different messages based on account type
       if (accountType === 'affiliate' || accountType === 'merchant') {

@@ -40,6 +40,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import EnhancedAdminDashboard from "./pages/EnhancedAdminDashboard";
+import AdminPendingAccounts from "./pages/AdminPendingAccounts";
 import MerchantDashboard from "./pages/MerchantDashboard";
 import IntermediaryDashboard from "./pages/IntermediaryDashboard";
 import CustomerAccount from "./pages/CustomerAccount";
@@ -143,6 +144,7 @@ const App = () => (
               {/* Admin Routes */}
               <Route path="/admin" element={<EnhancedAdminDashboard />} />
               <Route path="/admin/dashboard" element={<EnhancedAdminDashboard />} />
+              <Route path="/admin/pending-accounts" element={<AdminPendingAccounts />} />
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/products-advanced" element={<AdminProductsAdvanced />} />

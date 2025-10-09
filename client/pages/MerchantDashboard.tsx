@@ -27,7 +27,8 @@ import {
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import PendingApprovalScreen from "@/components/PendingApprovalScreen";
 import { 
   getMerchantStats, 
   getMerchantProducts, 
@@ -39,6 +40,16 @@ import {
 
 export default function MerchantDashboard() {
   const { user } = useAuth();
+
+  // Check if merchant account is pending approval
+  if (user?.isMerchant && user?.accountStatus === 'pending') {
+    return <PendingApprovalScreen />;
+  }
+
+  // Redirect if not a merchant
+  if (!user?.isMerchant) {
+    return <Navigate to="/" replace />;
+  }
 
   // State for real data from Appwrite
   const [merchantStats, setMerchantStats] = useState<MerchantStats | null>(null);

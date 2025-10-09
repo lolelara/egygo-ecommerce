@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useCart } from "@/contexts/CartContext";
 import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
+import NotificationBell from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 import { ThemeSelector } from "./ThemeSelector";
 import type { CategoryWithCount } from "@shared/prisma-types";
@@ -302,6 +303,9 @@ export function Header({ cartItemCount }: HeaderProps) {
               <Heart className="h-5 w-5" />
             </Link>
           </Button>
+
+          {/* Notifications */}
+          <NotificationBell />
 
           {/* Cart */}
           <Button variant="ghost" size="icon" className="relative" asChild>

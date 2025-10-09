@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
+import PendingApprovalScreen from "@/components/PendingApprovalScreen";
 import { affiliateApi } from "@/lib/affiliate-api";
 import { databases } from "@/lib/appwrite";
 import { Query } from "appwrite";
@@ -43,6 +44,17 @@ const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "68de037e003bd0
 export default function EnhancedAffiliateDashboard() {
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Check if affiliate account is pending approval
+  if (user?.isAffiliate && user?.accountStatus === 'pending') {
+    return <PendingApprovalScreen />;
+  }
+
+  // Redirect if not an affiliate
+  if (!user?.isAffiliate) {
+    return <Navigate to="/affiliate" replace />;
+  }
+
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
