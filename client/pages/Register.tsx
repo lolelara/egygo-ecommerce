@@ -150,14 +150,14 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-orange via-brand-purple to-primary/80 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 dark:from-neutral-900 dark:via-purple-950 dark:to-neutral-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center mb-2">
-          <Link to="/" className="text-4xl font-extrabold text-primary drop-shadow-lg">
+          <Link to="/" className="text-4xl font-extrabold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent drop-shadow-lg">
             إيجي جو
           </Link>
-          <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
+          <h2 className="mt-4 text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">
             أهلاً بك في عالم التسوق الذكي
           </h2>
           <p className="mt-2 text-base text-gray-700 dark:text-gray-200">
@@ -176,15 +176,15 @@ export default function Register() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-center text-sm font-medium animate-pulse">
+          <div className="bg-gradient-to-r from-red-100 to-red-200 border-2 border-red-400 text-red-700 px-4 py-3 rounded-lg text-center text-sm font-medium shadow-lg animate-pulse">
             {error}
           </div>
         )}
 
         {/* Register Form */}
-        <Card className="shadow-xl border-0">
-          <CardHeader>
-            <CardTitle className="text-xl font-bold text-primary">انضم إلى إيجي جو</CardTitle>
+        <Card className="shadow-2xl border-2 border-purple-200 dark:border-purple-800">
+          <CardHeader className="bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-800">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">انضم إلى إيجي جو</CardTitle>
             <CardDescription className="text-gray-700 dark:text-gray-200">
               استمتع بتجربة تسوق احترافية وميزات حصرية
             </CardDescription>

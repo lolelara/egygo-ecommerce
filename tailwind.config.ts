@@ -30,12 +30,25 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          cyan: "hsl(var(--accent-cyan))",
+          green: "hsl(var(--accent-green))",
+          yellow: "hsl(var(--accent-yellow))",
+          red: "hsl(var(--accent-red))",
+          blue: "hsl(var(--accent-blue))",
+          pink: "hsl(var(--accent-pink))",
+          teal: "hsl(var(--accent-teal))",
+          indigo: "hsl(var(--accent-indigo))",
         },
         // ثابتة
         brand: {
           blue: '#2563eb',
           orange: '#f59e42',
           gray: '#6b7280',
+          purple: 'hsl(var(--brand-purple))',
+          yellow: 'hsl(var(--brand-yellow))',
+          green: 'hsl(var(--brand-green))',
+          pink: 'hsl(var(--brand-pink))',
+          teal: 'hsl(var(--brand-teal))',
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -56,10 +69,20 @@ export default {
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
+          light: "hsl(var(--success-light))",
+          dark: "hsl(var(--success-dark))",
         },
         warning: {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
+          light: "hsl(var(--warning-light))",
+          dark: "hsl(var(--warning-dark))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+          light: "hsl(var(--info-light))",
+          dark: "hsl(var(--info-dark))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

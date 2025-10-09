@@ -1,0 +1,491 @@
+/**
+ * Advanced Color Effects
+ * Beautiful color transitions and effects
+ */
+
+/* ===== COLORFUL BACKGROUNDS ===== */
+
+/* Rainbow Gradient Background */
+.bg-rainbow {
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #4facfe 75%,
+    #00f2fe 100%
+  );
+  background-size: 400% 400%;
+  animation: rainbowShift 15s ease infinite;
+}
+
+@keyframes rainbowShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Vibrant Purple-Orange Gradient */
+.bg-vibrant-gradient {
+  background: linear-gradient(
+    135deg,
+    hsl(270 95% 60%) 0%,
+    hsl(290 85% 55%) 25%,
+    hsl(310 80% 60%) 50%,
+    hsl(20 95% 58%) 75%,
+    hsl(35 90% 55%) 100%
+  );
+}
+
+/* Neon Glow Background */
+.bg-neon {
+  background: linear-gradient(
+    135deg,
+    #00f5ff 0%,
+    #ff00ff 50%,
+    #ffff00 100%
+  );
+  background-size: 200% 200%;
+  animation: neonPulse 3s ease infinite;
+}
+
+@keyframes neonPulse {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Aurora Background */
+.bg-aurora {
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #4facfe 75%,
+    #00f2fe 100%
+  );
+  background-size: 400% 400%;
+  animation: aurora 20s ease infinite;
+}
+
+@keyframes aurora {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 100%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== COLORFUL TEXT EFFECTS ===== */
+
+/* Rainbow Text */
+.text-rainbow {
+  background: linear-gradient(
+    90deg,
+    #ff0000 0%,
+    #ff7f00 16.67%,
+    #ffff00 33.33%,
+    #00ff00 50%,
+    #0000ff 66.67%,
+    #4b0082 83.33%,
+    #9400d3 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: rainbowText 3s linear infinite;
+}
+
+@keyframes rainbowText {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Neon Text Glow */
+.text-neon {
+  color: #fff;
+  text-shadow: 
+    0 0 10px #00f5ff,
+    0 0 20px #00f5ff,
+    0 0 30px #00f5ff,
+    0 0 40px #ff00ff,
+    0 0 70px #ff00ff,
+    0 0 80px #ff00ff,
+    0 0 100px #ff00ff;
+  animation: neonFlicker 1.5s infinite alternate;
+}
+
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: 
+      0 0 10px #00f5ff,
+      0 0 20px #00f5ff,
+      0 0 30px #00f5ff,
+      0 0 40px #ff00ff,
+      0 0 70px #ff00ff,
+      0 0 80px #ff00ff,
+      0 0 100px #ff00ff;
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+  }
+}
+
+/* Gradient Text with Animation */
+.text-gradient-animated {
+  background: linear-gradient(
+    90deg,
+    hsl(270 95% 60%),
+    hsl(310 85% 60%),
+    hsl(25 95% 58%),
+    hsl(270 95% 60%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  animation: gradientFlow 3s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ===== COLORFUL BORDERS ===== */
+
+/* Animated Rainbow Border */
+.border-rainbow {
+  position: relative;
+  border: 3px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(90deg, 
+                #ff0000, #ff7f00, #ffff00, #00ff00, 
+                #0000ff, #4b0082, #9400d3, #ff0000
+              ) border-box;
+  background-size: 100% 100%, 200% 100%;
+  animation: rainbowBorder 3s linear infinite;
+}
+
+@keyframes rainbowBorder {
+  0% { background-position: 0% 0%, 0% 0%; }
+  100% { background-position: 0% 0%, 200% 0%; }
+}
+
+/* Neon Border Glow */
+.border-neon {
+  border: 2px solid #00f5ff;
+  box-shadow: 
+    0 0 5px #00f5ff,
+    0 0 10px #00f5ff,
+    inset 0 0 5px #00f5ff,
+    inset 0 0 10px #00f5ff;
+  animation: neonBorderPulse 2s ease-in-out infinite;
+}
+
+@keyframes neonBorderPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px #00f5ff,
+      0 0 10px #00f5ff,
+      inset 0 0 5px #00f5ff,
+      inset 0 0 10px #00f5ff;
+  }
+  50% {
+    box-shadow: 
+      0 0 10px #00f5ff,
+      0 0 20px #00f5ff,
+      0 0 30px #ff00ff,
+      inset 0 0 10px #00f5ff,
+      inset 0 0 20px #00f5ff;
+  }
+}
+
+/* ===== COLORFUL SHADOWS ===== */
+
+/* Multi-Color Shadow */
+.shadow-colorful {
+  box-shadow: 
+    0 4px 6px rgba(138, 43, 226, 0.3),
+    0 8px 12px rgba(255, 105, 180, 0.2),
+    0 12px 24px rgba(255, 165, 0, 0.15);
+}
+
+/* Neon Shadow */
+.shadow-neon {
+  box-shadow: 
+    0 0 10px #00f5ff,
+    0 0 20px #00f5ff,
+    0 0 30px #ff00ff,
+    0 0 40px #ff00ff;
+}
+
+/* Rainbow Shadow */
+.shadow-rainbow {
+  box-shadow: 
+    0 4px 6px rgba(255, 0, 0, 0.3),
+    0 8px 12px rgba(255, 127, 0, 0.25),
+    0 12px 18px rgba(255, 255, 0, 0.2),
+    0 16px 24px rgba(0, 255, 0, 0.15);
+}
+
+/* ===== COLORFUL HOVER EFFECTS ===== */
+
+/* Color Shift on Hover */
+.hover-color-shift {
+  transition: all 0.3s ease;
+}
+
+.hover-color-shift:hover {
+  background: linear-gradient(135deg, 
+    hsl(270 95% 60%), 
+    hsl(25 95% 58%)
+  );
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(138, 43, 226, 0.3);
+}
+
+/* Rainbow Glow on Hover */
+.hover-rainbow-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-rainbow-glow:hover {
+  box-shadow: 
+    0 0 10px #ff0000,
+    0 0 20px #ff7f00,
+    0 0 30px #ffff00,
+    0 0 40px #00ff00,
+    0 0 50px #0000ff;
+  transform: scale(1.05);
+}
+
+/* Neon Glow on Hover */
+.hover-neon-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-neon-glow:hover {
+  box-shadow: 
+    0 0 10px #00f5ff,
+    0 0 20px #00f5ff,
+    0 0 30px #ff00ff,
+    0 0 40px #ff00ff;
+  border-color: #00f5ff;
+}
+
+/* ===== COLORFUL BADGES ===== */
+
+/* Gradient Badge */
+.badge-gradient {
+  background: linear-gradient(135deg, 
+    hsl(270 95% 60%), 
+    hsl(25 95% 58%)
+  );
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Neon Badge */
+.badge-neon {
+  background: transparent;
+  color: #00f5ff;
+  border: 2px solid #00f5ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 
+    0 0 5px #00f5ff,
+    inset 0 0 5px #00f5ff;
+  animation: neonBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes neonBadgePulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px #00f5ff,
+      inset 0 0 5px #00f5ff;
+  }
+  50% {
+    box-shadow: 
+      0 0 15px #00f5ff,
+      0 0 25px #ff00ff,
+      inset 0 0 10px #00f5ff;
+  }
+}
+
+/* ===== COLORFUL CARDS ===== */
+
+/* Holographic Card Effect */
+.card-holographic {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.card-holographic::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 70%
+  );
+  transform: rotate(45deg);
+  animation: holographicShine 3s infinite;
+}
+
+@keyframes holographicShine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Gradient Border Card */
+.card-gradient-border {
+  position: relative;
+  background: white;
+  border-radius: 1rem;
+  padding: 1px;
+  background: linear-gradient(135deg, 
+    hsl(270 95% 60%), 
+    hsl(310 85% 60%),
+    hsl(25 95% 58%)
+  );
+}
+
+.card-gradient-border > div {
+  background: white;
+  border-radius: calc(1rem - 1px);
+  padding: 1.5rem;
+}
+
+/* ===== COLORFUL BUTTONS ===== */
+
+/* Gradient Button with Hover */
+.btn-colorful {
+  background: linear-gradient(135deg, 
+    hsl(270 95% 60%), 
+    hsl(25 95% 58%)
+  );
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-colorful::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-colorful:hover::before {
+  left: 100%;
+}
+
+.btn-colorful:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(138, 43, 226, 0.4);
+}
+
+/* Neon Button */
+.btn-neon {
+  background: transparent;
+  color: #00f5ff;
+  border: 2px solid #00f5ff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 0 5px #00f5ff,
+    inset 0 0 5px #00f5ff;
+}
+
+.btn-neon:hover {
+  background: #00f5ff;
+  color: #000;
+  box-shadow: 
+    0 0 15px #00f5ff,
+    0 0 25px #ff00ff,
+    inset 0 0 10px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+/* Color Transitions */
+.transition-colors-slow {
+  transition: all 0.5s ease;
+}
+
+.transition-colors-fast {
+  transition: all 0.2s ease;
+}
+
+/* Colorful Dividers */
+.divider-gradient {
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    hsl(270 95% 60%) 25%,
+    hsl(25 95% 58%) 75%,
+    transparent 100%
+  );
+}
+
+.divider-rainbow {
+  height: 3px;
+  background: linear-gradient(90deg, 
+    #ff0000, #ff7f00, #ffff00, #00ff00, 
+    #0000ff, #4b0082, #9400d3
+  );
+}
+
+/* Animated Background Patterns */
+.bg-pattern-dots {
+  background-image: radial-gradient(
+    circle,
+    hsl(270 95% 60% / 0.2) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
+
+.bg-pattern-grid {
+  background-image: 
+    linear-gradient(hsl(270 95% 60% / 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(270 95% 60% / 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+}

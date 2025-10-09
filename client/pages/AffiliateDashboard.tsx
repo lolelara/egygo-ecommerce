@@ -114,7 +114,7 @@ export default function AffiliateDashboard() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-4 py-8 space-y-8 bg-gradient-to-br from-orange-50/50 via-white to-yellow-50/50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-900 min-h-screen">
       {loading ? (
         <div className="py-8">
           <DashboardStatsSkeleton count={4} />
@@ -124,7 +124,7 @@ export default function AffiliateDashboard() {
           {/* Header */}
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
+              <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">
                 مرحباً، {user?.name || "الشريك"}
               </h1>
               <p className="text-muted-foreground mt-1">
@@ -132,7 +132,7 @@ export default function AffiliateDashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Badge className="bg-green-500 text-white">
+              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
                 شريك نشط
               </Badge>
             </div>
@@ -140,7 +140,7 @@ export default function AffiliateDashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
+            <Card className="border-orange-200 dark:border-orange-900 shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-white to-orange-50/30 dark:from-neutral-800 dark:to-neutral-800">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   إجمالي الأرباح
@@ -157,12 +157,12 @@ export default function AffiliateDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-green-200 dark:border-green-900 shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-white to-green-50/30 dark:from-neutral-800 dark:to-neutral-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               أرباح هذا الشهر
             </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -174,12 +174,12 @@ export default function AffiliateDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-blue-200 dark:border-blue-900 shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-white to-blue-50/30 dark:from-neutral-800 dark:to-neutral-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               النقرات هذا الشهر
             </CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
+            <Eye className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -191,10 +191,10 @@ export default function AffiliateDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-purple-200 dark:border-purple-900 shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-white to-purple-50/30 dark:from-neutral-800 dark:to-neutral-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">معدل التحويل</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <Target className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">

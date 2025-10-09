@@ -59,18 +59,19 @@ export default function Index() {
       <EnhancedSEO {...pageSEO.home()} />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-brand-purple to-brand-orange text-white">
-        <div className="absolute inset-0 bg-black/20"></div>
+      <section className="relative bg-gradient-to-br from-primary via-purple-600 to-secondary text-white overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-pulse"></div>
+        <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative container mx-auto px-4 py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge variant="secondary" className="text-primary bg-white/90">
+                <Badge variant="secondary" className="text-primary bg-gradient-to-r from-white to-yellow-50 shadow-lg">
                   ✨ منتجات مميزة
                 </Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
                   تسوق بذكاء،
-                  <span className="text-brand-yellow"> اربح أكثر</span>
+                  <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent"> اربح أكثر</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
                   اكتشف مجموعة متنوعة من المنتجات عالية الجودة وانضم لبرنامج الشراكة لتحقيق دخل إضافي مميز.
@@ -104,16 +105,16 @@ export default function Index() {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4 pt-8">
-                <div className="text-center">
-                  <div className="text-2xl font-bold">+10K</div>
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                  <div className="text-2xl font-bold text-yellow-300">+10K</div>
                   <div className="text-sm text-white/80">عميل راضي</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">+500</div>
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                  <div className="text-2xl font-bold text-green-300">+500</div>
                   <div className="text-sm text-white/80">منتج</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold">+1K</div>
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                  <div className="text-2xl font-bold text-blue-300">+1K</div>
                   <div className="text-sm text-white/80">مسوق</div>
                 </div>
               </div>
@@ -124,7 +125,7 @@ export default function Index() {
                 <div className="space-y-4">
                   {featuredProducts.slice(0, 2).map((product, index) => (
                     <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
+                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl">
                         <CardContent className="p-4">
                           <img
                             src={getImageUrl(product.images?.[0])}
@@ -145,7 +146,7 @@ export default function Index() {
                 <div className="space-y-4 mt-8">
                   {featuredProducts.slice(2, 4).map((product, index) => (
                     <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-colors cursor-pointer">
+                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl">
                         <CardContent className="p-4">
                           <img
                             src={getImageUrl(product.images?.[0])}
@@ -171,7 +172,7 @@ export default function Index() {
 
       {/* Categories Section */}
       <section className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 space-y-2">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
             تسوق حسب الفئة
           </h2>

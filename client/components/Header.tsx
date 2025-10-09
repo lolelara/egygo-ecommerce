@@ -52,7 +52,7 @@ export function Header({ cartItemCount }: HeaderProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-purple-100 dark:border-purple-900 bg-gradient-to-r from-background via-purple-50/30 to-background dark:from-background dark:via-purple-950/20 dark:to-background backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Mobile menu */}
         <Sheet>
@@ -75,7 +75,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 <div className="space-y-2 mb-4">
                   <Link
                     to="/admin"
-                    className="flex items-center gap-2 py-2 px-3 bg-primary/10 text-primary rounded-lg font-semibold hover:bg-primary/20 transition-colors"
+                    className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 text-primary rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Shield className="h-5 w-5" />
                     لوحة تحكم الإدارة
@@ -88,7 +88,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 <div className="space-y-2 mb-4">
                   <Link
                     to="/affiliate/dashboard"
-                    className="flex items-center gap-2 py-2 px-3 bg-orange-50 text-orange-600 rounded-lg font-semibold hover:bg-orange-100 transition-colors"
+                    className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-orange-100 to-yellow-50 dark:from-orange-900 dark:to-yellow-800 text-orange-600 dark:text-orange-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <TrendingUp className="h-5 w-5" />
                     لوحة تحكم المسوق
@@ -101,7 +101,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 <div className="space-y-2 mb-4">
                   <Link
                     to="/merchant/dashboard"
-                    className="flex items-center gap-2 py-2 px-3 bg-purple-50 text-purple-600 rounded-lg font-semibold hover:bg-purple-100 transition-colors"
+                    className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-purple-100 to-pink-50 dark:from-purple-900 dark:to-pink-800 text-purple-600 dark:text-purple-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Briefcase className="h-5 w-5" />
                     لوحة تحكم التاجر
@@ -142,7 +142,7 @@ export function Header({ cartItemCount }: HeaderProps) {
         </Sheet>
 
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-primary hover:text-primary/90 transition-colors">
+        <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent hover:scale-105 transition-transform">
           إيجي جو
         </Link>
 
@@ -178,9 +178,9 @@ export function Header({ cartItemCount }: HeaderProps) {
 
           <Link
             to="/affiliate"
-            className="flex items-center gap-1 text-sm font-medium text-brand-orange hover:text-brand-orange/80 transition-colors"
+            className="flex items-center gap-1 text-sm font-medium bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent hover:from-orange-600 hover:to-yellow-600 transition-all"
           >
-            <Users className="h-4 w-4" />
+            <Users className="h-4 w-4 text-orange-500" />
             برنامج الشراكة
           </Link>
         </nav>

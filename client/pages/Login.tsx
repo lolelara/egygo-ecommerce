@@ -52,14 +52,14 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="text-3xl font-bold text-primary">
+          <Link to="/" className="text-3xl font-bold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent">
             إيجي جو
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <h2 className="mt-6 text-3xl font-bold bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
             تسجيل الدخول
           </h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -74,9 +74,9 @@ export default function Login() {
         </div>
 
         {/* Login Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>أهلاً بك مرة أخرى</CardTitle>
+        <Card className="shadow-xl border-purple-100 dark:border-purple-900">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-800">
+            <CardTitle className="text-2xl">أهلاً بك مرة أخرى</CardTitle>
             <CardDescription>
               قم بتسجيل الدخول للوصول إلى حسابك ومتابعة التسوق
             </CardDescription>
@@ -85,7 +85,7 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Error Message */}
               {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                <div className="p-3 text-sm text-red-600 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-md shadow-sm">
                   {error}
                 </div>
               )}

@@ -8,6 +8,7 @@
 @import './styles/animations.css';
 @import './styles/gradients.css';
 @import './styles/shimmer.css';
+@import './styles/color-effects.css';
 
 @layer base {
   body {
@@ -53,6 +54,10 @@
     --accent-green: 145 85% 50%;
     --accent-yellow: 45 100% 55%;
     --accent-red: 0 85% 60%;
+    --accent-blue: 217 91% 60%;
+    --accent-pink: 330 85% 65%;
+    --accent-teal: 175 85% 55%;
+    --accent-indigo: 243 75% 59%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -63,14 +68,27 @@
 
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
+    --success-light: 142 70% 45%;
+    --success-dark: 142 80% 28%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
+    --warning-light: 38 95% 60%;
+    --warning-dark: 38 90% 40%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+    --info-light: 199 85% 58%;
+    --info-dark: 199 92% 38%;
 
     /* Brand Colors (Legacy Support) */
     --brand-orange: 25 95% 53%;
     --brand-purple: 262 83% 58%;
     --brand-yellow: 32 98% 83%;
+    --brand-blue: 217 91% 60%;
+    --brand-green: 145 85% 50%;
+    --brand-pink: 330 85% 65%;
+    --brand-teal: 175 85% 55%;
 
     /* Neutral Scale */
     --neutral-50: 240 5% 98%;
@@ -128,6 +146,10 @@
     --accent-green: 145 85% 60%;
     --accent-yellow: 45 100% 65%;
     --accent-red: 0 85% 70%;
+    --accent-blue: 217 91% 70%;
+    --accent-pink: 330 85% 75%;
+    --accent-teal: 175 85% 65%;
+    --accent-indigo: 243 75% 69%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -138,14 +160,27 @@
 
     --success: 142 69% 58%;
     --success-foreground: 0 0% 100%;
+    --success-light: 142 65% 68%;
+    --success-dark: 142 75% 48%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
+    --warning-light: 38 95% 60%;
+    --warning-dark: 38 90% 40%;
+
+    --info: 199 89% 58%;
+    --info-foreground: 0 0% 100%;
+    --info-light: 199 85% 68%;
+    --info-dark: 199 92% 48%;
 
     /* Brand Colors (Legacy Support) */
     --brand-orange: 25 95% 53%;
     --brand-purple: 262 83% 58%;
     --brand-yellow: 32 98% 83%;
+    --brand-blue: 217 91% 70%;
+    --brand-green: 145 85% 60%;
+    --brand-pink: 330 85% 75%;
+    --brand-teal: 175 85% 65%;
 
     /* Neutral Scale (Dark Mode) */
     --neutral-50: 240 6% 10%;
