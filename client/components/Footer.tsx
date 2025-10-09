@@ -83,12 +83,12 @@ export function Footer() {
 
           {/* Affiliate Program */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-brand-orange">برنامج الشراكة</h3>
+            <h3 className="font-semibold text-secondary">برنامج الشراكة</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   to="/affiliate"
-                  className="text-muted-foreground hover:text-brand-orange transition-colors"
+                  className="text-muted-foreground hover:text-secondary transition-colors"
                 >
                   انضم كشريك
                 </Link>
@@ -96,7 +96,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/affiliate/dashboard"
-                  className="text-muted-foreground hover:text-brand-orange transition-colors"
+                  className="text-muted-foreground hover:text-secondary transition-colors"
                 >
                   لوحة تحكم الشراكة
                 </Link>
@@ -104,7 +104,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/affiliate/resources"
-                  className="text-muted-foreground hover:text-brand-orange transition-colors"
+                  className="text-muted-foreground hover:text-secondary transition-colors"
                 >
                   مصادر التسويق
                 </Link>
@@ -112,7 +112,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/affiliate/commission"
-                  className="text-muted-foreground hover:text-brand-orange transition-colors"
+                  className="text-muted-foreground hover:text-secondary transition-colors"
                 >
                   هيكل العمولة
                 </Link>
@@ -120,7 +120,7 @@ export function Footer() {
               <li>
                 <Link
                   to="/affiliate/support"
-                  className="text-muted-foreground hover:text-brand-orange transition-colors"
+                  className="text-muted-foreground hover:text-secondary transition-colors"
                 >
                   دعم الشركاء
                 </Link>

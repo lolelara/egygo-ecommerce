@@ -78,8 +78,8 @@ export default function Wishlist() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Package className="mx-auto h-12 w-12 text-gray-400 animate-pulse" />
-            <p className="mt-4 text-gray-500">جاري التحميل...</p>
+            <Package className="mx-auto h-12 w-12 text-muted-foreground animate-pulse" />
+            <p className="mt-4 text-muted-foreground">جاري التحميل...</p>
           </div>
         </div>
       </div>
@@ -97,10 +97,10 @@ export default function Wishlist() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Heart className="h-8 w-8 text-red-500 fill-red-500" />
+            <Heart className="h-8 w-8 text-accent fill-accent" />
             <h1 className="text-3xl font-bold">قائمة المفضلة</h1>
           </div>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             لديك {wishlistItems.length} {wishlistItems.length === 1 ? "منتج" : "منتجات"} في قائمة المفضلة
           </p>
         </div>
@@ -110,9 +110,9 @@ export default function Wishlist() {
           <Card>
             <CardContent className="py-16">
               <div className="text-center">
-                <Heart className="mx-auto h-16 w-16 text-gray-300" />
+                <Heart className="mx-auto h-16 w-16 text-muted" />
                 <h3 className="mt-4 text-xl font-semibold">قائمة المفضلة فارغة</h3>
-                <p className="mt-2 text-gray-500">
+                <p className="mt-2 text-muted-foreground">
                   لم تقم بإضافة أي منتجات إلى قائمة المفضلة بعد
                 </p>
                 <Link to="/products">

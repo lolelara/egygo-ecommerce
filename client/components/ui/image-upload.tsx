@@ -173,7 +173,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       <div
         className={`
           relative border-2 border-dashed rounded-lg p-6 text-center transition-colors
-          ${dragActive ? 'border-primary bg-primary/5' : 'border-gray-300'}
+          ${dragActive ? 'border-primary bg-primary/5' : 'border-muted'}
           ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary hover:bg-primary/5'}
         `}
         onDragEnter={handleDrag}
@@ -192,11 +192,11 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           className="hidden"
         />
 
-        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <p className="text-lg font-medium text-gray-900 mb-2">
+  <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+  <p className="text-lg font-medium text-foreground mb-2">
           اضغط لرفع الصور أو اسحبها هنا
         </p>
-        <p className="text-sm text-gray-500">
+  <p className="text-sm text-muted-foreground">
           PNG, JPG, WEBP حتى {maxFiles} صور، حد أقصى 10 ميجابايت لكل صورة
         </p>
       </div>
@@ -206,7 +206,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {files.map((file) => (
             <div key={file.id} className="relative group">
-              <div className="aspect-square rounded-lg border overflow-hidden bg-gray-50">
+              <div className="aspect-square rounded-lg border overflow-hidden bg-muted">
                 <img
                   src={file.preview}
                   alt="Preview"
@@ -237,9 +237,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                 )}
 
                 {file.error && (
-                  <div className="absolute inset-0 bg-red-50/90 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-destructive/10 flex items-center justify-center">
                     <div className="text-center">
-                      <p className="text-xs text-red-600 mb-2">{file.error}</p>
+                      <p className="text-xs text-destructive mb-2">{file.error}</p>
                       <Button
                         size="sm"
                         variant="outline"

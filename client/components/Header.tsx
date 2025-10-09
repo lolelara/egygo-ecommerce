@@ -18,7 +18,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { Badge } from "./ui/badge";
-import { fallbackCategoriesApi } from "../lib/api-fallback";
+import { categoriesApi } from "@/lib/api";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -40,14 +40,13 @@ export function Header({ cartItemCount }: HeaderProps) {
   const totalItems = cartItemCount ?? items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
-    // Load categories
-    fallbackCategoriesApi
+    // Load categories from Appwrite
+    categoriesApi
       .getAll()
       .then((data) => {
         setCategories(data.categories);
       })
       .catch(() => {
-        // Fallback to empty array if something goes wrong
         setCategories([]);
       });
   }, []);

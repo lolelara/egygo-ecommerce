@@ -68,7 +68,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
+  <div className="min-h-screen flex items-center justify-center p-4 bg-muted">
           <Card className="max-w-2xl w-full">
             <CardHeader>
               <div className="flex items-center gap-3 text-destructive">
@@ -78,27 +78,27 @@ export class ErrorBoundary extends Component<Props, State> {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   نعتذر عن المشكلة. حدث خطأ أثناء تحميل هذه الصفحة.
                 </p>
                 
                 {/* Error Details (only in development) */}
                 {import.meta.env.DEV && this.state.error && (
-                  <details className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                    <summary className="cursor-pointer font-semibold text-red-800 mb-2">
+                  <details className="mt-4 p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+                    <summary className="cursor-pointer font-semibold text-destructive mb-2">
                       تفاصيل الخطأ (للمطورين فقط)
                     </summary>
                     <div className="space-y-2 text-sm">
                       <div>
-                        <strong className="text-red-700">Error:</strong>
-                        <pre className="mt-1 overflow-auto text-red-600 bg-white p-2 rounded">
+                        <strong className="text-destructive">Error:</strong>
+                        <pre className="mt-1 overflow-auto text-destructive bg-background p-2 rounded">
                           {this.state.error.toString()}
                         </pre>
                       </div>
                       {this.state.errorInfo && (
                         <div>
-                          <strong className="text-red-700">Stack Trace:</strong>
-                          <pre className="mt-1 overflow-auto text-red-600 bg-white p-2 rounded text-xs">
+                          <strong className="text-destructive">Stack Trace:</strong>
+                          <pre className="mt-1 overflow-auto text-destructive bg-background p-2 rounded text-xs">
                             {this.state.errorInfo.componentStack}
                           </pre>
                         </div>
@@ -128,7 +128,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
 
               {/* Help Text */}
-              <div className="text-sm text-gray-500 text-center pt-4 border-t">
+              <div className="text-sm text-muted-foreground text-center pt-4 border-t">
                 إذا استمرت المشكلة، يرجى{" "}
                 <a
                   href="/contact"
@@ -168,7 +168,7 @@ export function ErrorDisplay({
           <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
           <div className="flex-1 space-y-2">
             <h3 className="font-semibold text-destructive">{title}</h3>
-            <p className="text-sm text-gray-600">{errorMessage}</p>
+            <p className="text-sm text-muted-foreground">{errorMessage}</p>
             {onRetry && (
               <Button
                 onClick={onRetry}
