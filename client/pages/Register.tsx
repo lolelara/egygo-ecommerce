@@ -150,33 +150,43 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-orange via-brand-purple to-primary/80 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
-        <div className="text-center">
-          <Link to="/" className="text-3xl font-bold text-primary">
+        <div className="text-center mb-2">
+          <Link to="/" className="text-4xl font-extrabold text-primary drop-shadow-lg">
             إيجي جو
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            إنشاء حساب جديد
+          <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">
+            أهلاً بك في عالم التسوق الذكي
           </h2>
+          <p className="mt-2 text-base text-gray-700 dark:text-gray-200">
+            أنشئ حسابك الجديد وابدأ رحلتك معنا الآن
+          </p>
           <p className="mt-2 text-sm text-gray-600">
-            أو{" "}
+            أو
             <Link
               to="/login"
-              className="font-medium text-primary hover:text-primary/80 transition-colors"
+              className="font-medium text-primary hover:text-primary/80 transition-colors mx-1"
             >
               تسجيل الدخول لحساب موجود
             </Link>
           </p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-center text-sm font-medium animate-pulse">
+            {error}
+          </div>
+        )}
+
         {/* Register Form */}
-        <Card>
+        <Card className="shadow-xl border-0">
           <CardHeader>
-            <CardTitle>انضم إلى إيجي جو</CardTitle>
-            <CardDescription>
-              أنشئ حسابك واستمتع بتجربة تسوق مميزة
+            <CardTitle className="text-xl font-bold text-primary">انضم إلى إيجي جو</CardTitle>
+            <CardDescription className="text-gray-700 dark:text-gray-200">
+              استمتع بتجربة تسوق احترافية وميزات حصرية
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -480,7 +490,7 @@ export default function Register() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-gradient-to-r from-brand-orange to-brand-purple text-white font-bold py-3 text-lg rounded-lg shadow-md hover:from-brand-purple hover:to-brand-orange transition-all duration-200"
                 disabled={isLoading || !acceptTerms}
               >
                 {isLoading ? (
@@ -490,8 +500,8 @@ export default function Register() {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
-                    إنشاء الحساب
-                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+                    <span className="text-base font-bold">إنشاء الحساب</span>
+                    <ArrowRight className="h-5 w-5 rtl:rotate-180" />
                   </div>
                 )}
               </Button>
@@ -505,7 +515,7 @@ export default function Register() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-background text-muted-foreground">
-                    أو
+                    أو يمكنك التسجيل عبر
                   </span>
                 </div>
               </div>
@@ -516,7 +526,7 @@ export default function Register() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full"
+                className="w-full border-gray-300 hover:border-primary"
                 onClick={() => {
                   console.log("التسجيل بـ Google");
                 }}
@@ -548,7 +558,7 @@ export default function Register() {
               <Button
                 type="button"
                 variant="outline"
-                className="w-full"
+                className="w-full border-gray-300 hover:border-primary"
                 onClick={() => {
                   console.log("التسجيل بـ Facebook");
                 }}
@@ -562,6 +572,11 @@ export default function Register() {
                 </svg>
                 التسجيل بحساب Facebook
               </Button>
+            </div>
+
+            {/* Privacy Note */}
+            <div className="text-xs text-gray-500 text-center mt-6">
+              جميع بياناتك محمية وفق <Link to="/privacy" className="underline text-primary">سياسة الخصوصية</Link> الخاصة بنا.
             </div>
           </CardContent>
         </Card>
