@@ -18,6 +18,7 @@ import { CartProvider } from "./contexts/CartContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
+import Categories from "./pages/Categories";
 import Affiliate from "./pages/Affiliate";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -107,6 +108,8 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/category" element={<Categories />} />
                 <Route path="/category/:slug" element={<Products />} />
                 <Route path="/affiliate" element={<Affiliate />} />
                 <Route path="/merchant" element={<Merchant />} />
