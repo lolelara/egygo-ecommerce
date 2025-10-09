@@ -146,7 +146,7 @@ export default function Affiliate() {
             <div className="space-y-8">
               <div className="space-y-4">
                 <Badge variant="secondary" className="text-primary bg-white/90">
-                  �� برنامج الشراكة الأعلى دفعًا
+                  💎 برنامج الشراكة الأعلى دفعًا
                 </Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
                   حول جمهورك إلى
@@ -343,7 +343,7 @@ export default function Affiliate() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-center gap-1 mb-2">
-                  <p className="font-semibold">ذه��ي</p>
+                  <p className="font-semibold">ذهبي</p>
                   <Award className="h-4 w-4 text-primary" />
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -442,7 +442,7 @@ export default function Affiliate() {
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">قصص النجاح</h2>
             <p className="text-muted-foreground text-lg">
-              اسمع من أفضل الشركاء أداءً لدين��
+              اسمع من أفضل الشركاء أداءً لدينا
             </p>
           </div>
 
@@ -548,7 +548,7 @@ export default function Affiliate() {
             <CardContent>
               <p className="text-muted-foreground">
                 نعم! يمكنك الترويج على أي منصة بما في ذلك وسائل التواصل
-                ا��اجتماعي والمدونات والبريد الإلكتروني وأكثر.
+                الاجتماعي والمدونات والبريد الإلكتروني وأكثر.
               </p>
             </CardContent>
           </Card>
@@ -580,7 +580,7 @@ export default function Affiliate() {
                 variant="outline"
                 className="bg-white/10 border-white/30 text-white hover:bg-white/20"
               >
-                اتصل بال��عم
+                اتصل بالدعم
               </Button>
             </div>
             <div className="flex items-center justify-center gap-6 text-sm text-white/80 pt-4">

@@ -139,7 +139,7 @@ export const getProductById: RequestHandler = async (req, res) => {
     });
 
     if (!product) {
-      return res.status(404).json({ error: "ا��منتج غير موجود" });
+      return res.status(404).json({ error: "المنتج غير موجود" });
     }
 
     res.json(product);

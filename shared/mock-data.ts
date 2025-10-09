@@ -27,7 +27,7 @@ export const categories: Category[] = [
   },
   {
     id: "sports",
-    name: "الرياضة وا��لياقة",
+    name: "الرياضة واللياقة",
     slug: "sports",
     image:
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=300&fit=crop",
@@ -100,7 +100,7 @@ export const products: Product[] = [
       "https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=800&h=600&fit=crop",
     ],
     category: "beauty",
-    tags: ["طبيعي", "عنا��ة بالبشرة", "أعشاب", "روتين"],
+    tags: ["طبيعي", "عناية بالبشرة", "أعشاب", "روتين"],
     inStock: true,
     rating: 4.9,
     reviewCount: 203,

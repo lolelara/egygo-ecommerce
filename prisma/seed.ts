@@ -62,7 +62,7 @@ async function main() {
       create: {
         name: "الجمال والصحة",
         slug: "beauty",
-        description: "منتجات ��لعناية والجمال",
+        description: "منتجات للعناية والجمال",
         image:
           "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&h=300&fit=crop",
         productCount: 0,
@@ -111,7 +111,7 @@ async function main() {
       create: { name: "لياقة" },
     }),
     prisma.productTag.upsert({
-      where: { name: "ساعة ذكي��" },
+      where: { name: "ساعة ذكية" },
       update: {},
       create: { name: "ساعة ذكية" },
     }),

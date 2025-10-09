@@ -176,7 +176,7 @@ export default function Register() {
           <CardHeader>
             <CardTitle>انضم إلى إيجي جو</CardTitle>
             <CardDescription>
-              أنشئ حسابك واستمتع بتجربة تسوق م��يزة
+              أنشئ حسابك واستمتع بتجربة تسوق مميزة
             </CardDescription>
           </CardHeader>
           <CardContent>

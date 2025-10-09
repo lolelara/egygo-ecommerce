@@ -252,7 +252,7 @@ export default function AdminCategories() {
       <AdminLayout>
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight">إدا��ة الفئات</h1>
+            <h1 className="text-3xl font-bold tracking-tight">إدارة الفئات</h1>
           </div>
           <div className="animate-pulse">
             <div className="h-10 bg-muted rounded mb-4"></div>

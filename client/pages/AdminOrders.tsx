@@ -245,7 +245,7 @@ export default function AdminOrders() {
               <SelectValue placeholder="حالة الدفع" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">جميع حالات الدف��</SelectItem>
+              <SelectItem value="all">جميع حالات الدفع</SelectItem>
               <SelectItem value="PENDING">في الانتظار</SelectItem>
               <SelectItem value="PAID">مدفوع</SelectItem>
               <SelectItem value="FAILED">فشل</SelectItem>

@@ -103,7 +103,7 @@ const App = () => (
               />
               <Route
                 path="/affiliate/withdraw"
-                element={<PlaceholderPage title="س��ب الأرباح" />}
+                element={<PlaceholderPage title="سحب الأرباح" />}
               />
               <Route
                 path="/affiliate/resources"

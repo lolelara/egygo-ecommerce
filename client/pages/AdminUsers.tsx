@@ -42,7 +42,7 @@ const RoleBadge = ({ role }: { role: string }) => {
 
 const StatusBadge = ({ isActive }: { isActive: boolean }) => (
   <Badge variant={isActive ? "default" : "secondary"}>
-    {isActive ? "نشط" : "معط��"}
+    {isActive ? "نشط" : "معطل"}
   </Badge>
 );
 

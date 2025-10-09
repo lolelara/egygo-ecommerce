@@ -178,7 +178,7 @@ export default function AdminDashboard() {
             icon={Clock}
           />
           <StatCard
-            title="إجمالي ال��ركاء"
+            title="إجمالي الشركاء"
             value={stats.totalAffiliates}
             icon={UserCheck}
             trend={{ value: 5, isPositive: true }}
