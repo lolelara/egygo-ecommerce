@@ -1,0 +1,13 @@
+{
+  "email": "ahmed@egygo.com",
+  "name": "Ahmed Mohamed",
+  "role": "AFFILIATE",
+  "isActive": true,
+  "isAffiliate": true,
+  "isMerchant": false,
+  "affiliateCode": "AFF001",
+  "commissionRate": 20,
+  "totalEarnings": 5420.50,
+  "pendingEarnings": 1200.00,
+  "referralCount": 34
+}

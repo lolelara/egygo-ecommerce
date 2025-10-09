@@ -43,7 +43,7 @@ const adminNavItems = [
     roles: ['admin', 'merchant'], // المدير والتاجر
   },
   {
-    title: "إدارة المستخدمين",
+    title: "إدارة المستخدمين والشركاء",
     href: "/admin/users",
     icon: Users,
     roles: ['admin'], // فقط المدير
@@ -52,12 +52,6 @@ const adminNavItems = [
     title: "إدارة الطلبات",
     href: "/admin/orders",
     icon: ShoppingCart,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة الشركاء",
-    href: "/admin/affiliates",
-    icon: UserCheck,
     roles: ['admin'], // فقط المدير
   },
   {

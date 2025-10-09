@@ -1,0 +1,72 @@
+[
+  {
+    "id": "aff001",
+    "email": "ahmed@egygo.com",
+    "name": "Ahmed Mohamed",
+    "role": "AFFILIATE",
+    "isActive": true,
+    "isAffiliate": true,
+    "isMerchant": false,
+    "affiliateCode": "AFF001",
+    "commissionRate": 20,
+    "totalEarnings": 5420.50,
+    "pendingEarnings": 1200.00,
+    "referralCount": 34
+  },
+  {
+    "id": "aff002",
+    "email": "fatima@egygo.com",
+    "name": "Fatima Ali",
+    "role": "AFFILIATE",
+    "isActive": true,
+    "isAffiliate": true,
+    "isMerchant": false,
+    "affiliateCode": "AFF002",
+    "commissionRate": 15,
+    "totalEarnings": 3200.00,
+    "pendingEarnings": 800.00,
+    "referralCount": 22
+  },
+  {
+    "id": "aff003",
+    "email": "mohamed@egygo.com",
+    "name": "Mohamed Abdullah",
+    "role": "AFFILIATE",
+    "isActive": true,
+    "isAffiliate": true,
+    "isMerchant": false,
+    "affiliateCode": "AFF003",
+    "commissionRate": 18,
+    "totalEarnings": 8900.00,
+    "pendingEarnings": 2100.00,
+    "referralCount": 56
+  },
+  {
+    "id": "admin001",
+    "email": "admin@egygo.com",
+    "name": "Admin User",
+    "role": "ADMIN",
+    "isActive": true,
+    "isAdmin": true,
+    "isAffiliate": false,
+    "isMerchant": false
+  },
+  {
+    "id": "merchant001",
+    "email": "merchant@egygo.com",
+    "name": "Electronics Store",
+    "role": "MERCHANT",
+    "isActive": true,
+    "isAffiliate": false,
+    "isMerchant": true
+  },
+  {
+    "id": "user001",
+    "email": "user@egygo.com",
+    "name": "Regular User",
+    "role": "USER",
+    "isActive": true,
+    "isAffiliate": false,
+    "isMerchant": false
+  }
+]
