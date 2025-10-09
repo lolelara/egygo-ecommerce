@@ -214,9 +214,13 @@ export default function ProductDetail() {
               المنتجات
             </Link>
             <span>/</span>
-            <Link to={`/category/${product.category.slug}`} className="hover:text-foreground">
-              {product.category.name}
-            </Link>
+            {product.category?.slug ? (
+              <Link to={`/category/${product.category.slug}`} className="hover:text-foreground">
+                {product.category.name}
+              </Link>
+            ) : (
+              <span className="text-muted-foreground">{product.category?.name || 'غير محدد'}</span>
+            )}
             <span>/</span>
             <span className="text-foreground">{product.name}</span>
           </div>

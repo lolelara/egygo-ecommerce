@@ -123,7 +123,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 <h3 className="font-semibold text-sm text-muted-foreground">
                   الفئات
                 </h3>
-                {categories.map((category) => (
+                {categories.filter(cat => cat.slug).map((category) => (
                   <Link
                     key={category.id}
                     to={`/category/${category.slug}`}
@@ -164,7 +164,7 @@ export function Header({ cartItemCount }: HeaderProps) {
               الفئات
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48">
-              {categories.map((category) => (
+              {categories.filter(cat => cat.slug).map((category) => (
                 <DropdownMenuItem key={category.id} asChild>
                   <Link
                     to={`/category/${category.slug}`}

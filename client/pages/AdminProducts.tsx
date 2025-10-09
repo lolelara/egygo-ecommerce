@@ -46,6 +46,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
+import { getImageUrl } from "@/lib/storage";
 import type {
   Product,
   Category,
@@ -699,7 +700,7 @@ export default function AdminProducts() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <img
-                            src={product.images[0] || "/placeholder.svg"}
+                            src={getImageUrl(product.images?.[0])}
                             alt={product.name}
                             className="w-10 h-10 rounded object-cover"
                           />

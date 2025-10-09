@@ -16,8 +16,8 @@ const DEFAULT_SEO = {
   title: 'إيجي جو - تسوق أونلاين في مصر | منتجات أصلية بأفضل الأسعار',
   description: 'تسوق الآن من إيجي جو واحصل على أفضل المنتجات بأسعار تنافسية. شحن سريع لجميع أنحاء مصر، دفع عند الاستلام، وضمان على جميع المنتجات. انضم لبرنامج التسويق بالعمولة واكسب حتى 25%',
   keywords: 'تسوق أونلاين, تسوق في مصر, شراء اونلاين, منتجات مصرية, التسوق الالكتروني, دفع عند الاستلام, شحن مجاني, تسويق بالعمولة, افلييت مصر, egygo, ايجي جو',
-  image: 'https://egygo-ecommerce.appwrite.network/og-image.jpg',
-  siteUrl: 'https://egygo-ecommerce.appwrite.network',
+  image: 'https://egygo.me/og-image.jpg',
+  siteUrl: 'https://egygo.me',
   siteName: 'إيجي جو',
 };
 

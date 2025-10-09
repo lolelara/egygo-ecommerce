@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
     // Copy _redirects and .htaccess to dist
     copyPublicDir: true,
   },
-  publicDir: "../public",
+  publicDir: "./public", // Relative to root (./client), so client/public
   plugins: [
     react()
   ],

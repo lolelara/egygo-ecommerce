@@ -1,4 +1,4 @@
-import { databases, appwriteConfig } from './appwrite';
+import { databases, appwriteConfig, storage } from './appwrite';
 import { Query } from 'appwrite';
 import type { MerchantStats, MerchantProduct, MerchantOrder } from '../../shared/prisma-types';
 
@@ -7,6 +7,36 @@ export type { MerchantStats, MerchantProduct, MerchantOrder };
 
 const DATABASE_ID = appwriteConfig.databaseId;
 const COLLECTIONS = appwriteConfig.collections;
+const STORAGE_BUCKET_ID = appwriteConfig.storageId;
+
+/**
+ * Helper function to convert image ID or URL to viewable URL
+ */
+function getImageUrl(image: any): string {
+  if (!image) return '/placeholder.svg';
+  
+  // If it's already an object with url property
+  if (typeof image === 'object' && image.url) {
+    return image.url;
+  }
+  
+  // If it's a string
+  if (typeof image === 'string') {
+    // If it's already a full URL, return it
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return image;
+    }
+    // If it's a file ID, convert to URL
+    try {
+      return storage.getFileView(STORAGE_BUCKET_ID, image).toString();
+    } catch (error) {
+      console.error('Error getting image URL:', error);
+      return '/placeholder.svg';
+    }
+  }
+  
+  return '/placeholder.svg';
+}
 
 /**
  * Get merchant statistics
@@ -263,7 +293,7 @@ export async function getMerchantProducts(userId: string): Promise<MerchantProdu
       merchantProducts.push({
         id: product.$id,
         name: product.name || '',
-        image: product.images?.[0] || '/placeholder.svg',
+        image: getImageUrl(product.images?.[0]),
         price: product.price || 0,
         stock: product.stock || 0,
         sales,
@@ -389,7 +419,7 @@ export async function getMerchantProduct(productId: string): Promise<MerchantPro
     return {
       id: product.$id,
       name: product.name || '',
-      image: product.image || product.images?.[0] || '/placeholder.svg',
+      image: getImageUrl(product.image || product.images?.[0]),
       price: product.price || 0,
       stock: product.stock || 0,
       sales,
