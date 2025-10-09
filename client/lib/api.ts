@@ -184,6 +184,40 @@ export const productsApi = {
       return fallbackProductsApi.getById(id);
     }
   },
+
+  getByCategory: async (
+    categorySlug: string,
+    filters?: ProductFilters & PaginationParams,
+  ): Promise<ProductListResponse> => {
+    try {
+      if (!isAppwriteConfigured()) {
+        console.log("Appwrite not configured, using fallback data");
+        return fallbackProductsApi.getByCategory(categorySlug, filters);
+      }
+
+      // First, find the category by slug
+      const categoryResponse = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.CATEGORIES,
+        [Query.equal("slug", categorySlug), Query.limit(1)]
+      );
+
+      if (categoryResponse.documents.length === 0) {
+        throw new Error("الفئة غير موجودة");
+      }
+
+      const categoryDoc = categoryResponse.documents[0];
+      
+      // Now get products for this category
+      return productsApi.getAll({
+        ...filters,
+        categoryId: categoryDoc.$id,
+      });
+    } catch (error) {
+      console.error("Error fetching products by category from Appwrite:", error);
+      return fallbackProductsApi.getByCategory(categorySlug, filters);
+    }
+  },
 };
 
 // Categories API using Appwrite

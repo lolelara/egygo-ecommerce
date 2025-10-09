@@ -177,7 +177,7 @@ git push origin main
 ```
 
 ### 4. اختبار الموقع
-بعد Netlify deployment:
+بعد رفع الكود على Appwrite:
 - ✅ التسجيل يعمل (بدون خطأ isMerchant)
 - ✅ روابط التصنيفات صحيحة (لا undefined)
 - ✅ الصور البديلة تظهر (placeholder.svg)
