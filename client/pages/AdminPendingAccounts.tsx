@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PageSkeleton, StatsCardSkeleton, TableSkeleton } from "@/components/LoadingSkeletons";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig } from "@/lib/appwrite";
 import { Query } from "appwrite";
@@ -269,12 +270,20 @@ export default function AdminPendingAccounts() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">جاري التحميل...</p>
+      <PageSkeleton>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[...Array(3)].map((_, i) => (
+            <StatsCardSkeleton key={i} />
+          ))}
         </div>
-      </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <tbody>
+              <TableSkeleton rows={8} cols={7} />
+            </tbody>
+          </table>
+        </div>
+      </PageSkeleton>
     );
   }
 

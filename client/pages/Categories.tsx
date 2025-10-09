@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/lib/storage";
+import { CategoryCardSkeleton } from "@/components/LoadingSkeletons";
 
 export default function Categories() {
   const { data: categoriesData, isLoading } = useQuery({
@@ -16,8 +17,10 @@ export default function Categories() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <CategoryCardSkeleton key={i} />
+        ))}
       </div>
     );
   }

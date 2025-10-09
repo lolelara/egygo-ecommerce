@@ -22,8 +22,8 @@ import {
   CheckCircle,
   DollarSign,
   Calendar,
-  Loader2,
 } from "lucide-react";
+import { TableSkeleton, StatsCardSkeleton } from "@/components/LoadingSkeletons";
 import type { User, AffiliateUser } from "@shared/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { adminUsersApi } from "@/lib/admin-api";
@@ -181,9 +181,20 @@ export default function AdminUsers() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <StatsCardSkeleton key={i} />
+              ))}
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <tbody>
+                  <TableSkeleton rows={8} cols={7} />
+                </tbody>
+              </table>
+            </div>
+          </>
         ) : (
           <>
             {/* Stats Cards */}

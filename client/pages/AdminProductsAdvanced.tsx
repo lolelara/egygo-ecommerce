@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TableSkeleton } from '@/components/LoadingSkeletons';
 import { Progress } from '@/components/ui/progress';
 import {
   Table,
@@ -742,10 +743,7 @@ export default function AdminProductsAdvanced() {
                 variant={bulkActionDialog.action === 'delete' ? 'destructive' : 'default'}
               >
                 {bulkLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                    جاري التنفيذ...
-                  </>
+                  <Skeleton className="w-20 h-6 ml-2 inline-block align-middle" />
                 ) : (
                   'تأكيد'
                 )}

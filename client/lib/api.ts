@@ -8,7 +8,7 @@ import {
   ProductFilters,
   PaginationParams,
 } from "@shared/prisma-types";
-import { fallbackProductsApi, fallbackCategoriesApi } from "./api-fallback";
+// تمت إزالة بيانات mock - يجب توفر Appwrite
 import { getImageUrl } from "./storage";
 
 // Appwrite configuration
@@ -37,10 +37,9 @@ export const productsApi = {
     filters?: ProductFilters & PaginationParams,
   ): Promise<ProductListResponse> => {
     try {
-      if (!isAppwriteConfigured()) {
-        console.log("Appwrite not configured, using fallback data");
-        return fallbackProductsApi.getAll(filters);
-      }
+          if (!isAppwriteConfigured()) {
+            throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+          }
 
       const queries = [];
       
@@ -115,15 +114,15 @@ export const productsApi = {
       };
     } catch (error) {
       console.error("Error fetching products from Appwrite:", error);
-      return fallbackProductsApi.getAll(filters);
+  // تم حذف بيانات mock نهائياً
     }
   },
 
   getById: async (id: string): Promise<ProductWithRelations | null> => {
     try {
-      if (!isAppwriteConfigured()) {
-        return fallbackProductsApi.getById(id);
-      }
+        if (!isAppwriteConfigured()) {
+          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+        }
 
       const doc = await databases.getDocument(
         DATABASE_ID,
@@ -181,7 +180,7 @@ export const productsApi = {
       };
     } catch (error) {
       console.error("Error fetching product from Appwrite:", error);
-      return fallbackProductsApi.getById(id);
+  // تم حذف بيانات mock نهائياً
     }
   },
 
@@ -190,10 +189,9 @@ export const productsApi = {
     filters?: ProductFilters & PaginationParams,
   ): Promise<ProductListResponse> => {
     try {
-      if (!isAppwriteConfigured()) {
-        console.log("Appwrite not configured, using fallback data");
-        return fallbackProductsApi.getByCategory(categorySlug, filters);
-      }
+        if (!isAppwriteConfigured()) {
+          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+        }
 
       // First, find the category by slug
       const categoryResponse = await databases.listDocuments(
@@ -215,7 +213,7 @@ export const productsApi = {
       });
     } catch (error) {
       console.error("Error fetching products by category from Appwrite:", error);
-      return fallbackProductsApi.getByCategory(categorySlug, filters);
+  // تم حذف بيانات mock نهائياً
     }
   },
 };
@@ -224,10 +222,9 @@ export const productsApi = {
 export const categoriesApi = {
   getAll: async (): Promise<CategoryListResponse> => {
     try {
-      if (!isAppwriteConfigured()) {
-        console.log("Appwrite not configured, using fallback data");
-        return fallbackCategoriesApi.getAll();
-      }
+          if (!isAppwriteConfigured()) {
+            throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+          }
 
       const response = await databases.listDocuments(
         DATABASE_ID,
@@ -252,15 +249,15 @@ export const categoriesApi = {
       };
     } catch (error) {
       console.error("Error fetching categories from Appwrite:", error);
-      return fallbackCategoriesApi.getAll();
+  // تم حذف بيانات mock نهائياً
     }
   },
 
   getBySlug: async (slug: string): Promise<CategoryWithCount | null> => {
     try {
-      if (!isAppwriteConfigured()) {
-        return fallbackCategoriesApi.getBySlug(slug);
-      }
+        if (!isAppwriteConfigured()) {
+          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+        }
 
       const response = await databases.listDocuments(
         DATABASE_ID,
@@ -285,7 +282,7 @@ export const categoriesApi = {
       };
     } catch (error) {
       console.error("Error fetching category from Appwrite:", error);
-      return fallbackCategoriesApi.getBySlug(slug);
+  // تم حذف بيانات mock نهائياً
     }
   },
 
@@ -294,15 +291,9 @@ export const categoriesApi = {
     filters?: ProductFilters & PaginationParams,
   ): Promise<ProductListResponse> => {
     try {
-      if (!isAppwriteConfigured()) {
-        // Return empty list instead of calling non-existent method
-        return {
-          products: [],
-          total: 0,
-          page: 1,
-          limit: filters?.limit || 20,
-        };
-      }
+        if (!isAppwriteConfigured()) {
+          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+        }
 
       // First get category by slug
       const categoryResponse = await databases.listDocuments(

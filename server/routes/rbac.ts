@@ -24,35 +24,10 @@ export interface AuditLog {
 // GET /api/rbac/roles - قائمة جميع الأدوار
 export const getRoles: RequestHandler = async (req, res) => {
   try {
-    // TODO: استبدال بـ Appwrite database query
-    const roles: Role[] = [
-      {
-        id: '1',
-        name: 'admin',
-        permissions: ['read', 'write', 'delete', 'admin'],
-        createdAt: new Date()
-      },
-      {
-        id: '2',
-        name: 'merchant',
-        permissions: ['read', 'write'],
-        createdAt: new Date()
-      },
-      {
-        id: '3',
-        name: 'affiliate',
-        permissions: ['read'],
-        createdAt: new Date()
-      },
-      {
-        id: '4',
-        name: 'customer',
-        permissions: ['read'],
-        createdAt: new Date()
-      }
-    ];
-    
-    res.json(roles);
+    // جلب الأدوار من Appwrite database
+    const { listDocuments } = require('../lib/appwrite');
+    const result = await listDocuments('roles');
+    res.json(result.documents);
   } catch (error) {
     console.error('Error fetching roles:', error);
     res.status(500).json({ error: 'Failed to fetch roles' });
@@ -81,15 +56,26 @@ export const createRole: RequestHandler = async (req, res) => {
       });
     }
     
-    const newRole: Role = {
-      id: Date.now().toString(),
-      name,
-      permissions,
-      createdAt: new Date()
-    };
-    
-    // TODO: حفظ في Appwrite database
-    
+    // حفظ الدور في Appwrite database
+    let created;
+    try {
+      const { createDocument } = require('../lib/appwrite');
+      created = await createDocument('roles', {
+        name,
+        permissions,
+        createdAt: new Date().toISOString()
+      });
+    } catch (dbError) {
+      console.error('Error saving role to DB:', dbError);
+      await logAudit({
+        userId: req.headers['x-user-id'] as string || 'system',
+        action: 'create',
+        resource: 'role',
+        ipAddress: req.ip || 'unknown',
+        success: false
+      });
+      return res.status(500).json({ error: 'Failed to save role to database' });
+    }
     // Log audit
     await logAudit({
       userId: req.headers['x-user-id'] as string || 'system',
@@ -98,8 +84,7 @@ export const createRole: RequestHandler = async (req, res) => {
       ipAddress: req.ip || 'unknown',
       success: true
     });
-    
-    res.status(201).json(newRole);
+    res.status(201).json(created);
   } catch (error) {
     console.error('Error creating role:', error);
     
@@ -125,15 +110,25 @@ export const updateRole: RequestHandler = async (req, res) => {
       return res.status(400).json({ error: 'Role ID is required' });
     }
     
-    // TODO: تحديث في Appwrite database
-    
-    const updatedRole: Role = {
-      id,
-      name: name || 'Updated Role',
-      permissions: permissions || ['read'],
-      createdAt: new Date()
-    };
-    
+    // تحديث الدور في Appwrite database
+    let updated;
+    try {
+      const { updateDocument } = require('../lib/appwrite');
+      updated = await updateDocument('roles', id, {
+        name,
+        permissions
+      });
+    } catch (dbError) {
+      console.error('Error updating role in DB:', dbError);
+      await logAudit({
+        userId: req.headers['x-user-id'] as string || 'system',
+        action: 'update',
+        resource: 'role',
+        ipAddress: req.ip || 'unknown',
+        success: false
+      });
+      return res.status(500).json({ error: 'Failed to update role in database' });
+    }
     await logAudit({
       userId: req.headers['x-user-id'] as string || 'system',
       action: 'update',
@@ -141,8 +136,7 @@ export const updateRole: RequestHandler = async (req, res) => {
       ipAddress: req.ip || 'unknown',
       success: true
     });
-    
-    res.json(updatedRole);
+    res.json(updated);
   } catch (error) {
     console.error('Error updating role:', error);
     
@@ -163,61 +157,23 @@ export const getAuditLogs: RequestHandler = async (req, res) => {
   try {
     const { page = 1, limit = 20, userId, action, resource } = req.query;
     
-    // TODO: جلب من Appwrite database مع filtering
-    const logs: AuditLog[] = [
-      {
-        id: '1',
-        userId: 'user-123',
-        action: 'create',
-        resource: 'product',
-        ipAddress: '192.168.1.1',
-        success: true,
-        timestamp: new Date()
-      },
-      {
-        id: '2',
-        userId: 'user-456',
-        action: 'update',
-        resource: 'order',
-        ipAddress: '192.168.1.2',
-        success: true,
-        timestamp: new Date(Date.now() - 1000 * 60 * 5)
-      },
-      {
-        id: '3',
-        userId: 'user-789',
-        action: 'delete',
-        resource: 'product',
-        ipAddress: '192.168.1.3',
-        success: false,
-        timestamp: new Date(Date.now() - 1000 * 60 * 10)
-      }
-    ];
-    
-    // Filter logs
-    let filteredLogs = logs;
-    if (userId) {
-      filteredLogs = filteredLogs.filter(log => log.userId === userId);
-    }
-    if (action) {
-      filteredLogs = filteredLogs.filter(log => log.action === action);
-    }
-    if (resource) {
-      filteredLogs = filteredLogs.filter(log => log.resource === resource);
-    }
-    
-    // Pagination
-    const startIndex = (Number(page) - 1) * Number(limit);
-    const endIndex = startIndex + Number(limit);
-    const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
-    
+    // جلب سجل التدقيق من Appwrite database مع الفلترة
+    const { listDocuments, Query } = require('../lib/appwrite');
+    const queries: any[] = [];
+    if (userId) queries.push(Query.equal('userId', String(userId)));
+    if (action) queries.push(Query.equal('action', String(action)));
+    if (resource) queries.push(Query.equal('resource', String(resource)));
+    queries.push(Query.orderDesc('timestamp'));
+    queries.push(Query.limit(Number(limit)));
+    queries.push(Query.offset((Number(page) - 1) * Number(limit)));
+    const result = await listDocuments('audit_logs', queries);
     res.json({
-      logs: paginatedLogs,
+      logs: result.documents,
       pagination: {
         page: Number(page),
         limit: Number(limit),
-        total: filteredLogs.length,
-        totalPages: Math.ceil(filteredLogs.length / Number(limit))
+        total: result.total,
+        totalPages: Math.ceil(result.total / Number(limit))
       }
     });
   } catch (error) {
@@ -237,13 +193,28 @@ export const checkPermission: RequestHandler = async (req, res) => {
       });
     }
     
-    // TODO: فحص من database
-    // Mock logic: admin has all permissions
-    const userRole = 'admin'; // TODO: جلب من database
-    const hasPermission = userRole === 'admin' || 
-                         (userRole === 'merchant' && ['read', 'write'].includes(action)) ||
-                         (userRole === 'customer' && action === 'read');
-    
+    // فحص الصلاحيات من Appwrite database
+    let hasPermission = false;
+    try {
+      const { listDocuments, Query } = require('../lib/appwrite');
+      // جلب دور المستخدم
+      const userResult = await listDocuments('users', [Query.equal('userId', userId), Query.limit(1)]);
+      let userRole = '';
+      if (userResult.documents.length > 0) {
+        userRole = userResult.documents[0].role;
+      }
+      // جلب صلاحيات الدور
+      let permissions: string[] = [];
+      if (userRole) {
+        const roleResult = await listDocuments('roles', [Query.equal('name', userRole), Query.limit(1)]);
+        if (roleResult.documents.length > 0) {
+          permissions = roleResult.documents[0].permissions;
+        }
+      }
+      hasPermission = permissions.includes(action) || userRole === 'admin';
+    } catch (e) {
+      console.error('Error checking permission from DB:', e);
+    }
     await logAudit({
       userId,
       action: 'check-permission',
@@ -251,7 +222,6 @@ export const checkPermission: RequestHandler = async (req, res) => {
       ipAddress: req.ip || 'unknown',
       success: hasPermission
     });
-    
     res.json({ 
       hasPermission,
       userId,
@@ -268,14 +238,11 @@ export const checkPermission: RequestHandler = async (req, res) => {
 // Helper function للـ audit logging
 async function logAudit(data: Omit<AuditLog, 'id' | 'timestamp'>) {
   try {
-    const log: AuditLog = {
-      id: Date.now().toString(),
+    const { createDocument } = require('../lib/appwrite');
+    await createDocument('audit_logs', {
       ...data,
-      timestamp: new Date()
-    };
-    
-    // TODO: حفظ في Appwrite database
-    console.log('Audit log:', log);
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Failed to log audit:', error);
   }

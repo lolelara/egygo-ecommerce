@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import { listDocuments, Query } from '../lib/appwrite';
 
 // ============================================
 // Supply Chain, Inventory, Search, Loyalty APIs
@@ -11,44 +12,11 @@ export const getSupplyOffers: RequestHandler = async (req, res) => {
   try {
     const { productId } = req.query;
     
-    // TODO: جلب من database
-    const offers = [
-      {
-        id: '1',
-        supplier: 'مورد أ',
-        productId,
-        price: 45,
-        moq: 100, // Minimum Order Quantity
-        leadTime: 7, // days
-        rating: 4.8,
-        location: 'القاهرة',
-        shippingCost: 50
-      },
-      {
-        id: '2',
-        supplier: 'مورد ب',
-        productId,
-        price: 42,
-        moq: 200,
-        leadTime: 10,
-        rating: 4.5,
-        location: 'الإسكندرية',
-        shippingCost: 75
-      },
-      {
-        id: '3',
-        supplier: 'مورد ج',
-        productId,
-        price: 48,
-        moq: 50,
-        leadTime: 5,
-        rating: 4.9,
-        location: 'الجيزة',
-        shippingCost: 30
-      }
-    ];
-    
-    res.json(offers);
+    // جلب من Appwrite database
+    const queries: any[] = [];
+    if (productId) queries.push(Query.equal('productId', String(productId)));
+    const result = await listDocuments('supply_offers', queries);
+    res.json(result.documents);
   } catch (error) {
     console.error('Error fetching supply offers:', error);
     res.status(500).json({ error: 'Failed to fetch offers' });
@@ -113,9 +81,23 @@ export const createBundle: RequestHandler = async (req, res) => {
       createdAt: new Date()
     };
     
-    // TODO: حفظ في database
-    
-    res.status(201).json(bundle);
+    // حفظ في Appwrite database
+    try {
+      const { createDocument } = require('../lib/appwrite');
+      const created = await createDocument('bundles', {
+        name,
+        products,
+        originalPrice: totalPrice,
+        discountPercentage: discountPercentage || 0,
+        bundlePrice,
+        savings: totalPrice - bundlePrice,
+        createdAt: new Date().toISOString()
+      });
+      res.status(201).json(created);
+    } catch (dbError) {
+      console.error('Error saving bundle to DB:', dbError);
+      res.status(500).json({ error: 'Failed to save bundle to database' });
+    }
   } catch (error) {
     console.error('Error creating bundle:', error);
     res.status(500).json({ error: 'Failed to create bundle' });
@@ -172,37 +154,11 @@ export const getInventoryAlerts: RequestHandler = async (req, res) => {
   try {
     const { severity } = req.query;
     
-    // TODO: جلب من database
-    const alerts = [
-      {
-        id: '1',
-        productId: 'prod-1',
-        productName: 'قميص قطن أبيض',
-        currentStock: 5,
-        reorderPoint: 20,
-        severity: 'critical',
-        daysUntilStockout: 2,
-        recommendedReorder: 100,
-        supplier: 'مورد أ'
-      },
-      {
-        id: '2',
-        productId: 'prod-2',
-        productName: 'بنطلون جينز',
-        currentStock: 15,
-        reorderPoint: 20,
-        severity: 'warning',
-        daysUntilStockout: 7,
-        recommendedReorder: 80,
-        supplier: 'مورد ب'
-      }
-    ];
-    
-    const filtered = severity 
-      ? alerts.filter(a => a.severity === severity)
-      : alerts;
-    
-    res.json(filtered);
+    // جلب من Appwrite database
+    const queries: any[] = [];
+    if (severity) queries.push(Query.equal('severity', String(severity)));
+    const result = await listDocuments('inventory_alerts', queries);
+    res.json(result.documents);
   } catch (error) {
     console.error('Error fetching inventory alerts:', error);
     res.status(500).json({ error: 'Failed to fetch alerts' });
@@ -230,9 +186,24 @@ export const reorderInventory: RequestHandler = async (req, res) => {
       createdAt: new Date()
     };
     
-    // TODO: حفظ في database وإشعار المورد
-    
-    res.status(201).json(reorder);
+    // حفظ في Appwrite database وإشعار المورد
+    try {
+      const { createDocument } = require('../lib/appwrite');
+      const created = await createDocument('reorders', {
+        productId,
+        quantity,
+        supplierId,
+        status: 'pending',
+        estimatedArrival: reorder.estimatedArrival.toISOString(),
+        createdAt: new Date().toISOString()
+      });
+      // إشعار المورد (اختياري)
+      // TODO: send notification to supplier if needed
+      res.status(201).json(created);
+    } catch (dbError) {
+      console.error('Error saving reorder to DB:', dbError);
+      res.status(500).json({ error: 'Failed to save reorder to database' });
+    }
   } catch (error) {
     console.error('Error creating reorder:', error);
     res.status(500).json({ error: 'Failed to create reorder' });
@@ -279,21 +250,18 @@ export const universalSearch: RequestHandler = async (req, res) => {
     
     const query = String(q).toLowerCase();
     
-    // TODO: بحث في database
-    const results = {
-      products: type === 'all' || type === 'products' ? [
-        { id: '1', name: 'قميص قطن', price: 50, image: '/product1.jpg' },
-        { id: '2', name: 'قميص حرير', price: 120, image: '/product2.jpg' }
-      ] : [],
-      orders: type === 'all' || type === 'orders' ? [
-        { id: 'order-123', date: new Date(), total: 250, status: 'delivered' }
-      ] : [],
-      pages: type === 'all' || type === 'pages' ? [
-        { title: 'سياسة الإرجاع', url: '/return-policy' },
-        { title: 'اتصل بنا', url: '/contact' }
-      ] : []
-    };
-    
+    // بحث في Appwrite database
+    const { searchDocuments } = require('../lib/appwrite');
+    const results: any = {};
+    if (type === 'all' || type === 'products') {
+      results.products = (await searchDocuments('products', 'name', query)).documents;
+    }
+    if (type === 'all' || type === 'orders') {
+      results.orders = (await searchDocuments('orders', 'id', query)).documents;
+    }
+    if (type === 'all' || type === 'pages') {
+      results.pages = (await searchDocuments('pages', 'title', query)).documents;
+    }
     res.json(results);
   } catch (error) {
     console.error('Error searching:', error);
@@ -310,15 +278,13 @@ export const getSearchSuggestions: RequestHandler = async (req, res) => {
       return res.json([]);
     }
     
-    // TODO: جلب من database بناءً على popularity
-    const suggestions = [
-      'قميص قطن',
-      'قميص رسمي',
-      'قميص كاجوال',
-      'قميص أبيض',
-      'قميص أسود'
-    ];
-    
+    // جلب من Appwrite database بناءً على popularity
+    const { listDocuments, Query } = require('../lib/appwrite');
+    const result = await listDocuments('products', [
+      Query.orderDesc('popularity'),
+      Query.limit(5)
+    ]);
+    const suggestions = result.documents.map((doc: any) => doc.name);
     res.json(suggestions);
   } catch (error) {
     console.error('Error getting suggestions:', error);
@@ -375,16 +341,22 @@ export const calculateLoyaltyPoints: RequestHandler = async (req, res) => {
     
     // 1 point per 10 EGP
     const pointsEarned = Math.floor(orderValue / 10);
-    
-    // TODO: جلب النقاط الحالية من database
-    const currentPoints = 850;
+    // جلب النقاط الحالية من Appwrite database
+    let currentPoints = 0;
+    try {
+      const { listDocuments, Query } = require('../lib/appwrite');
+      const result = await listDocuments('loyalty_points', [Query.equal('userId', userId), Query.limit(1)]);
+      if (result.documents.length > 0) {
+        currentPoints = result.documents[0].points || 0;
+      }
+    } catch (e) {
+      console.error('Error fetching loyalty points from DB:', e);
+    }
     const newTotal = currentPoints + pointsEarned;
-    
     // Determine tier
     let tier = 'silver';
     if (newTotal >= 5000) tier = 'platinum';
     else if (newTotal >= 1000) tier = 'gold';
-    
     res.json({
       userId,
       pointsEarned,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { TableSkeleton } from '@/components/LoadingSkeletons';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { Users, UserPlus, Edit, Trash2, Search, Filter } from 'lucide-react';
 import { databases, account } from '@/lib/appwrite';
@@ -391,7 +392,7 @@ export default function AdminUserManagement() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-center py-8">جاري التحميل...</div>
+              <TableSkeleton rows={8} cols={7} />
             ) : filteredUsers.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 لا توجد نتائج

@@ -33,6 +33,7 @@ import {
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { ProductFilters } from "@shared/prisma-types";
 import { getImageUrl } from "@/lib/storage";
+import { ProductGridSkeleton } from "@/components/LoadingSkeletons";
 
 type SortOption = "featured" | "price_asc" | "price_desc" | "rating" | "newest";
 
@@ -249,8 +250,8 @@ export default function Products() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="container mx-auto px-4 py-8">
+        <ProductGridSkeleton count={limit} />
       </div>
     );
   }

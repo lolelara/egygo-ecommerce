@@ -1,3 +1,4 @@
+// ...existing code...
 import { useState, useEffect } from "react";
 import {
   Card,
@@ -33,8 +34,9 @@ import {
   Boxes,
   Bell,
   Zap,
-  Loader2,
+  Loader2
 } from "lucide-react";
+import { DashboardStatsSkeleton } from "@/components/LoadingSkeletons";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { Link } from "react-router-dom";
@@ -122,8 +124,8 @@ export default function EnhancedAdminDashboard() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center min-h-[400px]">
-            <Loader2 className="h-8 w-8 animate-spin" />
+          <div className="py-8">
+            <DashboardStatsSkeleton count={4} />
           </div>
         ) : stats ? (
           <>

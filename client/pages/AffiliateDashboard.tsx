@@ -14,9 +14,9 @@ import {
   Target,
   BarChart3,
   LinkIcon,
-  Share2,
-  Loader2,
+  Share2
 } from "lucide-react";
+import { DashboardStatsSkeleton } from "@/components/LoadingSkeletons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -116,8 +116,8 @@ export default function AffiliateDashboard() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
       {loading ? (
-        <div className="flex justify-center items-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="py-8">
+          <DashboardStatsSkeleton count={4} />
         </div>
       ) : stats ? (
         <>

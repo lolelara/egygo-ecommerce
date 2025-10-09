@@ -38,7 +38,7 @@ export const getProducts: RequestHandler = async (req, res) => {
     }
 
     if (inStock !== undefined) {
-      where.inStock = inStock === "true";
+      where.inStock = String(inStock) === "true";
     }
 
     if (searchQuery) {
@@ -186,7 +186,7 @@ export const getProductsByCategory: RequestHandler = async (req, res) => {
     }
 
     if (inStock !== undefined) {
-      where.inStock = inStock === "true";
+      where.inStock = String(inStock) === "true";
     }
 
     if (searchQuery) {
