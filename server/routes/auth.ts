@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
 import { prisma } from "@shared/db";
 import { User } from "@shared/api";
+import { loginRateLimit, registrationRateLimit, passwordResetRateLimit, trackViolation } from "../lib/rateLimiter";
+import { loggers } from "../lib/logger";
 
 // Simple auth system - in production use proper JWT, bcrypt, etc.
 export const login: RequestHandler = async (req, res) => {

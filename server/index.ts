@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import { requestLogger, loggers } from "./lib/logger";
+import { loginRateLimit, registrationRateLimit, passwordResetRateLimit } from "./lib/rateLimiter";
 import { handleDemo } from "./routes/demo";
 import { handleChatCompletion } from "./routes/chat";
 import {
@@ -121,6 +123,9 @@ export function createServer() {
   app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  
+  // Logging middleware
+  app.use(requestLogger);
 
   // Example API routes
   app.get("/api/ping", (_req, res) => {
@@ -143,10 +148,10 @@ export function createServer() {
   app.get("/api/categories/:slug", getCategoryBySlug);
   app.post("/api/categories/update-counts", updateCategoryProductCount);
 
-  // Auth API
-  app.post("/api/auth/login", login);
-  app.post("/api/auth/register", register);
-  app.post("/api/auth/forgot-password", forgotPassword);
+  // Auth API with rate limiting
+  app.post("/api/auth/login", loginRateLimit, login);
+  app.post("/api/auth/register", registrationRateLimit, register);
+  app.post("/api/auth/forgot-password", passwordResetRateLimit, forgotPassword);
   app.get("/api/auth/me", getCurrentUser);
 
   // Admin API

@@ -9,13 +9,13 @@ export const appwriteConfig = {
   
   // Collection IDs (will be created in Appwrite dashboard)
   collections: {
-    users: 'users',
-    products: 'products',
-    categories: 'categories',
-    orders: 'orders',
-    orderItems: 'order-items',
-    reviews: 'reviews',
-    affiliates: 'affiliates'
+    users: import.meta.env.VITE_APPWRITE_USERS_COLLECTION || 'users',
+    products: import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION || 'products',
+    categories: import.meta.env.VITE_APPWRITE_CATEGORIES_COLLECTION || 'categories',
+    orders: import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION || 'orders',
+    orderItems: import.meta.env.VITE_APPWRITE_ORDER_ITEMS_COLLECTION || 'order_items',
+    reviews: import.meta.env.VITE_APPWRITE_REVIEWS_COLLECTION || 'reviews',
+    affiliates: import.meta.env.VITE_APPWRITE_AFFILIATES_COLLECTION || 'affiliates'
   }
 };
 

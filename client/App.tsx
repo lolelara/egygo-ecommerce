@@ -67,12 +67,19 @@ import AdminSettingsPage from "./pages/AdminSettingsPage";
 import SettingsPage from "./pages/SettingsPage";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import AdminProductsAdvanced from "./pages/AdminProductsAdvanced";
+import AdminCoupons from "./pages/AdminCoupons";
+import AdminShipping from "./pages/AdminShipping";
+import AdminAdvancedSettings from "./pages/AdminAdvancedSettings";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AIAssistant } from "./components/AIAssistant";
 import { HelmetProvider } from 'react-helmet-async';
+import { initPerformanceOptimizations } from './lib/performance';
 
 const queryClient = new QueryClient();
+
+// Initialize performance optimizations
+initPerformanceOptimizations();
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   // Auto-sync worker disabled - attributes removed (autoSyncEnabled, sourceUrl, etc.)
@@ -155,6 +162,9 @@ const App = () => (
               <Route path="/admin/affiliates" element={<AdminUsers />} />
               <Route path="/admin/commissions" element={<AdminCommissions />} />
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
+              <Route path="/admin/coupons" element={<AdminCoupons />} />
+              <Route path="/admin/shipping" element={<AdminShipping />} />
+              <Route path="/admin/advanced-settings" element={<AdminAdvancedSettings />} />
               <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
               <Route path="/intermediary/dashboard" element={<IntermediaryDashboard />} />
               <Route path="/intermediary/import" element={<VendoorImport />} />
