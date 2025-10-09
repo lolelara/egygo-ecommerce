@@ -24,7 +24,7 @@ import {
   Dialog, DialogContent, DialogDescription,
   DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { notificationsApi, type NotificationTemplate } from "@/lib/notifications-api";
+import { notificationsApi, type NotificationTemplate, type Notification as ApiNotification } from "@/lib/notifications-api";
 
 interface Notification {
   id: string;
@@ -34,32 +34,18 @@ interface Notification {
   targetAudience: 'all' | 'customers' | 'affiliates' | 'merchants' | 'specific';
   specificUsers?: string[];
   channels: ('inApp' | 'email' | 'sms' | 'push')[];
-  status: 'draft' | 'sent' | 'scheduled';
+  status: 'draft' | 'sent' | 'scheduled' | 'failed';
   sentAt?: string;
   readCount: number;
   totalRecipients: number;
   createdAt: string;
+  clickCount?: number;
 }
 
 export default function AdminNotifications() {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: '1',
-      title: 'عرض خاص لنهاية الأسبوع',
-      message: 'خصم 20% على جميع المنتجات',
-      type: 'promotion',
-      targetAudience: 'all',
-      channels: ['inApp', 'email'],
-      status: 'sent',
-      sentAt: new Date().toISOString(),
-      readCount: 450,
-      totalRecipients: 1200,
-      createdAt: new Date().toISOString()
-    }
-  ]);
-
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const [scheduledNotifications, setScheduledNotifications] = useState<any[]>([]);
   const [title, setTitle] = useState('');
@@ -72,10 +58,110 @@ export default function AdminNotifications() {
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
 
+  // Stats
+  const [stats, setStats] = useState({
+    totalNotifications: 0,
+    readRate: 0,
+    activeUsersToday: 0,
+    engagementRate: 0,
+    monthlyGrowth: 0
+  });
+
   useEffect(() => {
-    loadTemplates();
-    loadScheduledNotifications();
+    loadAllData();
   }, []);
+
+  const loadAllData = async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        loadNotifications(),
+        loadTemplates(),
+        loadScheduledNotifications()
+      ]);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadNotifications = async () => {
+    try {
+      const notificationsData = await notificationsApi.getAllNotifications();
+      
+      // Convert API format to local format
+      const converted: Notification[] = notificationsData.map((n: ApiNotification) => ({
+        id: n.$id,
+        title: n.title,
+        message: n.message,
+        type: n.type,
+        targetAudience: n.targetAudience,
+        specificUsers: n.specificUsers,
+        channels: n.channels,
+        status: n.status,
+        sentAt: n.sentAt,
+        readCount: n.readCount,
+        totalRecipients: n.totalRecipients,
+        createdAt: n.$createdAt,
+        clickCount: n.clickCount
+      }));
+      
+      setNotifications(converted);
+      calculateStats(converted);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      setNotifications([]);
+      setStats({
+        totalNotifications: 0,
+        readRate: 0,
+        activeUsersToday: 0,
+        engagementRate: 0,
+        monthlyGrowth: 0
+      });
+    }
+  };
+
+  const calculateStats = (notifs: Notification[]) => {
+    const total = notifs.length;
+    const totalRecipients = notifs.reduce((sum, n) => sum + n.totalRecipients, 0);
+    const totalReads = notifs.reduce((sum, n) => sum + n.readCount, 0);
+    const readRate = totalRecipients > 0 ? (totalReads / totalRecipients) * 100 : 0;
+
+    // Calculate monthly growth
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+    
+    const thisMonthNotifs = notifs.filter(n => {
+      const date = new Date(n.createdAt);
+      return date.getMonth() === thisMonth && date.getFullYear() === now.getFullYear();
+    }).length;
+
+    const lastMonthNotifs = notifs.filter(n => {
+      const date = new Date(n.createdAt);
+      const year = thisMonth === 0 ? now.getFullYear() - 1 : now.getFullYear();
+      return date.getMonth() === lastMonth && date.getFullYear() === year;
+    }).length;
+
+    const monthlyGrowth = lastMonthNotifs > 0 
+      ? ((thisMonthNotifs - lastMonthNotifs) / lastMonthNotifs) * 100 
+      : thisMonthNotifs > 0 ? 100 : 0;
+
+    // Calculate engagement rate (read + click)
+    const totalClicks = notifs.reduce((sum, n) => (n as any).clickCount || 0, 0);
+    const engagementRate = totalRecipients > 0 
+      ? ((totalReads + totalClicks) / totalRecipients) * 100 
+      : 0;
+
+    setStats({
+      totalNotifications: total,
+      readRate: Math.round(readRate * 10) / 10,
+      activeUsersToday: totalRecipients, // Will be replaced with real active users count
+      engagementRate: Math.round(engagementRate * 10) / 10,
+      monthlyGrowth: Math.round(monthlyGrowth * 10) / 10
+    });
+  };
 
   const loadTemplates = async () => {
     try {
@@ -227,8 +313,10 @@ export default function AdminNotifications() {
               <Bell className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{notifications.length}</div>
-              <p className="text-xs text-muted-foreground">+12% من الشهر الماضي</p>
+              <div className="text-2xl font-bold">{stats.totalNotifications}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.monthlyGrowth > 0 ? '+' : ''}{stats.monthlyGrowth}% من الشهر الماضي
+              </p>
             </CardContent>
           </Card>
 
@@ -238,19 +326,19 @@ export default function AdminNotifications() {
               <Eye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">68%</div>
+              <div className="text-2xl font-bold">{stats.readRate}%</div>
               <p className="text-xs text-muted-foreground">من إجمالي المرسل</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">نشط اليوم</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">إجمالي المستلمين</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">مستخدم نشط</p>
+              <div className="text-2xl font-bold">{stats.activeUsersToday.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">مستخدم</p>
             </CardContent>
           </Card>
 
@@ -260,8 +348,8 @@ export default function AdminNotifications() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">45%</div>
-              <p className="text-xs text-muted-foreground">+5% من الأسبوع الماضي</p>
+              <div className="text-2xl font-bold">{stats.engagementRate}%</div>
+              <p className="text-xs text-muted-foreground">قراءة + نقر</p>
             </CardContent>
           </Card>
         </div>

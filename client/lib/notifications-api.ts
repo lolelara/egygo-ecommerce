@@ -49,6 +49,27 @@ export interface NotificationTemplate {
 }
 
 /**
+ * Get all notifications (Admin only)
+ */
+export async function getAllNotifications(limit: number = 100): Promise<Notification[]> {
+  try {
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      NOTIFICATIONS_COLLECTION_ID,
+      [
+        Query.orderDesc('$createdAt'),
+        Query.limit(limit)
+      ]
+    );
+
+    return response.documents as any;
+  } catch (error) {
+    console.error('Error fetching all notifications:', error);
+    return [];
+  }
+}
+
+/**
  * Get user notifications
  */
 export async function getUserNotifications(limit: number = 50): Promise<Notification[]> {
@@ -725,6 +746,7 @@ export const notificationsApi = {
   deleteNotification,
   
   // Admin functions
+  getAllNotifications,
   createNotification,
   broadcastNotification,
   

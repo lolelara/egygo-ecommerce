@@ -263,27 +263,45 @@ export default function AdminUsers() {
           <TabsContent value="users" className="space-y-4">
             {/* Info Message */}
             {users.length === 0 && !loading && (
-              <Card className="border-blue-200 bg-blue-50">
+              <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950">
                 <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Users className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <h3 className="font-semibold text-blue-900 mb-1">
-                        لا يوجد مستخدمين حالياً
-                      </h3>
-                      <p className="text-sm text-blue-700">
-                        المستخدمين سيظهرون هنا تلقائياً عند تسجيل حسابات جديدة.
-                        يمكنك أيضاً إدارة المستخدمين من{" "}
-                        <a
-                          href="https://cloud.appwrite.io/console"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline font-medium"
-                        >
-                          Appwrite Console
-                        </a>
-                      </p>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <Users className="h-5 w-5 text-amber-600 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                          ⚠️ لا يمكن عرض بيانات المستخدمين
+                        </h3>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
+                          لعرض المستخدمين الحقيقيين، يجب إنشاء collection في Appwrite Database:
+                        </p>
+                      </div>
                     </div>
+                    
+                    <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-amber-200">
+                      <h4 className="font-semibold mb-2">خطوات الإعداد:</h4>
+                      <ol className="text-sm space-y-2 list-decimal list-inside">
+                        <li>افتح <a href="https://cloud.appwrite.io/console" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Appwrite Console</a></li>
+                        <li>اذهب إلى Database → أنشئ collection اسمه <code className="bg-gray-100 px-2 py-1 rounded">users</code></li>
+                        <li>أضف Attributes التالية:
+                          <ul className="mt-1 mr-6 space-y-1 list-disc list-inside text-xs">
+                            <li><code>email</code> (string, required)</li>
+                            <li><code>name</code> (string)</li>
+                            <li><code>avatar</code> (string)</li>
+                            <li><code>role</code> (string, default: "USER")</li>
+                            <li><code>isActive</code> (boolean, default: true)</li>
+                            <li><code>isAffiliate</code> (boolean)</li>
+                            <li><code>isMerchant</code> (boolean)</li>
+                          </ul>
+                        </li>
+                        <li>اضبط Permissions للقراءة والكتابة</li>
+                        <li>أضف مستخدمين للـ collection</li>
+                      </ol>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      💡 <strong>ملاحظة:</strong> يمكنك أيضاً استخدام Appwrite Functions لمزامنة Auth Users مع الـ collection تلقائياً.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -383,7 +401,50 @@ export default function AdminUsers() {
           </TabsContent>
 
           <TabsContent value="affiliates" className="space-y-4">
+            {/* Info Message */}
+            {affiliates.length === 0 && !loading && (
+              <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950">
+                <CardContent className="pt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <UserCheck className="h-5 w-5 text-amber-600 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                          ⚠️ لا يوجد شركاء تسويق حالياً
+                        </h3>
+                        <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
+                          لعرض المسوقين بالعمولة، تأكد من:
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-amber-200">
+                      <ul className="text-sm space-y-2 list-disc list-inside">
+                        <li>وجود collection <code className="bg-gray-100 px-2 py-1 rounded">users</code> في قاعدة البيانات</li>
+                        <li>وجود attribute <code className="bg-gray-100 px-2 py-1 rounded">isAffiliate</code> (boolean)</li>
+                        <li>تعيين <code className="bg-gray-100 px-2 py-1 rounded">isAffiliate = true</code> للمستخدمين المسوقين</li>
+                        <li>إضافة attributes للعمولات:
+                          <ul className="mt-1 mr-6 space-y-1 list-circle list-inside text-xs">
+                            <li><code>affiliateCode</code> (string)</li>
+                            <li><code>commissionRate</code> (number, مثال: 15)</li>
+                            <li><code>totalEarnings</code> (number)</li>
+                            <li><code>pendingEarnings</code> (number)</li>
+                            <li><code>referralCount</code> (number)</li>
+                          </ul>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground">
+                      💡 <strong>نصيحة:</strong> يمكن للمستخدمين التسجيل كمسوقين من صفحة <code>/affiliate</code>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             {/* Affiliates Search */}
+            {affiliates.length > 0 && (
             <div className="flex gap-4">
               <div className="flex-1">
                 <div className="relative">
@@ -397,8 +458,10 @@ export default function AdminUsers() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Affiliates Table */}
+            {affiliates.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>الشركاء ({filteredAffiliates.length})</CardTitle>
@@ -472,6 +535,7 @@ export default function AdminUsers() {
                 </Table>
               </CardContent>
             </Card>
+            )}
           </TabsContent>
         </Tabs>
           </>

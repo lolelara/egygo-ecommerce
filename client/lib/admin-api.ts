@@ -562,62 +562,25 @@ export const adminUsersApi = {
             updatedAt: doc.$updatedAt,
           }));
         }
-      } catch (collectionError) {
-        console.log("Users collection not found or error:", collectionError);
+      } catch (collectionError: any) {
+        console.log("Users collection error:", collectionError);
+        
+        // Try to get users from Appwrite Auth using Teams API
+        try {
+          // This requires proper server-side API setup
+          // For now, we'll try alternative methods
+          console.log("Attempting to fetch users via alternative method...");
+        } catch (authError) {
+          console.error("Auth API error:", authError);
+        }
       }
       
-      // If no users collection, return mock data for testing
-      console.log("Returning mock users data for testing...");
-      return [
-        {
-          id: "user1",
-          email: "admin@egygo.com",
-          name: "مدير النظام",
-          avatar: "",
-          role: "ADMIN",
-          isActive: true,
-          isAffiliate: false,
-          isMerchant: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: "user2",
-          email: "affiliate@egygo.com",
-          name: "شريك تسويق",
-          avatar: "",
-          role: "USER",
-          isActive: true,
-          isAffiliate: true,
-          isMerchant: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: "user3",
-          email: "merchant@egygo.com",
-          name: "تاجر",
-          avatar: "",
-          role: "USER",
-          isActive: true,
-          isAffiliate: false,
-          isMerchant: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: "user4",
-          email: "customer@egygo.com",
-          name: "عميل عادي",
-          avatar: "",
-          role: "USER",
-          isActive: true,
-          isAffiliate: false,
-          isMerchant: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ];
+      // If absolutely no users found, return empty array instead of mock data
+      console.warn("⚠️ No users collection found. Please create 'users' collection in Appwrite.");
+      console.warn("📝 Collection should have attributes: email, name, avatar, role, isActive, isAffiliate, isMerchant");
+      
+      // Return empty array - no mock data
+      return [];
     } catch (error: any) {
       console.error("Error fetching users:", error);
       // Return empty array on error
@@ -662,52 +625,12 @@ export const adminUsersApi = {
         console.log("Error fetching affiliates from collection:", error);
       }
       
-      // Return mock data for testing
-      console.log("Returning mock affiliates data for testing...");
-      return [
-        {
-          id: "aff1",
-          email: "affiliate1@egygo.com",
-          name: "أحمد محمد",
-          affiliateCode: "AFF001",
-          commissionRate: 20,
-          totalEarnings: 5000,
-          pendingEarnings: 1200,
-          referralCount: 45,
-          joinedAt: new Date().toISOString(),
-          user: {
-            id: "aff1",
-            email: "affiliate1@egygo.com",
-            name: "أحمد محمد",
-            avatar: "",
-            role: "USER",
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        },
-        {
-          id: "aff2",
-          email: "affiliate2@egygo.com",
-          name: "فاطمة علي",
-          affiliateCode: "AFF002",
-          commissionRate: 15,
-          totalEarnings: 3200,
-          pendingEarnings: 800,
-          referralCount: 28,
-          joinedAt: new Date().toISOString(),
-          user: {
-            id: "aff2",
-            email: "affiliate2@egygo.com",
-            name: "فاطمة علي",
-            avatar: "",
-            role: "USER",
-            isActive: true,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-        },
-      ];
+      // If no affiliates found, return empty array
+      console.warn("⚠️ No affiliates found in users collection.");
+      console.warn("📝 Make sure users with isAffiliate=true exist in the database.");
+      
+      // Return empty array - no mock data
+      return [];
     } catch (error) {
       console.error("Error fetching affiliates:", error);
       return [];
