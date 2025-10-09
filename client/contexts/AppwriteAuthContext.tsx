@@ -6,12 +6,17 @@ interface User {
   name: string;
   email: string;
   phone?: string;
+  alternativePhone?: string;
   address?: string;
   role?: 'admin' | 'merchant' | 'affiliate' | 'customer';
   isAffiliate?: boolean;
   isMerchant?: boolean;
   affiliateCode?: string;
   commissionRate?: number;
+  accountStatus?: 'pending' | 'approved' | 'rejected';
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectionReason?: string;
 }
 
 interface AuthContextType {
@@ -20,7 +25,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithFacebook: () => Promise<void>;
-  register: (email: string, password: string, name: string, accountType?: 'customer' | 'affiliate' | 'merchant' | 'intermediary', phone?: string) => Promise<void>;
+  register: (email: string, password: string, name: string, accountType?: 'customer' | 'affiliate' | 'merchant' | 'intermediary', phone?: string, alternativePhone?: string) => Promise<{ $id: string; email: string; name: string } | undefined>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
 }
@@ -273,6 +278,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       await checkAuthUser();
+      
+      // Return user info for notification creation
+      return {
+        $id: currentUser.$id,
+        email: currentUser.email,
+        name: currentUser.name
+      };
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
