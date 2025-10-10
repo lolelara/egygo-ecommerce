@@ -1,31 +1,80 @@
-# EgyGo Robots.txt
-# https://egygo.com
+# EgyGo# Robots.txt for EgyGo E-commerce
+# https://egygo.me
+# Last Updated: 2024-01-10
 
-# Allow all crawlers
+# ========================================
+# GENERAL CRAWLERS
+# ========================================
+
+# Allow all crawlers by default
 User-agent: *
 Allow: /
-
-# Disallow admin and private areas
 Disallow: /admin/
-Disallow: /api/
-Disallow: /merchant/dashboard/
-Disallow: /affiliate/dashboard/
+Disallow: /api/private/
+Disallow: /api/auth/
+Disallow: /api/admin/
 Disallow: /checkout/
 Disallow: /account/
-Disallow: /orders/
+Disallow: /cart
+Disallow: /wishlist
+Disallow: /tmp/
+Disallow: /config/
+Disallow: /search?
+Disallow: /*.json$
+Disallow: /*?sort=
+Disallow: /*?filter=
+Disallow: /*?page=
+Disallow: /*?ref=
+Disallow: /*?utm_*/
+Disallow: /affiliate/dashboard
+Disallow: /merchant/dashboard
+Crawl-delay: 1
 
-# Allow specific bots full access
+# Allow important API endpoints
+Allow: /api/products
+Allow: /api/categories
+Allow: /api/reviews
+
+# ========================================
+# MAJOR SEARCH ENGINES
+# ====================================
+
+# Google
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /cart
+Crawl-delay: 0
 
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /products/
+Disallow: /admin/
+
+# Bing
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/
+Disallow: /checkout/
+Crawl-delay: 1
 
-User-agent: Slurp
+# Yandex
+User-agent: Yandex
 Allow: /
+Disallow: /admin/
+Crawl-delay: 2
 
+# Baidu
+User-agent: Baiduspider
+Allow: /
+Disallow: /admin/
+Crawl-delay: 2
+
+# DuckDuckGo
 User-agent: DuckDuckBot
 Allow: /
+Crawl-delay: 1
 
 # Block bad bots
 User-agent: AhrefsBot
