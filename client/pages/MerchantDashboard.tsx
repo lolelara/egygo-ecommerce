@@ -37,6 +37,7 @@ import {
   type MerchantProduct,
   type MerchantOrder
 } from "@/lib/merchant-api";
+import InventoryManager from "@/components/merchant/InventoryManager";
 
 export default function MerchantDashboard() {
   const { user } = useAuth();
@@ -228,6 +229,9 @@ export default function MerchantDashboard() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Inventory Management Section */}
+        <InventoryManager />
 
         {/* Products Performance */}
         <Card>
