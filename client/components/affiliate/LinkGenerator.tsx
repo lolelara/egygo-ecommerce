@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Download, QrCode, Link as LinkIcon, Check, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import QRCode from 'qrcode';
 import { toast } from 'sonner';
+import { affiliateLinksAPI } from '@/lib/affiliate-links-api';
 
 interface LinkGeneratorProps {
   productId?: string;
@@ -22,10 +23,29 @@ export default function LinkGenerator({ productId, productName }: LinkGeneratorP
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [linkType, setLinkType] = useState<'product' | 'general'>('general');
+  const [linkStats, setLinkStats] = useState({ clicks: 0, conversions: 0, conversionRate: 0 });
+  const [savedLinkId, setSavedLinkId] = useState<string | null>(null);
 
-  // Generate affiliate link
+  // Load link stats if we have a saved link
+  useEffect(() => {
+    if (savedLinkId) {
+      loadLinkStats(savedLinkId);
+    }
+  }, [savedLinkId]);
+
+  // Load link statistics
+  const loadLinkStats = async (linkId: string) => {
+    try {
+      const stats = await affiliateLinksAPI.getLinkStats(linkId);
+      setLinkStats(stats);
+    } catch (error) {
+      console.error('Error loading link stats:', error);
+    }
+  };
+
+  // Generate affiliate link and save to database
   const generateLink = async () => {
-    if (!user?.affiliateCode) {
+    if (!user?.affiliateCode || !user?.$id) {
       toast.error('كود المسوق غير متوفر');
       return;
     }
@@ -37,9 +57,30 @@ export default function LinkGenerator({ productId, productName }: LinkGeneratorP
       baseUrl = `${window.location.origin}/product/${productId}`;
     }
 
+    // Generate unique link code
+    const linkCode = generateLinkCode();
+    
     // Add affiliate code as query parameter
-    const affiliateLink = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}ref=${user.affiliateCode}`;
+    const affiliateLink = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}ref=${linkCode}`;
     setGeneratedLink(affiliateLink);
+
+    // Save link to database
+    try {
+      const savedLink = await affiliateLinksAPI.createLink(
+        user.$id,
+        linkCode,
+        affiliateLink,
+        productId
+      );
+
+      if (savedLink) {
+        setSavedLinkId(savedLink.$id);
+        toast.success('تم إنشاء الرابط وحفظه بنجاح!');
+      }
+    } catch (error) {
+      console.error('Error saving link:', error);
+      toast.warning('تم إنشاء الرابط ولكن فشل الحفظ');
+    }
 
     // Generate QR Code
     try {
@@ -52,11 +93,20 @@ export default function LinkGenerator({ productId, productName }: LinkGeneratorP
         }
       });
       setQrCodeUrl(qrUrl);
-      toast.success('تم إنشاء الرابط بنجاح!');
     } catch (error) {
       console.error('Error generating QR code:', error);
       toast.error('فشل إنشاء رمز QR');
     }
+  };
+
+  // Generate random link code
+  const generateLinkCode = (): string => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
   };
 
   // Copy link to clipboard
@@ -213,18 +263,18 @@ export default function LinkGenerator({ productId, productName }: LinkGeneratorP
               </div>
             )}
 
-            {/* Stats */}
+            {/* Stats - Real Data */}
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 bg-blue-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-blue-600">0</p>
+                <p className="text-2xl font-bold text-blue-600">{linkStats.clicks}</p>
                 <p className="text-xs text-blue-900">نقرات</p>
               </div>
               <div className="p-3 bg-green-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-green-600">0</p>
+                <p className="text-2xl font-bold text-green-600">{linkStats.conversions}</p>
                 <p className="text-xs text-green-900">تحويلات</p>
               </div>
               <div className="p-3 bg-purple-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-purple-600">0%</p>
+                <p className="text-2xl font-bold text-purple-600">{linkStats.conversionRate.toFixed(1)}%</p>
                 <p className="text-xs text-purple-900">معدل التحويل</p>
               </div>
             </div>

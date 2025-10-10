@@ -11,7 +11,8 @@ import {
   Edit,
   Trash2,
   Eye,
-  BarChart3
+  BarChart3,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,7 +44,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { filterMerchantProducts } from '@/lib/permissions';
+import { inventoryAPI } from '@/lib/inventory-api';
 
 interface Product {
   id: string;
@@ -65,72 +66,60 @@ export default function InventoryManager() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    total: 0,
+    inStock: 0,
+    lowStock: 0,
+    outOfStock: 0,
+    totalValue: 0
+  });
 
-  // Sample data - replace with actual API call
+  // Load real data from Appwrite
   useEffect(() => {
-    const sampleProducts: Product[] = [
-      {
-        id: '1',
-        name: 'ساعة ذكية Pro',
-        sku: 'SW-001',
-        stock: 45,
-        price: 299,
-        category: 'إلكترونيات',
-        status: 'in_stock',
-        lastUpdated: '2024-01-15',
-        merchantId: user?.$id || ''
-      },
-      {
-        id: '2',
-        name: 'سماعات لاسلكية',
-        sku: 'HP-002',
-        stock: 8,
-        price: 149,
-        category: 'إلكترونيات',
-        status: 'low_stock',
-        lastUpdated: '2024-01-14',
-        merchantId: user?.$id || ''
-      },
-      {
-        id: '3',
-        name: 'حقيبة جلدية',
-        sku: 'BG-003',
-        stock: 0,
-        price: 89,
-        category: 'أزياء',
-        status: 'out_of_stock',
-        lastUpdated: '2024-01-13',
-        merchantId: user?.$id || ''
-      },
-      {
-        id: '4',
-        name: 'كاميرا رقمية',
-        sku: 'CM-004',
-        stock: 23,
-        price: 599,
-        category: 'إلكترونيات',
-        status: 'in_stock',
-        lastUpdated: '2024-01-15',
-        merchantId: user?.$id || ''
-      },
-      {
-        id: '5',
-        name: 'حذاء رياضي',
-        sku: 'SH-005',
-        stock: 5,
-        price: 129,
-        category: 'رياضة',
-        status: 'low_stock',
-        lastUpdated: '2024-01-12',
-        merchantId: user?.$id || ''
-      }
-    ];
-
-    // Filter products by merchant ID (security)
-    const merchantProducts = filterMerchantProducts(sampleProducts, user?.$id || '');
-    setProducts(merchantProducts);
-    setFilteredProducts(merchantProducts);
+    loadInventoryData();
   }, [user]);
+
+  const loadInventoryData = async () => {
+    if (!user?.$id) return;
+    
+    setLoading(true);
+    try {
+      // Load products
+      const merchantProducts = await inventoryAPI.getMerchantProducts(user.$id);
+      setProducts(merchantProducts.map(p => ({
+        id: p.$id,
+        name: p.name,
+        sku: p.sku,
+        stock: p.stock,
+        price: p.price,
+        category: p.category,
+        status: p.status,
+        lastUpdated: p.lastUpdated,
+        merchantId: p.merchantId
+      })));
+      setFilteredProducts(merchantProducts.map(p => ({
+        id: p.$id,
+        name: p.name,
+        sku: p.sku,
+        stock: p.stock,
+        price: p.price,
+        category: p.category,
+        status: p.status,
+        lastUpdated: p.lastUpdated,
+        merchantId: p.merchantId
+      })));
+
+      // Load stats
+      const inventoryStats = await inventoryAPI.getInventoryStats(user.$id);
+      setStats(inventoryStats);
+    } catch (error) {
+      console.error('Error loading inventory:', error);
+      toast.error('فشل تحميل المخزون');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter products
   useEffect(() => {
@@ -166,45 +155,55 @@ export default function InventoryManager() {
     }
   };
 
-  // Calculate stats
-  const stats = {
-    total: products.length,
-    inStock: products.filter(p => p.status === 'in_stock').length,
-    lowStock: products.filter(p => p.status === 'low_stock').length,
-    outOfStock: products.filter(p => p.status === 'out_of_stock').length,
-    totalValue: products.reduce((sum, p) => sum + (p.stock * p.price), 0)
-  };
-
   // Update stock
-  const updateStock = (productId: string, newStock: number) => {
-    setProducts(prev => prev.map(p => {
-      if (p.id === productId) {
-        let status: Product['status'] = 'in_stock';
-        if (newStock === 0) status = 'out_of_stock';
-        else if (newStock < 10) status = 'low_stock';
-        
-        return { ...p, stock: newStock, status, lastUpdated: new Date().toISOString().split('T')[0] };
+  const updateStock = async (productId: string, newStock: number) => {
+    try {
+      const success = await inventoryAPI.updateStock(productId, newStock);
+      
+      if (success) {
+        // Reload data to get updated stats
+        await loadInventoryData();
+        toast.success('تم تحديث المخزون بنجاح');
+      } else {
+        toast.error('فشل تحديث المخزون');
       }
-      return p;
-    }));
-    toast.success('تم تحديث المخزون بنجاح');
+    } catch (error) {
+      console.error('Error updating stock:', error);
+      toast.error('فشل تحديث المخزون');
+    }
   };
 
   // Export to CSV
   const exportToCSV = () => {
-    const csv = [
-      ['الاسم', 'SKU', 'المخزون', 'السعر', 'الفئة', 'الحالة'],
-      ...filteredProducts.map(p => [p.name, p.sku, p.stock, p.price, p.category, p.status])
-    ].map(row => row.join(',')).join('\n');
+    const csvData = inventoryAPI.exportToCSV(filteredProducts.map(p => ({
+      $id: p.id,
+      name: p.name,
+      sku: p.sku,
+      stock: p.stock,
+      price: p.price,
+      category: p.category,
+      status: p.status,
+      lastUpdated: p.lastUpdated,
+      merchantId: p.merchantId
+    })));
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `inventory-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+    window.URL.revokeObjectURL(url);
     toast.success('تم تصدير البيانات بنجاح');
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
