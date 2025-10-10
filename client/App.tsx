@@ -48,6 +48,7 @@ import EnhancedAffiliateDashboard from "./pages/EnhancedAffiliateDashboard";
 import Wishlist from "./pages/Wishlist";
 import OrderTracking from "./pages/OrderTracking";
 import Merchant from "./pages/Merchant";
+import EnhancedHomepage from "./pages/EnhancedHomepage";
 import ProductLanding from "./pages/ProductLanding";
 import AffiliateLinkManager from "./pages/AffiliateLinkManager";
 import AffiliateAnalytics from "./pages/AffiliateAnalytics";
@@ -120,6 +121,7 @@ const App = () => (
               <Layout>
                 <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/enhanced" element={<EnhancedHomepage />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/categories" element={<Categories />} />
