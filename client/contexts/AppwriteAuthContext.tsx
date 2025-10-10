@@ -239,15 +239,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         approvedAt: needsApproval ? null : new Date().toISOString(),
       };
       
-      // Generate affiliate code if needed
+      // Generate affiliate code if needed (max 10 chars)
       if (accountType === 'affiliate') {
-        preferences.affiliateCode = `AFF${Date.now().toString(36).toUpperCase()}`;
+        const randomPart = Math.random().toString(36).substring(2, 9).toUpperCase();
+        preferences.affiliateCode = `AF${randomPart}`.substring(0, 10);
         preferences.commissionRate = 0.15; // 15% default commission
       }
       
-      // Generate intermediary code if needed
+      // Generate intermediary code if needed (max 10 chars)
       if (accountType === 'intermediary') {
-        preferences.intermediaryCode = `INT${Date.now().toString(36).toUpperCase()}`;
+        const randomPart = Math.random().toString(36).substring(2, 9).toUpperCase();
+        preferences.intermediaryCode = `IN${randomPart}`.substring(0, 10);
         preferences.defaultMarkupPercentage = 0.20; // 20% default markup
       }
       
@@ -266,13 +268,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             name: name,
             phone: phone || '',
             alternativePhone: alternativePhone || '',
+            address: '',
             isAffiliate: accountType === 'affiliate',
             isMerchant: accountType === 'merchant',
             isIntermediary: accountType === 'intermediary',
             affiliateCode: preferences.affiliateCode || null,
-            commissionRate: preferences.commissionRate || null,
+            commissionRate: preferences.commissionRate || 0.15,
+            totalEarnings: 0,
+            pendingEarnings: 0,
+            referralCount: 0,
             accountStatus: accountStatus,
             approvedAt: preferences.approvedAt,
+            approvedBy: null,
+            rejectionReason: null,
             isActive: !needsApproval, // Only active if doesn't need approval
           }
         );
