@@ -7,12 +7,6 @@ import {
   GSAPScrollProgress,
   GSAPMagneticButton 
 } from '@/components/enhanced/GSAPAnimations';
-import { 
-  PageTransitionWrapper,
-  PagePreloader,
-  TransitionCursor,
-  useBarbaTransitions
-} from '@/components/enhanced/BarbaTransitions';
 import Three3DShowcase from '@/components/enhanced/Three3DShowcase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,12 +22,10 @@ import {
   CreditCard,
   HeadphonesIcon
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function EnhancedHomepage() {
   const [showPreloader, setShowPreloader] = useState(true);
-  
-  // Initialize Barba transitions
-  useBarbaTransitions();
 
   useEffect(() => {
     // Hide preloader after 2 seconds
@@ -150,13 +142,19 @@ export default function EnhancedHomepage() {
   ];
 
   if (showPreloader) {
-    return <PagePreloader />;
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-purple-600 to-pink-600">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-white mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold">EgyGo</h2>
+          <p className="text-sm opacity-80">جاري التحميل...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <PageTransitionWrapper namespace="home">
-      {/* Custom Cursor */}
-      <TransitionCursor />
+    <div className="enhanced-homepage">
       
       {/* Scroll Progress */}
       <GSAPScrollProgress />
@@ -363,6 +361,6 @@ export default function EnhancedHomepage() {
           </div>
         </section>
       </GSAPAnimation>
-    </PageTransitionWrapper>
+    </div>
   );
 }
