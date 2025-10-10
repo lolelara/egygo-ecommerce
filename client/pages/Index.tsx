@@ -13,6 +13,7 @@ import {
   Headphones,
   Truck,
   Clock4,
+  Sparkles,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,34 @@ import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/lib/storage";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
+import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
+import { useEffect } from "react";
 
 export default function Index() {
+  // Initialize GSAP animations
+  useEffect(() => {
+    // Lazy load GSAP for animations
+    import('gsap').then(({ gsap }) => {
+      gsap.from('.hero-content', {
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        ease: 'power3.out'
+      });
+      
+      gsap.from('.feature-card', {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        stagger: 0.2,
+        scrollTrigger: {
+          trigger: '.features-section',
+          start: 'top 80%'
+        }
+      });
+    });
+  }, []);
+
   // Fetch categories
   const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
     queryKey: queryKeys.categories,
@@ -64,7 +91,7 @@ export default function Index() {
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative container mx-auto px-4 py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
+            <div className="space-y-8 hero-content">
               <div className="space-y-4">
                 <Badge variant="secondary" className="text-primary bg-gradient-to-r from-white to-yellow-50 shadow-lg">
                   ✨ منتجات مميزة
@@ -101,6 +128,17 @@ export default function Index() {
                     انضم لبرنامج الشراكة
                   </Link>
                 </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-white/30 text-white hover:from-purple-500/30 hover:to-pink-500/30"
+                  asChild
+                >
+                  <Link to="/enhanced">
+                    <Sparkles className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
+                    تجربة محسّنة
+                  </Link>
+                </Button>
               </div>
 
               {/* Stats */}
@@ -121,6 +159,13 @@ export default function Index() {
             </div>
 
             <div className="relative">
+              {/* 3D Logo */}
+              <div className="mb-8 flex justify-center">
+                <div className="w-64 h-64 lg:w-80 lg:h-80">
+                  <EgyGoLogo3D />
+                </div>
+              </div>
+              
               <div className="grid grid-cols-2 gap-4 items-center">
                 <div className="space-y-4">
                   {featuredProducts.slice(0, 2).map((product, index) => (
@@ -170,6 +215,100 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Enhanced Features Section */}
+      <section className="container mx-auto px-4 features-section">
+        <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-3xl p-8 lg:p-12">
+          <div className="text-center mb-12 space-y-2">
+            <Badge variant="secondary" className="mb-4">
+              <Sparkles className="w-4 h-4 ml-1" />
+              تجربة محسّنة
+            </Badge>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+              مزايا متقدمة لتجربة تسوق استثنائية
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              استمتع بتقنيات حديثة وتأثيرات بصرية مذهلة
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="feature-card hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-purple-200 dark:border-purple-800">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <CardTitle className="text-xl">معارض صور احترافية</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  عرض المنتجات بتقنية Fancybox مع تكبير وتصفح سلس
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="feature-card hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-blue-200 dark:border-blue-800">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                  </svg>
+                </div>
+                <CardTitle className="text-xl">عرض ثلاثي الأبعاد</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  تفاعل مع المنتجات بتقنية Three.js ثلاثية الأبعاد
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="feature-card hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-green-200 dark:border-green-800">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <CardTitle className="text-xl">انتقالات سلسة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  تنقل بين الصفحات بتأثيرات Barba.js الاحترافية
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="feature-card hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-2 border-orange-200 dark:border-orange-800">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-4">
+                  <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                  </svg>
+                </div>
+                <CardTitle className="text-xl">سلايدرات متقدمة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  عرض المنتجات بتقنية Swiper.js مع تأثيرات مذهلة
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center mt-8">
+            <Button size="lg" asChild className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+              <Link to="/enhanced">
+                <Sparkles className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
+                جرب التجربة المحسنة الآن
+                <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Categories Section */}
       <section className="container mx-auto px-4">
         <div className="text-center mb-12 space-y-2">
@@ -185,7 +324,7 @@ export default function Index() {
           {categories.filter(cat => cat.slug).map((category) => (
             <Link
               key={category.id}
-              to={`/category/${category.slug}`}
+              to={`/products?category=${category.slug}`}
               className="group"
             >
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group-hover:scale-105">
