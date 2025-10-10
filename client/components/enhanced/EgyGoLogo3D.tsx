@@ -91,81 +91,85 @@ export default function EgyGoLogo3D({
     logoGroupRef.current = logoGroup;
     scene.add(logoGroup);
 
-    // Load font and create text
+    // Load font and create "EgyGo" text
     const fontLoader = new FontLoader();
     
-    // Create text using TextGeometry
-    // Since we can't load external fonts easily, we'll use 3D shapes to represent "EgyGo"
-    
-    // Create "E" letter
-    const eGeometry = new THREE.BoxGeometry(0.4, 1.2, 0.2);
-    const eMaterial = new THREE.MeshPhongMaterial({
-      color: colorScheme === 'gradient' ? 0x8b5cf6 : 
-             colorScheme === 'neon' ? 0x00ff00 : 0x3b82f6,
-      emissive: colorScheme === 'neon' ? 0x00ff00 : 0x000000,
-      emissiveIntensity: colorScheme === 'neon' ? 0.5 : 0,
-      shininess: 100,
-      specular: 0xffffff
-    });
-    const eMesh = new THREE.Mesh(eGeometry, eMaterial);
-    eMesh.position.set(-2.2, 0, 0);
-    logoGroup.add(eMesh);
+    // Use built-in font data (helvetiker)
+    fontLoader.load(
+      'https://threejs.org/examples/fonts/helvetiker_bold.typeface.json',
+      (font) => {
+        // Create "EgyGo" text
+        const textGeometry = new TextGeometry('EgyGo', {
+          font: font,
+          size: 0.8,
+          height: 0.3,
+          curveSegments: 12,
+          bevelEnabled: true,
+          bevelThickness: 0.05,
+          bevelSize: 0.02,
+          bevelOffset: 0
+        } as any);
 
-    // Create "g" letter
-    const gGeometry = new THREE.BoxGeometry(0.5, 1.2, 0.2);
-    const gMaterial = new THREE.MeshPhongMaterial({
-      color: colorScheme === 'gradient' ? 0xec4899 : 
-             colorScheme === 'neon' ? 0xff00ff : 0xef4444,
-      emissive: colorScheme === 'neon' ? 0xff00ff : 0x000000,
-      emissiveIntensity: colorScheme === 'neon' ? 0.5 : 0,
-      shininess: 100,
-      specular: 0xffffff
-    });
-    const gMesh = new THREE.Mesh(gGeometry, gMaterial);
-    gMesh.position.set(-1.5, 0, 0);
-    logoGroup.add(gMesh);
+        // Center the text
+        textGeometry.computeBoundingBox();
+        const centerOffset = -0.5 * (textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x);
+        textGeometry.translate(centerOffset, 0, 0);
 
-    // Create "y" letter
-    const yGeometry = new THREE.BoxGeometry(0.4, 1.2, 0.2);
-    const yMaterial = new THREE.MeshPhongMaterial({
-      color: colorScheme === 'gradient' ? 0x3b82f6 : 
-             colorScheme === 'neon' ? 0x00ffff : 0x10b981,
-      emissive: colorScheme === 'neon' ? 0x00ffff : 0x000000,
-      emissiveIntensity: colorScheme === 'neon' ? 0.5 : 0,
-      shininess: 100,
-      specular: 0xffffff
-    });
-    const yMesh = new THREE.Mesh(yGeometry, yMaterial);
-    yMesh.position.set(-0.8, 0, 0);
-    logoGroup.add(yMesh);
+        // Create gradient material
+        const textMaterial = new THREE.MeshPhongMaterial({
+          color: colorScheme === 'gradient' ? 0x8b5cf6 : 
+                 colorScheme === 'neon' ? 0x00ff00 : 0x3b82f6,
+          emissive: colorScheme === 'neon' ? 0x00ff00 : 0x8b5cf6,
+          emissiveIntensity: colorScheme === 'neon' ? 0.5 : 0.2,
+          shininess: 100,
+          specular: 0xffffff
+        });
 
-    // Create "G" letter (capital)
-    const GGeometry = new THREE.BoxGeometry(0.6, 1.4, 0.2);
-    const GMaterial = new THREE.MeshPhongMaterial({
-      color: colorScheme === 'gradient' ? 0xf59e0b : 
-             colorScheme === 'neon' ? 0xffff00 : 0xf59e0b,
-      emissive: colorScheme === 'neon' ? 0xffff00 : 0x000000,
-      emissiveIntensity: colorScheme === 'neon' ? 0.5 : 0,
-      shininess: 100,
-      specular: 0xffffff
-    });
-    const GMesh = new THREE.Mesh(GGeometry, GMaterial);
-    GMesh.position.set(0.2, 0, 0);
-    logoGroup.add(GMesh);
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        logoGroup.add(textMesh);
 
-    // Create "o" letter with torus (animated)
-    const oGeometry = new THREE.TorusGeometry(0.4, 0.15, 16, 100);
-    const oMaterial = new THREE.MeshPhongMaterial({
-      color: 0xffd700,
-      emissive: 0xffd700,
-      emissiveIntensity: 0.4,
-      shininess: 200,
-      specular: 0xffffff
-    });
-    const oMesh = new THREE.Mesh(oGeometry, oMaterial);
-    oMesh.position.set(1.2, 0, 0);
-    oMesh.rotation.x = Math.PI / 2;
-    logoGroup.add(oMesh);
+        // Add outline/glow effect
+        const outlineMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffd700,
+          side: THREE.BackSide
+        });
+        const outlineMesh = new THREE.Mesh(textGeometry, outlineMaterial);
+        outlineMesh.scale.multiplyScalar(1.05);
+        logoGroup.add(outlineMesh);
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading font:', error);
+        // Fallback: create simple shapes if font fails
+        createFallbackLogo();
+      }
+    );
+
+    // Fallback function if font loading fails
+    const createFallbackLogo = () => {
+      // Create simple 3D text representation
+      const shapes = [
+        { text: 'E', x: -2, color: 0x8b5cf6 },
+        { text: 'g', x: -1, color: 0xec4899 },
+        { text: 'y', x: 0, color: 0x3b82f6 },
+        { text: 'G', x: 1, color: 0xf59e0b },
+        { text: 'o', x: 2, color: 0xffd700 }
+      ];
+
+      shapes.forEach(({ text, x, color }) => {
+        const geometry = new THREE.BoxGeometry(0.6, 1.2, 0.3);
+        const material = new THREE.MeshPhongMaterial({
+          color: color,
+          emissive: color,
+          emissiveIntensity: 0.2,
+          shininess: 100,
+          specular: 0xffffff
+        });
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(x * 0.7, 0, 0);
+        logoGroup.add(mesh);
+      });
+    };
 
     // Speed lines for "o"
     const speedLinesGeometry = new THREE.BufferGeometry();
@@ -243,46 +247,34 @@ export default function EgyGoLogo3D({
       controls.autoRotateSpeed = 2;
     }
 
-    // Animations
-    const animateO = () => {
-      // Rotate "o" for speed effect
-      gsap.to(oMesh.rotation, {
-        z: Math.PI * 2,
+    // Animations for logo group
+    const animateLogo = () => {
+      // Rotate entire logo slowly
+      if (autoRotate && logoGroup) {
+        gsap.to(logoGroup.rotation, {
+          y: Math.PI * 2,
+          duration: 10,
+          repeat: -1,
+          ease: 'none'
+        });
+      }
+
+      // Pulse effect for logo
+      gsap.to(logoGroup.scale, {
+        x: 1.05,
+        y: 1.05,
+        z: 1.05,
         duration: 2,
-        repeat: -1,
-        ease: 'none'
-      });
-
-      // Pulse effect
-      gsap.to(oMesh.scale, {
-        x: 1.2,
-        y: 1.2,
-        z: 1.2,
-        duration: 1,
-        repeat: -1,
-        yoyo: true,
-        ease: 'power2.inOut'
-      });
-
-      // Animate speed lines
-      gsap.to(speedLines.rotation, {
-        z: -Math.PI * 2,
-        duration: 3,
-        repeat: -1,
-        ease: 'none'
-      });
-
-      // Glow effect animation
-      gsap.to(oMaterial, {
-        emissiveIntensity: 0.8,
-        duration: 1.5,
         repeat: -1,
         yoyo: true,
         ease: 'power2.inOut'
       });
     };
 
-    animateO();
+    // Start animation after a short delay to ensure text is loaded
+    setTimeout(() => {
+      animateLogo();
+    }, 500);
 
     // Hover effects
     const handleMouseMove = (event: MouseEvent) => {
