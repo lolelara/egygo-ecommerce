@@ -9,6 +9,7 @@ interface LazyImageProps {
   placeholder?: string;
   onLoad?: () => void;
   onError?: () => void;
+  onClick?: () => void;
   threshold?: number;
   rootMargin?: string;
   width?: number;
@@ -24,6 +25,7 @@ export function LazyImage({
   placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+',
   onLoad,
   onError,
+  onClick,
   threshold = 0.1,
   rootMargin = '50px',
   width,
@@ -126,6 +128,7 @@ export function LazyImage({
           alt={alt}
           onLoad={handleLoad}
           onError={handleError}
+          onClick={onClick}
           className={cn(
             'w-full h-full object-cover transition-opacity duration-300',
             isLoaded ? 'opacity-100' : 'opacity-0'

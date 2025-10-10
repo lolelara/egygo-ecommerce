@@ -4,9 +4,9 @@
 
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { OrbitControls } from 'three-stdlib';
+import { GLTFLoader } from 'three-stdlib';
+import { DRACOLoader } from 'three-stdlib';
 
 // ========================================
 // 1. BASIC 3D PRODUCT VIEWER

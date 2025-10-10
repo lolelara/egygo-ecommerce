@@ -8,6 +8,22 @@ import helmet from 'helmet';
 import cors from 'cors';
 import { createHash } from 'crypto';
 
+// Extend Express Request type to include session and rateLimit
+declare module 'express' {
+  interface Request {
+    session?: {
+      csrfToken?: string;
+      [key: string]: any;
+    };
+    rateLimit?: {
+      limit: number;
+      current: number;
+      remaining: number;
+      resetTime: Date;
+    };
+  }
+}
+
 // ========================================
 // 1. SECURITY HEADERS
 // ========================================
