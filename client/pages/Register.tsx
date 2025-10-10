@@ -107,7 +107,7 @@ export default function Register() {
         try {
           await databases.createDocument(
             appwriteConfig.databaseId,
-            'notifications',
+            appwriteConfig.collections.notifications,
             'unique()',
             {
               userId: registeredUser.$id,

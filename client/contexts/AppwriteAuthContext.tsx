@@ -250,12 +250,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Create user document in users collection for admin dashboard
       try {
-        const databases = (await import('@/lib/appwrite')).databases;
-        const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || '';
+        const { databases, appwriteConfig } = await import('@/lib/appwrite');
         
         await databases.createDocument(
-          DATABASE_ID,
-          'users',
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.users,
           currentUser.$id,
           {
             email: email,
