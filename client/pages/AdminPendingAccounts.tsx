@@ -83,7 +83,7 @@ export default function AdminPendingAccounts() {
       setIsLoading(true);
       const response = await databases.listDocuments(
         appwriteConfig.databaseId,
-        'users',
+        appwriteConfig.collections.users,
         [
           Query.equal('accountStatus', 'pending'),
           Query.orderDesc('$createdAt'),
@@ -91,6 +91,7 @@ export default function AdminPendingAccounts() {
         ]
       );
 
+      console.log('Pending users fetched:', response.documents);
       setPendingUsers(response.documents as any);
     } catch (error) {
       console.error('Error fetching pending users:', error);
@@ -131,7 +132,7 @@ export default function AdminPendingAccounts() {
     try {
       await databases.updateDocument(
         appwriteConfig.databaseId,
-        'users',
+        appwriteConfig.collections.users,
         userId,
         {
           accountStatus: 'approved',
@@ -145,7 +146,7 @@ export default function AdminPendingAccounts() {
       try {
         await databases.createDocument(
           appwriteConfig.databaseId,
-          'notifications',
+          appwriteConfig.collections.notifications || 'notifications',
           'unique()',
           {
             userId: userId,
@@ -193,7 +194,7 @@ export default function AdminPendingAccounts() {
     try {
       await databases.updateDocument(
         appwriteConfig.databaseId,
-        'users',
+        appwriteConfig.collections.users,
         selectedUser.$id,
         {
           accountStatus: 'rejected',

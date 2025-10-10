@@ -203,7 +203,7 @@ export default function AffiliateDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {stats.totalEarnings.toFixed(2)} ج.م
+                  {(stats.totalEarnings || 0).toFixed(2)} ج.م
                 </div>
                 <p className="text-xs text-muted-foreground">
               +12.5% من الشهر الماضي
@@ -220,7 +220,7 @@ export default function AffiliateDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {stats.thisMonthEarnings.toFixed(2)} ج.م
+              {(stats.thisMonthEarnings || 0).toFixed(2)} ج.م
             </div>
             <p className="text-xs text-muted-foreground">
               +8.2% من الشهر الماضي
@@ -360,7 +360,7 @@ export default function AffiliateDashboard() {
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-green-600">
-                              +{commission.amount.toFixed(2)} ج.م
+                              +{(commission.amount || 0).toFixed(2)} ج.م
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {new Date(commission.createdAt).toLocaleDateString("ar")}
@@ -421,7 +421,7 @@ export default function AffiliateDashboard() {
                 <CardContent>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-brand-orange">
-                      {stats.pendingEarnings.toFixed(2)} ج.م
+                      {(stats.pendingEarnings || 0).toFixed(2)} ج.م
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
                       سيتم دفعها خلال 7 أيام
@@ -463,7 +463,7 @@ export default function AffiliateDashboard() {
                         <p className="text-sm text-muted-foreground">
                           عمولة: {product.affiliateCommission}% ($
                           {(
-                            (product.price * product.affiliateCommission) /
+                            ((product.price || 0) * (product.affiliateCommission || 0)) /
                             100
                           ).toFixed(2)}
                           )

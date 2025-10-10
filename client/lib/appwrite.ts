@@ -15,7 +15,8 @@ export const appwriteConfig = {
     orders: import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION || 'orders',
     orderItems: import.meta.env.VITE_APPWRITE_ORDER_ITEMS_COLLECTION || 'order_items',
     reviews: import.meta.env.VITE_APPWRITE_REVIEWS_COLLECTION || 'reviews',
-    affiliates: import.meta.env.VITE_APPWRITE_AFFILIATES_COLLECTION || 'affiliates'
+    affiliates: import.meta.env.VITE_APPWRITE_AFFILIATES_COLLECTION || 'affiliates',
+    notifications: import.meta.env.VITE_APPWRITE_NOTIFICATIONS_COLLECTION || 'notifications'
   }
 };
 
