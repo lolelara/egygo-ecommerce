@@ -7,6 +7,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { Header } from "./components/Header";
+import { HelmetProvider } from "react-helmet-async";
+import { ParallaxProvider } from "react-scroll-parallax";
+import { initializeEnhancements } from "./components/enhanced/GlobalEnhancements";
+import EgyGoLogo3D from "./components/enhanced/EgyGoLogo3D";
 
 import { Footer } from "./components/Footer";
 import { AnnouncementBar } from "./components/AnnouncementBar";
@@ -76,7 +80,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AIAssistant } from "./components/AIAssistant";
 import { Breadcrumbs } from "./components/Breadcrumbs";
-import { HelmetProvider } from 'react-helmet-async';
 import { initPerformanceOptimizations } from './lib/performance';
 
 const queryClient = new QueryClient();
@@ -88,11 +91,11 @@ import { useLocation } from "react-router-dom";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  // Auto-sync worker disabled - attributes removed (autoSyncEnabled, sourceUrl, etc.)
-  // useEffect(() => {
-  //   startAutoSyncWorker();
-  //   console.log('🔄 Auto-sync worker started');
-  // }, []);
+  
+  // Initialize global enhancements
+  useEffect(() => {
+    initializeEnhancements();
+  }, []);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -111,13 +114,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <ErrorBoundary>
     <HelmetProvider>
-      <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <CartProvider>
-              <TooltipProvider>
-                <Toaster position="top-center" richColors closeButton />
-                <HashRouter>
+      <ParallaxProvider>
+        <ThemeProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <CartProvider>
+                <TooltipProvider>
+                  <Toaster position="top-center" richColors closeButton />
+                  <HashRouter>
               <Layout>
                 <Routes>
                 <Route path="/" element={<Index />} />
@@ -192,11 +196,12 @@ const App = () => (
             </Routes>
           </Layout>
         </HashRouter>
-      </TooltipProvider>
-    </CartProvider>
-  </AuthProvider>
-</QueryClientProvider>
-      </ThemeProvider>
+        </TooltipProvider>
+      </CartProvider>
+    </AuthProvider>
+  </QueryClientProvider>
+        </ThemeProvider>
+      </ParallaxProvider>
     </HelmetProvider>
   </ErrorBoundary>
 );
