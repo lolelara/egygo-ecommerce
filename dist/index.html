@@ -4,24 +4,33 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EgyGo - Egyptian E-Commerce Platform</title>
+    <title>إيجي جو - منصة التجارة الإلكترونية الرائدة في مصر | EgyGo</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Shop high-quality products and join our affiliate program to earn up to 25% commission on every sale. Free shipping and 14-day returns." />
-    <meta name="keywords" content="online shopping, e-commerce, affiliate program, commissions, Egyptian products, EgyGo" />
+    <meta name="description" content="تسوق منتجات عالية الجودة وانضم لبرنامج الشراكة لتربح حتى 25% عمولة على كل بيع. شحن مجاني وإرجاع خلال 14 يوم." />
+    <meta name="keywords" content="تسوق أونلاين, تجارة إلكترونية, برنامج شراكة, عمولات, منتجات مصرية, إيجي جو, EgyGo" />
     <meta name="author" content="EgyGo Team" />
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="EgyGo - Egyptian E-Commerce Platform" />
-    <meta property="og:description" content="Shop high-quality products and join our affiliate program" />
-    <meta property="og:site_name" content="EgyGo" />
+    <meta property="og:title" content="إيجي جو - منصة التجارة الإلكترونية الرائدة في مصر" />
+    <meta property="og:description" content="تسوق منتجات عالية الجودة وانضم لبرنامج الشراكة لتربح حتى 25% عمولة" />
+    <meta property="og:site_name" content="إيجي جو - EgyGo" />
     <meta property="og:locale" content="ar_EG" />
+    <meta property="og:url" content="https://egygo.com" />
+    <meta property="og:image" content="https://egygo.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="EgyGo - Egyptian E-Commerce" />
-    <meta name="twitter:description" content="Shop high-quality products and join our affiliate program" />
+    <meta name="twitter:title" content="إيجي جو - منصة التجارة الإلكترونية" />
+    <meta name="twitter:description" content="تسوق منتجات عالية الجودة وانضم لبرنامج الشراكة" />
+    <meta name="twitter:image" content="https://egygo.com/twitter-card.jpg" />
+    <meta name="twitter:site" content="@egygo" />
+    <meta name="twitter:creator" content="@egygo" />
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#8B5CF6" />
@@ -31,7 +40,7 @@
     <meta name="apple-mobile-web-app-title" content="EgyGo" />
     
     <!-- Manifest -->
-    <link rel="manifest" href="/assets/manifest-DGa9eb6E.json" />
+    <link rel="manifest" href="/manifest.json" />
     
     <!-- Performance Optimizations -->
     <!-- DNS Prefetch -->
@@ -44,9 +53,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdn.egygo.com" />
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/images/logo.png" as="image" />
+    <!-- Preload critical resources - Removed to avoid 404 errors -->
+    <!-- Resources will be loaded on demand -->
     
     <!-- Critical CSS inline -->
     <style>
@@ -61,12 +69,51 @@
   <!-- Favicons (handled via manifest/public). Remove broken links to avoid 404s) -->
   <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
   <!-- <link rel="apple-touch-icon" href="/icon-192.png" /> -->
-    <script type="module" crossorigin src="/assets/index-Dok6cUOA.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DtlAGtjN.css">
+    <script type="module" crossorigin src="/assets/index-evxFgZlv.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DKE9TypF.css">
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading spinner shown before React loads -->
+      <div class="loading">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- Register Service Worker for PWA -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('SW registered:', registration))
+            .catch(error => console.log('SW registration failed:', error));
+        });
+      }
+    </script>
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "إيجي جو",
+      "alternateName": "EgyGo",
+      "url": "https://egygo.com",
+      "description": "منصة التجارة الإلكترونية الرائدة في مصر",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://egygo.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      },
+      "sameAs": [
+        "https://www.facebook.com/egygo",
+        "https://www.instagram.com/egygo",
+        "https://twitter.com/egygo",
+        "https://www.youtube.com/egygo"
+      ]
+    }
+    </script>
 
   </body>
 </html>
