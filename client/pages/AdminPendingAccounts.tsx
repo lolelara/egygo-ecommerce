@@ -207,7 +207,7 @@ export default function AdminPendingAccounts() {
       try {
         await databases.createDocument(
           appwriteConfig.databaseId,
-          'notifications',
+          appwriteConfig.collections.notifications,
           'unique()',
           {
             userId: selectedUser.$id,

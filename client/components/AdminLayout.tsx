@@ -17,7 +17,9 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { usePendingAccountsCount } from "@/hooks/usePendingAccountsCount";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -46,6 +48,12 @@ const adminNavItems = [
     title: "إدارة المستخدمين والشركاء",
     href: "/admin/users",
     icon: Users,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "الحسابات المعلقة",
+    href: "/admin/pending-accounts",
+    icon: UserCheck,
     roles: ['admin'], // فقط المدير
   },
   {
@@ -78,6 +86,7 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { count: pendingCount } = usePendingAccountsCount();
 
   const handleLogout = () => {
     // TODO: Implement logout logic
@@ -115,7 +124,12 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
               }`}
             >
               <Icon className="h-4 w-4" />
-              <span>{item.title}</span>
+              <span className="flex-1">{item.title}</span>
+              {item.href === '/admin/pending-accounts' && pendingCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                  {pendingCount}
+                </Badge>
+              )}
             </Link>
           );
         })}
