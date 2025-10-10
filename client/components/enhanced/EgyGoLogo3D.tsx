@@ -91,9 +91,15 @@ export default function EgyGoLogo3D({
     logoGroupRef.current = logoGroup;
     scene.add(logoGroup);
 
-    // Create "Egy" text
-    const egyGeometry = new THREE.BoxGeometry(1.5, 0.8, 0.3);
-    const egyMaterial = new THREE.MeshPhongMaterial({
+    // Load font and create text
+    const fontLoader = new FontLoader();
+    
+    // Create text using TextGeometry
+    // Since we can't load external fonts easily, we'll use 3D shapes to represent "EgyGo"
+    
+    // Create "E" letter
+    const eGeometry = new THREE.BoxGeometry(0.4, 1.2, 0.2);
+    const eMaterial = new THREE.MeshPhongMaterial({
       color: colorScheme === 'gradient' ? 0x8b5cf6 : 
              colorScheme === 'neon' ? 0x00ff00 : 0x3b82f6,
       emissive: colorScheme === 'neon' ? 0x00ff00 : 0x000000,
@@ -101,13 +107,13 @@ export default function EgyGoLogo3D({
       shininess: 100,
       specular: 0xffffff
     });
-    const egyMesh = new THREE.Mesh(egyGeometry, egyMaterial);
-    egyMesh.position.x = -1;
-    logoGroup.add(egyMesh);
+    const eMesh = new THREE.Mesh(eGeometry, eMaterial);
+    eMesh.position.set(-2.2, 0, 0);
+    logoGroup.add(eMesh);
 
-    // Create "Go" text with special "o" animation
-    const goGeometry = new THREE.BoxGeometry(1.2, 0.8, 0.3);
-    const goMaterial = new THREE.MeshPhongMaterial({
+    // Create "g" letter
+    const gGeometry = new THREE.BoxGeometry(0.5, 1.2, 0.2);
+    const gMaterial = new THREE.MeshPhongMaterial({
       color: colorScheme === 'gradient' ? 0xec4899 : 
              colorScheme === 'neon' ? 0xff00ff : 0xef4444,
       emissive: colorScheme === 'neon' ? 0xff00ff : 0x000000,
@@ -115,21 +121,50 @@ export default function EgyGoLogo3D({
       shininess: 100,
       specular: 0xffffff
     });
-    const goMesh = new THREE.Mesh(goGeometry, goMaterial);
-    goMesh.position.x = 0.5;
-    logoGroup.add(goMesh);
+    const gMesh = new THREE.Mesh(gGeometry, gMaterial);
+    gMesh.position.set(-1.5, 0, 0);
+    logoGroup.add(gMesh);
 
-    // Create animated "o" (speed effect)
-    const oGeometry = new THREE.TorusGeometry(0.3, 0.1, 16, 100);
+    // Create "y" letter
+    const yGeometry = new THREE.BoxGeometry(0.4, 1.2, 0.2);
+    const yMaterial = new THREE.MeshPhongMaterial({
+      color: colorScheme === 'gradient' ? 0x3b82f6 : 
+             colorScheme === 'neon' ? 0x00ffff : 0x10b981,
+      emissive: colorScheme === 'neon' ? 0x00ffff : 0x000000,
+      emissiveIntensity: colorScheme === 'neon' ? 0.5 : 0,
+      shininess: 100,
+      specular: 0xffffff
+    });
+    const yMesh = new THREE.Mesh(yGeometry, yMaterial);
+    yMesh.position.set(-0.8, 0, 0);
+    logoGroup.add(yMesh);
+
+    // Create "G" letter (capital)
+    const GGeometry = new THREE.BoxGeometry(0.6, 1.4, 0.2);
+    const GMaterial = new THREE.MeshPhongMaterial({
+      color: colorScheme === 'gradient' ? 0xf59e0b : 
+             colorScheme === 'neon' ? 0xffff00 : 0xf59e0b,
+      emissive: colorScheme === 'neon' ? 0xffff00 : 0x000000,
+      emissiveIntensity: colorScheme === 'neon' ? 0.5 : 0,
+      shininess: 100,
+      specular: 0xffffff
+    });
+    const GMesh = new THREE.Mesh(GGeometry, GMaterial);
+    GMesh.position.set(0.2, 0, 0);
+    logoGroup.add(GMesh);
+
+    // Create "o" letter with torus (animated)
+    const oGeometry = new THREE.TorusGeometry(0.4, 0.15, 16, 100);
     const oMaterial = new THREE.MeshPhongMaterial({
       color: 0xffd700,
       emissive: 0xffd700,
-      emissiveIntensity: 0.3,
+      emissiveIntensity: 0.4,
       shininess: 200,
       specular: 0xffffff
     });
     const oMesh = new THREE.Mesh(oGeometry, oMaterial);
-    oMesh.position.set(1.2, 0, 0.2);
+    oMesh.position.set(1.2, 0, 0);
+    oMesh.rotation.x = Math.PI / 2;
     logoGroup.add(oMesh);
 
     // Speed lines for "o"
