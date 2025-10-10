@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Copy,
   ExternalLink,
+  AlertTriangle,
   Calendar,
   Download,
   Award,
@@ -45,6 +46,7 @@ export default function AffiliateDashboard() {
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -53,18 +55,51 @@ export default function AffiliateDashboard() {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // Check if user is logged in and has affiliate role
+      if (!user) {
+        setError("يجب تسجيل الدخول أولاً");
+        return;
+      }
+      
+      if (!user.isAffiliate && user.role !== 'affiliate' && user.role !== 'admin') {
+        setError("ليس لديك صلاحية الوصول لهذه الصفحة. يجب أن تكون مسوق بالعمولة.");
+        return;
+      }
       
       // Load products for link generation
       const productsData = await fallbackProductsApi.getAll({ limit: 6 });
-      setProducts(productsData.products);
+      setProducts(productsData.products || []);
 
       // Load affiliate stats if user is logged in
       if (user?.$id) {
-        const statsData = await affiliateApi.getStats(user.$id);
-        setStats(statsData);
+        try {
+          const statsData = await affiliateApi.getStats(user.$id);
+          setStats(statsData || {
+            totalClicks: 0,
+            totalOrders: 0,
+            totalEarnings: 0,
+            pendingEarnings: 0,
+            affiliateCode: user.affiliateCode || `AFF${user.$id.slice(0, 6).toUpperCase()}`,
+            conversionRate: 0
+          });
+        } catch (statsError) {
+          console.error("Error loading stats:", statsError);
+          // Set default stats if API fails
+          setStats({
+            totalClicks: 0,
+            totalOrders: 0,
+            totalEarnings: 0,
+            pendingEarnings: 0,
+            affiliateCode: user.affiliateCode || `AFF${user.$id.slice(0, 6).toUpperCase()}`,
+            conversionRate: 0
+          });
+        }
       }
     } catch (error) {
       console.error("Error loading data:", error);
+      setError("فشل في تحميل البيانات. حاول مرة أخرى.");
       toast({
         variant: "destructive",
         title: "خطأ",
@@ -119,6 +154,25 @@ export default function AffiliateDashboard() {
         <div className="py-8">
           <DashboardStatsSkeleton count={4} />
         </div>
+      ) : error ? (
+        <Card className="border-red-200 bg-red-50 dark:bg-red-950/20">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
+              <h2 className="text-xl font-semibold text-red-700 dark:text-red-400">
+                {error}
+              </h2>
+              <div className="flex gap-4 justify-center">
+                <Button onClick={() => window.location.href = '/login'} variant="outline">
+                  تسجيل الدخول
+                </Button>
+                <Button onClick={() => window.location.href = '/affiliate'}>
+                  التسجيل كمسوق
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       ) : stats ? (
         <>
           {/* Header */}

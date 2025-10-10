@@ -11,6 +11,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { ParallaxProvider } from "react-scroll-parallax";
 import { initializeEnhancements } from "./components/enhanced/GlobalEnhancements";
 import EgyGoLogo3D from "./components/enhanced/EgyGoLogo3D";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 import { Footer } from "./components/Footer";
 import { AnnouncementBar } from "./components/AnnouncementBar";
@@ -149,40 +150,40 @@ const App = () => (
               <Route path="/my-orders" element={<MyOrders />} />
               <Route path="/orders/:orderId/track" element={<OrderTracking />} />
               
-              {/* Affiliate Routes */}
+              {/* Affiliate Routes - Protected */}
               <Route path="/l/:linkCode" element={<ProductLanding />} />
-              <Route path="/affiliate/links" element={<AffiliateLinkManager />} />
-              <Route path="/affiliate/analytics" element={<AffiliateAnalytics />} />
-              <Route path="/affiliate/creatives" element={<AffiliateCreatives />} />
-              <Route path="/affiliate/coupons" element={<AffiliateCoupons />} />
-              <Route path="/affiliate/dashboard" element={<EnhancedAffiliateDashboard />} />
-              <Route path="/affiliate/withdraw" element={<AffiliateWithdrawPage />} />
-              <Route path="/affiliate/resources" element={<AffiliateResourcesPage />} />
-              <Route path="/affiliate/support" element={<AffiliateSupportPage />} />
-              <Route path="/update-affiliate-prefs" element={<UpdateAffiliatePrefs />} />
+              <Route path="/affiliate/links" element={<ProtectedRoute requiredRole="affiliate"><AffiliateLinkManager /></ProtectedRoute>} />
+              <Route path="/affiliate/analytics" element={<ProtectedRoute requiredRole="affiliate"><AffiliateAnalytics /></ProtectedRoute>} />
+              <Route path="/affiliate/creatives" element={<ProtectedRoute requiredRole="affiliate"><AffiliateCreatives /></ProtectedRoute>} />
+              <Route path="/affiliate/coupons" element={<ProtectedRoute requiredRole="affiliate"><AffiliateCoupons /></ProtectedRoute>} />
+              <Route path="/affiliate/dashboard" element={<ProtectedRoute requiredRole="affiliate"><AffiliateDashboard /></ProtectedRoute>} />
+              <Route path="/affiliate/withdraw" element={<ProtectedRoute requiredRole="affiliate"><AffiliateWithdrawPage /></ProtectedRoute>} />
+              <Route path="/affiliate/resources" element={<ProtectedRoute requiredRole="affiliate"><AffiliateResourcesPage /></ProtectedRoute>} />
+              <Route path="/affiliate/support" element={<ProtectedRoute requiredRole="affiliate"><AffiliateSupportPage /></ProtectedRoute>} />
+              <Route path="/update-affiliate-prefs" element={<ProtectedRoute requiredRole="affiliate"><UpdateAffiliatePrefs /></ProtectedRoute>} />
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={<EnhancedAdminDashboard />} />
-              <Route path="/admin/dashboard" element={<EnhancedAdminDashboard />} />
-              <Route path="/admin/pending-accounts" element={<AdminPendingAccounts />} />
-              <Route path="/admin/analytics" element={<AdminAnalytics />} />
-              <Route path="/admin/products" element={<AdminProducts />} />
-              <Route path="/admin/products-advanced" element={<AdminProductsAdvanced />} />
-              <Route path="/admin/categories" element={<AdminCategories />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/user-management" element={<AdminUserManagement />} />
-              <Route path="/admin/orders" element={<AdminOrders />} />
-              <Route path="/admin/affiliates" element={<AdminUsers />} />
-              <Route path="/admin/commissions" element={<AdminCommissions />} />
-              <Route path="/admin/settings" element={<AdminSettingsPage />} />
-              <Route path="/admin/coupons" element={<AdminCoupons />} />
-              <Route path="/admin/shipping" element={<AdminShipping />} />
-              <Route path="/admin/advanced-settings" element={<AdminAdvancedSettings />} />
-              <Route path="/admin/notifications" element={<AdminNotifications />} />
-              <Route path="/merchant/dashboard" element={<MerchantDashboard />} />
-              <Route path="/intermediary/dashboard" element={<IntermediaryDashboard />} />
-              <Route path="/intermediary/import" element={<VendoorImport />} />
-              <Route path="/admin/vendoor-import" element={<VendoorImport />} />
+              {/* Admin Routes - Protected */}
+              <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/dashboard" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/pending-accounts" element={<ProtectedRoute requiredRole="admin"><AdminPendingAccounts /></ProtectedRoute>} />
+              <Route path="/admin/analytics" element={<ProtectedRoute requiredRole="admin"><AdminAnalytics /></ProtectedRoute>} />
+              <Route path="/admin/products" element={<ProtectedRoute requiredRole="admin"><AdminProducts /></ProtectedRoute>} />
+              <Route path="/admin/products-advanced" element={<ProtectedRoute requiredRole="admin"><AdminProductsAdvanced /></ProtectedRoute>} />
+              <Route path="/admin/categories" element={<ProtectedRoute requiredRole="admin"><AdminCategories /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><AdminUsers /></ProtectedRoute>} />
+              <Route path="/admin/user-management" element={<ProtectedRoute requiredRole="admin"><AdminUserManagement /></ProtectedRoute>} />
+              <Route path="/admin/orders" element={<ProtectedRoute requiredRole="admin"><AdminOrders /></ProtectedRoute>} />
+              <Route path="/admin/affiliates" element={<ProtectedRoute requiredRole="admin"><AdminUsers /></ProtectedRoute>} />
+              <Route path="/admin/commissions" element={<ProtectedRoute requiredRole="admin"><AdminCommissions /></ProtectedRoute>} />
+              <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><AdminSettingsPage /></ProtectedRoute>} />
+              <Route path="/admin/coupons" element={<ProtectedRoute requiredRole="admin"><AdminCoupons /></ProtectedRoute>} />
+              <Route path="/admin/shipping" element={<ProtectedRoute requiredRole="admin"><AdminShipping /></ProtectedRoute>} />
+              <Route path="/admin/advanced-settings" element={<ProtectedRoute requiredRole="admin"><AdminAdvancedSettings /></ProtectedRoute>} />
+              <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><AdminNotifications /></ProtectedRoute>} />
+              <Route path="/merchant/dashboard" element={<ProtectedRoute requiredRole="merchant"><MerchantDashboard /></ProtectedRoute>} />
+              <Route path="/intermediary/dashboard" element={<ProtectedRoute requiredRole="merchant"><IntermediaryDashboard /></ProtectedRoute>} />
+              <Route path="/intermediary/import" element={<ProtectedRoute requiredRole="merchant"><VendoorImport /></ProtectedRoute>} />
+              <Route path="/admin/vendoor-import" element={<ProtectedRoute requiredRole="admin"><VendoorImport /></ProtectedRoute>} />
 
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
