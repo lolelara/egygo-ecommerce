@@ -89,7 +89,21 @@ export default function Index() {
       <section className="relative bg-gradient-to-br from-primary via-purple-600 to-secondary text-white overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-pulse"></div>
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative container mx-auto px-4 py-24 lg:py-32">
+        
+        {/* 3D Logo Background - خلف كل المحتوى مع دوران بطيء */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-25 scale-[2] blur-[1px]">
+          <div className="w-full h-full flex items-center justify-center animate-[spin_60s_linear_infinite]">
+            <EgyGoLogo3D 
+              size="large" 
+              interactive={false} 
+              autoRotate={true} 
+              showParticles={false}
+              colorScheme="gradient"
+            />
+          </div>
+        </div>
+        
+        <div className="relative container mx-auto px-4 py-24 lg:py-32 z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
               <div className="space-y-4">
@@ -159,13 +173,6 @@ export default function Index() {
             </div>
 
             <div className="relative">
-              {/* 3D Logo */}
-              <div className="mb-8 flex justify-center">
-                <div className="w-64 h-64 lg:w-80 lg:h-80">
-                  <EgyGoLogo3D />
-                </div>
-              </div>
-              
               <div className="grid grid-cols-2 gap-4 items-center">
                 <div className="space-y-4">
                   {featuredProducts.slice(0, 2).map((product, index) => (
