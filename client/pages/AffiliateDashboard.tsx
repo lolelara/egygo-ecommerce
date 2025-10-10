@@ -38,6 +38,7 @@ import { affiliateApi } from "@/lib/affiliate-api";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { ProductWithRelations } from "@shared/prisma-types";
+import AffiliateStats from "@/components/charts/AffiliateStats";
 
 export default function AffiliateDashboard() {
   const { user } = useAuth();
@@ -511,6 +512,9 @@ export default function AffiliateDashboard() {
 
         {/* Performance Tab */}
         <TabsContent value="performance" className="space-y-6">
+          {/* Advanced Analytics Component */}
+          <AffiliateStats affiliateId={user?.$id || ''} />
+          
           <div className="grid lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>

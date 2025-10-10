@@ -43,6 +43,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import LinkGenerator from "@/components/affiliate/LinkGenerator";
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID || "";
 
@@ -224,6 +225,9 @@ export default function AffiliateLinkManager() {
           أنشئ روابط تتبع خاصة لكل منتج وتابع أداء حملاتك
         </p>
       </div>
+
+      {/* Smart Link Generator Component */}
+      <LinkGenerator />
 
       {/* Create New Link */}
       <Card>
