@@ -39,10 +39,10 @@ export interface AdminContextData {
 export async function buildUserContext(userId: string): Promise<string> {
   try {
     // Fetch user data
-    const userDoc = await databases.getDocument(DATABASE_ID, 'users', userId);
+    const userDoc = await databases.getDocument(DATABASE_ID, appwriteConfig.collections.users, userId);
     
     // Fetch user orders
-    const orders = await databases.listDocuments(DATABASE_ID, 'orders', [
+    const orders = await databases.listDocuments(DATABASE_ID, appwriteConfig.collections.orders, [
       Query.equal('userId', userId),
       Query.limit(10),
       Query.orderDesc('$createdAt')
@@ -96,9 +96,9 @@ export async function buildAdminContext(): Promise<string> {
   try {
     // Fetch all collections data
     const [users, orders, products, commissions] = await Promise.all([
-      databases.listDocuments(DATABASE_ID, 'users', [Query.limit(1000)]),
-      databases.listDocuments(DATABASE_ID, 'orders', [Query.limit(1000)]),
-      databases.listDocuments(DATABASE_ID, 'products', [Query.limit(1000)]),
+      databases.listDocuments(DATABASE_ID, appwriteConfig.collections.users, [Query.limit(1000)]),
+      databases.listDocuments(DATABASE_ID, appwriteConfig.collections.orders, [Query.limit(1000)]),
+      databases.listDocuments(DATABASE_ID, appwriteConfig.collections.products, [Query.limit(1000)]),
       databases.listDocuments(DATABASE_ID, 'commissions', [Query.limit(1000)])
     ]);
 

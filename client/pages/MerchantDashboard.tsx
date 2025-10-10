@@ -191,18 +191,18 @@ export default function MerchantDashboard() {
                 ${merchantStats.totalRevenue.toLocaleString()}
               </div>
               <div className="flex items-center text-xs mt-1">
-                {merchantStats.revenueChange >= 0 ? (
+                {(merchantStats.revenueChange || 0) >= 0 ? (
                   <>
                     <TrendingUp className="h-3 w-3 text-green-500 ml-1" />
                     <span className="text-green-500">
-                      +{merchantStats.revenueChange.toFixed(1)}%
+                      +{(merchantStats.revenueChange || 0).toFixed(1)}%
                     </span>
                   </>
                 ) : (
                   <>
                     <TrendingDown className="h-3 w-3 text-red-500 ml-1" />
                     <span className="text-red-500">
-                      {merchantStats.revenueChange.toFixed(1)}%
+                      {(merchantStats.revenueChange || 0).toFixed(1)}%
                     </span>
                   </>
                 )}
@@ -421,7 +421,7 @@ export default function MerchantDashboard() {
                     <div className="space-y-1">
                       <p className="font-medium text-sm">أداء ممتاز</p>
                       <p className="text-xs text-muted-foreground">
-                        مبيعاتك زادت بنسبة {merchantStats.revenueChange.toFixed(1)}% هذا الشهر!
+                        مبيعاتك زادت بنسبة {(merchantStats.revenueChange || 0).toFixed(1)}% هذا الشهر!
                       </p>
                     </div>
                   </div>
@@ -433,7 +433,7 @@ export default function MerchantDashboard() {
                     <div className="space-y-1">
                       <p className="font-medium text-sm">انخفاض في المبيعات</p>
                       <p className="text-xs text-muted-foreground">
-                        مبيعاتك انخفضت بنسبة {Math.abs(merchantStats.revenueChange).toFixed(1)}% هذا الشهر.
+                        مبيعاتك انخفضت بنسبة {Math.abs(merchantStats.revenueChange || 0).toFixed(1)}% هذا الشهر.
                       </p>
                     </div>
                   </div>

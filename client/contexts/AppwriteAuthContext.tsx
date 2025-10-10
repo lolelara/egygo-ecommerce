@@ -137,8 +137,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           phone: prefs.phone || '',
           address: prefs.address || '',
           isAffiliate: prefs.isAffiliate || userRole === 'affiliate',
+          isMerchant: prefs.isMerchant || userRole === 'merchant',
           affiliateCode: prefs.affiliateCode || '',
-          commissionRate: prefs.commissionRate || 0.15
+          commissionRate: prefs.commissionRate || 0.15,
+          accountStatus: prefs.accountStatus || 'approved',
+          approvedAt: prefs.approvedAt,
+          approvedBy: prefs.approvedBy,
+          rejectionReason: prefs.rejectionReason
         });
       } else {
         setUser(null);
