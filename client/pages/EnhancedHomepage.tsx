@@ -36,6 +36,10 @@ export default function EnhancedHomepage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Helper to create placeholder SVG
+  const createPlaceholder = (color: string, text: string) => 
+    `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23${color}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='white'%3E${encodeURIComponent(text)}%3C/text%3E%3C/svg%3E`;
+
   // Sample data
   const featuredProducts = [
     {
@@ -43,7 +47,7 @@ export default function EnhancedHomepage() {
       name: 'ساعة ذكية متطورة',
       price: 1299,
       originalPrice: 1599,
-      image: 'https://via.placeholder.com/400x400/8b5cf6/ffffff?text=Smart+Watch',
+      image: createPlaceholder('8b5cf6', 'Smart Watch'),
       rating: 4.8,
       reviews: 234,
       discount: 19,
@@ -55,7 +59,7 @@ export default function EnhancedHomepage() {
       name: 'سماعات لاسلكية Pro',
       price: 899,
       originalPrice: 1199,
-      image: 'https://via.placeholder.com/400x400/ec4899/ffffff?text=Headphones',
+      image: createPlaceholder('ec4899', 'Headphones'),
       rating: 4.6,
       reviews: 156,
       discount: 25,
@@ -67,7 +71,7 @@ export default function EnhancedHomepage() {
       name: 'كاميرا احترافية 4K',
       price: 3499,
       originalPrice: 3999,
-      image: 'https://via.placeholder.com/400x400/3b82f6/ffffff?text=Camera',
+      image: createPlaceholder('3b82f6', 'Camera'),
       rating: 4.9,
       reviews: 89,
       discount: 13,
@@ -77,7 +81,7 @@ export default function EnhancedHomepage() {
       id: '4',
       name: 'لابتوب ألعاب متطور',
       price: 5999,
-      image: 'https://via.placeholder.com/400x400/10b981/ffffff?text=Gaming+Laptop',
+      image: createPlaceholder('10b981', 'Gaming Laptop'),
       rating: 4.7,
       reviews: 312,
       badge: 'حصري',
@@ -88,7 +92,7 @@ export default function EnhancedHomepage() {
       name: 'تابلت رسم رقمي',
       price: 2299,
       originalPrice: 2799,
-      image: 'https://via.placeholder.com/400x400/f59e0b/ffffff?text=Drawing+Tablet',
+      image: createPlaceholder('f59e0b', 'Drawing Tablet'),
       rating: 4.5,
       reviews: 67,
       discount: 18,
@@ -99,43 +103,43 @@ export default function EnhancedHomepage() {
   const galleryImages = [
     {
       id: '1',
-      src: 'https://via.placeholder.com/800x600/8b5cf6/ffffff?text=Product+1',
-      thumb: 'https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Product+1',
+      src: createPlaceholder('8b5cf6', 'Product 1'),
+      thumb: createPlaceholder('8b5cf6', 'Product 1'),
       caption: 'منتج إلكتروني متطور',
       category: 'إلكترونيات'
     },
     {
       id: '2',
-      src: 'https://via.placeholder.com/800x1000/ec4899/ffffff?text=Fashion',
-      thumb: 'https://via.placeholder.com/400x500/ec4899/ffffff?text=Fashion',
+      src: createPlaceholder('ec4899', 'Fashion'),
+      thumb: createPlaceholder('ec4899', 'Fashion'),
       caption: 'أزياء عصرية',
       category: 'أزياء'
     },
     {
       id: '3',
-      src: 'https://via.placeholder.com/800x600/3b82f6/ffffff?text=Home',
-      thumb: 'https://via.placeholder.com/400x300/3b82f6/ffffff?text=Home',
+      src: createPlaceholder('3b82f6', 'Home'),
+      thumb: createPlaceholder('3b82f6', 'Home'),
       caption: 'ديكور منزلي',
       category: 'منزل'
     },
     {
       id: '4',
-      src: 'https://via.placeholder.com/800x800/10b981/ffffff?text=Sports',
-      thumb: 'https://via.placeholder.com/400x400/10b981/ffffff?text=Sports',
+      src: createPlaceholder('10b981', 'Sports'),
+      thumb: createPlaceholder('10b981', 'Sports'),
       caption: 'معدات رياضية',
       category: 'رياضة'
     },
     {
       id: '5',
-      src: 'https://via.placeholder.com/800x600/f59e0b/ffffff?text=Beauty',
-      thumb: 'https://via.placeholder.com/400x300/f59e0b/ffffff?text=Beauty',
+      src: createPlaceholder('f59e0b', 'Beauty'),
+      thumb: createPlaceholder('f59e0b', 'Beauty'),
       caption: 'منتجات العناية',
       category: 'جمال'
     },
     {
       id: '6',
-      src: 'https://via.placeholder.com/800x1000/ef4444/ffffff?text=Kids',
-      thumb: 'https://via.placeholder.com/400x500/ef4444/ffffff?text=Kids',
+      src: createPlaceholder('ef4444', 'Kids'),
+      thumb: createPlaceholder('ef4444', 'Kids'),
       caption: 'ألعاب أطفال',
       category: 'أطفال'
     }
