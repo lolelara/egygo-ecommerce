@@ -133,7 +133,7 @@ const App = () => (
               <Route path="/admin/affiliates" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUsers /></ProtectedRoute>} />
               <Route path="/admin/commissions" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCommissions /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminSettingsPage /></ProtectedRoute>} />
-              <Route path="/admin/coupons" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCoupons /></ProtectedRoute>} />
+              <Route path="/admin/coupons" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCouponsManager /></ProtectedRoute>} />
               <Route path="/admin/shipping" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminShipping /></ProtectedRoute>} />
               <Route path="/admin/advanced-settings" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvancedSettings /></ProtectedRoute>} />
               <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminNotifications /></ProtectedRoute>} />

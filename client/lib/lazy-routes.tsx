@@ -80,21 +80,21 @@ export const MerchantAnalytics = lazyLoad(() => import('@/pages/MerchantAnalytic
 export const AdminDashboard = lazyLoad(() => import('@/pages/AdminDashboard'));
 export const EnhancedAdminDashboard = lazyLoad(() => import('@/pages/EnhancedAdminDashboard'));
 export const AdminUsers = lazyLoad(() => import('@/pages/AdminUsers'));
-export const AdminUserManagement = lazyLoad(() => import('@/pages/AdminUserManagement'));
+export const AdminCouponsManager = lazyLoad(() => import('@/pages/AdminCouponsManager'));
 export const AdminProducts = lazyLoad(() => import('@/pages/AdminProducts'));
-export const AdminProductsAdvanced = lazyLoad(() => import('@/pages/AdminProductsAdvanced'));
 export const AdminOrders = lazyLoad(() => import('@/pages/AdminOrders'));
-export const AdminCategories = lazyLoad(() => import('@/pages/AdminCategories'));
-export const AdminCoupons = lazyLoad(() => import('@/pages/AdminCoupons'));
-export const AdminCommissions = lazyLoad(() => import('@/pages/AdminCommissions'));
-export const AdminShipping = lazyLoad(() => import('@/pages/AdminShipping'));
 export const AdminAnalytics = lazyLoad(() => import('@/pages/AdminAnalytics'));
-export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
+export const AdminCategories = lazyLoad(() => import('@/pages/AdminCategories'));
+export const AdminCommissions = lazyLoad(() => import('@/pages/AdminCommissions'));
 export const AdminPendingAccounts = lazyLoad(() => import('@/pages/AdminPendingAccounts'));
+export const AdminUserManagement = lazyLoad(() => import('@/pages/AdminUserManagement'));
+export const AdminProductsAdvanced = lazyLoad(() => import('@/pages/AdminProductsAdvanced'));
 export const AdminSettingsPage = lazyLoad(() => import('@/pages/AdminSettingsPage'));
+export const AdminShipping = lazyLoad(() => import('@/pages/AdminShipping'));
 export const AdminAdvancedSettings = lazyLoad(() => import('@/pages/AdminAdvancedSettings'));
+export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
+export const AdminCoupons = lazyLoad(() => import('@/pages/AdminCoupons'));
 
-// ============================================
 // STATIC/INFO PAGES (Low Priority - Lazy)
 // ============================================
 export const AboutPage = lazyLoad(() => import('@/pages/AboutPage'));
