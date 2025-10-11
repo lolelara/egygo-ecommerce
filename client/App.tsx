@@ -84,8 +84,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 
-                {/* Enhanced & Special pages - Lazy */}
-                <Route path="/enhanced" element={<LazyRoutes.EnhancedHomepage />} />
+                {/* Special pages - Lazy */}
                 <Route path="/categories" element={<LazyRoutes.Categories />} />
                 <Route path="/category" element={<LazyRoutes.Categories />} />
                 <Route path="/category/:slug" element={<Products />} />

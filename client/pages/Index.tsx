@@ -23,6 +23,7 @@ import { getImageUrl } from "@/lib/storage";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
+import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
 import { useEffect } from "react";
 
 export default function Index() {
@@ -30,22 +31,38 @@ export default function Index() {
   useEffect(() => {
     // Lazy load GSAP for animations
     import('gsap').then(({ gsap }) => {
-      gsap.from('.hero-content', {
-        opacity: 0,
-        y: 50,
-        duration: 1,
-        ease: 'power3.out'
-      });
-      
-      gsap.from('.feature-card', {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        stagger: 0.2,
-        scrollTrigger: {
-          trigger: '.features-section',
-          start: 'top 80%'
-        }
+      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
+        
+        gsap.from('.hero-content', {
+          opacity: 0,
+          y: 50,
+          duration: 1,
+          ease: 'power3.out'
+        });
+        
+        gsap.from('.feature-card', {
+          opacity: 0,
+          y: 30,
+          duration: 0.8,
+          stagger: 0.2,
+          scrollTrigger: {
+            trigger: '.features-section',
+            start: 'top 80%'
+          }
+        });
+        
+        gsap.from('.product-card', {
+          opacity: 0,
+          scale: 0.9,
+          y: 30,
+          duration: 0.6,
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: '.products-section',
+            start: 'top 80%'
+          }
+        });
       });
     });
   }, []);
@@ -140,17 +157,6 @@ export default function Index() {
                   <Link to="/affiliate">
                     <Users className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
                     انضم لبرنامج الشراكة
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-white/30 text-white hover:from-purple-500/30 hover:to-pink-500/30"
-                  asChild
-                >
-                  <Link to="/enhanced">
-                    <Sparkles className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
-                    تجربة محسّنة
                   </Link>
                 </Button>
               </div>
@@ -303,16 +309,6 @@ export default function Index() {
               </CardContent>
             </Card>
           </div>
-
-          <div className="text-center mt-8">
-            <Button size="lg" asChild className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-              <Link to="/enhanced">
-                <Sparkles className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
-                جرب التجربة المحسنة الآن
-                <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-              </Link>
-            </Button>
-          </div>
         </div>
       </section>
 
@@ -355,8 +351,8 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="container mx-auto px-4">
+      {/* Featured Products with Swiper */}
+      <section className="container mx-auto px-4 products-section">
         <div className="flex justify-between items-center mb-12">
           <div>
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">
@@ -374,70 +370,23 @@ export default function Index() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <Link key={product.id} to={`/product/${product.id}`}>
-              <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
-                <div className="relative">
-                  <img
-                    src={getImageUrl(product.images?.[0])}
-                    alt={product.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.originalPrice &&
-                    product.originalPrice > product.price && (
-                      <Badge className="absolute top-2 left-2 bg-destructive text-destructive-foreground">
-                        وفر ${(product.originalPrice - product.price).toFixed(0)}
-                      </Badge>
-                    )}
-                  <div className="absolute top-2 right-2 bg-brand-orange text-white text-xs px-2 py-1 rounded">
-                    {product.affiliateCommission}% عمولة
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-1 mb-2">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(product.rating)
-                              ? "text-yellow-400 fill-current"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-muted-foreground">
-                      ({product.reviewCount})
-                    </span>
-                  </div>
-                  <h3 className="font-semibold mb-2 line-clamp-2">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold">
-                          ${product.price}
-                        </span>
-                        {product.originalPrice &&
-                          product.originalPrice > product.price && (
-                            <span className="text-sm text-muted-foreground line-through">
-                              ${product.originalPrice}
-                            </span>
-                          )}
-                      </div>
-                    </div>
-                    <Button size="sm">
-                      <ShoppingCart className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        {featuredProducts.length > 0 && (
+          <SwiperProductSlider 
+            products={featuredProducts.map(p => ({
+              id: p.id,
+              name: p.name,
+              price: p.price,
+              originalPrice: p.originalPrice,
+              image: getImageUrl(p.images?.[0]),
+              rating: p.rating,
+              reviews: p.reviewCount,
+              badge: p.originalPrice && p.originalPrice > p.price ? `وفر $${(p.originalPrice - p.price).toFixed(0)}` : undefined,
+              description: p.description || ''
+            }))}
+            variant="cards"
+            autoplay={true}
+          />
+        )}
       </section>
 
       {/* Affiliate Program CTA */}

@@ -109,9 +109,8 @@ export const ReturnPolicy = lazyLoad(() => import('@/pages/ReturnPolicy'));
 export const ShippingPage = lazyLoad(() => import('@/pages/ShippingPage'));
 
 // ============================================
-// ENHANCED/SPECIAL PAGES (Lazy)
+// SPECIAL PAGES (Lazy)
 // ============================================
-export const EnhancedHomepage = lazyLoad(() => import('@/pages/EnhancedHomepage'));
 export const Categories = lazyLoad(() => import('@/pages/Categories'));
 export const CategoryPage = lazyLoad(() => import('@/pages/CategoryPage'));
 export const DealsPage = lazyLoad(() => import('@/pages/DealsPage'));
