@@ -123,10 +123,10 @@ async function createCollections() {
       await databases.createFloatAttribute(DATABASE_ID, couponsCollection.$id, 'value', true);
       await databases.createFloatAttribute(DATABASE_ID, couponsCollection.$id, 'minAmount', false);
       await databases.createIntegerAttribute(DATABASE_ID, couponsCollection.$id, 'maxUses', false);
-      await databases.createIntegerAttribute(DATABASE_ID, couponsCollection.$id, 'usedCount', true, 0);
+      await databases.createIntegerAttribute(DATABASE_ID, couponsCollection.$id, 'usedCount', false, 0);
       await databases.createDatetimeAttribute(DATABASE_ID, couponsCollection.$id, 'validFrom', true);
       await databases.createDatetimeAttribute(DATABASE_ID, couponsCollection.$id, 'validUntil', true);
-      await databases.createBooleanAttribute(DATABASE_ID, couponsCollection.$id, 'isActive', true, true);
+      await databases.createBooleanAttribute(DATABASE_ID, couponsCollection.$id, 'isActive', false, true);
       
       console.log('✅ تم إنشاء coupons\n');
     } catch (error: any) {
@@ -153,7 +153,7 @@ async function createCollections() {
       await databases.createStringAttribute(DATABASE_ID, abTestsCollection.$id, 'status', 50, true);
       await databases.createStringAttribute(DATABASE_ID, abTestsCollection.$id, 'variantA', 500, true);
       await databases.createStringAttribute(DATABASE_ID, abTestsCollection.$id, 'variantB', 500, true);
-      await databases.createIntegerAttribute(DATABASE_ID, abTestsCollection.$id, 'trafficSplit', true, 50);
+      await databases.createIntegerAttribute(DATABASE_ID, abTestsCollection.$id, 'trafficSplit', false, 50);
       await databases.createDatetimeAttribute(DATABASE_ID, abTestsCollection.$id, 'startDate', true);
       await databases.createDatetimeAttribute(DATABASE_ID, abTestsCollection.$id, 'endDate', false);
       
@@ -239,7 +239,7 @@ async function createCollections() {
       await databases.createStringAttribute(DATABASE_ID, arModelsCollection.$id, 'thumbnailUrl', 500, false);
       await databases.createStringAttribute(DATABASE_ID, arModelsCollection.$id, 'format', 50, true); // glb, usdz
       await databases.createIntegerAttribute(DATABASE_ID, arModelsCollection.$id, 'fileSize', true);
-      await databases.createBooleanAttribute(DATABASE_ID, arModelsCollection.$id, 'isActive', true, true);
+      await databases.createBooleanAttribute(DATABASE_ID, arModelsCollection.$id, 'isActive', false, true);
       await databases.createDatetimeAttribute(DATABASE_ID, arModelsCollection.$id, 'createdAt', true);
       
       console.log('✅ تم إنشاء ar_models\n');
@@ -266,7 +266,7 @@ async function createCollections() {
       await databases.createStringAttribute(DATABASE_ID, familyAccountsCollection.$id, 'ownerId', 255, true);
       await databases.createStringAttribute(DATABASE_ID, familyAccountsCollection.$id, 'memberIds', 2000, true); // JSON array
       await databases.createFloatAttribute(DATABASE_ID, familyAccountsCollection.$id, 'spendingLimit', false);
-      await databases.createBooleanAttribute(DATABASE_ID, familyAccountsCollection.$id, 'isActive', true, true);
+      await databases.createBooleanAttribute(DATABASE_ID, familyAccountsCollection.$id, 'isActive', false, true);
       await databases.createDatetimeAttribute(DATABASE_ID, familyAccountsCollection.$id, 'createdAt', true);
       
       console.log('✅ تم إنشاء family_accounts\n');
