@@ -73,6 +73,8 @@ const ProductForm = ({
     description: product?.description || "",
     price: product?.price || 0,
     originalPrice: product?.originalPrice || 0,
+    basePrice: (product as any)?.basePrice || product?.price || 0,
+    minCommissionPrice: (product as any)?.minCommissionPrice || product?.price || 0,
     categoryId: product?.category || "",
     images: product?.images || [],
     tags: product?.tags?.join(", ") || "",
@@ -228,9 +230,9 @@ const ProductForm = ({
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="price">السعر (ج.م)</Label>
+          <Label htmlFor="price">السعر للعرض (ج.م)</Label>
           <Input
             id="price"
             type="number"
@@ -245,6 +247,7 @@ const ProductForm = ({
             step="0.01"
             required
           />
+          <p className="text-xs text-muted-foreground">السعر الذي سيظهر للعملاء</p>
         </div>
 
         <div className="space-y-2">
@@ -262,26 +265,68 @@ const ProductForm = ({
             min="0"
             step="0.01"
           />
+          <p className="text-xs text-muted-foreground">السعر قبل الخصم (اختياري)</p>
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="affiliateCommission">نسبة العمولة (%)</Label>
-          <Input
-            id="affiliateCommission"
-            type="number"
-            value={formData.affiliateCommission}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                affiliateCommission: Number(e.target.value),
-              }))
-            }
-            min="0"
-            max="100"
-            step="0.1"
-            required
-          />
+      <div className="border-t pt-4">
+        <h3 className="font-semibold mb-3 text-primary">⚙️ إعدادات العمولة للمسوقين</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="basePrice">السعر الأساسي (قبل العمولة)</Label>
+            <Input
+              id="basePrice"
+              type="number"
+              value={formData.basePrice}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  basePrice: Number(e.target.value),
+                }))
+              }
+              min="0"
+              step="0.01"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              السعر الذي ستحصل عليه (بدون عمولة المسوق)
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="minCommissionPrice">الحد الأدنى للسعر (شامل العمولة)</Label>
+            <Input
+              id="minCommissionPrice"
+              type="number"
+              value={formData.minCommissionPrice}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  minCommissionPrice: Number(e.target.value),
+                }))
+              }
+              min={formData.basePrice}
+              step="0.01"
+              required
+            />
+            <p className="text-xs text-muted-foreground">
+              أقل سعر يمكن للمسوق بيع المنتج به
+            </p>
+          </div>
         </div>
+        
+        {formData.basePrice > 0 && formData.minCommissionPrice > 0 && (
+          <div className="mt-3 p-3 bg-muted rounded-lg">
+            <p className="text-sm">
+              <strong>الحد الأدنى للعمولة:</strong>{" "}
+              {(formData.minCommissionPrice - formData.basePrice).toFixed(2)} ج.م
+              {" "}({((formData.minCommissionPrice - formData.basePrice) / formData.basePrice * 100).toFixed(1)}%)
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              المسوق يمكنه إضافة أي قيمة أعلى من {formData.minCommissionPrice.toFixed(2)} ج.م
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">

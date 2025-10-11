@@ -39,6 +39,7 @@ import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { ProductWithRelations } from "@shared/prisma-types";
 import AffiliateStats from "@/components/charts/AffiliateStats";
+import AffiliateProductLinks from "./AffiliateProductLinks";
 
 export default function AffiliateDashboard() {
   const { user } = useAuth();
@@ -439,75 +440,7 @@ export default function AffiliateDashboard() {
 
         {/* Links Tab */}
         <TabsContent value="links" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>إنشاء روابط الشراكة</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                قم بإنشاء روابط شراكة مخصصة للمنتجات لمشاركتها مع جمهورك
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {products.map((product) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={product.images[0]?.url || "/placeholder.svg"}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-                      <div>
-                        <h4 className="font-medium">{product.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          عمولة: {product.affiliateCommission}% ($
-                          {(
-                            ((product.price || 0) * (product.affiliateCommission || 0)) /
-                            100
-                          ).toFixed(2)}
-                          )
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={generateAffiliateLink(product.id)}
-                        readOnly
-                        className="w-80"
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          copyToClipboard(
-                            generateAffiliateLink(product.id),
-                            product.id,
-                          )
-                        }
-                      >
-                        {copiedLink === product.id ? (
-                          "تم النسخ!"
-                        ) : (
-                          <Copy className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <Button variant="outline" size="sm" asChild>
-                        <a
-                          href={generateAffiliateLink(product.id)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <AffiliateProductLinks />
         </TabsContent>
 
         {/* Performance Tab */}
