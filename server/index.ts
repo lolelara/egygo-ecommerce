@@ -33,6 +33,7 @@ import {
 import { scrapeVendoorProducts } from "./routes/vendoor-scraper";
 import { login, register, forgotPassword, getCurrentUser } from "./routes/auth";
 import { getUserOrders, getOrderById } from "./routes/orders";
+import { approveUser } from "./routes/admin-approve-user";
 import {
   getProductReviews,
   createReview,
@@ -154,30 +155,21 @@ export function createServer() {
   app.post("/api/auth/forgot-password", passwordResetRateLimit, forgotPassword);
   app.get("/api/auth/me", getCurrentUser);
 
-  // Admin API
+  // Admin APIs
   app.get("/api/admin/stats", getAdminStats);
-
-  // Admin Products
   app.post("/api/admin/products", createProduct);
   app.put("/api/admin/products/:id", updateProduct);
   app.delete("/api/admin/products/:id", deleteProduct);
-
-  // Admin Categories
   app.post("/api/admin/categories", createCategory);
   app.put("/api/admin/categories/:id", updateCategory);
   app.delete("/api/admin/categories/:id", deleteCategory);
-
-  // Admin Users
   app.get("/api/admin/users", getUsers);
-  app.put("/api/admin/users/:id", updateUserRole);
-
-  // Admin Orders
+  app.put("/api/admin/users/:id/role", updateUserRole);
+  app.post("/api/admin/approve-user", approveUser);
   app.get("/api/admin/orders", getOrders);
-  app.put("/api/admin/orders/:id", updateOrderStatus);
-
-  // Admin Commissions
+  app.put("/api/admin/orders/:id/status", updateOrderStatus);
   app.get("/api/admin/commissions", getCommissions);
-  app.put("/api/admin/commissions/:id", updateCommissionStatus);
+  app.put("/api/admin/commissions/:id/status", updateCommissionStatus);
 
   // User Orders API
   app.get("/api/orders", getUserOrders);

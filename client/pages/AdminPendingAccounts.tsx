@@ -130,6 +130,7 @@ export default function AdminPendingAccounts() {
 
   const approveAccount = async (userId: string, userName: string) => {
     try {
+      // Update in users collection
       await databases.updateDocument(
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
@@ -141,6 +142,30 @@ export default function AdminPendingAccounts() {
           isActive: true,
         }
       );
+
+      // IMPORTANT: Also update user preferences via server endpoint
+      // This ensures the user sees the update immediately
+      try {
+        const response = await fetch('/api/admin/approve-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: userId,
+            accountStatus: 'approved',
+            approvedAt: new Date().toISOString(),
+            approvedBy: user?.$id,
+          }),
+        });
+
+        if (!response.ok) {
+          console.error('Failed to update user preferences');
+        }
+      } catch (prefError) {
+        console.error('Error updating preferences:', prefError);
+        // Continue anyway - the collection is updated
+      }
 
       // Create notification for approved user
       try {
@@ -163,7 +188,7 @@ export default function AdminPendingAccounts() {
 
       toast({
         title: "✅ تمت الموافقة",
-        description: `تم قبول حساب ${userName} بنجاح`,
+        description: `تم قبول حساب ${userName} بنجاح. سيتم تحديث حالته تلقائياً.`,
       });
 
       // Refresh list
