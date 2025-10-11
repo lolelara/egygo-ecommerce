@@ -507,7 +507,9 @@ export default function AffiliateDashboard() {
                 <p className="text-sm text-muted-foreground mb-4">
                   قم بتحميل بانرات جاهزة لاستخدامها في موقعك أو وسائل التواصل
                 </p>
-                <Button className="w-full">تحميل البانرات</Button>
+                <Button className="w-full" asChild>
+                  <Link to="/affiliate/banners">تحميل البانرات</Link>
+                </Button>
               </CardContent>
             </Card>
 
@@ -522,8 +524,8 @@ export default function AffiliateDashboard() {
                 <p className="text-sm text-muted-foreground mb-4">
                   اكتشف أفضل الاستراتيجيات لزيادة مبيعاتك وأرباحك
                 </p>
-                <Button variant="outline" className="w-full">
-                  عرض النصائح
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/affiliate/marketing-tips">عرض النصائح</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -531,16 +533,16 @@ export default function AffiliateDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  شهادات المنتجات
+                  <Target className="h-5 w-5" />
+                  الكورسات التسويقية
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
-                  احصل على شهادات ومراجعات موثوقة لمشاركتها مع العملاء
+                  تعلم استراتيجيات التسويق الاحترافية لزيادة مبيعاتك
                 </p>
-                <Button variant="outline" className="w-full">
-                  عرض الشهادات
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/affiliate/courses">عرض الكورسات</Link>
                 </Button>
               </CardContent>
             </Card>

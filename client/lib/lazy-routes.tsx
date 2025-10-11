@@ -61,6 +61,9 @@ export const AffiliateAnalytics = lazyLoad(() => import('@/pages/AffiliateAnalyt
 export const AffiliateLinkManager = lazyLoad(() => import('@/pages/AffiliateLinkManager'));
 export const AffiliateCreatives = lazyLoad(() => import('@/pages/AffiliateCreatives'));
 export const AffiliateCoupons = lazyLoad(() => import('@/pages/AffiliateCoupons'));
+export const AffiliateBanners = lazyLoad(() => import('@/pages/AffiliateBanners'));
+export const AffiliateMarketingTips = lazyLoad(() => import('@/pages/AffiliateMarketingTips'));
+export const AffiliateCourses = lazyLoad(() => import('@/pages/AffiliateCourses'));
 export const AffiliateWithdrawPage = lazyLoad(() => import('@/pages/AffiliateWithdrawPage'));
 export const AffiliateResourcesPage = lazyLoad(() => import('@/pages/AffiliateResourcesPage'));
 export const AffiliateSupportPage = lazyLoad(() => import('@/pages/AffiliateSupportPage'));
