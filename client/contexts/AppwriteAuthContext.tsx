@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import AppwriteService from '../lib/appwrite';
+import AppwriteService, { databases, appwriteConfig } from '../lib/appwrite';
 
 interface User {
   $id: string;
@@ -78,7 +78,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = await AppwriteService.getCurrentUser();
       
       if (currentUser) {
-        // Use user preferences instead of separate collection
+        // Try to get user data from users collection first (for accountStatus)
+        let userData: any = {};
+        try {
+          const userDoc = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.users,
+            currentUser.$id
+          );
+          userData = userDoc;
+        } catch (error) {
+          console.log('No user document found, using prefs only');
+        }
+
+        // Use user preferences as fallback
         const prefs = currentUser.prefs as any || {};
         
         // قائمة الإيميلات للمديرين (Super Admins)
@@ -142,10 +155,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           isMerchant: prefs.isMerchant || userRole === 'merchant',
           affiliateCode: prefs.affiliateCode || '',
           commissionRate: prefs.commissionRate || 0.15,
-          accountStatus: prefs.accountStatus || 'approved',
-          approvedAt: prefs.approvedAt,
-          approvedBy: prefs.approvedBy,
-          rejectionReason: prefs.rejectionReason
+          // Use userData from collection if available, otherwise use prefs
+          accountStatus: userData.accountStatus || prefs.accountStatus || 'approved',
+          approvedAt: userData.approvedAt || prefs.approvedAt,
+          approvedBy: userData.approvedBy || prefs.approvedBy,
+          rejectionReason: userData.rejectionReason || prefs.rejectionReason
         });
       } else {
         setUser(null);

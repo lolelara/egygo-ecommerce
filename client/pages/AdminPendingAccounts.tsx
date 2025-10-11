@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { PageSkeleton, StatsCardSkeleton, TableSkeleton } from "@/components/LoadingSkeletons";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
-import { databases, appwriteConfig } from "@/lib/appwrite";
-import { Query } from "appwrite";
+import { databases, appwriteConfig, account } from "@/lib/appwrite";
+import { Query, ID } from "appwrite";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -130,41 +130,36 @@ export default function AdminPendingAccounts() {
 
   const approveAccount = async (userId: string, userName: string) => {
     try {
+      const approvalData = {
+        accountStatus: 'approved',
+        approvedAt: new Date().toISOString(),
+        approvedBy: user?.$id,
+        isActive: true,
+      };
+
       // Update in users collection
       await databases.updateDocument(
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
         userId,
-        {
-          accountStatus: 'approved',
-          approvedAt: new Date().toISOString(),
-          approvedBy: user?.$id,
-          isActive: true,
-        }
+        approvalData
       );
 
-      // IMPORTANT: Also update user preferences via server endpoint
-      // This ensures the user sees the update immediately
+      // IMPORTANT: Also create a document in a sync collection
+      // This will be used by the user's refresh function
       try {
-        const response = await fetch('/api/admin/approve-user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        await databases.createDocument(
+          appwriteConfig.databaseId,
+          'user_updates',
+          ID.unique(),
+          {
             userId: userId,
-            accountStatus: 'approved',
-            approvedAt: new Date().toISOString(),
-            approvedBy: user?.$id,
-          }),
-        });
-
-        if (!response.ok) {
-          console.error('Failed to update user preferences');
-        }
-      } catch (prefError) {
-        console.error('Error updating preferences:', prefError);
-        // Continue anyway - the collection is updated
+            ...approvalData,
+            timestamp: new Date().toISOString()
+          }
+        );
+      } catch (syncError) {
+        console.log('Sync collection not available, user will see update on next refresh');
       }
 
       // Create notification for approved user
@@ -177,7 +172,7 @@ export default function AdminPendingAccounts() {
             userId: userId,
             title: '🎉 تمت الموافقة على حسابك',
             message: 'مرحباً بك! تم قبول حسابك ويمكنك الآن الاستفادة من جميع المميزات',
-            type: 'account_approved',
+            type: 'info',
             isRead: false,
             link: '/dashboard',
           }
