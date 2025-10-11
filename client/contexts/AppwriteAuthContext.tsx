@@ -28,6 +28,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string, accountType?: 'customer' | 'affiliate' | 'merchant' | 'intermediary', phone?: string, alternativePhone?: string) => Promise<{ $id: string; email: string; name: string } | undefined>;
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,7 +49,8 @@ export const useAuth = () => {
       loginWithFacebook: async () => {},
       register: async () => {},
       logout: async () => {},
-      updateUser: async () => {}
+      updateUser: async () => {},
+      refreshUser: async () => {}
     };
   }
   return context;
@@ -342,6 +344,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      await checkAuthUser();
+    } catch (error) {
+      console.error('Refresh user error:', error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     loading,
@@ -350,7 +360,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loginWithFacebook,
     register,
     logout,
-    updateUser
+    updateUser,
+    refreshUser
   };
 
   return (

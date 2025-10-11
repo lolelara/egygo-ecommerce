@@ -1,9 +1,10 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Loader2, ShieldAlert, Lock } from 'lucide-react';
+import { Loader2, ShieldAlert, Lock, RefreshCw } from 'lucide-react';
 import { hasPermission, Permission, UserRole, getDashboardRoute } from '@/lib/permissions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,7 +21,19 @@ export function ProtectedRoute({
   requireAuth = true,
   fallbackPath 
 }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto-refresh user data every 30 seconds if pending
+  useEffect(() => {
+    if (user && user.accountStatus === 'pending' && (requiredRole === 'merchant' || requiredRole === 'affiliate')) {
+      const interval = setInterval(async () => {
+        await refreshUser();
+      }, 30000); // 30 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [user, requiredRole, refreshUser]);
 
   // Show loading spinner while checking auth
   if (loading) {
@@ -102,14 +115,30 @@ export function ProtectedRoute({
                   ? `تم رفض حسابك. السبب: ${user.rejectionReason || 'غير محدد'}. يمكنك التواصل مع الدعم الفني.`
                   : 'حالة حسابك غير معروفة. يرجى التواصل مع الدعم الفني.'}
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <Button 
+                  onClick={async () => {
+                    setIsRefreshing(true);
+                    await refreshUser();
+                    setIsRefreshing(false);
+                  }} 
+                  variant="default"
+                  className="flex items-center gap-2"
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  {isRefreshing ? 'جاري التحديث...' : 'تحديث الحالة'}
+                </Button>
                 <Button onClick={() => window.location.href = '/'} variant="outline">
                   الصفحة الرئيسية
                 </Button>
-                <Button onClick={() => window.location.href = '/contact'}>
+                <Button onClick={() => window.location.href = '/contact'} variant="outline">
                   تواصل معنا
                 </Button>
               </div>
+              <p className="text-xs text-yellow-700 mt-3">
+                💡 يتم التحديث التلقائي كل 30 ثانية
+              </p>
             </AlertDescription>
           </Alert>
         </div>
