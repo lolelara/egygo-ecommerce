@@ -9,24 +9,14 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import CouponInput from "@/components/cart/CouponInput";
+import { type Coupon } from "@/lib/coupons-api";
 
 export default function Cart() {
   const { toast } = useToast();
   const { items: cartItems, removeItem, updateQuantity, clearCart, subtotal } = useCart();
-  const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<{
-    code: string;
-    percentage: number;
-  } | null>(null);
-
-  // Discount codes - يمكن نقلها لـ Database لاحقاً
-  // TODO: Create coupons collection in Appwrite
-  const DISCOUNT_CODES: Record<string, number> = {
-    "WELCOME10": 10,
-    "SAVE20": 20,
-    "SUMMER15": 15,
-    "EGYGO25": 25, // كود خاص بموقع egygo
-  };
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
 
   const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -75,42 +65,14 @@ export default function Cart() {
     });
   };
 
-  const handleApplyDiscount = () => {
-    const code = discountCode.trim().toUpperCase();
-    const percentage = DISCOUNT_CODES[code];
-
-    if (!percentage) {
-      toast({
-        title: "كود خاطئ",
-        description: "الكود الذي أدخلته غير صحيح",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (appliedDiscount?.code === code) {
-      toast({
-        title: "تم تطبيق الكود مسبقاً",
-        description: "هذا الكود مُطبق بالفعل",
-        variant: "default",
-      });
-      return;
-    }
-
-    setAppliedDiscount({ code, percentage });
-    toast({
-      title: "تم تطبيق الكود",
-      description: `تم خصم ${percentage}% من إجمالي المشتريات`,
-    });
+  const handleCouponApplied = (discount: number, coupon: Coupon) => {
+    setDiscountAmount(discount);
+    setAppliedCoupon(coupon);
   };
 
-  const handleRemoveDiscount = () => {
-    setAppliedDiscount(null);
-    setDiscountCode("");
-    toast({
-      title: "تمت إزالة الخصم",
-      description: "تم إلغاء كود الخصم",
-    });
+  const handleCouponRemoved = () => {
+    setDiscountAmount(0);
+    setAppliedCoupon(null);
   };
 
   // Calculations
@@ -120,9 +82,6 @@ export default function Cart() {
   );
   
   const savings = originalTotal - subtotal;
-  const discountAmount = appliedDiscount
-    ? Math.round(subtotal * (appliedDiscount.percentage / 100))
-    : 0;
   const subtotalAfterDiscount = subtotal - discountAmount;
   const shipping = subtotalAfterDiscount >= 500 ? 0 : 50;
   const total = subtotalAfterDiscount + shipping;
@@ -314,7 +273,7 @@ export default function Cart() {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-4 space-y-4">
-              {/* Discount Code */}
+              {/* Coupon Code - New System */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -323,53 +282,12 @@ export default function Cart() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {appliedDiscount ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                        <div>
-                          <p className="font-semibold text-green-700 dark:text-green-300">
-                            {appliedDiscount.code}
-                          </p>
-                          <p className="text-sm text-green-600 dark:text-green-400">
-                            خصم {appliedDiscount.percentage}%
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleRemoveDiscount}
-                        >
-                          إزالة
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <Input
-                        placeholder="أدخل كود الخصم"
-                        value={discountCode}
-                        onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleApplyDiscount();
-                          }
-                        }}
-                      />
-                      <Button
-                        className="w-full"
-                        onClick={handleApplyDiscount}
-                        disabled={!discountCode.trim()}
-                      >
-                        تطبيق الكود
-                      </Button>
-                      <div className="text-xs text-muted-foreground">
-                        <p className="font-semibold mb-1">أكواد متاحة:</p>
-                        <p>• WELCOME10 - خصم 10%</p>
-                        <p>• SAVE20 - خصم 20%</p>
-                        <p>• SUMMER15 - خصم 15%</p>
-                      </div>
-                    </div>
-                  )}
+                  <CouponInput
+                    cartTotal={subtotal}
+                    onCouponApplied={handleCouponApplied}
+                    onCouponRemoved={handleCouponRemoved}
+                    appliedCoupon={appliedCoupon}
+                  />
                 </CardContent>
               </Card>
 
@@ -392,9 +310,9 @@ export default function Cart() {
                       </div>
                     )}
 
-                    {appliedDiscount && (
+                    {appliedCoupon && discountAmount > 0 && (
                       <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
-                        <span>خصم الكود ({appliedDiscount.percentage}%)</span>
+                        <span>خصم الكود ({appliedCoupon.code})</span>
                         <span>- {discountAmount.toLocaleString()} ج.م</span>
                       </div>
                     )}
