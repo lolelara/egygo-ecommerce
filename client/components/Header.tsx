@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase, ChevronDown, Grid3x3 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { UniversalSearch } from "./UniversalSearch";
@@ -108,18 +108,30 @@ export function Header({ cartItemCount }: HeaderProps) {
                 </div>
               )}
               <div className="space-y-2">
-                <h3 className="font-semibold text-sm text-muted-foreground">
-                  الفئات
-                </h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <Grid3x3 className="h-4 w-4 text-primary" />
+                  <h3 className="font-semibold text-sm text-muted-foreground">
+                    الفئات
+                  </h3>
+                </div>
                 {categories.filter(cat => cat.slug).map((category) => (
                   <Link
                     key={category.id}
                     to={`/category/${category.slug}`}
-                    className="block py-2 text-sm hover:text-primary transition-colors"
+                    className="flex items-center justify-between py-2 px-3 text-sm hover:bg-muted rounded-md hover:text-primary transition-all"
                   >
-                    {category.name}
+                    <span>{category.name}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {category.productCount}
+                    </Badge>
                   </Link>
                 ))}
+                <Link
+                  to="/categories"
+                  className="flex items-center justify-center py-2 px-3 mt-2 text-sm font-semibold text-primary bg-primary/10 rounded-md hover:bg-primary/20 transition-all"
+                >
+                  عرض جميع الفئات
+                </Link>
               </div>
               <div className="pt-4 border-t space-y-2">
                 <Link
@@ -148,23 +160,38 @@ export function Header({ cartItemCount }: HeaderProps) {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6 rtl:space-x-reverse">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center text-sm font-medium hover:text-primary transition-colors">
+            <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium hover:text-primary transition-colors group">
+              <Grid3x3 className="h-4 w-4 group-hover:scale-110 transition-transform" />
               الفئات
+              <ChevronDown className="h-3 w-3 group-data-[state=open]:rotate-180 transition-transform" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48">
+            <DropdownMenuContent className="w-56" align="start">
+              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                تصفح حسب الفئة
+              </div>
+              <DropdownMenuSeparator />
               {categories.filter(cat => cat.slug).map((category) => (
                 <DropdownMenuItem key={category.id} asChild>
                   <Link
                     to={`/category/${category.slug}`}
-                    className="flex items-center justify-between w-full"
+                    className="flex items-center justify-between w-full cursor-pointer"
                   >
-                    {category.name}
+                    <span>{category.name}</span>
                     <Badge variant="secondary" className="ml-2 text-xs">
                       {category.productCount}
                     </Badge>
                   </Link>
                 </DropdownMenuItem>
               ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link
+                  to="/categories"
+                  className="flex items-center justify-center w-full font-semibold text-primary cursor-pointer"
+                >
+                  عرض جميع الفئات
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
