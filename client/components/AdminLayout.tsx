@@ -14,6 +14,10 @@ import {
   DollarSign,
   UserCheck,
   Bell,
+  Tag,
+  BarChart3,
+  Truck,
+  Sparkles,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,9 +67,33 @@ const adminNavItems = [
     roles: ['admin'], // فقط المدير
   },
   {
+    title: "إدارة الكوبونات",
+    href: "/admin/coupons",
+    icon: Tag,
+    roles: ['admin'], // فقط المدير
+  },
+  {
     title: "إدارة العمولات",
     href: "/admin/commissions",
     icon: DollarSign,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "التحليلات المتقدمة",
+    href: "/admin/analytics",
+    icon: BarChart3,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "إدارة الشحن",
+    href: "/admin/shipping",
+    icon: Truck,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "الإعدادات المتقدمة",
+    href: "/admin/advanced-settings",
+    icon: Sparkles,
     roles: ['admin'], // فقط المدير
   },
   {
