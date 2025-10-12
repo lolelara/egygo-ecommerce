@@ -68,9 +68,9 @@ const collections: CollectionConfig[] = [
       { key: 'referredUserId', type: 'string', size: 255, required: true },
       { key: 'referredUserName', type: 'string', size: 255, required: true },
       { key: 'referredUserEmail', type: 'email', required: true },
-      { key: 'status', type: 'string', size: 20, required: true, default: 'pending' },
-      { key: 'reward', type: 'float', required: true, default: 0 },
-      { key: 'level', type: 'integer', required: true, default: 1 },
+      { key: 'status', type: 'string', size: 20, required: true },
+      { key: 'reward', type: 'float', required: true },
+      { key: 'level', type: 'integer', required: true },
       { key: 'completedAt', type: 'datetime', required: false },
     ],
     indexes: [
@@ -93,7 +93,7 @@ const collections: CollectionConfig[] = [
       { key: 'percentage', type: 'float', required: true },
       { key: 'level', type: 'integer', required: true },
       { key: 'type', type: 'string', size: 50, required: true }, // 'signup', 'first_purchase', 'commission'
-      { key: 'status', type: 'string', size: 20, required: true, default: 'pending' },
+      { key: 'status', type: 'string', size: 20, required: true },
       { key: 'paidAt', type: 'datetime', required: false },
     ],
     indexes: [
