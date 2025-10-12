@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TableSkeleton } from '@/components/LoadingSkeletons';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Users, UserPlus, Edit, Trash2, Search, Filter } from 'lucide-react';
+import { Users, UserPlus, Edit, Trash2, Search, Filter, AlertCircle } from 'lucide-react';
 import { databases, account } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,9 +67,13 @@ export default function AdminUserManagement() {
     name: '',
     email: '',
     phone: '',
-    role: 'customer' as 'customer' | 'affiliate' | 'merchant' | 'admin',
+    role: 'customer' as 'customer' | 'affiliate' | 'merchant' | 'admin' | 'intermediary',
     defaultMarkupPercentage: '20'
   });
+  
+  // Role Change Confirmation Dialog
+  const [roleChangeConfirmOpen, setRoleChangeConfirmOpen] = useState(false);
+  const [pendingRoleChange, setPendingRoleChange] = useState<string | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -217,6 +221,24 @@ export default function AdminUserManagement() {
     setEditDialogOpen(true);
   };
 
+  const handleRoleChangeRequest = (newRole: string) => {
+    // Check if role is actually changing
+    if (newRole !== editingUser?.role) {
+      setPendingRoleChange(newRole);
+      setRoleChangeConfirmOpen(true);
+    } else {
+      setEditUserData({ ...editUserData, role: newRole as any });
+    }
+  };
+
+  const confirmRoleChange = () => {
+    if (pendingRoleChange) {
+      setEditUserData({ ...editUserData, role: pendingRoleChange as any });
+      setRoleChangeConfirmOpen(false);
+      setPendingRoleChange(null);
+    }
+  };
+
   const handleUpdateUser = async () => {
     if (!editingUser || !editUserData.name || !editUserData.email) {
       toast({
@@ -228,22 +250,38 @@ export default function AdminUserManagement() {
     }
 
     try {
+      // Prepare update data based on new role
+      const updateData: any = {
+        name: editUserData.name,
+        email: editUserData.email,
+        phone: editUserData.phone || '',
+        role: editUserData.role,
+        isAdmin: editUserData.role === 'admin',
+        isAffiliate: editUserData.role === 'affiliate',
+        isMerchant: editUserData.role === 'merchant',
+        isIntermediary: editUserData.role === 'intermediary',
+        accountStatus: 'approved' // Auto-approve on role change
+      };
+
+      // Reset role-specific data if role changed
+      if (editUserData.role !== editingUser.role) {
+        // Clear old role data
+        updateData.affiliateCode = editUserData.role === 'affiliate' ? `AFF${Date.now()}` : '';
+        updateData.intermediaryCode = editUserData.role === 'intermediary' ? `INT${Date.now()}` : '';
+        updateData.defaultMarkupPercentage = editUserData.role === 'intermediary' ? parseFloat(editUserData.defaultMarkupPercentage) : 0;
+        updateData.commissionRate = editUserData.role === 'affiliate' ? 10 : 0;
+      } else {
+        // Keep existing data if role didn't change
+        updateData.defaultMarkupPercentage = editingUser.isIntermediary 
+          ? parseFloat(editUserData.defaultMarkupPercentage) 
+          : editingUser.defaultMarkupPercentage || 0;
+      }
+
       await databases.updateDocument(
         DATABASE_ID,
         'userPreferences',
         editingUser.$id,
-        {
-          name: editUserData.name,
-          email: editUserData.email,
-          phone: editUserData.phone || '',
-          role: editUserData.role,
-          isAdmin: editUserData.role === 'admin',
-          isAffiliate: editUserData.role === 'affiliate',
-          isMerchant: editUserData.role === 'merchant',
-          defaultMarkupPercentage: editingUser.isIntermediary 
-            ? parseFloat(editUserData.defaultMarkupPercentage) 
-            : editingUser.defaultMarkupPercentage || 0
-        }
+        updateData
       );
 
       toast({
@@ -662,13 +700,20 @@ export default function AdminUserManagement() {
                   id="edit-role"
                   className="w-full p-2 border rounded-md bg-background"
                   value={editUserData.role}
-                  onChange={(e) => setEditUserData({ ...editUserData, role: e.target.value as 'customer' | 'affiliate' | 'merchant' | 'admin' })}
+                  onChange={(e) => handleRoleChangeRequest(e.target.value)}
                 >
                   <option value="customer">عميل</option>
                   <option value="affiliate">مسوق بالعمولة</option>
                   <option value="merchant">تاجر</option>
+                  <option value="intermediary">وسيط</option>
                   <option value="admin">مدير</option>
                 </select>
+                {editUserData.role !== editingUser?.role && (
+                  <p className="text-xs text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    سيتم تطبيق الدور الجديد فوراً بدون مراجعة
+                  </p>
+                )}
               </div>
 
               {editingUser?.isIntermediary && (
@@ -705,6 +750,101 @@ export default function AdminUserManagement() {
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 حفظ التعديلات
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Role Change Confirmation Dialog */}
+        <Dialog open={roleChangeConfirmOpen} onOpenChange={setRoleChangeConfirmOpen}>
+          <DialogContent className="sm:max-w-[500px]" dir="rtl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-orange-600">
+                <AlertCircle className="h-6 w-6" />
+                تحذير: تغيير الدور
+              </DialogTitle>
+              <DialogDescription>
+                يرجى قراءة التحذير التالي بعناية قبل المتابعة
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 p-4 rounded-lg">
+                <h3 className="font-bold text-red-800 dark:text-red-200 mb-2 flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5" />
+                  تحذير هام
+                </h3>
+                <ul className="space-y-2 text-sm text-red-700 dark:text-red-300">
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-600 font-bold">•</span>
+                    <span>سيفقد المستخدم جميع البيانات المرتبطة بالدور القديم</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-600 font-bold">•</span>
+                    <span>سيتم حذف المنتجات، الطلبات، والإحصائيات القديمة</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-600 font-bold">•</span>
+                    <span>لا يمكن التراجع عن هذا الإجراء</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-600 font-bold">•</span>
+                    <span>سيتم تطبيق الدور الجديد فوراً بدون مراجعة</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 p-4 rounded-lg">
+                <h3 className="font-bold text-blue-800 dark:text-blue-200 mb-2">
+                  التغيير المطلوب:
+                </h3>
+                <div className="flex items-center justify-center gap-4 text-sm">
+                  <div className="text-center">
+                    <p className="text-muted-foreground mb-1">الدور الحالي</p>
+                    <Badge className="text-base px-4 py-1">
+                      {editingUser?.role === 'customer' && 'عميل'}
+                      {editingUser?.role === 'affiliate' && 'مسوق'}
+                      {editingUser?.role === 'merchant' && 'تاجر'}
+                      {editingUser?.role === 'intermediary' && 'وسيط'}
+                      {editingUser?.role === 'admin' && 'مدير'}
+                    </Badge>
+                  </div>
+                  <div className="text-2xl text-muted-foreground">→</div>
+                  <div className="text-center">
+                    <p className="text-muted-foreground mb-1">الدور الجديد</p>
+                    <Badge className="text-base px-4 py-1 bg-green-100 text-green-800">
+                      {pendingRoleChange === 'customer' && 'عميل'}
+                      {pendingRoleChange === 'affiliate' && 'مسوق'}
+                      {pendingRoleChange === 'merchant' && 'تاجر'}
+                      {pendingRoleChange === 'intermediary' && 'وسيط'}
+                      {pendingRoleChange === 'admin' && 'مدير'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-200 dark:border-yellow-800 p-4 rounded-lg">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  ℹ️ <strong>ملاحظة:</strong> سيتم تفعيل الحساب تلقائياً بالدور الجديد دون الحاجة لمراجعة الأدمن
+                </p>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setRoleChangeConfirmOpen(false);
+                  setPendingRoleChange(null);
+                }}
+              >
+                إلغاء
+              </Button>
+              <Button 
+                onClick={confirmRoleChange}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                تأكيد التغيير
               </Button>
             </DialogFooter>
           </DialogContent>
