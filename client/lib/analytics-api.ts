@@ -3,15 +3,15 @@
  * Provides comprehensive analytics data for sales, orders, products, and users
  */
 
-import { databases } from './appwrite';
+import { databases, appwriteConfig } from './appwrite';
 import { Query } from 'appwrite';
 import { startOfDay, endOfDay, subDays, format } from 'date-fns';
 
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const ORDERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID;
-const PRODUCTS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION_ID;
-const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_USERS_COLLECTION_ID;
-const ORDER_ITEMS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_ORDER_ITEMS_COLLECTION_ID;
+const DATABASE_ID = appwriteConfig.databaseId;
+const ORDERS_COLLECTION_ID = appwriteConfig.collections.orders;
+const PRODUCTS_COLLECTION_ID = appwriteConfig.collections.products;
+const USERS_COLLECTION_ID = appwriteConfig.collections.users;
+const ORDER_ITEMS_COLLECTION_ID = appwriteConfig.collections.orderItems;
 
 export interface DailySalesData {
   date: string;

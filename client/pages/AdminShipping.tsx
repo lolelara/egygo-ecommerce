@@ -27,6 +27,8 @@ import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { databases, appwriteConfig } from "@/lib/appwrite";
+import { Query } from "appwrite";
 
 interface ShippingMethod {
   id: string;
@@ -117,74 +119,72 @@ export default function AdminShipping() {
   useEffect(() => {
     loadOrders();
     loadShippingMethods();
-    loadStats();
   }, []);
+
+  useEffect(() => {
+    // Recalculate stats whenever orders change
+    loadStats();
+  }, [orders]);
 
   const loadOrders = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockOrders: Order[] = [
-        {
-          id: '1',
-          orderNumber: 'EGY-2024-001',
-          customerName: 'أحمد محمد',
-          customerEmail: 'ahmed@example.com',
-          customerPhone: '+201234567890',
-          shippingAddress: {
-            street: 'شارع التحرير 123',
-            city: 'القاهرة',
-            state: 'القاهرة',
-            postalCode: '11511',
-            country: 'مصر'
-          },
-          items: [
-            { productName: 'لابتوب ديل', quantity: 1, price: 15000 },
-            { productName: 'ماوس لاسلكي', quantity: 1, price: 500 }
-          ],
-          total: 15500,
-          status: 'shipped',
-          shippingMethod: 'express',
-          trackingNumber: 'TRK123456789',
-          estimatedDelivery: new Date('2024-10-15'),
-          createdAt: new Date('2024-10-10'),
-          updatedAt: new Date('2024-10-12')
+      // Load real orders from Appwrite
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.orders,
+        [
+          Query.orderDesc('$createdAt'),
+          Query.limit(100)
+        ]
+      );
+
+      const ordersData: Order[] = response.documents.map((doc: any) => ({
+        id: doc.$id,
+        orderNumber: doc.orderNumber || `EGY-${doc.$id.slice(0, 8)}`,
+        customerName: doc.customerName || 'غير محدد',
+        customerEmail: doc.customerEmail || '',
+        customerPhone: doc.customerPhone || '',
+        shippingAddress: doc.shippingAddress || {
+          street: '',
+          city: '',
+          state: '',
+          postalCode: '',
+          country: 'مصر'
         },
-        {
-          id: '2',
-          orderNumber: 'EGY-2024-002',
-          customerName: 'فاطمة علي',
-          customerEmail: 'fatima@example.com',
-          customerPhone: '+201234567891',
-          shippingAddress: {
-            street: 'شارع النيل 456',
-            city: 'الإسكندرية',
-            state: 'الإسكندرية',
-            postalCode: '21500',
-            country: 'مصر'
-          },
-          items: [
-            { productName: 'هاتف ذكي', quantity: 1, price: 8000 }
-          ],
-          total: 8000,
-          status: 'processing',
-          shippingMethod: 'standard',
-          createdAt: new Date('2024-10-11'),
-          updatedAt: new Date('2024-10-11')
-        }
-      ];
-      setOrders(mockOrders);
+        items: doc.items || [],
+        total: doc.totalAmount || 0,
+        status: doc.status || 'pending',
+        shippingMethod: doc.shippingMethod || 'standard',
+        trackingNumber: doc.trackingNumber,
+        estimatedDelivery: doc.estimatedDelivery ? new Date(doc.estimatedDelivery) : undefined,
+        actualDelivery: doc.actualDelivery ? new Date(doc.actualDelivery) : undefined,
+        createdAt: new Date(doc.$createdAt),
+        updatedAt: new Date(doc.$updatedAt)
+      }));
+
+      setOrders(ordersData);
+
+      // If no orders, show empty state instead of mock data
+      if (ordersData.length === 0) {
+        console.log('No orders found');
+      }
     } catch (error) {
+      console.error('Error loading orders:', error);
       toast({
         title: "خطأ",
         description: "فشل في تحميل الطلبات",
         variant: "destructive"
       });
+      // Show empty state on error
+      setOrders([]);
     }
   };
 
   const loadShippingMethods = async () => {
     try {
-      const mockMethods: ShippingMethod[] = [
+      // For now, use default shipping methods
+      // You can create a shipping_methods collection later
+      const defaultMethods: ShippingMethod[] = [
         {
           id: '1',
           name: 'الشحن السريع',
@@ -213,7 +213,7 @@ export default function AdminShipping() {
           supportedRegions: ['جميع المحافظات']
         }
       ];
-      setShippingMethods(mockMethods);
+      setShippingMethods(defaultMethods);
     } catch (error) {
       console.error('Failed to load shipping methods:', error);
     }
@@ -221,15 +221,36 @@ export default function AdminShipping() {
 
   const loadStats = async () => {
     try {
-      const mockStats: ShippingStats = {
-        totalOrders: 1250,
-        pendingShipment: 45,
-        inTransit: 78,
-        delivered: 1127,
-        averageDeliveryTime: 2.5,
-        onTimeDeliveryRate: 94.5
-      };
-      setStats(mockStats);
+      // Calculate stats from real orders
+      const totalOrders = orders.length;
+      const pendingShipment = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+      const inTransit = orders.filter(o => o.status === 'shipped').length;
+      const delivered = orders.filter(o => o.status === 'delivered').length;
+      
+      // Calculate average delivery time for delivered orders
+      const deliveredOrders = orders.filter(o => o.status === 'delivered' && o.actualDelivery && o.createdAt);
+      const avgDeliveryTime = deliveredOrders.length > 0
+        ? deliveredOrders.reduce((sum, order) => {
+            const days = Math.ceil((order.actualDelivery!.getTime() - order.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+            return sum + days;
+          }, 0) / deliveredOrders.length
+        : 0;
+      
+      // Calculate on-time delivery rate
+      const onTimeOrders = deliveredOrders.filter(order => {
+        if (!order.estimatedDelivery || !order.actualDelivery) return false;
+        return order.actualDelivery <= order.estimatedDelivery;
+      }).length;
+      const onTimeRate = deliveredOrders.length > 0 ? (onTimeOrders / deliveredOrders.length) * 100 : 0;
+
+      setStats({
+        totalOrders,
+        pendingShipment,
+        inTransit,
+        delivered,
+        averageDeliveryTime: avgDeliveryTime,
+        onTimeDeliveryRate: onTimeRate
+      });
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
