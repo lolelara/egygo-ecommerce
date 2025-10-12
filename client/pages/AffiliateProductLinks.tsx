@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, ExternalLink, DollarSign, TrendingUp, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import QuickShareButtons from "@/components/affiliate/QuickShareButtons";
 
 interface Product {
   $id: string;
@@ -276,6 +277,15 @@ export default function AffiliateProductLinks() {
                           </Button>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Quick Share Buttons */}
+                    <div className="mt-4 pt-4 border-t">
+                      <Label className="mb-2 block">مشاركة سريعة</Label>
+                      <QuickShareButtons 
+                        link={generateAffiliateLink(product.$id)}
+                        productName={product.name}
+                      />
                     </div>
                   </div>
                 );

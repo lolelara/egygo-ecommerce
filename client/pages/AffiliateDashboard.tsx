@@ -40,6 +40,16 @@ import { useToast } from "@/hooks/use-toast";
 import type { ProductWithRelations } from "@shared/prisma-types";
 import AffiliateStats from "@/components/charts/AffiliateStats";
 import AffiliateProductLinks from "./AffiliateProductLinks";
+import QuickActionsPanel from "@/components/affiliate/QuickActionsPanel";
+import QuickShareButtons from "@/components/affiliate/QuickShareButtons";
+import EarningsCalculator from "@/components/affiliate/EarningsCalculator";
+import TopProductsWidget from "@/components/affiliate/TopProductsWidget";
+import PerformanceInsights from "@/components/affiliate/PerformanceInsights";
+import RecentActivityTimeline from "@/components/affiliate/RecentActivityTimeline";
+import LeaderboardWidget from "@/components/affiliate/LeaderboardWidget";
+import SmartNotifications from "@/components/affiliate/SmartNotifications";
+import ProductComparison from "@/components/affiliate/ProductComparison";
+import WithdrawalRequest from "@/components/affiliate/WithdrawalRequest";
 
 export default function AffiliateDashboard() {
   const { user } = useAuth();
@@ -49,6 +59,7 @@ export default function AffiliateDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCalculator, setShowCalculator] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -194,6 +205,12 @@ export default function AffiliateDashboard() {
             </div>
           </div>
 
+          {/* Quick Actions Panel */}
+          <QuickActionsPanel onCalculatorClick={() => setShowCalculator(!showCalculator)} />
+
+          {/* Earnings Calculator (Conditional) */}
+          {showCalculator && <EarningsCalculator />}
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="border-orange-200 dark:border-orange-900 shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-white to-orange-50/30 dark:from-neutral-800 dark:to-neutral-800">
@@ -274,6 +291,30 @@ export default function AffiliateDashboard() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
+          {/* Smart Notifications & Performance Insights */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <SmartNotifications />
+            <PerformanceInsights stats={stats} />
+          </div>
+
+          {/* Top Products & Leaderboard */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <TopProductsWidget />
+            <LeaderboardWidget 
+              currentUserRank={3} 
+              currentUserEarnings={stats?.totalEarnings || 0} 
+            />
+          </div>
+
+          {/* Recent Activity & Withdrawal */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <RecentActivityTimeline />
+            <WithdrawalRequest 
+              availableBalance={stats?.totalEarnings || 0}
+              pendingWithdrawals={stats?.pendingEarnings || 0}
+            />
+          </div>
+
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Account Info */}
             <div className="lg:col-span-2 space-y-6">
@@ -445,6 +486,9 @@ export default function AffiliateDashboard() {
 
         {/* Performance Tab */}
         <TabsContent value="performance" className="space-y-6">
+          {/* Product Comparison Tool */}
+          <ProductComparison />
+
           {/* Advanced Analytics Component */}
           <AffiliateStats affiliateId={user?.$id || ''} />
           

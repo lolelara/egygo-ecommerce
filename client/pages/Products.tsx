@@ -34,6 +34,7 @@ import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { ProductFilters } from "@shared/prisma-types";
 import { getImageUrl } from "@/lib/storage";
 import { ProductGridSkeleton } from "@/components/LoadingSkeletons";
+import EnhancedProductCard from "@/components/EnhancedProductCard";
 
 type SortOption = "featured" | "price_asc" | "price_desc" | "rating" | "newest";
 
@@ -386,81 +387,7 @@ export default function Products() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
-                  <Link
-                    key={product.id}
-                    to={`/product/${product.id}`}
-                    className="block"
-                  >
-                    <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
-                      <div className="relative">
-                        <img
-                          src={getImageUrl(product.images?.[0])}
-                          alt={product.name}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      {product.originalPrice &&
-                        product.originalPrice > product.price && (
-                          <Badge className="absolute top-2 left-2 bg-destructive text-destructive-foreground">
-                            وفر $
-                            {(product.originalPrice - product.price).toFixed(0)}
-                          </Badge>
-                        )}
-                      <div className="absolute top-2 right-2 bg-brand-orange text-white text-xs px-2 py-1 rounded">
-                        {product.affiliateCommission}% عمولة
-                      </div>
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-1 mb-2">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`h-4 w-4 ${
-                                i < Math.floor(product.rating)
-                                  ? "text-yellow-400 fill-current"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          ({product.reviewCount})
-                        </span>
-                      </div>
-                      <h3 className="font-semibold mb-2 line-clamp-2">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                        {product.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold">
-                              ${product.price}
-                            </span>
-                            {product.originalPrice &&
-                              product.originalPrice > product.price && (
-                                <span className="text-sm text-muted-foreground line-through">
-                                  ${product.originalPrice}
-                                </span>
-                              )}
-                          </div>
-                        </div>
-                        <Button 
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // Add to cart functionality here
-                          }}
-                        >
-                          <ShoppingCart className="h-4 w-4 ml-1 rtl:ml-0 rtl:mr-1" />
-                          إضافة للسلة
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  </Link>
+                  <EnhancedProductCard key={product.id} product={product} />
                 ))}
               </div>
 

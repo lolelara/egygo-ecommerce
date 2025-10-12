@@ -19,6 +19,7 @@ import { ScrollToTopButton } from "./components/ScrollToTopButton";
 import { AuthProvider as OriginalAuthProvider } from "./contexts/AuthContext";
 import { AuthProvider } from "./contexts/AppwriteAuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import { FavoritesProvider } from "./contexts/FavoritesContext";
 // Import lazy routes for better performance
 import * as LazyRoutes from "@/lib/lazy-routes";
 
@@ -72,9 +73,10 @@ const App = () => (
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <CartProvider>
-                <TooltipProvider>
-                  <Toaster position="top-center" richColors closeButton />
-                  <HashRouter>
+                <FavoritesProvider>
+                  <TooltipProvider>
+                    <Toaster position="top-center" richColors closeButton />
+                    <HashRouter>
               <Layout>
                 <Routes>
                 {/* Critical routes - not lazy loaded */}
@@ -161,6 +163,7 @@ const App = () => (
           </Layout>
         </HashRouter>
         </TooltipProvider>
+        </FavoritesProvider>
       </CartProvider>
     </AuthProvider>
   </QueryClientProvider>
