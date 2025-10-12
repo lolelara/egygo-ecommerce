@@ -64,6 +64,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   };
 
   const addFavorite = async (productId: string) => {
+    console.log('🔵 addFavorite called for:', productId, 'User:', user?.$id);
     try {
       if (user) {
         // Save to Appwrite
@@ -87,6 +88,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       const newFavorites = [...favorites, productId];
       setFavorites(newFavorites);
       localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      console.log('✅ Favorite added successfully. New favorites:', newFavorites);
     } catch (error) {
       console.error('Error adding favorite:', error);
       throw error;
@@ -94,6 +96,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFavorite = async (productId: string) => {
+    console.log('🔴 removeFavorite called for:', productId);
     try {
       if (user) {
         // Remove from Appwrite
@@ -123,6 +126,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       const newFavorites = favorites.filter(id => id !== productId);
       setFavorites(newFavorites);
       localStorage.setItem('favorites', JSON.stringify(newFavorites));
+      console.log('✅ Favorite removed successfully. New favorites:', newFavorites);
     } catch (error) {
       console.error('Error removing favorite:', error);
       throw error;

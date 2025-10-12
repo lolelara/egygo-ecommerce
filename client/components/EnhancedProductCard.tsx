@@ -77,20 +77,21 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
       if (isFav) {
         await removeFavorite(product.id);
         toast({
-          title: "تمت الإزالة",
-          description: "تم إزالة المنتج من المفضلة",
+          title: "✅ تمت الإزالة من المفضلة",
+          description: `تم إزالة ${product.name} من المفضلة`,
         });
       } else {
         await addFavorite(product.id);
         toast({
-          title: "✅ تمت الإضافة",
-          description: "تم إضافة المنتج إلى المفضلة",
+          title: "✅ تمت الإضافة للمفضلة",
+          description: `تم إضافة ${product.name} إلى المفضلة`,
         });
       }
     } catch (error) {
+      console.error('Favorite error:', error);
       toast({
-        title: "خطأ",
-        description: "فشل في تحديث المفضلة",
+        title: "❌ خطأ",
+        description: "فشل في تحديث المفضلة. تحقق من تسجيل الدخول.",
         variant: "destructive",
       });
     }
