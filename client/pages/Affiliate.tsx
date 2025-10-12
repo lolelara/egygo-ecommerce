@@ -280,80 +280,6 @@ export default function Affiliate() {
         </div>
       </section>
 
-      {/* Commission Structure */}
-      <section className="bg-secondary/50">
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-              هيكل العمولة
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              مبيعات أعلى = معدلات عمولة أعلى
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card className="text-center">
-              <CardHeader>
-                <CardTitle className="text-2xl text-brand-orange">8%</CardTitle>
-                <p className="text-sm text-muted-foreground">معدل العمولة</p>
-              </CardHeader>
-              <CardContent>
-                <p className="font-semibold mb-2">مبتدئ</p>
-                <p className="text-sm text-muted-foreground">
-                  $0 - $500 مبيعات شهرية
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-brand-orange">
-              <CardHeader>
-                <CardTitle className="text-2xl text-brand-orange">
-                  15%
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">معدل العمولة</p>
-              </CardHeader>
-              <CardContent>
-                <p className="font-semibold mb-2">برونزي</p>
-                <p className="text-sm text-muted-foreground">
-                  $500 - $2,000 مبيعات شهرية
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-brand-purple">
-              <CardHeader>
-                <CardTitle className="text-2xl text-brand-purple">
-                  20%
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">معدل العمولة</p>
-              </CardHeader>
-              <CardContent>
-                <p className="font-semibold mb-2">فضي</p>
-                <p className="text-sm text-muted-foreground">
-                  $2,000 - $5,000 مبيعات شهرية
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center border-primary bg-primary/5">
-              <CardHeader>
-                <CardTitle className="text-2xl text-primary">25%</CardTitle>
-                <p className="text-sm text-muted-foreground">معدل العمولة</p>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center gap-1 mb-2">
-                  <p className="font-semibold">ذهبي</p>
-                  <Award className="h-4 w-4 text-primary" />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  +$5,000 مبيعات شهرية
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* How It Works */}
       <section className="container mx-auto px-4">
@@ -386,10 +312,10 @@ export default function Affiliate() {
       <section className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-            منتجات عالية التحويل
+            المنتجات المتاحة للترويج
           </h2>
           <p className="text-muted-foreground text-lg">
-            روج لهذه المنتجات الأكثر مبيعًا واحصل على أقصى أرباحك
+            اختر من بين مجموعة واسعة من المنتجات عالية الجودة
           </p>
         </div>
 
@@ -405,9 +331,6 @@ export default function Affiliate() {
                   alt={product.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <Badge className="absolute top-2 left-2 bg-success text-success-foreground">
-                  عالي التحويل
-                </Badge>
                 <div className="absolute top-2 right-2 bg-brand-orange text-white text-xs px-2 py-1 rounded font-bold">
                   {product.affiliateCommission}% عمولة
                 </div>
