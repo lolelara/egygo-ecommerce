@@ -89,6 +89,7 @@ interface TrackingEvent {
 
 export default function AdminShipping() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]); // Store all orders for stats
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [stats, setStats] = useState<ShippingStats>({
     totalOrders: 0,
@@ -104,6 +105,14 @@ export default function AdminShipping() {
   const [isMethodDialogOpen, setIsMethodDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const ordersPerPage = 20;
+  
   const { toast } = useToast();
 
   // Form state for shipping method
@@ -122,20 +131,38 @@ export default function AdminShipping() {
   }, []);
 
   useEffect(() => {
-    // Recalculate stats whenever orders change
+    // Recalculate stats whenever allOrders change
     loadStats();
-  }, [orders]);
+  }, [allOrders]);
+  
+  useEffect(() => {
+    // Reload orders when filter changes
+    loadOrders(1);
+  }, [statusFilter]);
 
-  const loadOrders = async () => {
+  const loadOrders = async (page: number = 1) => {
+    setIsLoading(true);
     try {
-      // Load real orders from Appwrite
+      // Calculate offset for pagination
+      const offset = (page - 1) * ordersPerPage;
+      
+      // Build queries based on filters
+      const queries: any[] = [
+        Query.orderDesc('$createdAt'),
+        Query.limit(ordersPerPage),
+        Query.offset(offset)
+      ];
+      
+      // Add status filter if not "all"
+      if (statusFilter !== 'all') {
+        queries.push(Query.equal('status', statusFilter));
+      }
+      
+      // Load real orders from Appwrite with pagination
       const response = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.orders,
-        [
-          Query.orderDesc('$createdAt'),
-          Query.limit(100)
-        ]
+        queries
       );
 
       const ordersData: Order[] = response.documents.map((doc: any) => ({
@@ -163,6 +190,44 @@ export default function AdminShipping() {
       }));
 
       setOrders(ordersData);
+      setTotalOrders(response.total);
+      setTotalPages(Math.ceil(response.total / ordersPerPage));
+      setCurrentPage(page);
+      
+      // Load all orders for stats calculation (without pagination)
+      if (page === 1) {
+        const allOrdersResponse = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.orders,
+          [Query.orderDesc('$createdAt'), Query.limit(1000)]
+        );
+        
+        const allOrdersData: Order[] = allOrdersResponse.documents.map((doc: any) => ({
+          id: doc.$id,
+          orderNumber: doc.orderNumber || `EGY-${doc.$id.slice(0, 8)}`,
+          customerName: doc.customerName || 'غير محدد',
+          customerEmail: doc.customerEmail || '',
+          customerPhone: doc.customerPhone || '',
+          shippingAddress: doc.shippingAddress || {
+            street: '',
+            city: '',
+            state: '',
+            postalCode: '',
+            country: 'مصر'
+          },
+          items: doc.items || [],
+          total: doc.totalAmount || 0,
+          status: doc.status || 'pending',
+          shippingMethod: doc.shippingMethod || 'standard',
+          trackingNumber: doc.trackingNumber,
+          estimatedDelivery: doc.estimatedDelivery ? new Date(doc.estimatedDelivery) : undefined,
+          actualDelivery: doc.actualDelivery ? new Date(doc.actualDelivery) : undefined,
+          createdAt: new Date(doc.$createdAt),
+          updatedAt: new Date(doc.$updatedAt)
+        }));
+        
+        setAllOrders(allOrdersData);
+      }
 
       // If no orders, show empty state instead of mock data
       if (ordersData.length === 0) {
@@ -177,6 +242,8 @@ export default function AdminShipping() {
       });
       // Show empty state on error
       setOrders([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -221,14 +288,17 @@ export default function AdminShipping() {
 
   const loadStats = async () => {
     try {
+      // Use allOrders for stats calculation (not paginated)
+      const ordersForStats = allOrders.length > 0 ? allOrders : orders;
+      
       // Calculate stats from real orders
-      const totalOrders = orders.length;
-      const pendingShipment = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
-      const inTransit = orders.filter(o => o.status === 'shipped').length;
-      const delivered = orders.filter(o => o.status === 'delivered').length;
+      const totalOrdersCount = ordersForStats.length;
+      const pendingShipment = ordersForStats.filter(o => o.status === 'pending' || o.status === 'processing').length;
+      const inTransit = ordersForStats.filter(o => o.status === 'shipped').length;
+      const delivered = ordersForStats.filter(o => o.status === 'delivered').length;
       
       // Calculate average delivery time for delivered orders
-      const deliveredOrders = orders.filter(o => o.status === 'delivered' && o.actualDelivery && o.createdAt);
+      const deliveredOrders = ordersForStats.filter(o => o.status === 'delivered' && o.actualDelivery && o.createdAt);
       const avgDeliveryTime = deliveredOrders.length > 0
         ? deliveredOrders.reduce((sum, order) => {
             const days = Math.ceil((order.actualDelivery!.getTime() - order.createdAt.getTime()) / (1000 * 60 * 60 * 24));
@@ -244,7 +314,7 @@ export default function AdminShipping() {
       const onTimeRate = deliveredOrders.length > 0 ? (onTimeOrders / deliveredOrders.length) * 100 : 0;
 
       setStats({
-        totalOrders,
+        totalOrders: totalOrdersCount,
         pendingShipment,
         inTransit,
         delivered,
@@ -560,7 +630,23 @@ export default function AdminShipping() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.map((order) => (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                      <span>جاري التحميل...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : filteredOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                    لا توجد طلبات
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>
                     <div className="font-medium">{order.orderNumber}</div>
@@ -628,9 +714,66 @@ export default function AdminShipping() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                ))
+              )}
             </TableBody>
           </Table>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4 pt-4 border-t">
+              <div className="text-sm text-muted-foreground">
+                عرض {((currentPage - 1) * ordersPerPage) + 1} إلى {Math.min(currentPage * ordersPerPage, totalOrders)} من {totalOrders} طلب
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadOrders(currentPage - 1)}
+                  disabled={currentPage === 1 || isLoading}
+                >
+                  السابق
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => loadOrders(pageNum)}
+                        disabled={isLoading}
+                        className="w-10"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => loadOrders(currentPage + 1)}
+                  disabled={currentPage === totalPages || isLoading}
+                >
+                  التالي
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -522,8 +522,6 @@ export default function AdminProducts() {
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
-
     try {
       // Check if user has permission to delete this product
       const product = products.find(p => p.id === productId);
@@ -537,9 +535,11 @@ export default function AdminProducts() {
       
       await adminProductsApi.delete(productId);
       setProducts((prev) => prev.filter((product) => product.id !== productId));
+      
+      alert("تم حذف المنتج بنجاح");
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("فشل في حذف المنتج");
+      alert("فشل في حذف المنتج: " + (error as any).message);
     }
   };
   
