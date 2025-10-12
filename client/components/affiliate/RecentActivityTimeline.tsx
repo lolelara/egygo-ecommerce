@@ -12,6 +12,7 @@ interface Activity {
   amount?: number;
   time: Date;
   productName?: string;
+  link?: string;
 }
 
 interface RecentActivityTimelineProps {

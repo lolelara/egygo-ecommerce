@@ -33,8 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fallbackProductsApi } from "../lib/api-fallback";
-import { affiliateApi } from "@/lib/affiliate-api";
+import { getAffiliateStats, getActiveProducts, getAffiliateActivities } from "@/lib/affiliate-data";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { ProductWithRelations } from "@shared/prisma-types";
@@ -81,22 +80,15 @@ export default function AffiliateDashboard() {
         return;
       }
       
-      // Load products for link generation
-      const productsData = await fallbackProductsApi.getAll({ limit: 6 });
-      setProducts(productsData.products || []);
+      // Load products for link generation from Appwrite
+      const productsData = await getActiveProducts(6);
+      setProducts(productsData as any || []);
 
       // Load affiliate stats if user is logged in
       if (user?.$id) {
         try {
-          const statsData = await affiliateApi.getStats(user.$id);
-          setStats(statsData || {
-            totalClicks: 0,
-            totalOrders: 0,
-            totalEarnings: 0,
-            pendingEarnings: 0,
-            affiliateCode: user.affiliateCode || `AFF${user.$id.slice(0, 6).toUpperCase()}`,
-            conversionRate: 0
-          });
+          const statsData = await getAffiliateStats(user.$id);
+          setStats(statsData);
         } catch (statsError) {
           console.error("Error loading stats:", statsError);
           // Set default stats if API fails
@@ -105,8 +97,13 @@ export default function AffiliateDashboard() {
             totalOrders: 0,
             totalEarnings: 0,
             pendingEarnings: 0,
+            thisMonthEarnings: 0,
             affiliateCode: user.affiliateCode || `AFF${user.$id.slice(0, 6).toUpperCase()}`,
-            conversionRate: 0
+            conversionRate: 0,
+            clicks: 0,
+            conversions: 0,
+            referralCount: 0,
+            commissionRate: 15
           });
         }
       }
