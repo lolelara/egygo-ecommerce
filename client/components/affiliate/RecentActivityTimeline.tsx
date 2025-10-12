@@ -3,6 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, DollarSign, Eye, ShoppingCart, Link2, TrendingUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
+import { useState, useEffect } from "react";
+import { getAffiliateActivities } from "@/lib/affiliate-data";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
 
 interface Activity {
   id: string;
@@ -20,7 +23,32 @@ interface RecentActivityTimelineProps {
 }
 
 export default function RecentActivityTimeline({ activities: propActivities }: RecentActivityTimelineProps) {
-  // Sample data if no activities provided
+  const { user } = useAuth();
+  const [activities, setActivities] = useState<Activity[]>(propActivities || []);
+  const [loading, setLoading] = useState(!propActivities);
+
+  useEffect(() => {
+    if (!propActivities && user?.$id) {
+      loadActivities();
+    }
+  }, [user, propActivities]);
+
+  const loadActivities = async () => {
+    if (!user?.$id) return;
+    
+    try {
+      setLoading(true);
+      const data = await getAffiliateActivities(user.$id, 10);
+      setActivities(data);
+    } catch (error) {
+      console.error('Error loading activities:', error);
+      setActivities([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sample data for fallback
   const sampleActivities: Activity[] = [
     {
       id: '1',
@@ -74,7 +102,8 @@ export default function RecentActivityTimeline({ activities: propActivities }: R
     }
   ];
 
-  const activities = propActivities || sampleActivities;
+  // Use loaded activities or fallback to sample
+  const displayActivities = activities.length > 0 ? activities : (loading ? [] : sampleActivities);
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -122,8 +151,13 @@ export default function RecentActivityTimeline({ activities: propActivities }: R
         </p>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {activities.map((activity, index) => {
+        {loading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {displayActivities.map((activity, index) => {
             const Icon = getActivityIcon(activity.type);
             const colorClass = getActivityColor(activity.type);
 
@@ -177,14 +211,15 @@ export default function RecentActivityTimeline({ activities: propActivities }: R
             );
           })}
 
-          {activities.length === 0 && (
+          {displayActivities.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
               <Clock className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>لا توجد نشاطات حديثة</p>
               <p className="text-xs mt-1">ابدأ بإنشاء روابط ومشاركتها</p>
             </div>
           )}
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
