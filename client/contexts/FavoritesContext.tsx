@@ -32,7 +32,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         try {
           const response = await databases.listDocuments(
             appwriteConfig.databaseId,
-            'favorites', // You'll need to create this collection
+            appwriteConfig.collections.favorites,
             [
               Query.equal('userId', user.$id),
               Query.limit(100)
@@ -70,7 +70,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         try {
           await databases.createDocument(
             appwriteConfig.databaseId,
-            'favorites',
+            appwriteConfig.collections.favorites,
             ID.unique(),
             {
               userId: user.$id,
@@ -100,7 +100,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         try {
           const response = await databases.listDocuments(
             appwriteConfig.databaseId,
-            'favorites',
+            appwriteConfig.collections.favorites,
             [
               Query.equal('userId', user.$id),
               Query.equal('productId', productId)
@@ -110,7 +110,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
           if (response.documents.length > 0) {
             await databases.deleteDocument(
               appwriteConfig.databaseId,
-              'favorites',
+              appwriteConfig.collections.favorites,
               response.documents[0].$id
             );
           }

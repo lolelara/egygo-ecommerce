@@ -37,7 +37,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
 
   const isFav = isFavorite(product.id);
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -47,7 +47,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
         ? product.images[0] 
         : product.images?.[0]?.url || '';
       
-      await addItem({
+      addItem({
         productId: product.id,
         name: product.name,
         image: imageUrl,
@@ -57,10 +57,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
         stockQuantity: product.stockQuantity || 999
       });
       
-      toast({
-        title: "✅ تمت الإضافة للسلة",
-        description: `تم إضافة ${product.name} إلى سلة التسوق`,
-      });
+      // Toast is already shown in CartContext
     } catch (error) {
       toast({
         title: "خطأ",
