@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig } from "@/lib/appwrite";
+import { Query } from "appwrite";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,7 @@ export default function Register() {
     alternativePhone: "",
     password: "",
     confirmPassword: "",
+    referralCode: "",
   });
   // Note: 'intermediary' role can only be activated by admin for existing customer accounts
   const [accountType, setAccountType] = useState<'customer' | 'affiliate' | 'merchant'>('customer');
@@ -35,6 +37,7 @@ export default function Register() {
   const [phoneAvailableOnWhatsApp, setPhoneAvailableOnWhatsApp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [referrerInfo, setReferrerInfo] = useState<any>(null);
 
   const { register, user } = useAuth();
   const navigate = useNavigate();
@@ -46,7 +49,43 @@ export default function Register() {
     if (type === 'affiliate' || type === 'merchant') {
       setAccountType(type);
     }
+    
+    // Check for referral code in URL
+    const ref = searchParams.get('ref');
+    if (ref) {
+      setFormData(prev => ({ ...prev, referralCode: ref }));
+      validateReferralCode(ref);
+    }
   }, [searchParams]);
+  
+  // Validate referral code
+  const validateReferralCode = async (code: string) => {
+    if (!code) {
+      setReferrerInfo(null);
+      return;
+    }
+    
+    try {
+      // Find user with this affiliate code
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.userPreferences,
+        [
+          Query.equal('affiliateCode', code),
+          Query.limit(1)
+        ]
+      );
+      
+      if (response.documents.length > 0) {
+        setReferrerInfo(response.documents[0]);
+      } else {
+        setReferrerInfo(null);
+      }
+    } catch (error) {
+      console.error('Error validating referral code:', error);
+      setReferrerInfo(null);
+    }
+  };
 
   const handleChange =
     (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -23,7 +23,9 @@ export const appwriteConfig = {
     affiliateActivities: 'affiliate_activities',
     affiliateClicks: 'affiliate_clicks',
     affiliateStats: 'affiliate_stats',
-    withdrawalRequests: 'withdrawal_requests'
+    withdrawalRequests: 'withdrawal_requests',
+    userPreferences: 'user_preferences',
+    referrals: 'referrals'
   }
 };
 

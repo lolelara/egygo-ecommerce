@@ -67,6 +67,7 @@ export const AffiliateCourses = lazyLoad(() => import('@/pages/AffiliateCourses'
 export const AffiliateWithdrawPage = lazyLoad(() => import('@/pages/AffiliateWithdrawPage'));
 export const AffiliateResourcesPage = lazyLoad(() => import('@/pages/AffiliateResourcesPage'));
 export const AffiliateSupportPage = lazyLoad(() => import('@/pages/AffiliateSupportPage'));
+export const AffiliateReferralSystem = lazyLoad(() => import('@/pages/AffiliateReferralSystem'));
 
 // ============================================
 // MERCHANT PAGES (Lazy)

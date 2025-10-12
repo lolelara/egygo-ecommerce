@@ -121,6 +121,7 @@ const App = () => (
               <Route path="/affiliate/withdraw" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateWithdrawPage /></ProtectedRoute>} />
               <Route path="/affiliate/resources" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateResourcesPage /></ProtectedRoute>} />
               <Route path="/affiliate/support" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateSupportPage /></ProtectedRoute>} />
+              <Route path="/affiliate/referrals" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateReferralSystem /></ProtectedRoute>} />
               <Route path="/update-affiliate-prefs" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.UpdateAffiliatePrefs /></ProtectedRoute>} />
 
               {/* Admin Routes - Protected & Lazy */}
