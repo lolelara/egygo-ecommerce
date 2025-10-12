@@ -17,27 +17,40 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { fallbackProductsApi } from "../lib/api-fallback";
 import { useState, useEffect } from "react";
-import type { ProductWithRelations } from "@shared/prisma-types";
+import { databases, appwriteConfig } from "@/lib/appwrite";
+import { Query } from "appwrite";
 import { getImageUrl } from "@/lib/storage";
 
 export default function Affiliate() {
-  const [featuredProducts, setFeaturedProducts] = useState<
-    ProductWithRelations[]
-  >([]);
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load featured products
-    fallbackProductsApi
-      .getAll({ sortBy: "featured", limit: 4 })
-      .then((data) => {
-        setFeaturedProducts(data.products);
-      })
-      .catch(() => {
-        setFeaturedProducts([]);
-      });
+    loadProducts();
   }, []);
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.products,
+        [
+          Query.equal('isActive', true),
+          Query.orderDesc('$createdAt'),
+          Query.limit(8)
+        ]
+      );
+      
+      setFeaturedProducts(response.documents);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setFeaturedProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const benefits = [
     {
@@ -319,44 +332,57 @@ export default function Affiliate() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredProducts.map((product) => (
-            <Card
-              key={product.id}
-              className="group overflow-hidden hover:shadow-lg transition-all duration-300"
-            >
-              <div className="relative">
-                <img
-                  src={getImageUrl(product.images?.[0])}
-                  alt={product.name}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-2 right-2 bg-brand-orange text-white text-xs px-2 py-1 rounded font-bold">
-                  {product.affiliateCommission}% عمولة
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-2 line-clamp-2">
-                  {product.name}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold">${product.price}</span>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold text-brand-orange">
-                      $
-                      {(
-                        product.price *
-                        (product.affiliateCommission / 100)
-                      ).toFixed(2)}{" "}
-                      لكل بيعة
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : featuredProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">لا توجد منتجات متاحة حالياً</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product: any) => (
+              <Card
+                key={product.$id}
+                className="group overflow-hidden hover:shadow-lg transition-all duration-300"
+              >
+                <div className="relative">
+                  <img
+                    src={getImageUrl(product.images?.[0])}
+                    alt={product.name}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {product.affiliateCommission && (
+                    <div className="absolute top-2 right-2 bg-brand-orange text-white text-xs px-2 py-1 rounded font-bold">
+                      {product.affiliateCommission}% عمولة
                     </div>
-                    <div className="text-xs text-muted-foreground">عمولة</div>
-                  </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-2 line-clamp-2">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold">{product.price?.toFixed(2) || 0} ج.م</span>
+                    {product.affiliateCommission && (
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-brand-orange">
+                          {(
+                            (product.price || 0) *
+                            (product.affiliateCommission / 100)
+                          ).toFixed(2)}{" "}
+                          ج.م
+                        </div>
+                        <div className="text-xs text-muted-foreground">عمولة لكل بيعة</div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Testimonials */}
