@@ -25,7 +25,8 @@ export const appwriteConfig = {
     affiliateStats: 'affiliate_stats',
     withdrawalRequests: 'withdrawal_requests',
     userPreferences: 'user_preferences',
-    referrals: 'referrals'
+    referrals: 'referrals',
+    referral_earnings: 'referral_earnings'
   }
 };
 

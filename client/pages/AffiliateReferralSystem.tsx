@@ -19,9 +19,7 @@ import {
   QrCode
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AppwriteAuthContext";
-import { databases, appwriteConfig } from "@/lib/appwrite";
-import { Query, ID } from "appwrite";
+import { useReferralSystem } from "@/hooks/useReferralSystem";
 import QRCode from "qrcode";
 
 interface Referral {
@@ -48,51 +46,29 @@ interface ReferralStats {
 }
 
 export default function AffiliateReferralSystem() {
-  const { user } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(true);
-  const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [stats, setStats] = useState<ReferralStats>({
-    totalReferrals: 0,
-    activeReferrals: 0,
-    completedReferrals: 0,
-    totalEarnings: 0,
-    pendingEarnings: 0,
-    thisMonthReferrals: 0,
-    thisMonthEarnings: 0
-  });
-  const [referralCode, setReferralCode] = useState("");
-  const [referralLink, setReferralLink] = useState("");
+  const {
+    loading,
+    referrals,
+    stats,
+    affiliateCode,
+    referralLink,
+  } = useReferralSystem();
+  
   const [qrCodeUrl, setQrCodeUrl] = useState("");
 
   useEffect(() => {
-    if (user) {
-      loadReferralData();
-      generateReferralCode();
+    if (referralLink) {
+      generateQRCode();
     }
-  }, [user]);
+  }, [referralLink]);
 
   /**
-   * Generate unique referral code
+   * Generate QR code
    */
-  const generateReferralCode = async () => {
+  const generateQRCode = async () => {
     try {
-      // Get user's affiliate code from userPreferences
-      const prefs = await databases.getDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.userPreferences,
-        user!.$id
-      );
-
-      const code = prefs.affiliateCode || `REF${user!.$id.slice(0, 8).toUpperCase()}`;
-      setReferralCode(code);
-
-      // Generate referral link
-      const link = `${window.location.origin}/register?ref=${code}`;
-      setReferralLink(link);
-
-      // Generate QR code
-      const qr = await QRCode.toDataURL(link, {
+      const qr = await QRCode.toDataURL(referralLink, {
         width: 300,
         margin: 2,
         color: {
@@ -102,62 +78,7 @@ export default function AffiliateReferralSystem() {
       });
       setQrCodeUrl(qr);
     } catch (error) {
-      console.error('Error generating referral code:', error);
-    }
-  };
-
-  /**
-   * Load referral data
-   */
-  const loadReferralData = async () => {
-    setLoading(true);
-    try {
-      // Load referrals
-      const response = await databases.listDocuments(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.referrals || 'referrals',
-        [
-          Query.equal('referrerId', user!.$id),
-          Query.orderDesc('$createdAt'),
-          Query.limit(100)
-        ]
-      );
-
-      const referralData = response.documents as unknown as Referral[];
-      setReferrals(referralData);
-
-      // Calculate stats
-      const now = new Date();
-      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      const stats: ReferralStats = {
-        totalReferrals: referralData.length,
-        activeReferrals: referralData.filter(r => r.status === 'active').length,
-        completedReferrals: referralData.filter(r => r.status === 'completed').length,
-        totalEarnings: referralData
-          .filter(r => r.status === 'completed')
-          .reduce((sum, r) => sum + r.reward, 0),
-        pendingEarnings: referralData
-          .filter(r => r.status === 'active')
-          .reduce((sum, r) => sum + r.reward, 0),
-        thisMonthReferrals: referralData.filter(
-          r => new Date(r.createdAt) >= thisMonth
-        ).length,
-        thisMonthEarnings: referralData
-          .filter(r => r.status === 'completed' && new Date(r.completedAt!) >= thisMonth)
-          .reduce((sum, r) => sum + r.reward, 0)
-      };
-
-      setStats(stats);
-    } catch (error) {
-      console.error('Error loading referral data:', error);
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل بيانات الإحالة",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+      console.error('Error generating QR code:', error);
     }
   };
 
@@ -176,7 +97,7 @@ export default function AffiliateReferralSystem() {
    * Copy referral code
    */
   const copyReferralCode = () => {
-    navigator.clipboard.writeText(referralCode);
+    navigator.clipboard.writeText(affiliateCode);
     toast({
       title: "✅ تم النسخ",
       description: "تم نسخ كود الإحالة"
@@ -191,7 +112,7 @@ export default function AffiliateReferralSystem() {
       try {
         await navigator.share({
           title: 'انضم إلى EgyGo',
-          text: `استخدم كود الإحالة الخاص بي: ${referralCode}`,
+          text: `استخدم كود الإحالة الخاص بي: ${affiliateCode}`,
           url: referralLink
         });
       } catch (error) {
@@ -207,7 +128,7 @@ export default function AffiliateReferralSystem() {
    */
   const downloadQRCode = () => {
     const link = document.createElement('a');
-    link.download = `referral-qr-${referralCode}.png`;
+    link.download = `referral-qr-${affiliateCode}.png`;
     link.href = qrCodeUrl;
     link.click();
   };
@@ -390,7 +311,7 @@ export default function AffiliateReferralSystem() {
                 <label className="text-sm font-medium mb-2 block">كود الإحالة الخاص بك</label>
                 <div className="flex gap-2">
                   <Input
-                    value={referralCode}
+                    value={affiliateCode}
                     readOnly
                     className="font-mono text-2xl font-bold text-center"
                   />
