@@ -221,7 +221,7 @@ async function createCollection(config: CollectionConfig) {
             databaseId,
             config.id,
             index.key,
-            index.type,
+            index.type as any,
             index.attributes
           );
           console.log(`  ✅ Index created: ${index.key}`);
