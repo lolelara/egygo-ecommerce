@@ -46,6 +46,13 @@ import {
   importProduct,
 } from "./routes/vendoor";
 import { scrapeProduct } from "./routes/scrape-product";
+import { 
+  advancedScrapeProduct,
+  enhanceDescription,
+  translateProduct,
+  optimizeImages,
+  reviewProduct
+} from "./routes/advanced-scraper";
 
 // ===== NEW ADVANCED APIS =====
 // RBAC & Security
@@ -199,6 +206,13 @@ export function createServer() {
   
   // Product Scraping API for Intermediaries
   app.post("/api/scrape-product", scrapeProduct);
+  app.post("/api/scrape-product-advanced", advancedScrapeProduct);
+  
+  // AI-Powered Tools for Intermediaries
+  app.post("/api/enhance-description", enhanceDescription);
+  app.post("/api/translate-product", translateProduct);
+  app.post("/api/optimize-images", optimizeImages);
+  app.post("/api/review-product", reviewProduct);
 
   // ===== ADVANCED APIS =====
   
