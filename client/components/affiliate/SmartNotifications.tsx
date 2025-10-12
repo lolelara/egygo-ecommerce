@@ -1,75 +1,68 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Bell, Zap, TrendingUp, Gift, AlertCircle, Target, Award } from "lucide-react";
+import { Bell, Zap, Gift, AlertCircle, Target, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { getAffiliateNotifications } from "@/lib/affiliate-data";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { databases, appwriteConfig } from "@/lib/appwrite";
 
 interface Notification {
   id: string;
   type: 'opportunity' | 'achievement' | 'tip' | 'warning' | 'promotion';
   title: string;
   message: string;
-  action?: {
-    label: string;
-    link: string;
-  };
+  actionLabel?: string;
+  actionLink?: string;
   isNew?: boolean;
 }
 
 export default function SmartNotifications() {
-  const notifications: Notification[] = [
-    {
-      id: '1',
-      type: 'opportunity',
-      title: 'فرصة ذهبية!',
-      message: 'منتج جديد "ساعة ذكية Pro" متاح الآن بعمولة 25% - الأعلى هذا الشهر',
-      action: {
-        label: 'روّج الآن',
-        link: '#product-new'
-      },
-      isNew: true
-    },
-    {
-      id: '2',
-      type: 'achievement',
-      title: 'إنجاز رائع!',
-      message: 'وصلت لهدف 10 مبيعات هذا الأسبوع - حصلت على شارة "المسوق النشط"',
-      action: {
-        label: 'عرض الشارات',
-        link: '#badges'
-      },
-      isNew: true
-    },
-    {
-      id: '3',
-      type: 'tip',
-      title: 'نصيحة ذكية',
-      message: 'المنتجات المشاركة على واتساب تحقق معدل تحويل أعلى بـ 40%',
-      isNew: false
-    },
-    {
-      id: '4',
-      type: 'promotion',
-      title: 'عرض خاص',
-      message: 'عمولة مضاعفة على فئة "إلكترونيات" لمدة 48 ساعة فقط!',
-      action: {
-        label: 'استفد الآن',
-        link: '#electronics'
-      },
-      isNew: true
-    },
-    {
-      id: '5',
-      type: 'warning',
-      title: 'تنبيه',
-      message: 'رصيدك المتاح للسحب: 450 ج.م - اطلب السحب قبل نهاية الشهر',
-      action: {
-        label: 'طلب سحب',
-        link: '#withdrawal'
-      },
-      isNew: false
+  const { user } = useAuth();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.$id) {
+      loadNotifications();
+    } else {
+      setLoading(false);
     }
-  ];
+  }, [user]);
+
+  const loadNotifications = async () => {
+    if (!user?.$id) return;
+    
+    try {
+      setLoading(true);
+      const data = await getAffiliateNotifications(user.$id, 10);
+      setNotifications(data);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.notifications,
+        notificationId,
+        { isRead: true, isNew: false } as any
+      );
+      
+      // Update local state
+      setNotifications(prev => 
+        prev.map(n => n.id === notificationId ? { ...n, isNew: false } : n)
+      );
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
+  };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -122,64 +115,78 @@ export default function SmartNotifications() {
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        {notifications.map((notification) => {
-          const Icon = getNotificationIcon(notification.type);
-          const colors = getNotificationColor(notification.type);
-
-          return (
-            <Alert
-              key={notification.id}
-              className={`${colors.bg} ${colors.border} border-2 transition-all hover:shadow-md relative`}
-            >
-              {notification.isNew && (
-                <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5">
-                  جديد
-                </Badge>
-              )}
-              
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg ${colors.bg}`}>
-                  <Icon className={`h-5 w-5 ${colors.icon}`} />
-                </div>
-                
-                <div className="flex-1">
-                  <AlertDescription>
-                    <p className="font-semibold text-sm mb-1">
-                      {notification.title}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {notification.message}
-                    </p>
-                    
-                    {notification.action && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="mt-3 h-8 text-xs"
-                        onClick={() => {
-                          // Handle action
-                          const element = document.querySelector(notification.action!.link);
-                          if (element) {
-                            element.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }}
-                      >
-                        {notification.action.label}
-                      </Button>
-                    )}
-                  </AlertDescription>
-                </div>
-              </div>
-            </Alert>
-          );
-        })}
-
-        {notifications.length === 0 && (
+        {loading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : notifications.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Bell className="h-12 w-12 mx-auto mb-2 opacity-50" />
             <p>لا توجد إشعارات جديدة</p>
             <p className="text-xs mt-1">سنبقيك على اطلاع بكل جديد</p>
           </div>
+        ) : (
+          notifications.map((notification) => {
+            const Icon = getNotificationIcon(notification.type);
+            const colors = getNotificationColor(notification.type);
+
+            return (
+              <Alert
+                key={notification.id}
+                className={`${colors.bg} ${colors.border} border-2 transition-all hover:shadow-md relative`}
+              >
+                {notification.isNew && (
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5">
+                    جديد
+                  </Badge>
+                )}
+                
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-lg ${colors.bg}`}>
+                    <Icon className={`h-5 w-5 ${colors.icon}`} />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <AlertDescription>
+                      <p className="font-semibold text-sm mb-1">
+                        {notification.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {notification.message}
+                      </p>
+                      
+                      {notification.actionLabel && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-3 h-8 text-xs"
+                          onClick={() => {
+                            // Mark as read
+                            if (notification.isNew) {
+                              markAsRead(notification.id);
+                            }
+                            // Handle action
+                            if (notification.actionLink) {
+                              if (notification.actionLink.startsWith('#')) {
+                                const element = document.querySelector(notification.actionLink);
+                                if (element) {
+                                  element.scrollIntoView({ behavior: 'smooth' });
+                                }
+                              } else {
+                                window.location.href = notification.actionLink;
+                              }
+                            }
+                          }}
+                        >
+                          {notification.actionLabel}
+                        </Button>
+                      )}
+                    </AlertDescription>
+                  </div>
+                </div>
+              </Alert>
+            );
+          })
         )}
       </CardContent>
     </Card>
