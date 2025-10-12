@@ -16,7 +16,14 @@ export const appwriteConfig = {
     orderItems: import.meta.env.VITE_APPWRITE_ORDER_ITEMS_COLLECTION || 'order_items',
     reviews: import.meta.env.VITE_APPWRITE_REVIEWS_COLLECTION || 'reviews',
     affiliates: import.meta.env.VITE_APPWRITE_AFFILIATES_COLLECTION || 'affiliates',
-    notifications: import.meta.env.VITE_APPWRITE_NOTIFICATIONS_COLLECTION || 'notifications'
+    notifications: import.meta.env.VITE_APPWRITE_NOTIFICATIONS_COLLECTION || 'notifications',
+    // New collections for enhanced features
+    favorites: 'favorites',
+    productViews: 'product_views',
+    affiliateActivities: 'affiliate_activities',
+    affiliateClicks: 'affiliate_clicks',
+    affiliateStats: 'affiliate_stats',
+    withdrawalRequests: 'withdrawal_requests'
   }
 };
 

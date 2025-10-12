@@ -47,10 +47,29 @@ export default function ProductComparison() {
         ]
       );
 
-      const productsData = response.documents.map((doc: any) => {
+      const productsData = await Promise.all(response.documents.map(async (doc: any) => {
         const basePrice = doc.basePrice || doc.price || 0;
         const minCommissionPrice = doc.minCommissionPrice || doc.price || 0;
         const commission = minCommissionPrice - basePrice;
+
+        // Get real conversion rate from affiliate clicks
+        let conversionRate = 0;
+        let clicks = 0;
+        try {
+          const clicksResponse = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.affiliateClicks,
+            [
+              Query.equal('productId', doc.$id),
+              Query.limit(1000)
+            ]
+          );
+          clicks = clicksResponse.total;
+          const converted = clicksResponse.documents.filter((c: any) => c.converted).length;
+          conversionRate = clicks > 0 ? parseFloat(((converted / clicks) * 100).toFixed(1)) : 0;
+        } catch (error) {
+          console.error('Error loading conversion rate:', error);
+        }
 
         return {
           id: doc.$id,
@@ -59,10 +78,10 @@ export default function ProductComparison() {
           basePrice,
           minCommissionPrice,
           commission,
-          conversionRate: parseFloat((Math.random() * 5 + 1).toFixed(1)),
-          clicks: Math.floor(Math.random() * 500) + 100
+          conversionRate,
+          clicks
         };
-      });
+      }));
 
       setProducts(productsData);
     } catch (error) {

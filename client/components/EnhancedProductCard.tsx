@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import {
 import { getImageUrl } from "@/lib/storage";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { databases, appwriteConfig } from "@/lib/appwrite";
+import { Query } from "appwrite";
 import type { ProductWithRelations } from "@shared/prisma-types";
 
 interface EnhancedProductCardProps {
@@ -25,7 +27,13 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
   const { addItem } = useCart();
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [views, setViews] = useState(Math.floor(Math.random() * 500) + 100);
+  const [views, setViews] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  // Load real view count from database
+  useEffect(() => {
+    loadViewCount();
+  }, [product.id]);
 
   const isFav = isFavorite(product.id);
 
@@ -35,10 +43,18 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
     
     setIsAddingToCart(true);
     try {
+      const imageUrl = typeof product.images?.[0] === 'string' 
+        ? product.images[0] 
+        : product.images?.[0]?.url || '';
+      
       await addItem({
         productId: product.id,
+        name: product.name,
+        image: imageUrl,
         quantity: 1,
         price: product.price,
+        inStock: true,
+        stockQuantity: product.stockQuantity || 999
       });
       
       toast({
@@ -108,8 +124,71 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
     }
   };
 
-  const handleView = () => {
-    setViews(prev => prev + 1);
+  const loadViewCount = async () => {
+    try {
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.productViews,
+        [
+          Query.equal('productId', product.id)
+        ]
+      );
+
+      if (response.documents.length > 0) {
+        const viewDoc = response.documents[0] as any;
+        setViews(viewDoc.viewCount || 0);
+      }
+    } catch (error) {
+      console.error('Error loading view count:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleView = async () => {
+    try {
+      // Increment view count
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.productViews,
+        [
+          Query.equal('productId', product.id)
+        ]
+      );
+
+      if (response.documents.length > 0) {
+        // Update existing
+        const viewDoc = response.documents[0] as any;
+        await databases.updateDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.productViews,
+          viewDoc.$id,
+          {
+            viewCount: (viewDoc.viewCount || 0) + 1,
+            lastViewedAt: new Date().toISOString()
+          }
+        );
+        setViews((viewDoc.viewCount || 0) + 1);
+      } else {
+        // Create new
+        const newView = await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.productViews,
+          'unique()',
+          {
+            productId: product.id,
+            viewCount: 1,
+            lastViewedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString()
+          }
+        );
+        setViews(1);
+      }
+    } catch (error) {
+      console.error('Error updating view count:', error);
+      // Fallback to local increment
+      setViews(prev => prev + 1);
+    }
   };
 
   const discount = product.originalPrice && product.originalPrice > product.price

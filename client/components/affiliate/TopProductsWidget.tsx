@@ -39,10 +39,31 @@ export default function TopProductsWidget() {
         ]
       );
 
-      const productsData = response.documents.map((doc: any) => {
+      // Load products with their real stats
+      const productsData = await Promise.all(response.documents.map(async (doc: any) => {
         const basePrice = doc.basePrice || doc.price || 0;
         const minCommissionPrice = doc.minCommissionPrice || doc.price || 0;
         const commission = minCommissionPrice - basePrice;
+
+        // Get real clicks count
+        let clicks = 0;
+        let sales = 0;
+        try {
+          const clicksResponse = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.affiliateClicks,
+            [
+              Query.equal('productId', doc.$id),
+              Query.limit(1000)
+            ]
+          );
+          clicks = clicksResponse.total;
+          
+          // Count converted clicks as sales
+          sales = clicksResponse.documents.filter((c: any) => c.converted).length;
+        } catch (error) {
+          console.error('Error loading product stats:', error);
+        }
 
         return {
           id: doc.$id,
@@ -51,13 +72,14 @@ export default function TopProductsWidget() {
           basePrice,
           minCommissionPrice,
           commission,
-          clicks: Math.floor(Math.random() * 500) + 100,
-          sales: Math.floor(Math.random() * 50) + 10
+          clicks,
+          sales
         };
-      });
+      }));
 
       // Sort by commission (highest first)
       productsData.sort((a, b) => b.commission - a.commission);
+
       setProducts(productsData);
     } catch (error) {
       console.error('Error loading top products:', error);
