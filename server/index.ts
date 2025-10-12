@@ -45,6 +45,7 @@ import {
   getScrapingProgress,
   importProduct,
 } from "./routes/vendoor";
+import { scrapeProduct } from "./routes/scrape-product";
 
 // ===== NEW ADVANCED APIS =====
 // RBAC & Security
@@ -195,6 +196,9 @@ export function createServer() {
   
   // Vendoor Scraper API (NEW - Simple endpoint)
   app.get("/api/vendoor/scrape", scrapeVendoorProducts);
+  
+  // Product Scraping API for Intermediaries
+  app.post("/api/scrape-product", scrapeProduct);
 
   // ===== ADVANCED APIS =====
   
