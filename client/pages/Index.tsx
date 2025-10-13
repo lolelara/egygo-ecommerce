@@ -34,35 +34,47 @@ export default function Index() {
       import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
         gsap.registerPlugin(ScrollTrigger);
         
-        gsap.from('.hero-content', {
-          opacity: 0,
-          y: 50,
-          duration: 1,
-          ease: 'power3.out'
-        });
+        // Only animate if elements exist
+        const heroContent = document.querySelector('.hero-content');
+        if (heroContent) {
+          gsap.from('.hero-content', {
+            opacity: 0,
+            y: 50,
+            duration: 1,
+            ease: 'power3.out'
+          });
+        }
         
-        gsap.from('.feature-card', {
-          opacity: 0,
-          y: 30,
-          duration: 0.8,
-          stagger: 0.2,
-          scrollTrigger: {
-            trigger: '.features-section',
-            start: 'top 80%'
-          }
-        });
+        const featureCards = document.querySelectorAll('.feature-card');
+        const featuresSection = document.querySelector('.features-section');
+        if (featureCards.length > 0 && featuresSection) {
+          gsap.from('.feature-card', {
+            opacity: 0,
+            y: 30,
+            duration: 0.8,
+            stagger: 0.2,
+            scrollTrigger: {
+              trigger: '.features-section',
+              start: 'top 80%'
+            }
+          });
+        }
         
-        gsap.from('.product-card', {
-          opacity: 0,
-          scale: 0.9,
-          y: 30,
-          duration: 0.6,
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: '.products-section',
-            start: 'top 80%'
-          }
-        });
+        const productCards = document.querySelectorAll('.product-card');
+        const productsSection = document.querySelector('.products-section');
+        if (productCards.length > 0 && productsSection) {
+          gsap.from('.product-card', {
+            opacity: 0,
+            scale: 0.9,
+            y: 30,
+            duration: 0.6,
+            stagger: 0.1,
+            scrollTrigger: {
+              trigger: '.products-section',
+              start: 'top 80%'
+            }
+          });
+        }
       });
     });
   }, []);
