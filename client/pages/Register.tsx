@@ -169,10 +169,48 @@ export default function Register() {
               commissionRate: accountType === 'affiliate' ? 10 : 0,
               businessName: '',
               businessAddress: '',
-              taxId: ''
+              taxId: '',
+              referredBy: formData.referralCode || '', // Save referral code
+              referredByName: referrerInfo?.name || ''
             }
           );
           console.log('✅ User preferences created for admin panel');
+          
+          // If user was referred, create referral record
+          if (formData.referralCode && referrerInfo) {
+            try {
+              await databases.createDocument(
+                appwriteConfig.databaseId,
+                'referrals',
+                ID.unique(),
+                {
+                  referrerId: referrerInfo.userId,
+                  referredUserId: registeredUser.$id,
+                  referralCode: formData.referralCode,
+                  status: 'pending', // Will be 'completed' after first purchase
+                  createdAt: new Date().toISOString()
+                }
+              );
+              console.log('✅ Referral record created');
+              
+              // Notify the referrer
+              await databases.createDocument(
+                appwriteConfig.databaseId,
+                appwriteConfig.collections.notifications,
+                'unique()',
+                {
+                  userId: referrerInfo.userId,
+                  title: '🎉 إحالة جديدة!',
+                  message: `قام ${formData.name} بالتسجيل باستخدام كود الإحالة الخاص بك`,
+                  type: 'affiliate',
+                  isRead: false,
+                  link: '/affiliate/referrals'
+                }
+              );
+            } catch (refError) {
+              console.error('Error creating referral record:', refError);
+            }
+          }
         } catch (prefError) {
           console.error('Error creating user preferences:', prefError);
           // Don't block registration if preferences creation fails
@@ -458,6 +496,43 @@ export default function Register() {
                     )}
                   </button>
                 </div>
+              </div>
+
+              {/* Referral Code Field (Optional) */}
+              <div>
+                <Label htmlFor="referralCode">
+                  كود الإحالة (اختياري)
+                </Label>
+                <div className="relative mt-1">
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <Sparkles className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <Input
+                    id="referralCode"
+                    name="referralCode"
+                    type="text"
+                    placeholder="أدخل كود الإحالة إن وجد"
+                    value={formData.referralCode}
+                    onChange={(e) => {
+                      handleChange("referralCode")(e);
+                      validateReferralCode(e.target.value);
+                    }}
+                    className="pr-10"
+                  />
+                </div>
+                {referrerInfo && (
+                  <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                    ✓ تمت الإحالة من: {referrerInfo.name}
+                  </p>
+                )}
+                {formData.referralCode && !referrerInfo && (
+                  <p className="text-xs text-red-600 mt-1">
+                    كود الإحالة غير صحيح
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  إذا كان لديك كود إحالة من أحد المسوقين، أدخله هنا
+                </p>
               </div>
 
               {/* Account Type Selection */}
