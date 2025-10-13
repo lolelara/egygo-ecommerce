@@ -79,6 +79,11 @@ export default function AdminUserManagement() {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    console.log('📊 Edit Dialog State Changed:', editDialogOpen);
+    console.log('👤 Editing User:', editingUser);
+  }, [editDialogOpen, editingUser]);
+
   const loadUsers = async () => {
     setLoading(true);
     try {
@@ -90,8 +95,12 @@ export default function AdminUserManagement() {
         [Query.limit(100), Query.orderDesc('$createdAt')]
       );
       
+      console.log('📥 Loaded users:', response.documents.length);
+      console.log('📋 First user sample:', response.documents[0]);
+      
       setUsers(response.documents);
     } catch (error) {
+      console.error('❌ Error loading users:', error);
       toast({
         title: "خطأ",
         description: "فشل تحميل المستخدمين",
@@ -210,6 +219,7 @@ export default function AdminUserManagement() {
   };
 
   const openEditUserDialog = (userToEdit: any) => {
+    console.log('🔍 Opening edit dialog for user:', userToEdit);
     setEditingUser(userToEdit);
     setEditUserData({
       name: userToEdit.name || '',
@@ -219,6 +229,7 @@ export default function AdminUserManagement() {
       defaultMarkupPercentage: userToEdit.defaultMarkupPercentage?.toString() || '20'
     });
     setEditDialogOpen(true);
+    console.log('✅ Edit dialog state set to true');
   };
 
   const handleRoleChangeRequest = (newRole: string) => {
@@ -467,22 +478,41 @@ export default function AdminUserManagement() {
                         <TableCell>
                           <div className="flex gap-2">
                             {/* Show "Activate Intermediary" button only for customers */}
-                            {u.role === 'customer' && !u.isIntermediary && (
-                              <Button
-                                size="sm"
-                                variant="default"
-                                className="bg-purple-600 hover:bg-purple-700"
-                                onClick={() => openActivateIntermediaryDialog(u)}
-                              >
-                                تفعيل الوسيط
-                              </Button>
-                            )}
+                            {(() => {
+                              const isCustomer = u.role === 'customer';
+                              const isNotIntermediary = !u.isIntermediary;
+                              const shouldShow = isCustomer && isNotIntermediary;
+                              
+                              // Debug log
+                              if (u.email === 'lolelarap@gmail.com') {
+                                console.log('🔍 Debug for user:', u.email);
+                                console.log('  role:', u.role, '| isCustomer:', isCustomer);
+                                console.log('  isIntermediary:', u.isIntermediary, '| isNotIntermediary:', isNotIntermediary);
+                                console.log('  shouldShow:', shouldShow);
+                              }
+                              
+                              return shouldShow ? (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="bg-purple-600 hover:bg-purple-700"
+                                  onClick={() => openActivateIntermediaryDialog(u)}
+                                >
+                                  تفعيل الوسيط
+                                </Button>
+                              ) : null;
+                            })()}
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => openEditUserDialog(u)}
+                              onClick={() => {
+                                console.log('🖱️ Edit button clicked for:', u.name);
+                                openEditUserDialog(u);
+                              }}
+                              title="تعديل المستخدم"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-4 w-4 mr-1" />
+                              تعديل
                             </Button>
                             <Button
                               size="sm"
