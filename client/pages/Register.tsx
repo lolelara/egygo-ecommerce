@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig } from "@/lib/appwrite";
-import { Query } from "appwrite";
+import { Query, ID } from "appwrite";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -143,8 +143,42 @@ export default function Register() {
         formData.alternativePhone
       );
 
-      // Create welcome notification
+      // Create user preferences document for admin panel
       if (registeredUser) {
+        try {
+          // Create user preferences for the admin panel
+          await databases.createDocument(
+            appwriteConfig.databaseId,
+            'userPreferences',
+            ID.unique(),
+            {
+              userId: registeredUser.$id,
+              email: formData.email,
+              name: formData.name,
+              phone: formData.phone || '',
+              role: accountType === 'merchant' ? 'merchant' : 
+                    accountType === 'affiliate' ? 'affiliate' : 'customer',
+              accountStatus: accountType === 'customer' ? 'approved' : 'pending',
+              isAdmin: false,
+              isAffiliate: accountType === 'affiliate',
+              isMerchant: accountType === 'merchant',
+              isIntermediary: false,
+              affiliateCode: accountType === 'affiliate' ? `AFF${Date.now()}` : '',
+              intermediaryCode: '',
+              defaultMarkupPercentage: 0,
+              commissionRate: accountType === 'affiliate' ? 10 : 0,
+              businessName: '',
+              businessAddress: '',
+              taxId: ''
+            }
+          );
+          console.log('✅ User preferences created for admin panel');
+        } catch (prefError) {
+          console.error('Error creating user preferences:', prefError);
+          // Don't block registration if preferences creation fails
+        }
+
+        // Create welcome notification
         try {
           await databases.createDocument(
             appwriteConfig.databaseId,
