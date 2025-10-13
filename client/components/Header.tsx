@@ -237,8 +237,8 @@ export function Header({ cartItemCount }: HeaderProps) {
             <Search className="h-5 w-5" />
           </Button>
 
-          {/* Control Panel Button - For Affiliates, Merchants & Admins */}
-          {user && (user.role === 'admin' || user.isAffiliate || user.role === 'merchant') && (
+          {/* Control Panel Button - For Affiliates, Merchants, Intermediaries & Admins */}
+          {user && (user.role === 'admin' || user.isAffiliate || user.role === 'merchant' || user.isIntermediary) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 

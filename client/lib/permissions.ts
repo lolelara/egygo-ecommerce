@@ -7,6 +7,7 @@ export enum UserRole {
   CUSTOMER = 'customer',
   AFFILIATE = 'affiliate',
   MERCHANT = 'merchant',
+  INTERMEDIARY = 'intermediary',
   ADMIN = 'admin',
   SUPER_ADMIN = 'super_admin'
 }
@@ -37,6 +38,14 @@ export enum Permission {
   MANAGE_INVENTORY = 'manage_inventory',
   VIEW_SALES_REPORTS = 'view_sales_reports',
   MANAGE_SHIPPING = 'manage_shipping',
+  
+  // Intermediary Permissions
+  VIEW_INTERMEDIARY_DASHBOARD = 'view_intermediary_dashboard',
+  IMPORT_PRODUCTS = 'import_products',
+  SCRAPE_PRODUCTS = 'scrape_products',
+  MANAGE_MARKUP = 'manage_markup',
+  GENERATE_INTERMEDIARY_LINKS = 'generate_intermediary_links',
+  VIEW_INTERMEDIARY_STATS = 'view_intermediary_stats',
   
   // Admin Permissions
   VIEW_ADMIN_DASHBOARD = 'view_admin_dashboard',
@@ -86,6 +95,23 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     Permission.MANAGE_INVENTORY,
     Permission.VIEW_SALES_REPORTS,
     Permission.MANAGE_SHIPPING
+  ],
+  
+  [UserRole.INTERMEDIARY]: [
+    Permission.VIEW_PRODUCTS,
+    Permission.CREATE_PRODUCT,
+    Permission.EDIT_OWN_PRODUCT,
+    Permission.DELETE_OWN_PRODUCT,
+    Permission.VIEW_OWN_ORDERS,
+    Permission.MANAGE_OWN_ORDERS,
+    Permission.VIEW_INTERMEDIARY_DASHBOARD,
+    Permission.IMPORT_PRODUCTS,
+    Permission.SCRAPE_PRODUCTS,
+    Permission.MANAGE_MARKUP,
+    Permission.GENERATE_INTERMEDIARY_LINKS,
+    Permission.VIEW_INTERMEDIARY_STATS,
+    Permission.PLACE_ORDER,
+    Permission.VIEW_WISHLIST
   ],
   
   [UserRole.ADMIN]: [
@@ -186,6 +212,8 @@ export function getDashboardRoute(userRole: UserRole | string): string {
       return '/admin/dashboard';
     case UserRole.MERCHANT:
       return '/merchant/dashboard';
+    case UserRole.INTERMEDIARY:
+      return '/intermediary/dashboard';
     case UserRole.AFFILIATE:
       return '/affiliate/dashboard';
     case UserRole.CUSTOMER:
@@ -213,6 +241,12 @@ export function getAllowedRoutes(userRole: UserRole | string): string[] {
       return [
         ...commonRoutes,
         '/merchant/*',
+        '/account'
+      ];
+    case UserRole.INTERMEDIARY:
+      return [
+        ...commonRoutes,
+        '/intermediary/*',
         '/account'
       ];
     case UserRole.AFFILIATE:
