@@ -8,7 +8,25 @@ import { ID, Query } from 'appwrite';
 
 const DATABASE_ID = appwriteConfig.databaseId;
 const PRODUCTS_COLLECTION_ID = appwriteConfig.collections.products;
+const PRODUCT_DESCRIPTIONS_COLLECTION_ID = 'product_descriptions';
 const STORAGE_BUCKET_ID = appwriteConfig.storageId;
+
+// Cache for scraped data (5 minutes)
+const scrapingCache = new Map<string, { data: ScrapedProduct; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Generate hash for URL (for indexing)
+ */
+function hashUrl(url: string): string {
+  let hash = 0;
+  for (let i = 0; i < url.length; i++) {
+    const char = url.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
 
 export interface ScrapedProduct {
   name: string;
@@ -27,11 +45,19 @@ export interface ProductImportResult {
 }
 
 /**
- * Extract product data from URL
+ * Extract product data from URL with caching
  * This is a client-side scraper that uses CORS proxy or Open Graph tags
  */
-export async function scrapeProductFromUrl(url: string): Promise<ScrapedProduct> {
+export async function scrapeProductFromUrl(url: string, useCache: boolean = true): Promise<ScrapedProduct> {
   try {
+    // Check cache first
+    if (useCache) {
+      const cached = scrapingCache.get(url);
+      if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+        console.log('📦 Using cached data for:', url);
+        return cached.data;
+      }
+    }
     // For security and CORS reasons, we'll use a proxy or meta tags
     // In production, this should be a server-side API
     
@@ -80,13 +106,21 @@ export async function scrapeProductFromUrl(url: string): Promise<ScrapedProduct>
       }
     });
     
-    return {
+    const scrapedData = {
       name: title || 'منتج مستورد',
       price: price || 0,
       description: description || '',
       images: images.slice(0, 5), // Limit to 5 images
       category: 'imported'
     };
+    
+    // Cache the result
+    scrapingCache.set(url, {
+      data: scrapedData,
+      timestamp: Date.now()
+    });
+    
+    return scrapedData;
   } catch (error) {
     console.error('Error scraping product:', error);
     throw new Error('فشل استخراج بيانات المنتج من الرابط');
@@ -171,6 +205,7 @@ export async function importProductFromUrl(
       priceMarkup: typeof priceMarkup === 'number' ? priceMarkup : priceMarkup.value,
       priceMarkupType: typeof priceMarkup === 'number' ? 'fixed' : priceMarkup.type,
       sourceUrl: url,
+      sourceUrlHash: hashUrl(url), // Add hash for faster lookups
       images: uploadedImages.length > 0 ? uploadedImages : ['https://via.placeholder.com/400'],
       category: categoryId || scrapedData.category || 'imported',
       stock: 999, // Default high stock for imported products
@@ -337,7 +372,7 @@ export async function updateProductPrice(
 }
 
 /**
- * Update product custom description
+ * Update product custom description (using separate collection)
  */
 export async function updateProductDescription(
   productId: string,
@@ -350,21 +385,52 @@ export async function updateProductDescription(
       productId
     );
     
-    // Save original description if not already saved
-    const updateData: any = {
-      description: customDescription,
-      customDescription: customDescription
-    };
-    
-    if (!product.originalDescription) {
-      updateData.originalDescription = product.description;
+    // Check if description document exists
+    let descriptionDoc;
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        PRODUCT_DESCRIPTIONS_COLLECTION_ID,
+        [Query.equal('productId', productId), Query.limit(1)]
+      );
+      descriptionDoc = response.documents[0];
+    } catch (error) {
+      descriptionDoc = null;
     }
     
+    if (descriptionDoc) {
+      // Update existing description
+      await databases.updateDocument(
+        DATABASE_ID,
+        PRODUCT_DESCRIPTIONS_COLLECTION_ID,
+        descriptionDoc.$id,
+        {
+          customDescription: customDescription
+        }
+      );
+    } else {
+      // Create new description document
+      await databases.createDocument(
+        DATABASE_ID,
+        PRODUCT_DESCRIPTIONS_COLLECTION_ID,
+        ID.unique(),
+        {
+          productId: productId,
+          originalDescription: product.description || '',
+          customDescription: customDescription,
+          intermediaryId: product.intermediaryId
+        }
+      );
+    }
+    
+    // Update product description field
     await databases.updateDocument(
       DATABASE_ID,
       PRODUCTS_COLLECTION_ID,
       productId,
-      updateData
+      {
+        description: customDescription
+      }
     );
     
     return { success: true };
@@ -375,26 +441,44 @@ export async function updateProductDescription(
 }
 
 /**
- * Restore original description
+ * Restore original description (from separate collection)
  */
 export async function restoreOriginalDescription(productId: string) {
   try {
-    const product = await databases.getDocument(
+    // Get description document
+    const response = await databases.listDocuments(
       DATABASE_ID,
-      PRODUCTS_COLLECTION_ID,
-      productId
+      PRODUCT_DESCRIPTIONS_COLLECTION_ID,
+      [Query.equal('productId', productId), Query.limit(1)]
     );
     
-    if (!product.originalDescription) {
+    if (response.documents.length === 0) {
       throw new Error('لا يوجد وصف أصلي محفوظ');
     }
     
+    const descriptionDoc = response.documents[0];
+    const originalDescription = descriptionDoc.originalDescription;
+    
+    if (!originalDescription) {
+      throw new Error('لا يوجد وصف أصلي محفوظ');
+    }
+    
+    // Restore original description in product
     await databases.updateDocument(
       DATABASE_ID,
       PRODUCTS_COLLECTION_ID,
       productId,
       {
-        description: product.originalDescription,
+        description: originalDescription
+      }
+    );
+    
+    // Clear custom description
+    await databases.updateDocument(
+      DATABASE_ID,
+      PRODUCT_DESCRIPTIONS_COLLECTION_ID,
+      descriptionDoc.$id,
+      {
         customDescription: null
       }
     );
@@ -567,7 +651,7 @@ export async function bulkSyncProducts(intermediaryId: string) {
         results.synced++;
       } catch (error) {
         results.failed++;
-        results.errors.push(`${product.name}: ${error.message}`);
+        results.errors.push(`${product.name}: ${(error as Error).message}`);
       }
     }
     
@@ -576,4 +660,117 @@ export async function bulkSyncProducts(intermediaryId: string) {
     console.error('Error bulk syncing products:', error);
     throw error;
   }
+}
+
+/**
+ * Bulk update prices for multiple products
+ */
+export async function bulkUpdatePrices(
+  productIds: string[],
+  priceUpdate: { type: 'percentage' | 'fixed'; value: number } | number
+) {
+  const results = {
+    total: productIds.length,
+    updated: 0,
+    failed: 0,
+    errors: [] as string[]
+  };
+
+  for (const productId of productIds) {
+    try {
+      if (typeof priceUpdate === 'number') {
+        await updateProductPrice(productId, priceUpdate);
+      } else {
+        await updateProductMarkup(productId, priceUpdate);
+      }
+      results.updated++;
+    } catch (error) {
+      results.failed++;
+      results.errors.push(`${productId}: ${(error as Error).message}`);
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Bulk update descriptions for multiple products
+ */
+export async function bulkUpdateDescriptions(
+  updates: Array<{ productId: string; description: string }>
+) {
+  const results = {
+    total: updates.length,
+    updated: 0,
+    failed: 0,
+    errors: [] as string[]
+  };
+
+  for (const update of updates) {
+    try {
+      await updateProductDescription(update.productId, update.description);
+      results.updated++;
+    } catch (error) {
+      results.failed++;
+      results.errors.push(`${update.productId}: ${(error as Error).message}`);
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Bulk delete products
+ */
+export async function bulkDeleteProducts(productIds: string[]) {
+  const results = {
+    total: productIds.length,
+    deleted: 0,
+    failed: 0,
+    errors: [] as string[]
+  };
+
+  for (const productId of productIds) {
+    try {
+      await databases.deleteDocument(
+        DATABASE_ID,
+        PRODUCTS_COLLECTION_ID,
+        productId
+      );
+      results.deleted++;
+    } catch (error) {
+      results.failed++;
+      results.errors.push(`${productId}: ${(error as Error).message}`);
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Bulk toggle auto-sync for multiple products
+ */
+export async function bulkToggleAutoSync(
+  productIds: string[],
+  enabled: boolean,
+  intervalMinutes: number = 10
+) {
+  const results = {
+    total: productIds.length,
+    updated: 0,
+    failed: 0,
+    errors: [] as string[]
+  };
+
+  for (const productId of productIds) {
+    try {
+      await toggleProductAutoSync(productId, enabled, intervalMinutes);
+      results.updated++;
+    } catch (error) {
+      results.failed++;
+      results.errors.push(`${productId}: ${(error as Error).message}`);
+    }
+  }
+
+  return results;
 }

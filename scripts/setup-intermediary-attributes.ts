@@ -29,6 +29,7 @@ async function addIntermediaryAttributes() {
     
     // Source & Pricing
     { key: 'sourceUrl', type: 'string', size: 2000, required: false },
+    { key: 'sourceUrlHash', type: 'string', size: 50, required: false },
     { key: 'originalPrice', type: 'float', required: false },
     { key: 'priceMarkup', type: 'float', required: false },
     { key: 'priceMarkupType', type: 'string', size: 20, required: false }, // 'percentage' or 'fixed'
@@ -104,7 +105,7 @@ async function addIntermediaryAttributes() {
   
   const indexes = [
     { key: 'intermediaryId_index', type: 'key', attributes: ['intermediaryId'] },
-    { key: 'sourceUrl_index', type: 'key', attributes: ['sourceUrl'] },
+    { key: 'sourceUrlHash_index', type: 'key', attributes: ['sourceUrlHash'] },
     { key: 'autoSyncEnabled_index', type: 'key', attributes: ['autoSyncEnabled'] },
   ];
 

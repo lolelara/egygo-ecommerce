@@ -54,6 +54,7 @@
     "setup-referrals": "tsx scripts/setup-referral-system.ts",
     "fix-referrals": "tsx scripts/fix-referral-attributes.ts",
     "setup-intermediary": "tsx scripts/setup-intermediary-attributes.ts",
+    "create-product-descriptions": "tsx scripts/create-product-descriptions-collection.ts",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
