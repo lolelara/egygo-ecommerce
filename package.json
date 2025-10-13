@@ -59,6 +59,7 @@
     "create-user-prefs": "tsx scripts/create-user-preferences-collection.ts",
     "sync-existing-users": "tsx scripts/sync-existing-users.ts",
     "fix-coupons": "tsx scripts/fix-coupons-collection.ts",
+    "create-demo-intermediary": "tsx scripts/create-demo-intermediary.ts",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
