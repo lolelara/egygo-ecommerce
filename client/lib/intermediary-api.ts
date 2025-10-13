@@ -3,12 +3,12 @@
  * Extract product data from external URLs
  */
 
-import { databases, storage, account } from './appwrite';
+import { databases, storage, account, appwriteConfig } from './appwrite';
 import { ID, Query } from 'appwrite';
 
-const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
-const PRODUCTS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_PRODUCTS_COLLECTION || 'products';
-const STORAGE_BUCKET_ID = import.meta.env.VITE_APPWRITE_STORAGE_ID || 'product-images';
+const DATABASE_ID = appwriteConfig.databaseId;
+const PRODUCTS_COLLECTION_ID = appwriteConfig.collections.products;
+const STORAGE_BUCKET_ID = appwriteConfig.storageId;
 
 export interface ScrapedProduct {
   name: string;
