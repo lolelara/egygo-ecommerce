@@ -34,6 +34,7 @@ import { scrapeVendoorProducts } from "./routes/vendoor-scraper";
 import { login, register, forgotPassword, getCurrentUser } from "./routes/auth";
 import { getUserOrders, getOrderById } from "./routes/orders";
 import { approveUser } from "./routes/admin-approve-user";
+import { updateUserRole as updateUserRoleServer } from "./routes/update-user-role";
 import {
   getProductReviews,
   createReview,
@@ -173,6 +174,7 @@ export function createServer() {
   app.delete("/api/admin/categories/:id", deleteCategory);
   app.get("/api/admin/users", getUsers);
   app.put("/api/admin/users/:id/role", updateUserRole);
+  app.post("/api/admin/update-user-role", updateUserRoleServer);
   app.post("/api/admin/approve-user", approveUser);
   app.get("/api/admin/orders", getOrders);
   app.put("/api/admin/orders/:id/status", updateOrderStatus);

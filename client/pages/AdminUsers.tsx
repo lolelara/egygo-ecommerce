@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { Users, Edit, Trash2, Search, UserPlus } from 'lucide-react';
-import { databases } from '@/lib/appwrite';
+import { databases, appwriteConfig } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -90,24 +90,36 @@ export default function AdminUsers() {
     if (!editingUser) return;
 
     try {
+      // If role changed, use server API to update both Auth and userPreferences
+      if (editFormData.role !== editingUser.role) {
+        const response = await fetch('/api/admin/update-user-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: editingUser.userId,
+            newRole: editFormData.role
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update user role');
+        }
+
+        console.log('✅ Role updated via server API');
+      }
+
+      // Update other user data in userPreferences
       const updateData: any = {
         name: editFormData.name,
         email: editFormData.email,
         phone: editFormData.phone || '',
-        role: editFormData.role,
-        isAdmin: editFormData.role === 'admin',
-        isAffiliate: editFormData.role === 'affiliate',
-        isMerchant: editFormData.role === 'merchant',
-        isIntermediary: editFormData.role === 'intermediary',
-        accountStatus: 'approved'
       };
 
-      // Update role-specific data
-      if (editFormData.role !== editingUser.role) {
-        updateData.affiliateCode = editFormData.role === 'affiliate' ? `AFF${Date.now()}` : '';
-        updateData.intermediaryCode = editFormData.role === 'intermediary' ? `INT${Date.now()}` : '';
-        updateData.defaultMarkupPercentage = editFormData.role === 'intermediary' ? 20 : 0;
-        updateData.commissionRate = editFormData.role === 'affiliate' ? 10 : 0;
+      // Only update role data if role didn't change (server already handled it)
+      if (editFormData.role === editingUser.role) {
+        updateData.role = editFormData.role;
       }
 
       await databases.updateDocument(
@@ -116,6 +128,42 @@ export default function AdminUsers() {
         editingUser.$id,
         updateData
       );
+
+      // Send notification if role changed
+      if (editFormData.role !== editingUser.role) {
+        const roleNames: Record<string, string> = {
+          customer: 'عميل',
+          merchant: 'تاجر',
+          affiliate: 'مسوق',
+          intermediary: 'وسيط',
+          admin: 'مدير'
+        };
+
+        const oldRoleName = roleNames[editingUser.role] || editingUser.role;
+        const newRoleName = roleNames[editFormData.role] || editFormData.role;
+
+        try {
+          await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.notifications,
+            ID.unique(),
+            {
+              userId: editingUser.userId,
+              title: '🎉 تم تحديث دورك بنجاح',
+              message: `تم تغيير دورك من ${oldRoleName} إلى ${newRoleName}. يمكنك الآن الوصول إلى المميزات الجديدة!`,
+              type: 'success',
+              isRead: false,
+              link: editFormData.role === 'merchant' ? '/merchant/dashboard' :
+                    editFormData.role === 'affiliate' ? '/affiliate/dashboard' :
+                    editFormData.role === 'intermediary' ? '/intermediary/dashboard' :
+                    editFormData.role === 'admin' ? '/admin/dashboard' : '/'
+            }
+          );
+          console.log('✅ Role change notification sent');
+        } catch (notifError) {
+          console.error('Error sending notification:', notifError);
+        }
+      }
 
       toast({
         title: "نجح",
@@ -150,19 +198,46 @@ export default function AdminUsers() {
     if (!selectedUserForIntermediary) return;
 
     try {
-      const intermediaryCode = `INT${Date.now()}`;
+      // Use server API to update both Auth and userPreferences
+      const response = await fetch('/api/admin/update-user-role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: selectedUserForIntermediary.userId,
+          newRole: 'intermediary'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to activate intermediary');
+      }
+
+      const result = await response.json();
+      const intermediaryCode = result.intermediaryCode || `INT${Date.now()}`;
       
-      await databases.updateDocument(
-        DATABASE_ID,
-        'userPreferences',
-        selectedUserForIntermediary.$id,
-        {
-          role: 'intermediary',
-          isIntermediary: true,
-          intermediaryCode: intermediaryCode,
-          defaultMarkupPercentage: parseFloat(intermediaryMarkup)
-        }
-      );
+      console.log('✅ Intermediary activated via server API');
+
+      // Send notification to user
+      try {
+        await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.notifications,
+          ID.unique(),
+          {
+            userId: selectedUserForIntermediary.userId,
+            title: '🎉 مبروك! تم تفعيلك كوسيط',
+            message: `تم تفعيل حسابك كوسيط بنجاح! كود الوسيط الخاص بك: ${intermediaryCode}. نسبة الهامش الافتراضية: ${intermediaryMarkup}%. يمكنك الآن إنشاء روابط خاصة بك وإضافة هامش ربح على المنتجات.`,
+            type: 'success',
+            isRead: false,
+            link: '/intermediary/dashboard'
+          }
+        );
+        console.log('✅ Intermediary activation notification sent');
+      } catch (notifError) {
+        console.error('Error sending notification:', notifError);
+      }
 
       toast({
         title: "نجح",
