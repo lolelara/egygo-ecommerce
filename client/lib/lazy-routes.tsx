@@ -92,6 +92,7 @@ export const AdminCategories = lazyLoad(() => import('@/pages/AdminCategories'))
 export const AdminCommissions = lazyLoad(() => import('@/pages/AdminCommissions'));
 export const AdminPendingAccounts = lazyLoad(() => import('@/pages/AdminPendingAccounts'));
 export const AdminUserManagement = lazyLoad(() => import('@/pages/AdminUserManagement'));
+export const AdminUserManagementFixed = lazyLoad(() => import('@/pages/AdminUserManagementFixed'));
 export const AdminProductsAdvanced = lazyLoad(() => import('@/pages/AdminProductsAdvanced'));
 export const AdminSettingsPage = lazyLoad(() => import('@/pages/AdminSettingsPage'));
 export const AdminShipping = lazyLoad(() => import('@/pages/AdminShipping'));
