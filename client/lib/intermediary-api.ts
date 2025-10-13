@@ -5,6 +5,7 @@
 
 import { databases, storage, account, appwriteConfig } from './appwrite';
 import { ID, Query } from 'appwrite';
+import { advancedScraper } from './advanced-scraper';
 
 const DATABASE_ID = appwriteConfig.databaseId;
 const PRODUCTS_COLLECTION_ID = appwriteConfig.collections.products;
@@ -45,85 +46,40 @@ export interface ProductImportResult {
 }
 
 /**
- * Extract product data from URL with caching
- * This is a client-side scraper that uses CORS proxy or Open Graph tags
+ * Extract product data from URL with advanced scraping
+ * Uses multiple strategies: JSON-LD, Meta Tags, Selectors, Site-Specific
  */
 export async function scrapeProductFromUrl(url: string, useCache: boolean = true): Promise<ScrapedProduct> {
   try {
-    // Check cache first
-    if (useCache) {
-      const cached = scrapingCache.get(url);
-      if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
-        console.log('📦 Using cached data for:', url);
-        return cached.data;
-      }
+    console.log('🔍 Starting advanced scraping for:', url);
+    
+    // Use the advanced scraper
+    const scrapedData = await advancedScraper.scrape(url, useCache);
+    
+    // Validate data
+    if (!scrapedData.name || scrapedData.name === 'منتج مستورد') {
+      throw new Error('لم يتم العثور على اسم المنتج');
     }
-    // For security and CORS reasons, we'll use a proxy or meta tags
-    // In production, this should be a server-side API
     
-    // Try to fetch Open Graph meta tags via CORS proxy
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    const response = await fetch(proxyUrl);
-    const data = await response.json();
-    const html = data.contents;
+    console.log('✅ Successfully scraped:', scrapedData.name);
     
-    // Parse HTML to extract product data
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    // Extract Open Graph tags
-    const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content');
-    const ogDescription = doc.querySelector('meta[property="og:description"]')?.getAttribute('content');
-    const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
-    const ogPrice = doc.querySelector('meta[property="product:price:amount"]')?.getAttribute('content');
-    
-    // Try to extract from common e-commerce structures
-    const title = ogTitle || 
-                  doc.querySelector('h1')?.textContent?.trim() ||
-                  doc.querySelector('.product-title')?.textContent?.trim() ||
-                  doc.title;
-    
-    const description = ogDescription ||
-                       doc.querySelector('.product-description')?.textContent?.trim() ||
-                       doc.querySelector('[itemprop="description"]')?.textContent?.trim();
-    
-    const priceText = ogPrice ||
-                     doc.querySelector('.price')?.textContent?.trim() ||
-                     doc.querySelector('[itemprop="price"]')?.getAttribute('content');
-    
-    // Parse price (remove currency symbols and convert to number)
-    const price = priceText ? parseFloat(priceText.replace(/[^\d.]/g, '')) : 0;
-    
-    // Extract images
-    const images: string[] = [];
-    if (ogImage) images.push(ogImage);
-    
-    // Try to find product images
-    doc.querySelectorAll('img[src*="product"], img[class*="product"], img[data-zoom]').forEach((img) => {
-      const src = img.getAttribute('src') || img.getAttribute('data-src');
-      if (src && !images.includes(src)) {
-        images.push(src.startsWith('http') ? src : new URL(src, url).href);
+    return {
+      name: scrapedData.name,
+      price: scrapedData.price || 0,
+      description: scrapedData.description || '',
+      images: scrapedData.images || [],
+      category: scrapedData.category || 'imported',
+      specifications: {
+        brand: scrapedData.brand,
+        sku: scrapedData.sku,
+        availability: scrapedData.availability,
+        rating: scrapedData.rating,
+        reviewCount: scrapedData.reviewCount
       }
-    });
-    
-    const scrapedData = {
-      name: title || 'منتج مستورد',
-      price: price || 0,
-      description: description || '',
-      images: images.slice(0, 5), // Limit to 5 images
-      category: 'imported'
     };
-    
-    // Cache the result
-    scrapingCache.set(url, {
-      data: scrapedData,
-      timestamp: Date.now()
-    });
-    
-    return scrapedData;
   } catch (error) {
-    console.error('Error scraping product:', error);
-    throw new Error('فشل استخراج بيانات المنتج من الرابط');
+    console.error('❌ Error scraping product:', error);
+    throw new Error('فشل استخراج بيانات المنتج: ' + (error as Error).message);
   }
 }
 
