@@ -83,19 +83,21 @@ export function ProtectedRoute({
     }
 
     // Check if user has the required role
-    if (user.role !== requiredRole) {
-      // Special cases for affiliate, merchant, and intermediary
-      if (requiredRole === 'affiliate' && !user.isAffiliate) {
-        return <Navigate to="/affiliate" replace />;
-      }
-      if (requiredRole === 'merchant' && !user.isMerchant) {
-        return <Navigate to="/merchant" replace />;
-      }
-      if (requiredRole === 'intermediary' && !user.isIntermediary) {
+    // Special handling for intermediary, affiliate, and merchant
+    if (requiredRole === 'intermediary') {
+      if (!user.isIntermediary) {
         return <Navigate to="/" replace />;
       }
-      
-      // Redirect to appropriate dashboard
+    } else if (requiredRole === 'affiliate') {
+      if (!user.isAffiliate) {
+        return <Navigate to="/affiliate" replace />;
+      }
+    } else if (requiredRole === 'merchant') {
+      if (!user.isMerchant) {
+        return <Navigate to="/merchant" replace />;
+      }
+    } else if (user.role !== requiredRole) {
+      // For other roles (admin, customer), check exact role match
       const redirectPath = fallbackPath || getDashboardRoute(userRole);
       return <Navigate to={redirectPath} replace />;
     }
