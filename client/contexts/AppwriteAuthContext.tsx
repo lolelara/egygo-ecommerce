@@ -8,11 +8,14 @@ interface User {
   phone?: string;
   alternativePhone?: string;
   address?: string;
-  role?: 'admin' | 'merchant' | 'affiliate' | 'customer';
+  role?: 'admin' | 'merchant' | 'affiliate' | 'customer' | 'intermediary';
   isAffiliate?: boolean;
   isMerchant?: boolean;
+  isIntermediary?: boolean;
   affiliateCode?: string;
+  intermediaryCode?: string;
   commissionRate?: number;
+  defaultMarkupPercentage?: number;
   accountStatus?: 'pending' | 'approved' | 'rejected';
   approvedAt?: string;
   approvedBy?: string;
@@ -78,17 +81,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = await AppwriteService.getCurrentUser();
       
       if (currentUser) {
-        // Try to get user data from users collection first (for accountStatus)
+        // Try to get user data from userPreferences collection
         let userData: any = {};
         try {
-          const userDoc = await databases.getDocument(
+          const { Query } = await import('appwrite');
+          const userPrefsResponse = await databases.listDocuments(
             appwriteConfig.databaseId,
-            appwriteConfig.collections.users,
-            currentUser.$id
+            'userPreferences',
+            [Query.equal('userId', currentUser.$id)]
           );
-          userData = userDoc;
+          
+          if (userPrefsResponse.documents.length > 0) {
+            userData = userPrefsResponse.documents[0];
+            console.log('✅ Loaded user data from userPreferences:', userData);
+          } else {
+            console.log('⚠️ No userPreferences found for user');
+          }
         } catch (error) {
-          console.log('No user document found, using prefs only');
+          console.log('Error loading userPreferences:', error);
         }
 
         // Use user preferences as fallback
@@ -100,8 +110,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           'admin@egygo.me'
         ];
         
-        // Determine user role
-        let userRole: 'admin' | 'merchant' | 'affiliate' | 'customer' = prefs.role || 'customer';
+        // Determine user role - prioritize userData from userPreferences collection
+        let userRole: 'admin' | 'merchant' | 'affiliate' | 'customer' | 'intermediary' = userData.role || prefs.role || 'customer';
         
         // If role not set in prefs, determine from email or affiliate status
         if (!prefs.role) {
@@ -146,15 +156,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser({
           $id: currentUser.$id,
-          name: currentUser.name,
-          email: currentUser.email,
+          name: userData.name || currentUser.name,
+          email: userData.email || currentUser.email,
           role: userRole,
-          phone: prefs.phone || '',
-          address: prefs.address || '',
-          isAffiliate: prefs.isAffiliate || userRole === 'affiliate',
-          isMerchant: prefs.isMerchant || userRole === 'merchant',
-          affiliateCode: prefs.affiliateCode || '',
-          commissionRate: prefs.commissionRate || 0.15,
+          phone: userData.phone || prefs.phone || '',
+          address: userData.address || prefs.address || '',
+          isAffiliate: userData.isAffiliate || prefs.isAffiliate || userRole === 'affiliate',
+          isMerchant: userData.isMerchant || prefs.isMerchant || userRole === 'merchant',
+          isIntermediary: userData.isIntermediary || prefs.isIntermediary || userRole === 'intermediary',
+          affiliateCode: userData.affiliateCode || prefs.affiliateCode || '',
+          intermediaryCode: userData.intermediaryCode || prefs.intermediaryCode || '',
+          commissionRate: userData.commissionRate || prefs.commissionRate || 0.15,
+          defaultMarkupPercentage: userData.defaultMarkupPercentage || prefs.defaultMarkupPercentage || 20,
           // Use userData from collection if available, otherwise use prefs
           accountStatus: userData.accountStatus || prefs.accountStatus || 'approved',
           approvedAt: userData.approvedAt || prefs.approvedAt,
