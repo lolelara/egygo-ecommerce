@@ -1,65 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Users,
-  UserCheck,
-  Search,
-  Edit,
-  Ban,
-  CheckCircle,
-  DollarSign,
-  Calendar,
-} from "lucide-react";
-import { TableSkeleton, StatsCardSkeleton } from "@/components/LoadingSkeletons";
-import type { User, AffiliateUser } from "@shared/api";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { adminUsersApi } from "@/lib/admin-api";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AppwriteAuthContext';
+import { Users, Edit, Trash2, Search, UserPlus } from 'lucide-react';
+import { databases } from '@/lib/appwrite';
+import { Query, ID } from 'appwrite';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
 
-const RoleBadge = ({ role }: { role: string }) => {
-  const roleConfig = {
-    USER: { label: "مستخدم", variant: "secondary" as const },
-    ADMIN: { label: "مدير", variant: "default" as const },
-    SUPER_ADMIN: { label: "مدير عام", variant: "destructive" as const },
-  };
-
-  const config = roleConfig[role as keyof typeof roleConfig] || roleConfig.USER;
-  return <Badge variant={config.variant}>{config.label}</Badge>;
-};
-
-const StatusBadge = ({ isActive }: { isActive: boolean }) => (
-  <Badge variant={isActive ? "default" : "secondary"}>
-    {isActive ? "نشط" : "معطل"}
-  </Badge>
-);
+const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [affiliates, setAffiliates] =
-    useState<(AffiliateUser & { user: User })[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [affiliateSearchTerm, setAffiliateSearchTerm] = useState("");
+  const { user } = useAuth();
   const { toast } = useToast();
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  
+  // Edit Modal State
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'customer'
+  });
+
+  // Intermediary Modal State
+  const [showIntermediaryModal, setShowIntermediaryModal] = useState(false);
+  const [selectedUserForIntermediary, setSelectedUserForIntermediary] = useState<any>(null);
+  const [intermediaryMarkup, setIntermediaryMarkup] = useState('20');
 
   useEffect(() => {
-    fetchData();
+    loadUsers();
   }, []);
 
-  const fetchData = async () => {
+  const loadUsers = async () => {
     try {
       setLoading(true);
       console.log("Starting to fetch users and affiliates...");
