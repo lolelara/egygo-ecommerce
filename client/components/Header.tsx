@@ -107,6 +107,19 @@ export function Header({ cartItemCount }: HeaderProps) {
                   </Link>
                 </div>
               )}
+              
+              {/* Intermediary Panel */}
+              {user?.isIntermediary && (
+                <div className="space-y-2 mb-4">
+                  <Link
+                    to="/intermediary/dashboard"
+                    className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-indigo-100 to-blue-50 dark:from-indigo-900 dark:to-blue-800 text-indigo-600 dark:text-indigo-300 rounded-lg font-semibold hover:shadow-md transition-all"
+                  >
+                    <Users className="h-5 w-5" />
+                    لوحة تحكم الوسيط
+                  </Link>
+                </div>
+              )}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <Grid3x3 className="h-4 w-4 text-primary" />
@@ -245,10 +258,16 @@ export function Header({ cartItemCount }: HeaderProps) {
                       <span>لوحة التاجر</span>
                     </>
                   )}
-                  {user.isAffiliate && user.role !== 'admin' && user.role !== 'merchant' && (
+                  {user.isAffiliate && user.role !== 'admin' && user.role !== 'merchant' && user.role !== 'intermediary' && (
                     <>
                       <TrendingUp className="h-4 w-4" />
                       <span>لوحة المسوق</span>
+                    </>
+                  )}
+                  {user.isIntermediary && user.role !== 'admin' && user.role !== 'merchant' && (
+                    <>
+                      <Users className="h-4 w-4" />
+                      <span>لوحة الوسيط</span>
                     </>
                   )}
                 </Button>
@@ -309,6 +328,43 @@ export function Header({ cartItemCount }: HeaderProps) {
                     </DropdownMenuItem>
                   </>
                 )}
+                {user.isIntermediary && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/intermediary/dashboard" className="flex items-center gap-2 cursor-pointer">
+                        <Users className="h-4 w-4" />
+                        لوحة الوسيط
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/intermediary/products" className="flex items-center gap-2 cursor-pointer">
+                        منتجاتي
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/intermediary/links" className="flex items-center gap-2 cursor-pointer">
+                        روابطي
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/orders" className="flex items-center gap-2 cursor-pointer">
+                    طلباتي
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/wishlist" className="flex items-center gap-2 cursor-pointer">
+                    <Heart className="h-4 w-4" />
+                    المفضلة
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout} className="flex items-center gap-2 cursor-pointer text-red-600">
+                  <LogOut className="h-4 w-4" />
+                  تسجيل الخروج
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
