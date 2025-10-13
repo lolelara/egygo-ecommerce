@@ -293,15 +293,77 @@ export default function IntermediaryDashboard() {
     ? (products.reduce((sum: number, p: any) => sum + (p.priceMarkup || 0), 0) / products.length).toFixed(1)
     : 0;
 
+  // Get intermediary info from userPreferences
+  const [intermediaryInfo, setIntermediaryInfo] = useState<any>(null);
+  
+  useEffect(() => {
+    const loadIntermediaryInfo = async () => {
+      if (!user) return;
+      try {
+        const { databases } = await import('@/lib/appwrite');
+        const { Query } = await import('appwrite');
+        const response = await databases.listDocuments(
+          import.meta.env.VITE_APPWRITE_DATABASE_ID,
+          'userPreferences',
+          [Query.equal('userId', user.$id)]
+        );
+        if (response.documents.length > 0) {
+          setIntermediaryInfo(response.documents[0]);
+        }
+      } catch (error) {
+        console.error('Error loading intermediary info:', error);
+      }
+    };
+    loadIntermediaryInfo();
+  }, [user]);
+
   return (
     <div className="container mx-auto p-6" dir="rtl">
       <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">لوحة تحكم الوسيط</h1>
-          <p className="text-muted-foreground">
-            استورد منتجات من مواقع أخرى وحدد هامش الربح
-          </p>
+        {/* Header with Intermediary Info */}
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">لوحة تحكم الوسيط</h1>
+            <p className="text-muted-foreground">
+              استورد منتجات من مواقع أخرى وحدد هامش الربح
+            </p>
+          </div>
+          
+          {intermediaryInfo && (
+            <Card className="w-80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">معلومات الوسيط</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">كود الوسيط:</span>
+                  <code className="bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded text-purple-700 dark:text-purple-300 font-mono">
+                    {intermediaryInfo.intermediaryCode}
+                  </code>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">نسبة الهامش الافتراضية:</span>
+                  <span className="font-bold text-green-600">{intermediaryInfo.defaultMarkupPercentage}%</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mt-2"
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/#/?ref=${intermediaryInfo.intermediaryCode}`;
+                    navigator.clipboard.writeText(shareUrl);
+                    toast({
+                      title: "تم النسخ!",
+                      description: "تم نسخ رابط الإحالة الخاص بك"
+                    });
+                  }}
+                >
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                  نسخ رابط الإحالة
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Stats Cards */}
