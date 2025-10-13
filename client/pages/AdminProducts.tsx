@@ -522,17 +522,12 @@ export default function AdminProducts() {
   };
 
   const handleDeleteProduct = async (productId: string) => {
+    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
+      return;
+    }
+
     try {
-      // Check if user has permission to delete this product
-      const product = products.find(p => p.id === productId);
-      const isAdmin = user && (user as any).labels?.includes('admin');
-      const isMerchantOwner = product && (product as any).merchantId === user?.$id;
-      
-      if (!isAdmin && !isMerchantOwner) {
-        alert("ليس لديك صلاحية لحذف هذا المنتج");
-        return;
-      }
-      
+      // Admin can delete any product, no permission check needed
       await adminProductsApi.delete(productId);
       setProducts((prev) => prev.filter((product) => product.id !== productId));
       
