@@ -82,7 +82,11 @@ export default function AdminUserManagement() {
   useEffect(() => {
     console.log('📊 Edit Dialog State Changed:', editDialogOpen);
     console.log('👤 Editing User:', editingUser);
-  }, [editDialogOpen, editingUser]);
+    if (editDialogOpen && editingUser) {
+      console.log('✅ Dialog should be visible now');
+      console.log('📝 Edit User Data:', editUserData);
+    }
+  }, [editDialogOpen, editingUser, editUserData]);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -97,6 +101,22 @@ export default function AdminUserManagement() {
       
       console.log('📥 Loaded users:', response.documents.length);
       console.log('📋 First user sample:', response.documents[0]);
+      
+      // Count users by role
+      const roleCounts = response.documents.reduce((acc: any, u: any) => {
+        acc[u.role] = (acc[u.role] || 0) + 1;
+        return acc;
+      }, {});
+      console.log('📊 Users by role:', roleCounts);
+      
+      // Count customers who are not intermediaries
+      const eligibleForIntermediary = response.documents.filter((u: any) => 
+        u.role === 'customer' && !u.isIntermediary
+      );
+      console.log('🟣 Customers eligible for intermediary:', eligibleForIntermediary.length);
+      if (eligibleForIntermediary.length > 0) {
+        console.log('📝 Sample eligible customer:', eligibleForIntermediary[0]);
+      }
       
       setUsers(response.documents);
     } catch (error) {
@@ -476,48 +496,46 @@ export default function AdminUserManagement() {
                           {new Date(u.$createdAt).toLocaleDateString('ar-EG')}
                         </TableCell>
                         <TableCell>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 items-center">
                             {/* Show "Activate Intermediary" button only for customers */}
-                            {(() => {
-                              const isCustomer = u.role === 'customer';
-                              const isNotIntermediary = !u.isIntermediary;
-                              const shouldShow = isCustomer && isNotIntermediary;
-                              
-                              // Debug log
-                              if (u.email === 'lolelarap@gmail.com') {
-                                console.log('🔍 Debug for user:', u.email);
-                                console.log('  role:', u.role, '| isCustomer:', isCustomer);
-                                console.log('  isIntermediary:', u.isIntermediary, '| isNotIntermediary:', isNotIntermediary);
-                                console.log('  shouldShow:', shouldShow);
-                              }
-                              
-                              return shouldShow ? (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  className="bg-purple-600 hover:bg-purple-700"
-                                  onClick={() => openActivateIntermediaryDialog(u)}
-                                >
-                                  تفعيل الوسيط
-                                </Button>
-                              ) : null;
-                            })()}
+                            {u.role === 'customer' && !u.isIntermediary && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="bg-purple-600 hover:bg-purple-700 text-white"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('🟣 Activating intermediary for:', u.name);
+                                  openActivateIntermediaryDialog(u);
+                                }}
+                              >
+                                تفعيل وسيط
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                console.log('🖱️ Edit button clicked for:', u.name);
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('✏️ Edit button clicked for:', u.name);
+                                console.log('User data:', u);
                                 openEditUserDialog(u);
                               }}
                               title="تعديل المستخدم"
                             >
-                              <Edit className="h-4 w-4 mr-1" />
-                              تعديل
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               size="sm"
-                              variant="outline"
-                              onClick={() => handleDeleteUser(u.$id, u.name)}
+                              variant="destructive"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleDeleteUser(u.$id, u.name);
+                              }}
+                              title="حذف المستخدم"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -683,8 +701,13 @@ export default function AdminUserManagement() {
         </Dialog>
 
         {/* Edit User Dialog */}
-        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-          <DialogContent className="max-w-md">
+        <Dialog open={editDialogOpen} onOpenChange={(open) => {
+          console.log('🔄 Dialog onOpenChange called:', open);
+          setEditDialogOpen(open);
+        }}>
+          <DialogContent className="max-w-md" onOpenAutoFocus={() => {
+            console.log('🎯 Dialog content rendered and focused');
+          }}>
             <DialogHeader>
               <DialogTitle>تعديل بيانات المستخدم</DialogTitle>
               <DialogDescription>
