@@ -146,8 +146,14 @@ const App = () => (
               
               {/* Merchant Routes - Protected & Lazy */}
               <Route path="/merchant/dashboard" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantDashboard /></ProtectedRoute>} />
-              <Route path="/intermediary/dashboard" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.IntermediaryDashboard /></ProtectedRoute>} />
-              <Route path="/intermediary/import" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.VendoorImport /></ProtectedRoute>} />
+              
+              {/* Intermediary Routes - Protected & Lazy */}
+              <Route path="/intermediary/dashboard" element={<ProtectedRoute requiredRole="intermediary"><LazyRoutes.IntermediaryDashboard /></ProtectedRoute>} />
+              <Route path="/intermediary/import" element={<ProtectedRoute requiredRole="intermediary"><LazyRoutes.VendoorImport /></ProtectedRoute>} />
+              <Route path="/intermediary/products" element={<ProtectedRoute requiredRole="intermediary"><LazyRoutes.MerchantProducts /></ProtectedRoute>} />
+              <Route path="/intermediary/links" element={<ProtectedRoute requiredRole="intermediary"><LazyRoutes.AffiliateLinkManager /></ProtectedRoute>} />
+              
+              {/* Admin Vendoor Import */}
               <Route path="/admin/vendoor-import" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.VendoorImport /></ProtectedRoute>} />
 
               {/* Static pages - Lazy */}

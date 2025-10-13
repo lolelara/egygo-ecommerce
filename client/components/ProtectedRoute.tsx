@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'admin' | 'merchant' | 'affiliate' | 'customer';
+  requiredRole?: 'admin' | 'merchant' | 'affiliate' | 'customer' | 'intermediary';
   requiredPermission?: Permission;
   requireAuth?: boolean;
   fallbackPath?: string;
@@ -84,12 +84,15 @@ export function ProtectedRoute({
 
     // Check if user has the required role
     if (user.role !== requiredRole) {
-      // Special cases for affiliate and merchant
+      // Special cases for affiliate, merchant, and intermediary
       if (requiredRole === 'affiliate' && !user.isAffiliate) {
         return <Navigate to="/affiliate" replace />;
       }
       if (requiredRole === 'merchant' && !user.isMerchant) {
         return <Navigate to="/merchant" replace />;
+      }
+      if (requiredRole === 'intermediary' && !user.isIntermediary) {
+        return <Navigate to="/" replace />;
       }
       
       // Redirect to appropriate dashboard
@@ -97,8 +100,8 @@ export function ProtectedRoute({
       return <Navigate to={redirectPath} replace />;
     }
 
-    // Check account status for merchants and affiliates
-    if ((requiredRole === 'merchant' || requiredRole === 'affiliate') && 
+    // Check account status for merchants, affiliates, and intermediaries
+    if ((requiredRole === 'merchant' || requiredRole === 'affiliate' || requiredRole === 'intermediary') && 
         user.accountStatus !== 'approved') {
       return (
         <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gradient-to-br from-yellow-50 to-orange-50">
