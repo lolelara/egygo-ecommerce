@@ -41,487 +41,425 @@ export default function AdminUsers() {
   }, []);
 
   const loadUsers = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      console.log("Starting to fetch users and affiliates...");
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        'userPreferences',
+        [Query.limit(100), Query.orderDesc('$createdAt')]
+      );
       
-      const [usersData, affiliatesData] = await Promise.all([
-        adminUsersApi.getAll().catch(err => {
-          console.error("Failed to fetch users:", err);
-          return [];
-        }),
-        adminUsersApi.getAllAffiliates().catch(err => {
-          console.error("Failed to fetch affiliates:", err);
-          return [];
-        }),
-      ]);
-      
-      console.log("Users data:", usersData);
-      console.log("Affiliates data:", affiliatesData);
-      
-      setUsers(usersData);
-      setAffiliates(affiliatesData);
+      console.log('✅ Loaded users:', response.documents.length);
+      setUsers(response.documents);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error loading users:', error);
       toast({
-        variant: "destructive",
         title: "خطأ",
-        description: "فشل في تحميل البيانات",
+        description: "فشل تحميل المستخدمين",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const openEditModal = (user: any) => {
+    console.log('Opening edit modal for:', user.name);
+    setEditingUser(user);
+    setEditFormData({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role || 'customer'
+    });
+    setShowEditModal(true);
+  };
 
-  const filteredAffiliates = affiliates.filter(
-    (affiliate) =>
-      affiliate.name
-        .toLowerCase()
-        .includes(affiliateSearchTerm.toLowerCase()) ||
-      affiliate.email
-        .toLowerCase()
-        .includes(affiliateSearchTerm.toLowerCase()) ||
-      affiliate.affiliateCode
-        .toLowerCase()
-        .includes(affiliateSearchTerm.toLowerCase()),
-  );
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setEditingUser(null);
+    setEditFormData({
+      name: '',
+      email: '',
+      phone: '',
+      role: 'customer'
+    });
+  };
 
-  const handleToggleUserStatus = async (userId: string) => {
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+
     try {
-      const user = users.find((u) => u.id === userId);
-      if (!user) return;
+      const updateData: any = {
+        name: editFormData.name,
+        email: editFormData.email,
+        phone: editFormData.phone || '',
+        role: editFormData.role,
+        isAdmin: editFormData.role === 'admin',
+        isAffiliate: editFormData.role === 'affiliate',
+        isMerchant: editFormData.role === 'merchant',
+        isIntermediary: editFormData.role === 'intermediary',
+        accountStatus: 'approved'
+      };
 
-      await adminUsersApi.updateStatus(userId, !user.isActive);
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId ? { ...user, isActive: !user.isActive } : user,
-        ),
+      // Update role-specific data
+      if (editFormData.role !== editingUser.role) {
+        updateData.affiliateCode = editFormData.role === 'affiliate' ? `AFF${Date.now()}` : '';
+        updateData.intermediaryCode = editFormData.role === 'intermediary' ? `INT${Date.now()}` : '';
+        updateData.defaultMarkupPercentage = editFormData.role === 'intermediary' ? 20 : 0;
+        updateData.commissionRate = editFormData.role === 'affiliate' ? 10 : 0;
+      }
+
+      await databases.updateDocument(
+        DATABASE_ID,
+        'userPreferences',
+        editingUser.$id,
+        updateData
       );
+
       toast({
-        title: "تم التحديث",
-        description: "تم تحديث حالة المستخدم بنجاح",
+        title: "نجح",
+        description: "تم تحديث بيانات المستخدم بنجاح"
       });
-    } catch (error: any) {
+
+      closeEditModal();
+      loadUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
       toast({
-        variant: "destructive",
         title: "خطأ",
-        description: error.message || "فشل في تحديث حالة المستخدم",
+        description: "فشل تحديث بيانات المستخدم",
+        variant: "destructive"
       });
     }
   };
 
-  const handleChangeUserRole = async (userId: string, newRole: string) => {
+  const openIntermediaryModal = (user: any) => {
+    console.log('Opening intermediary modal for:', user.name);
+    setSelectedUserForIntermediary(user);
+    setShowIntermediaryModal(true);
+  };
+
+  const closeIntermediaryModal = () => {
+    setShowIntermediaryModal(false);
+    setSelectedUserForIntermediary(null);
+    setIntermediaryMarkup('20');
+  };
+
+  const handleActivateIntermediary = async () => {
+    if (!selectedUserForIntermediary) return;
+
     try {
-      await adminUsersApi.updateRole(userId, newRole);
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === userId ? { ...user, role: newRole as User["role"] } : user,
-        ),
+      const intermediaryCode = `INT${Date.now()}`;
+      
+      await databases.updateDocument(
+        DATABASE_ID,
+        'userPreferences',
+        selectedUserForIntermediary.$id,
+        {
+          role: 'intermediary',
+          isIntermediary: true,
+          intermediaryCode: intermediaryCode,
+          defaultMarkupPercentage: parseFloat(intermediaryMarkup)
+        }
       );
+
       toast({
-        title: "تم التحديث",
-        description: "تم تحديث دور المستخدم بنجاح",
+        title: "نجح",
+        description: `تم تفعيل ${selectedUserForIntermediary.name} كوسيط بنجاح`,
       });
-    } catch (error: any) {
+
+      closeIntermediaryModal();
+      loadUsers();
+    } catch (error) {
+      console.error('Error activating intermediary:', error);
       toast({
-        variant: "destructive",
         title: "خطأ",
-        description: error.message || "فشل في تحديث دور المستخدم",
+        description: "فشل تفعيل الوسيط",
+        variant: "destructive"
       });
     }
   };
 
-  const totalUsers = users.length;
-  const activeUsers = users.filter((u) => u.isActive).length;
-  const adminUsers = users.filter(
-    (u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN",
-  ).length;
-  const totalAffiliates = affiliates.length;
-  const totalAffiliateEarnings = affiliates.reduce(
-    (sum, a) => sum + a.totalEarnings,
-    0,
-  );
-  const totalPendingEarnings = affiliates.reduce(
-    (sum, a) => sum + a.pendingEarnings,
-    0,
-  );
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`هل أنت متأكد من حذف ${userName}؟`)) return;
+
+    try {
+      await databases.deleteDocument(
+        DATABASE_ID,
+        'userPreferences',
+        userId
+      );
+
+      toast({
+        title: "نجح",
+        description: "تم حذف المستخدم بنجاح"
+      });
+
+      loadUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل حذف المستخدم",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getRoleBadge = (role: string) => {
+    const roleColors: Record<string, string> = {
+      admin: 'bg-red-100 text-red-800',
+      intermediary: 'bg-purple-100 text-purple-800',
+      merchant: 'bg-blue-100 text-blue-800',
+      affiliate: 'bg-green-100 text-green-800',
+      customer: 'bg-gray-100 text-gray-800'
+    };
+
+    const roleNames: Record<string, string> = {
+      admin: 'مدير',
+      intermediary: 'وسيط',
+      merchant: 'تاجر',
+      affiliate: 'مسوق',
+      customer: 'عميل'
+    };
+
+    return (
+      <Badge className={roleColors[role] || roleColors.customer}>
+        {roleNames[role] || role}
+      </Badge>
+    );
+  };
+
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = 
+      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.phone?.includes(searchTerm);
+    
+    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+    
+    return matchesSearch && matchesRole;
+  });
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-6 w-6" />
             إدارة المستخدمين والشركاء
-          </h1>
-        </div>
-
-        {loading ? (
-          <>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <StatsCardSkeleton key={i} />
-              ))}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Search and Filter */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="بحث بالاسم أو البريد أو الهاتف..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
+            
+            <div>
+              <select
+                className="w-full p-2 border rounded-md"
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+              >
+                <option value="all">جميع الأدوار</option>
+                <option value="customer">عملاء</option>
+                <option value="merchant">تجار</option>
+                <option value="affiliate">مسوقين</option>
+                <option value="intermediary">وسطاء</option>
+                <option value="admin">مدراء</option>
+              </select>
+            </div>
+
+            <Button 
+              onClick={() => loadUsers()}
+              variant="outline"
+            >
+              تحديث القائمة
+            </Button>
+          </div>
+
+          {/* Users Table */}
+          {loading ? (
+            <div className="text-center py-8">جاري التحميل...</div>
+          ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-right p-2">الاسم</th>
+                    <th className="text-right p-2">البريد</th>
+                    <th className="text-right p-2">الهاتف</th>
+                    <th className="text-right p-2">الدور</th>
+                    <th className="text-right p-2">الكود</th>
+                    <th className="text-right p-2">الإجراءات</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  <TableSkeleton rows={8} cols={7} />
+                  {filteredUsers.map((u) => (
+                    <tr key={u.$id} className="border-b hover:bg-gray-50">
+                      <td className="p-2">{u.name}</td>
+                      <td className="p-2">{u.email}</td>
+                      <td className="p-2">{u.phone || '-'}</td>
+                      <td className="p-2">{getRoleBadge(u.role)}</td>
+                      <td className="p-2">
+                        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                          {u.affiliateCode || u.intermediaryCode || '-'}
+                        </code>
+                      </td>
+                      <td className="p-2">
+                        <div className="flex gap-2">
+                          {/* Activate Intermediary Button */}
+                          {u.role === 'customer' && !u.isIntermediary && (
+                            <Button
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                              onClick={() => openIntermediaryModal(u)}
+                            >
+                              تفعيل وسيط
+                            </Button>
+                          )}
+                          
+                          {/* Edit Button */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEditModal(u)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          
+                          {/* Delete Button */}
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteUser(u.$id, u.name)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-          </>
-        ) : (
-          <>
-            {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    إجمالي المستخدمين
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{totalUsers}</div>
-                  <p className="text-xs text-muted-foreground">{activeUsers} نشط</p>
-                </CardContent>
-              </Card>
+          )}
+        </CardContent>
+      </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">المديرين</CardTitle>
-                  <UserCheck className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{adminUsers}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    إجمالي الشركاء
-                  </CardTitle>
-                  <UserCheck className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{totalAffiliates}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {totalAffiliateEarnings.toLocaleString()} ج.م إجمالي الأرباح
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    الأرباح المعلقة
-                  </CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {totalPendingEarnings.toLocaleString()} ج.م
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-        <Tabs defaultValue="users" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="users">المستخدمين ({totalUsers})</TabsTrigger>
-            <TabsTrigger value="affiliates">
-              الشركاء ({totalAffiliates})
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="users" className="space-y-4">
-            {/* Info Message */}
-            {users.length === 0 && !loading && (
-              <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950">
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <Users className="h-5 w-5 text-amber-600 mt-0.5" />
-                      <div>
-                        <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
-                          ⚠️ لا يمكن عرض بيانات المستخدمين
-                        </h3>
-                        <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
-                          لعرض المستخدمين الحقيقيين، يجب إنشاء collection في Appwrite Database:
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-amber-200">
-                      <h4 className="font-semibold mb-2">خطوات الإعداد:</h4>
-                      <ol className="text-sm space-y-2 list-decimal list-inside">
-                        <li>افتح <a href="https://cloud.appwrite.io/console" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-medium">Appwrite Console</a></li>
-                        <li>اذهب إلى Database → أنشئ collection اسمه <code className="bg-gray-100 px-2 py-1 rounded">users</code></li>
-                        <li>أضف Attributes التالية:
-                          <ul className="mt-1 mr-6 space-y-1 list-disc list-inside text-xs">
-                            <li><code>email</code> (string, required)</li>
-                            <li><code>name</code> (string)</li>
-                            <li><code>avatar</code> (string)</li>
-                            <li><code>role</code> (string, default: "USER")</li>
-                            <li><code>isActive</code> (boolean, default: true)</li>
-                            <li><code>isAffiliate</code> (boolean)</li>
-                            <li><code>isMerchant</code> (boolean)</li>
-                          </ul>
-                        </li>
-                        <li>اضبط Permissions للقراءة والكتابة</li>
-                        <li>أضف مستخدمين للـ collection</li>
-                      </ol>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground">
-                      💡 <strong>ملاحظة:</strong> يمكنك أيضاً استخدام Appwrite Functions لمزامنة Auth Users مع الـ collection تلقائياً.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold mb-4">تعديل بيانات المستخدم</h2>
             
-            {/* Users Search */}
-            {users.length > 0 && (
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      placeholder="البحث في المستخدمين..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
+            <div className="space-y-4">
+              <div>
+                <Label>الاسم</Label>
+                <Input
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                />
               </div>
-            )}
-
-            {/* Users Table */}
-            {users.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>المستخدمين ({filteredUsers.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>المستخدم</TableHead>
-                      <TableHead>البريد الإلكتروني</TableHead>
-                      <TableHead>الدور</TableHead>
-                      <TableHead>الحالة</TableHead>
-                      <TableHead>تاريخ التسجيل</TableHead>
-                      <TableHead className="text-center">الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={user.avatar} />
-                              <AvatarFallback>
-                                {user.name?.charAt(0) || user.email.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">
-                                {user.name || "غير محدد"}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                ID: {user.id}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <RoleBadge role={user.role} />
-                        </TableCell>
-                        <TableCell>
-                          <StatusBadge isActive={user.isActive} />
-                        </TableCell>
-                        <TableCell>
-                          {new Date(user.createdAt).toLocaleDateString("ar-EG")}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleToggleUserStatus(user.id)}
-                            >
-                              {user.isActive ? (
-                                <Ban className="h-4 w-4 text-red-600" />
-                              ) : (
-                                <CheckCircle className="h-4 w-4 text-green-600" />
-                              )}
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="affiliates" className="space-y-4">
-            {/* Info Message */}
-            {affiliates.length === 0 && !loading && (
-              <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950">
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <UserCheck className="h-5 w-5 text-amber-600 mt-0.5" />
-                      <div>
-                        <h3 className="font-semibold text-amber-900 dark:text-amber-100 mb-1">
-                          ⚠️ لا يوجد شركاء تسويق حالياً
-                        </h3>
-                        <p className="text-sm text-amber-700 dark:text-amber-300 mb-3">
-                          لعرض المسوقين بالعمولة، تأكد من:
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-amber-200">
-                      <ul className="text-sm space-y-2 list-disc list-inside">
-                        <li>وجود collection <code className="bg-gray-100 px-2 py-1 rounded">users</code> في قاعدة البيانات</li>
-                        <li>وجود attribute <code className="bg-gray-100 px-2 py-1 rounded">isAffiliate</code> (boolean)</li>
-                        <li>تعيين <code className="bg-gray-100 px-2 py-1 rounded">isAffiliate = true</code> للمستخدمين المسوقين</li>
-                        <li>إضافة attributes للعمولات:
-                          <ul className="mt-1 mr-6 space-y-1 list-circle list-inside text-xs">
-                            <li><code>affiliateCode</code> (string)</li>
-                            <li><code>commissionRate</code> (number, مثال: 15)</li>
-                            <li><code>totalEarnings</code> (number)</li>
-                            <li><code>pendingEarnings</code> (number)</li>
-                            <li><code>referralCount</code> (number)</li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground">
-                      💡 <strong>نصيحة:</strong> يمكن للمستخدمين التسجيل كمسوقين من صفحة <code>/affiliate</code>
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            
-            {/* Affiliates Search */}
-            {affiliates.length > 0 && (
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="البحث في الشركاء..."
-                    value={affiliateSearchTerm}
-                    onChange={(e) => setAffiliateSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+              
+              <div>
+                <Label>البريد الإلكتروني</Label>
+                <Input
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <Label>رقم الهاتف</Label>
+                <Input
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <Label>الدور</Label>
+                <select
+                  className="w-full p-2 border rounded-md"
+                  value={editFormData.role}
+                  onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
+                >
+                  <option value="customer">عميل</option>
+                  <option value="merchant">تاجر</option>
+                  <option value="affiliate">مسوق</option>
+                  <option value="intermediary">وسيط</option>
+                  <option value="admin">مدير</option>
+                </select>
               </div>
             </div>
-            )}
+            
+            <div className="flex gap-2 mt-6">
+              <Button onClick={closeEditModal} variant="outline">
+                إلغاء
+              </Button>
+              <Button onClick={handleUpdateUser}>
+                حفظ التغييرات
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
-            {/* Affiliates Table */}
-            {affiliates.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>الشركاء ({filteredAffiliates.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>الشريك</TableHead>
-                      <TableHead>كود الشريك</TableHead>
-                      <TableHead>نسبة العمولة</TableHead>
-                      <TableHead>إجمالي الأرباح</TableHead>
-                      <TableHead>الأرباح المعلقة</TableHead>
-                      <TableHead>عدد الإحالات</TableHead>
-                      <TableHead>تاريخ الانضمام</TableHead>
-                      <TableHead className="text-center">الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredAffiliates.map((affiliate) => (
-                      <TableRow key={affiliate.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={affiliate.user.avatar} />
-                              <AvatarFallback>
-                                {affiliate.name.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="font-medium">
-                                {affiliate.name}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                {affiliate.email}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {affiliate.affiliateCode}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{affiliate.commissionRate}%</TableCell>
-                        <TableCell>
-                          {affiliate.totalEarnings.toLocaleString()} ج.م
-                        </TableCell>
-                        <TableCell>
-                          {affiliate.pendingEarnings.toLocaleString()} ج.م
-                        </TableCell>
-                        <TableCell>{affiliate.referralCount}</TableCell>
-                        <TableCell>
-                          {new Date(affiliate.joinedAt).toLocaleDateString(
-                            "ar-EG",
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <DollarSign className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-            )}
-          </TabsContent>
-        </Tabs>
-          </>
-        )}
-      </div>
+      {/* Intermediary Modal */}
+      {showIntermediaryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold mb-4">تفعيل دور الوسيط</h2>
+            
+            <div className="bg-purple-50 p-4 rounded-lg mb-4">
+              <p className="text-sm">
+                <strong>العميل:</strong> {selectedUserForIntermediary?.name}
+              </p>
+              <p className="text-sm">
+                <strong>البريد:</strong> {selectedUserForIntermediary?.email}
+              </p>
+            </div>
+            
+            <div className="mb-4">
+              <Label>نسبة الهامش الافتراضية (%)</Label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={intermediaryMarkup}
+                onChange={(e) => setIntermediaryMarkup(e.target.value)}
+                placeholder="20"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                النسبة التي سيتم إضافتها على سعر المنتج الأصلي
+              </p>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button onClick={closeIntermediaryModal} variant="outline">
+                إلغاء
+              </Button>
+              <Button 
+                onClick={handleActivateIntermediary}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                تفعيل الوسيط
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
