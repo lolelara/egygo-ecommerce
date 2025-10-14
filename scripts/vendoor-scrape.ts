@@ -44,7 +44,7 @@ const METHOD = String(args.method || 'http');
 const EMAIL = String(args.email || process.env.VENDOOR_EMAIL || '');
 const PASSWORD = String(args.password || process.env.VENDOOR_PASSWORD || '');
 const MAX_PAGES = Number(args.maxPages || 2);
-const BROWSER = String(args.browser || 'chromium');
+const BROWSER = String(args.browser || 'webkit'); // webkit أخف
 const HEADLESS = String(args.headless || 'true') === 'true';
 const OUTPUT = String(args.out || '');
 const DEBUG = String(args.debug || 'false') === 'true' || String(args.debug || '0') === '1';
@@ -198,7 +198,7 @@ async function runPlaywrightStrategy(): Promise<ScrapeResult> {
     return { success: false, error: 'Missing playwright dependency' };
   }
 
-  const browserType = (pw as any)[BROWSER] || pw.chromium;
+  const browserType = (pw as any)[BROWSER] || pw.webkit; // default webkit
   const browser = await browserType.launch({ headless: HEADLESS, args: ['--no-sandbox','--disable-setuid-sandbox'] });
   const page = await browser.newPage();
 
