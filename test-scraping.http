@@ -1,0 +1,86 @@
+### ========================================
+### اختبار Vendoor Scraping بـ POST
+### ========================================
+
+### 1. Health Check (اختبار بسيط)
+POST https://68e1f6240030405882c5.fra.appwrite.run
+Content-Type: application/json
+
+{
+  "action": "health"
+}
+
+### 2. جلب منتج واحد
+POST https://68e1f6240030405882c5.fra.appwrite.run
+Content-Type: application/json
+
+{
+  "action": "scrape-single",
+  "productId": "4259",
+  "email": "almlmibrahym574@gmail.com",
+  "password": "hema2004"
+}
+
+### 3. جلب صفحة واحدة
+POST https://68e1f6240030405882c5.fra.appwrite.run
+Content-Type: application/json
+
+{
+  "action": "scrape-page",
+  "page": 1,
+  "email": "almlmibrahym574@gmail.com",
+  "password": "hema2004"
+}
+
+### 4. جلب جميع المنتجات (يأخذ وقت طويل!)
+POST https://68e1f6240030405882c5.fra.appwrite.run
+Content-Type: application/json
+
+{
+  "action": "scrape-all",
+  "email": "almlmibrahym574@gmail.com",
+  "password": "hema2004"
+}
+
+### 5. استيراد منتج
+POST https://68e1f6240030405882c5.fra.appwrite.run
+Content-Type: application/json
+
+{
+  "action": "import-product",
+  "productId": "4259",
+  "markupPercentage": 20,
+  "email": "almlmibrahym574@gmail.com",
+  "password": "hema2004"
+}
+
+### 6. استيراد منتجات متعددة
+POST https://68e1f6240030405882c5.fra.appwrite.run
+Content-Type: application/json
+
+{
+  "action": "import-multiple",
+  "productIds": ["4259", "4260", "4261"],
+  "markupPercentage": 20,
+  "email": "almlmibrahym574@gmail.com",
+  "password": "hema2004"
+}
+
+### ========================================
+### اختبار من الموقع (localhost)
+### ========================================
+
+### 1. Health Check (local)
+POST http://localhost:5000/api/vendoor/health
+Content-Type: application/json
+
+{}
+
+### 2. جلب منتجات (local)
+POST http://localhost:5000/api/vendoor/scrape-all
+Content-Type: application/json
+
+{
+  "email": "almlmibrahym574@gmail.com",
+  "password": "hema2004"
+}
