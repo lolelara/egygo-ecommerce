@@ -13,7 +13,7 @@
       "enabled": true,
       "logging": true,
       "entrypoint": "src/main-commonjs.js",
-      "commands": "pnpm install && pnpm exec playwright-core install chromium",
+      "commands": "pnpm install",
       "specification": "s-4vcpu-4gb",
       "path": "functions/vendoor-scraper"
     }

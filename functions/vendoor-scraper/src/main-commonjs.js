@@ -1,5 +1,5 @@
-// استخدام Playwright (مع playwright-core)
-const { scrapeAllProducts, scrapePage } = require('./scraper-playwright.js');
+// استخدام Puppeteer (يعمل بشكل موثوق في Appwrite)
+const { scrapeAllProducts, scrapePage } = require('./scraper-puppeteer.js');
 
 /**
  * Appwrite Function Entry Point
