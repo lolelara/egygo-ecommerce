@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Users, Edit, Trash2, Search, UserPlus } from 'lucide-react';
+import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog } from 'lucide-react';
 import { databases, appwriteConfig } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 
@@ -20,6 +28,12 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  
+  // Bulk Selection State
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<string>('');
+  const [showBulkActionModal, setShowBulkActionModal] = useState(false);
+  const [bulkRoleChange, setBulkRoleChange] = useState<string>('customer');
   
   // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
@@ -45,7 +59,7 @@ export default function AdminUsers() {
     try {
       const response = await databases.listDocuments(
         DATABASE_ID,
-        'userPreferences',
+        'users',
         [Query.limit(100), Query.orderDesc('$createdAt')]
       );
       
@@ -262,7 +276,7 @@ export default function AdminUsers() {
     try {
       await databases.deleteDocument(
         DATABASE_ID,
-        'userPreferences',
+        'users',
         userId
       );
 
@@ -282,26 +296,140 @@ export default function AdminUsers() {
     }
   };
 
-  const getRoleBadge = (role: string) => {
-    const roleColors: Record<string, string> = {
-      admin: 'bg-red-100 text-red-800',
-      intermediary: 'bg-purple-100 text-purple-800',
-      merchant: 'bg-blue-100 text-blue-800',
-      affiliate: 'bg-green-100 text-green-800',
-      customer: 'bg-gray-100 text-gray-800'
-    };
+  // Bulk Selection Functions
+  const toggleSelectUser = (userId: string) => {
+    const newSelected = new Set(selectedUsers);
+    if (newSelected.has(userId)) {
+      newSelected.delete(userId);
+    } else {
+      newSelected.add(userId);
+    }
+    setSelectedUsers(newSelected);
+  };
 
-    const roleNames: Record<string, string> = {
-      admin: 'مدير',
-      intermediary: 'وسيط',
-      merchant: 'تاجر',
-      affiliate: 'مسوق',
-      customer: 'عميل'
-    };
+  const toggleSelectAll = () => {
+    if (selectedUsers.size === filteredUsers.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(filteredUsers.map(u => u.$id)));
+    }
+  };
+
+  const handleBulkAction = async () => {
+    if (selectedUsers.size === 0) {
+      toast({
+        title: "تنبيه",
+        description: "الرجاء اختيار مستخدم واحد على الأقل",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!bulkAction) {
+      toast({
+        title: "تنبيه",
+        description: "الرجاء اختيار إجراء",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (bulkAction === 'delete') {
+      if (!confirm(`هل أنت متأكد من حذف ${selectedUsers.size} مستخدم؟`)) return;
+      
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const userId of selectedUsers) {
+        try {
+          await databases.deleteDocument(DATABASE_ID, 'users', userId);
+          successCount++;
+        } catch (error) {
+          console.error('Error deleting user:', userId, error);
+          failCount++;
+        }
+      }
+
+      toast({
+        title: "تم",
+        description: `تم حذف ${successCount} مستخدم، فشل ${failCount}`
+      });
+
+      setSelectedUsers(new Set());
+      loadUsers();
+    } else if (bulkAction === 'change_role') {
+      setShowBulkActionModal(true);
+    }
+  };
+
+  const handleBulkRoleChange = async () => {
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const userId of selectedUsers) {
+      try {
+        const response = await fetch('/api/admin/update-user-role', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: userId,
+            newRole: bulkRoleChange
+          })
+        });
+
+        if (response.ok) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch (error) {
+        console.error('Error updating user role:', userId, error);
+        failCount++;
+      }
+    }
+
+    toast({
+      title: "تم",
+      description: `تم تحديث ${successCount} مستخدم، فشل ${failCount}`
+    });
+
+    setSelectedUsers(new Set());
+    setShowBulkActionModal(false);
+    setBulkAction('');
+    loadUsers();
+  };
+
+  const getRoleBadge = (user: any) => {
+    // تحديد الدور بناءً على الحقول
+    let role = 'customer';
+    let roleName = 'عميل';
+    let roleColor = 'bg-gray-100 text-gray-800';
+    
+    if (user.isAffiliate) {
+      role = 'affiliate';
+      roleName = 'مسوق';
+      roleColor = 'bg-green-100 text-green-800';
+    }
+    if (user.isMerchant) {
+      role = 'merchant';
+      roleName = 'تاجر';
+      roleColor = 'bg-blue-100 text-blue-800';
+    }
+    if (user.isIntermediary) {
+      role = 'intermediary';
+      roleName = 'وسيط';
+      roleColor = 'bg-purple-100 text-purple-800';
+    }
+    // Admin يتم تحديده من email أو حقل خاص
+    if (user.email === 'admin@egygo.com' || user.role === 'admin') {
+      role = 'admin';
+      roleName = 'مدير';
+      roleColor = 'bg-red-100 text-red-800';
+    }
 
     return (
-      <Badge className={roleColors[role] || roleColors.customer}>
-        {roleNames[role] || role}
+      <Badge className={roleColor}>
+        {roleName}
       </Badge>
     );
   };
@@ -312,7 +440,14 @@ export default function AdminUsers() {
       u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.phone?.includes(searchTerm);
     
-    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+    // تحديد الدور الفعلي للمستخدم
+    let userRole = 'customer';
+    if (u.isAffiliate) userRole = 'affiliate';
+    if (u.isMerchant) userRole = 'merchant';
+    if (u.isIntermediary) userRole = 'intermediary';
+    if (u.email === 'admin@egygo.com') userRole = 'admin';
+    
+    const matchesRole = roleFilter === 'all' || userRole === roleFilter;
     
     return matchesSearch && matchesRole;
   });
@@ -362,6 +497,46 @@ export default function AdminUsers() {
             </Button>
           </div>
 
+          {/* Bulk Actions Bar */}
+          {selectedUsers.size > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <span className="font-semibold text-blue-900">
+                    تم اختيار {selectedUsers.size} مستخدم
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedUsers(new Set())}
+                  >
+                    إلغاء الاختيار
+                  </Button>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <Select value={bulkAction} onValueChange={setBulkAction}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="اختر إجراء..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="change_role">تغيير الدور</SelectItem>
+                      <SelectItem value="delete">حذف المستخدمين</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  <Button
+                    onClick={handleBulkAction}
+                    disabled={!bulkAction}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    تطبيق
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Users Table */}
           {loading ? (
             <div className="text-center py-8">جاري التحميل...</div>
@@ -370,6 +545,12 @@ export default function AdminUsers() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
+                    <th className="text-center p-2 w-12">
+                      <Checkbox
+                        checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </th>
                     <th className="text-right p-2">الاسم</th>
                     <th className="text-right p-2">البريد</th>
                     <th className="text-right p-2">الهاتف</th>
@@ -381,19 +562,25 @@ export default function AdminUsers() {
                 <tbody>
                   {filteredUsers.map((u) => (
                     <tr key={u.$id} className="border-b hover:bg-gray-50">
+                      <td className="p-2 text-center">
+                        <Checkbox
+                          checked={selectedUsers.has(u.$id)}
+                          onCheckedChange={() => toggleSelectUser(u.$id)}
+                        />
+                      </td>
                       <td className="p-2">{u.name}</td>
                       <td className="p-2">{u.email}</td>
                       <td className="p-2">{u.phone || '-'}</td>
-                      <td className="p-2">{getRoleBadge(u.role)}</td>
+                      <td className="p-2">{getRoleBadge(u)}</td>
                       <td className="p-2">
                         <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          {u.affiliateCode || u.intermediaryCode || '-'}
+                          {u.affiliateCode || '-'}
                         </code>
                       </td>
                       <td className="p-2">
                         <div className="flex gap-2">
                           {/* Activate Intermediary Button */}
-                          {u.role === 'customer' && !u.isIntermediary && (
+                          {!u.isIntermediary && !u.isMerchant && !u.isAffiliate && (
                             <Button
                               size="sm"
                               className="bg-purple-600 hover:bg-purple-700 text-white"
@@ -530,6 +717,55 @@ export default function AdminUsers() {
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 تفعيل الوسيط
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Role Change Modal */}
+      {showBulkActionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <UserCog className="h-6 w-6" />
+              تغيير الدور لـ {selectedUsers.size} مستخدم
+            </h2>
+            
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <p className="text-sm text-blue-900">
+                سيتم تغيير دور جميع المستخدمين المحددين إلى الدور الجديد
+              </p>
+            </div>
+            
+            <div className="mb-4">
+              <Label>الدور الجديد</Label>
+              <Select value={bulkRoleChange} onValueChange={setBulkRoleChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="customer">عميل</SelectItem>
+                  <SelectItem value="merchant">تاجر</SelectItem>
+                  <SelectItem value="affiliate">مسوق</SelectItem>
+                  <SelectItem value="intermediary">وسيط</SelectItem>
+                  <SelectItem value="admin">مدير</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowBulkActionModal(false)} 
+                variant="outline"
+              >
+                إلغاء
+              </Button>
+              <Button 
+                onClick={handleBulkRoleChange}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                تطبيق التغيير
               </Button>
             </div>
           </div>
