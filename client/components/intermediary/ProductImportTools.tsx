@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { databases, appwriteConfig } from "@/lib/appwrite";
 import { ID } from "appwrite";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { importProductFromUrl, bulkImportProducts } from "@/lib/intermediary-api";
 
 export default function ProductImportTools() {
   const { user } = useAuth();
@@ -56,36 +57,18 @@ export default function ProductImportTools() {
 
     setLoading(true);
     try {
-      // Call scraping API/service
-      const response = await fetch('/api/scrape-product', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          url: productUrl,
-          markup: parseFloat(markup)
-        })
-      });
+      // استخدام intermediary-api مباشرة
+      const result = await importProductFromUrl(
+        productUrl,
+        parseFloat(markup)
+      );
 
-      if (!response.ok) {
-        throw new Error('فشل في استخراج بيانات المنتج');
+      if (!result.success) {
+        throw new Error(result.error || 'فشل في استخراج بيانات المنتج');
       }
 
-      const productData = await response.json();
-
-      // Save to Appwrite
-      await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.products,
-        ID.unique(),
-        {
-          ...productData,
-          intermediaryId: user?.$id,
-          sourceUrl: productUrl,
-          markup: parseFloat(markup),
-          isActive: true,
-          createdAt: new Date().toISOString()
-        }
-      );
+      // Product already saved by importProductFromUrl
+      const productData = result.scrapedData;
 
       toast({
         title: "✅ تم الاستيراد",
