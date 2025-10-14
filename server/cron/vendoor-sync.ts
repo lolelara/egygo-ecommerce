@@ -179,16 +179,16 @@ export async function syncVendoorProducts() {
 
 /**
  * تشغيل Cron Job
- * يعمل كل يوم في الساعة 3 صباحاً
+ * يعمل كل ساعة
  */
 export function startVendoorSyncCron() {
-  // كل يوم في الساعة 3 صباحاً
-  cron.schedule('0 3 * * *', async () => {
-    console.log('⏰ [CRON] Vendoor sync job triggered');
+  // كل ساعة في الدقيقة 0
+  cron.schedule('0 * * * *', async () => {
+    console.log('⏰ [CRON] Vendoor sync job triggered (hourly)');
     await syncVendoorProducts();
   });
   
-  console.log('✅ [CRON] Vendoor sync cron job started (runs daily at 3 AM)');
+  console.log('✅ [CRON] Vendoor sync cron job started (runs every hour)');
 }
 
 /**

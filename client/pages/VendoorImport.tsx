@@ -585,9 +585,9 @@ export default function VendoorImport() {
                   <div className="flex items-start gap-3">
                     <RefreshCw className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                     <div className="flex-1">
-                      <h4 className="font-medium mb-1">التحديث التلقائي اليومي</h4>
+                      <h4 className="font-medium mb-1">التحديث التلقائي كل ساعة</h4>
                       <p className="text-sm text-muted-foreground mb-3">
-                        يتم تحديث الأسعار والمخزون تلقائياً كل يوم في الساعة 3 صباحاً
+                        يتم تحديث الأسعار والمخزون تلقائياً كل ساعة
                       </p>
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900 rounded-md">
