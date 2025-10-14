@@ -41,16 +41,31 @@ module.exports = async ({ req, res, log, error }) => {
     
     let result;
     
-    if (action === 'scrape-all') {
+    if (action === 'health') {
+      // Health check
+      log('✅ Health check');
+      result = {
+        success: true,
+        message: 'Vendoor Scraper Function is running',
+        timestamp: new Date().toISOString(),
+        version: '1.0.0'
+      };
+      
+    } else if (action === 'scrape-all') {
       // جلب جميع المنتجات
       log('📦 جلب جميع المنتجات...');
       result = await scrapeAllProducts(email, password, log);
       
-    } else if (action === 'scrape-page') {
-      // جلب صفحة واحدة
-      const pageNum = payload.page || 1;
-      log(`📄 جلب الصفحة ${pageNum}...`);
+    } else if (action === 'scrape-page' || action === 'scrape-single') {
+      // جلب صفحة واحدة أو منتج واحد
+      const pageNum = payload.page || payload.productId || 1;
+      log(`📄 جلب الصفحة/المنتج ${pageNum}...`);
       result = await scrapePage(email, password, pageNum, log);
+      
+    } else if (action === 'import-product' || action === 'import-multiple' || action === 'sync-manual') {
+      // استيراد المنتجات
+      log(`📥 استيراد المنتجات (${action})...`);
+      result = await scrapeAllProducts(email, password, log);
       
     } else {
       throw new Error(`Action غير مدعوم: ${action}`);
