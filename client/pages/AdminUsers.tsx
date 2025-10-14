@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog } from 'lucide-react';
+import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight } from 'lucide-react';
 import { databases, appwriteConfig } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,7 +27,13 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const USERS_PER_PAGE = 25;
   
   // Bulk Selection State
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
@@ -50,21 +56,37 @@ export default function AdminUsers() {
   const [selectedUserForIntermediary, setSelectedUserForIntermediary] = useState<any>(null);
   const [intermediaryMarkup, setIntermediaryMarkup] = useState('20');
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [currentPage, debouncedSearch, roleFilter]);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
+      const queries = [
+        Query.limit(USERS_PER_PAGE),
+        Query.offset((currentPage - 1) * USERS_PER_PAGE),
+        Query.orderDesc('$createdAt')
+      ];
+
       const response = await databases.listDocuments(
         DATABASE_ID,
         'users',
-        [Query.limit(100), Query.orderDesc('$createdAt')]
+        queries
       );
       
       console.log('✅ Loaded users:', response.documents.length);
       setUsers(response.documents);
+      setTotalUsers(response.total);
     } catch (error) {
       console.error('Error loading users:', error);
       toast({
@@ -75,7 +97,7 @@ export default function AdminUsers() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, roleFilter]);
 
   const openEditModal = (user: any) => {
     console.log('Opening edit modal for:', user.name);
@@ -410,23 +432,28 @@ export default function AdminUsers() {
     );
   };
 
-  const filteredUsers = users.filter(u => {
-    const matchesSearch = 
-      u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.phone?.includes(searchTerm);
-    
-    // تحديد الدور الفعلي للمستخدم
-    let userRole = 'customer';
-    if (u.isAffiliate) userRole = 'affiliate';
-    if (u.isMerchant) userRole = 'merchant';
-    if (u.isIntermediary) userRole = 'intermediary';
-    if (u.email === 'admin@egygo.com') userRole = 'admin';
-    
-    const matchesRole = roleFilter === 'all' || userRole === roleFilter;
-    
-    return matchesSearch && matchesRole;
-  });
+  // استخدام useMemo للبيانات المحسوبة
+  const filteredUsers = useMemo(() => {
+    return users.filter(u => {
+      const matchesSearch = 
+        u.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        u.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        u.phone?.includes(debouncedSearch);
+      
+      // تحديد الدور الفعلي للمستخدم
+      let userRole = 'customer';
+      if (u.isAffiliate) userRole = 'affiliate';
+      if (u.isMerchant) userRole = 'merchant';
+      if (u.isIntermediary) userRole = 'intermediary';
+      if (u.email === 'admin@egygo.com') userRole = 'admin';
+      
+      const matchesRole = roleFilter === 'all' || userRole === roleFilter;
+      
+      return matchesSearch && matchesRole;
+    });
+  }, [users, debouncedSearch, roleFilter]);
+
+  const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
   return (
     <AdminLayout>
@@ -589,6 +616,64 @@ export default function AdminUsers() {
                   ))}
                 </tbody>
               </table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                  <div className="text-sm text-muted-foreground">
+                    عرض {((currentPage - 1) * USERS_PER_PAGE) + 1} إلى {Math.min(currentPage * USERS_PER_PAGE, totalUsers)} من {totalUsers} مستخدم
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                      السابق
+                    </Button>
+                    
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <Button
+                            key={pageNum}
+                            variant={currentPage === pageNum ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(pageNum)}
+                            className="w-8 h-8 p-0"
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      التالي
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
