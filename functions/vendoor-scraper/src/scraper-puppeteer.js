@@ -1,8 +1,9 @@
 /**
- * Vendoor Scraper using Puppeteer (works in Appwrite)
+ * Vendoor Scraper using Puppeteer with chrome-aws-lambda (works in Appwrite)
  */
 
-const puppeteer = require('puppeteer');
+const chromium = require('chrome-aws-lambda');
+const puppeteer = chromium.puppeteer || require('puppeteer-core');
 
 const BASE = 'https://aff.ven-door.com';
 const LOGIN_URL = `${BASE}/login`;
@@ -98,17 +99,11 @@ async function scrapeAllProducts(email, password, log = console.log) {
     log('🚀 بدء عملية جلب المنتجات مع Puppeteer...');
     
     browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
-      ]
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true
     });
     
     log('✅ تم فتح متصفح Puppeteer');
@@ -171,8 +166,11 @@ async function scrapePage(email, password, pageNum = 1, log = console.log) {
     log(`🚀 جلب الصفحة ${pageNum} مع Puppeteer...`);
     
     browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true
     });
     
     const page = await browser.newPage();
