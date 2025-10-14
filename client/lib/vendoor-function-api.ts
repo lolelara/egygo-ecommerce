@@ -4,7 +4,8 @@
  */
 
 // استخدام Server API المحلي بدلاً من Appwrite Function
-const USE_LOCAL_API = true;
+// Appwrite Function له timeout limit 30s في الخطة المجانية
+const USE_LOCAL_API = true; // ✅ استخدم Server API دائماً
 const LOCAL_API_URL = '/api/vendoor';
 const FUNCTION_URL = import.meta.env.VITE_VENDOOR_FUNCTION_URL || 'https://68e1f6240030405882c5.fra.appwrite.run';
 
