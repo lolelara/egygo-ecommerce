@@ -7,7 +7,7 @@
  * يجمع كل المنتجات من Ven-door ويحفظها أو يرسلها للـ API
  */
 
-import { webkit } from 'playwright'; // استخدام playwright webkit (أخف)
+import { chromium } from 'playwright'; // استخدام playwright chromium
 import fs from 'fs/promises';
 import { Client, Databases, ID } from 'appwrite';
 
@@ -189,7 +189,7 @@ async function main() {
   log('📅', `Date: ${new Date().toLocaleString()}`);
   log('📄', `Target: ${TOTAL_PAGES} pages (~${TOTAL_PAGES * 15} products)`);
   
-  const browser = await webkit.launch({
+  const browser = await chromium.launch({
     headless: true,
     args: [
       '--no-sandbox',
