@@ -1,10 +1,14 @@
 /**
  * Vendoor Function API
- * Interact with Vendoor Scraper Appwrite Function
+ * Interact with Vendoor Scraper via Server API
  */
 
-// Get Vendoor Function URL from environment
-const VENDOOR_FUNCTION_URL = import.meta.env.VITE_VENDOOR_FUNCTION_URL || 'https://68e1f6240030405882c5.fra.appwrite.run';
+// استخدام Server API المحلي بدلاً من Appwrite Function
+const USE_LOCAL_API = true;
+const LOCAL_API_URL = '/api/vendoor';
+const FUNCTION_URL = import.meta.env.VITE_VENDOOR_FUNCTION_URL || 'https://68e1f6240030405882c5.fra.appwrite.run';
+
+const API_BASE_URL = USE_LOCAL_API ? LOCAL_API_URL : FUNCTION_URL;
 
 export interface VendoorProduct {
   id: string;
@@ -32,7 +36,7 @@ export interface VendoorSyncResult {
  */
 export async function fetchAllVendoorProducts(): Promise<VendoorSyncResult> {
   try {
-    const response = await fetch(`${VENDOOR_FUNCTION_URL}/vendoor/fetch-all`, {
+    const response = await fetch(`${API_BASE_URL}/scrape-all`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +60,7 @@ export async function fetchAllVendoorProducts(): Promise<VendoorSyncResult> {
  */
 export async function fetchSingleVendoorProduct(productId: string): Promise<VendoorProduct> {
   try {
-    const response = await fetch(`${VENDOOR_FUNCTION_URL}/vendoor/fetch-single`, {
+    const response = await fetch(`${API_BASE_URL}/scrape-single`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +90,7 @@ export async function fetchSingleVendoorProduct(productId: string): Promise<Vend
  */
 export async function manualVendoorSync(): Promise<VendoorSyncResult> {
   try {
-    const response = await fetch(`${VENDOOR_FUNCTION_URL}/vendoor/sync-manual`, {
+    const response = await fetch(`${API_BASE_URL}/sync-manual`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -113,7 +117,7 @@ export async function importVendoorProduct(
   markupPercentage: number = 20
 ): Promise<{ success: boolean; productId?: string; error?: string }> {
   try {
-    const response = await fetch(`${VENDOOR_FUNCTION_URL}/vendoor/import-product`, {
+    const response = await fetch(`${API_BASE_URL}/import-product`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -147,7 +151,7 @@ export async function importMultipleVendoorProducts(
   markupPercentage: number = 20
 ): Promise<VendoorSyncResult> {
   try {
-    const response = await fetch(`${VENDOOR_FUNCTION_URL}/vendoor/import-multiple`, {
+    const response = await fetch(`${API_BASE_URL}/import-multiple`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -175,7 +179,7 @@ export async function importMultipleVendoorProducts(
  */
 export async function checkVendoorFunctionStatus(): Promise<{ online: boolean; message?: string }> {
   try {
-    const response = await fetch(`${VENDOOR_FUNCTION_URL}/health`, {
+    const response = await fetch(`${API_BASE_URL}/health`, {
       method: 'GET',
     });
 
