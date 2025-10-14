@@ -2,7 +2,7 @@
  * Vendoor Scraper using Playwright with webkit (lighter than Puppeteer)
  */
 
-const { webkit } = require('playwright');
+const { chromium } = require('playwright'); // chromium يعمل في Appwrite بدون deps
 
 const BASE = 'https://aff.ven-door.com';
 const LOGIN_URL = `${BASE}/login`;
@@ -95,10 +95,10 @@ async function scrapeAllProducts(email, password, log = console.log) {
   let browser = null;
   
   try {
-    log('🚀 بدء عملية جلب المنتجات مع Playwright webkit...');
+    log('🚀 بدء عملية جلب المنتجات مع Playwright chromium...');
     
-    // استخدام webkit (أخف من chromium)
-    browser = await webkit.launch({
+    // استخدام chromium (يعمل في Appwrite)
+    browser = await chromium.launch({
       headless: true,
       args: [
         '--no-sandbox',
@@ -112,7 +112,7 @@ async function scrapeAllProducts(email, password, log = console.log) {
       ]
     });
     
-    log('✅ تم فتح متصفح webkit');
+    log('✅ تم فتح متصفح chromium');
     
     const context = await browser.newContext({
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
@@ -172,9 +172,9 @@ async function scrapePage(email, password, pageNum = 1, log = console.log) {
   let browser = null;
   
   try {
-    log(`🚀 جلب الصفحة ${pageNum} مع Playwright webkit...`);
+    log(`🚀 جلب الصفحة ${pageNum} مع Playwright chromium...`);
     
-    browser = await webkit.launch({
+    browser = await chromium.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });

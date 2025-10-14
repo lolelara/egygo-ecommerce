@@ -13,7 +13,7 @@
       "enabled": true,
       "logging": true,
       "entrypoint": "src/main-commonjs.js",
-      "commands": "pnpm install && pnpm exec playwright install webkit --with-deps",
+      "commands": "pnpm install && pnpm exec playwright install chromium",
       "specification": "s-4vcpu-4gb",
       "path": "functions/vendoor-scraper"
     }
