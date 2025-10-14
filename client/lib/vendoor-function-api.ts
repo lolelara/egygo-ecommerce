@@ -1,15 +1,18 @@
 /**
  * Vendoor Function API
- * Interact with Vendoor Scraper via Server API
+ * Interact with Vendoor Scraper via Appwrite Function
+ * خطة الطلاب: timeout 900 ثانية
  */
 
-// استخدام Server API المحلي بدلاً من Appwrite Function
-// Appwrite Function له timeout limit 30s في الخطة المجانية
-const USE_LOCAL_API = true; // ✅ استخدم Server API دائماً
-const LOCAL_API_URL = '/api/vendoor';
-const FUNCTION_URL = import.meta.env.VITE_VENDOOR_FUNCTION_URL || 'https://68e1f6240030405882c5.fra.appwrite.run';
+import { fetchWithTimeout } from './fetch-with-timeout';
 
-const API_BASE_URL = USE_LOCAL_API ? LOCAL_API_URL : FUNCTION_URL;
+// استخدام Appwrite Function مباشرة (خطة الطلاب: 900 ثانية)
+const USE_APPWRITE_FUNCTION = true; // ✅ استخدم Appwrite Function دائماً
+const FUNCTION_URL = 'https://68e1f6240030405882c5.fra.appwrite.run';
+const FUNCTION_TIMEOUT = 890000; // 890 seconds (أقل من 900 بقليل)
+
+console.log(`🔧 Using Appwrite Function: ${FUNCTION_URL}`);
+console.log(`⏱️ Timeout: ${FUNCTION_TIMEOUT / 1000} seconds`);
 
 export interface VendoorProduct {
   id: string;
@@ -36,12 +39,19 @@ export interface VendoorSyncResult {
  * استدعاء Vendoor Function لجلب جميع المنتجات
  */
 export async function fetchAllVendoorProducts(): Promise<VendoorSyncResult> {
+  console.log('🔄 جلب جميع المنتجات من Vendoor...');
   try {
-    const response = await fetch(`${API_BASE_URL}/scrape-all`, {
+    const response = await fetchWithTimeout(FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        action: 'scrape-all',
+        email: 'almlmibrahym574@gmail.com',
+        password: 'hema2004'
+      }),
+      timeout: FUNCTION_TIMEOUT
     });
 
     if (!response.ok) {
@@ -60,13 +70,19 @@ export async function fetchAllVendoorProducts(): Promise<VendoorSyncResult> {
  * استدعاء Vendoor Function لجلب منتج واحد
  */
 export async function fetchSingleVendoorProduct(productId: string): Promise<VendoorProduct> {
+  console.log(`🔄 جلب المنتج ${productId}...`);
   try {
-    const response = await fetch(`${API_BASE_URL}/scrape-single`, {
+    const response = await fetchWithTimeout(FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ productId }),
+      body: JSON.stringify({
+        action: 'scrape-single',
+        productId,
+        email: 'almlmibrahym574@gmail.com',
+        password: 'hema2004'
+      }),
     });
 
     if (!response.ok) {
@@ -90,12 +106,19 @@ export async function fetchSingleVendoorProduct(productId: string): Promise<Vend
  * استدعاء Vendoor Function للمزامنة اليدوية
  */
 export async function manualVendoorSync(): Promise<VendoorSyncResult> {
+  console.log('🔄 مزامنة يدوية مع Vendoor...');
   try {
-    const response = await fetch(`${API_BASE_URL}/sync-manual`, {
+    const response = await fetchWithTimeout(FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        action: 'sync-manual',
+        email: 'almlmibrahym574@gmail.com',
+        password: 'hema2004'
+      }),
+      timeout: FUNCTION_TIMEOUT
     });
 
     if (!response.ok) {
@@ -117,15 +140,19 @@ export async function importVendoorProduct(
   productId: string,
   markupPercentage: number = 20
 ): Promise<{ success: boolean; productId?: string; error?: string }> {
+  console.log(`🔄 استيراد المنتج ${productId}...`);
   try {
-    const response = await fetch(`${API_BASE_URL}/import-product`, {
+    const response = await fetchWithTimeout(FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ 
+        action: 'import-product',
         productId,
-        markupPercentage 
+        markupPercentage,
+        email: 'almlmibrahym574@gmail.com',
+        password: 'hema2004'
       }),
     });
 
@@ -152,14 +179,17 @@ export async function importMultipleVendoorProducts(
   markupPercentage: number = 20
 ): Promise<VendoorSyncResult> {
   try {
-    const response = await fetch(`${API_BASE_URL}/import-multiple`, {
+    const response = await fetch(FUNCTION_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ 
+        action: 'import-multiple',
         productIds,
-        markupPercentage 
+        markupPercentage,
+        email: 'almlmibrahym574@gmail.com',
+        password: 'hema2004'
       }),
     });
 
@@ -179,9 +209,17 @@ export async function importMultipleVendoorProducts(
  * التحقق من حالة Vendoor Function
  */
 export async function checkVendoorFunctionStatus(): Promise<{ online: boolean; message?: string }> {
+  console.log('🔄 فحص حالة Function...');
   try {
-    const response = await fetch(`${API_BASE_URL}/health`, {
-      method: 'GET',
+    const response = await fetchWithTimeout(FUNCTION_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'health'
+      }),
+      timeout: 30000 // 30 seconds للـ health check
     });
 
     if (!response.ok) {
