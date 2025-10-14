@@ -104,41 +104,21 @@ export default function AdminUsers() {
     if (!editingUser) return;
 
     try {
-      // If role changed, use server API to update both Auth and userPreferences
-      if (editFormData.role !== editingUser.role) {
-        const response = await fetch('/api/admin/update-user-role', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userId: editingUser.userId,
-            newRole: editFormData.role
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to update user role');
-        }
-
-        console.log('✅ Role updated via server API');
-      }
-
-      // Update other user data in userPreferences
+      // تحديث بيانات المستخدم في users collection
       const updateData: any = {
         name: editFormData.name,
         email: editFormData.email,
         phone: editFormData.phone || '',
       };
 
-      // Only update role data if role didn't change (server already handled it)
-      if (editFormData.role === editingUser.role) {
-        updateData.role = editFormData.role;
-      }
+      // تحديث الأدوار
+      updateData.isAffiliate = editFormData.role === 'affiliate';
+      updateData.isMerchant = editFormData.role === 'merchant';
+      updateData.isIntermediary = editFormData.role === 'intermediary';
 
       await databases.updateDocument(
         DATABASE_ID,
-        'userPreferences',
+        'users',
         editingUser.$id,
         updateData
       );
@@ -212,26 +192,21 @@ export default function AdminUsers() {
     if (!selectedUserForIntermediary) return;
 
     try {
-      // Use server API to update both Auth and userPreferences
-      const response = await fetch('/api/admin/update-user-role', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId: selectedUserForIntermediary.userId,
-          newRole: 'intermediary'
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to activate intermediary');
-      }
-
-      const result = await response.json();
-      const intermediaryCode = result.intermediaryCode || `INT${Date.now()}`;
+      // تحديث المستخدم في users collection
+      const intermediaryCode = `INT${Date.now()}`;
       
-      console.log('✅ Intermediary activated via server API');
+      await databases.updateDocument(
+        DATABASE_ID,
+        'users',
+        selectedUserForIntermediary.$id,
+        {
+          isIntermediary: true,
+          affiliateCode: intermediaryCode,
+          commissionRate: parseFloat(intermediaryMarkup) / 100
+        }
+      );
+      
+      console.log('✅ Intermediary activated');
 
       // Send notification to user
       try {
@@ -368,20 +343,21 @@ export default function AdminUsers() {
 
     for (const userId of selectedUsers) {
       try {
-        const response = await fetch('/api/admin/update-user-role', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: userId,
-            newRole: bulkRoleChange
-          })
-        });
+        // تحديث الأدوار في users collection
+        const updateData: any = {
+          isAffiliate: bulkRoleChange === 'affiliate',
+          isMerchant: bulkRoleChange === 'merchant',
+          isIntermediary: bulkRoleChange === 'intermediary',
+        };
 
-        if (response.ok) {
-          successCount++;
-        } else {
-          failCount++;
-        }
+        await databases.updateDocument(
+          DATABASE_ID,
+          'users',
+          userId,
+          updateData
+        );
+
+        successCount++;
       } catch (error) {
         console.error('Error updating user role:', userId, error);
         failCount++;
