@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Package, DollarSign, ShoppingCart, ExternalLink, RefreshCw, Plus, Edit, RotateCw, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Package, DollarSign, ShoppingCart, ExternalLink, RefreshCw, Plus, Edit, RotateCw, Clock, Download } from 'lucide-react';
 import { 
   importProductFromUrl, 
   bulkImportProducts, 
@@ -48,6 +49,7 @@ import { useToast } from '@/components/ui/use-toast';
 export default function IntermediaryDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
@@ -365,6 +367,29 @@ export default function IntermediaryDashboard() {
             </Card>
           )}
         </div>
+
+        {/* Quick Action: Vendoor Import */}
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              استيراد من Vendoor
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              استورد منتجات Vendoor بسهولة - دفعة واحدة أو منتج فردي
+            </p>
+            <Button 
+              onClick={() => navigate('/intermediary/import')}
+              className="w-full"
+              size="lg"
+            >
+              <Download className="ml-2 h-4 w-4" />
+              الذهاب إلى صفحة الاستيراد
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-3">

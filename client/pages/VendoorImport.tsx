@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Download, Upload, RefreshCw, ShoppingCart, Eye } from 'lucide-react';
+import { Loader2, Download, Upload, RefreshCw, ShoppingCart, Eye, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -27,60 +28,42 @@ interface VendoorProduct {
   stockDetails?: Record<string, number>;
 }
 
-// ⚙️ إعداد Cloudflare Worker URL
-// استبدل هذا بـ URL الـ Worker الخاص بك بعد النشر
-// مثال: https://vendoor-scraper.YOUR_USERNAME.workers.dev
-const WORKER_URL = import.meta.env.VITE_VENDOOR_WORKER_URL || '';
+// بيانات تسجيل الدخول الثابتة لـ Vendoor
+const VENDOOR_EMAIL = 'almlmibrahym574@gmail.com';
+const VENDOOR_PASSWORD = 'hema2004';
 
 export default function VendoorImport() {
   const { toast } = useToast();
+  const { user } = useAuth();
   
-  const [vendoorEmail, setVendoorEmail] = useState('');
-  const [vendoorPassword, setVendoorPassword] = useState('');
   const [isScrapingAll, setIsScrapingAll] = useState(false);
+  const [isScrapingSingle, setIsScrapingSingle] = useState(false);
   const [scrapingProgress, setScrapingProgress] = useState({ current: 0, total: 0 });
   const [products, setProducts] = useState<VendoorProduct[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<VendoorProduct | null>(null);
   const [importingProducts, setImportingProducts] = useState<Set<string>>(new Set());
   const [viewProductDialog, setViewProductDialog] = useState(false);
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(false);
+  const [singleProductId, setSingleProductId] = useState('');
+  const [markupPercentage, setMarkupPercentage] = useState(20);
+  const [importingAll, setImportingAll] = useState(false);
 
   /**
-   * جلب جميع المنتجات من Ven-door
-   * يستخدم Cloudflare Worker في Production أو localhost API في التطوير
+   * جلب جميع المنتجات من Vendoor
    */
   const handleScrapeAll = async () => {
     setIsScrapingAll(true);
     setScrapingProgress({ current: 0, total: 41 });
 
     try {
-      let apiUrl: string;
-      
-      // تحديد API URL بناءً على البيئة
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (WORKER_URL) {
-        // استخدام Cloudflare Worker
-        apiUrl = `${WORKER_URL}/scrape-all`;
-        console.log('✅ استخدام Cloudflare Worker:', apiUrl);
-      } else if (isLocalhost) {
-        // استخدام localhost API
-        apiUrl = '/api/vendoor/scrape-all';
-        console.log('✅ استخدام localhost API');
-      } else {
-        // لا يوجد Worker URL مُعرَّف
-        toast({
-          title: 'إعداد مطلوب',
-          description: 'يرجى إعداد Cloudflare Worker أولاً. راجع CLOUDFLARE_QUICK_START.md',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json'
-        }
+      const response = await fetch('/api/vendoor/scrape-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: VENDOOR_EMAIL,
+          password: VENDOOR_PASSWORD,
+          maxPages: 41
+        })
       });
 
       if (!response.ok) {
@@ -111,6 +94,61 @@ export default function VendoorImport() {
     } finally {
       setIsScrapingAll(false);
       setScrapingProgress({ current: 0, total: 0 });
+    }
+  };
+
+  /**
+   * جلب منتج واحد من Vendoor
+   */
+  const handleScrapeSingle = async () => {
+    if (!singleProductId.trim()) {
+      toast({
+        title: 'تحذير',
+        description: 'الرجاء إدخال رقم المنتج',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsScrapingSingle(true);
+
+    try {
+      const response = await fetch('/api/vendoor/scrape-single', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: VENDOOR_EMAIL,
+          password: VENDOOR_PASSWORD,
+          productId: singleProductId.trim()
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('فشل جلب المنتج');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.product) {
+        setProducts(prev => [data.product, ...prev]);
+        setSingleProductId('');
+        
+        toast({
+          title: 'نجح!',
+          description: `تم جلب المنتج ${data.product.title}`,
+        });
+      } else {
+        throw new Error(data.error || 'فشل في جلب المنتج');
+      }
+
+    } catch (error: any) {
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل جلب المنتج',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsScrapingSingle(false);
     }
   };
 
@@ -151,6 +189,15 @@ export default function VendoorImport() {
    * استيراد منتج إلى الموقع
    */
   const handleImportProduct = async (product: VendoorProduct) => {
+    if (!user) {
+      toast({
+        title: 'خطأ',
+        description: 'يجب تسجيل الدخول أولاً',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setImportingProducts(prev => new Set(prev).add(product.id));
 
     try {
@@ -158,9 +205,10 @@ export default function VendoorImport() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: product.id,
-          vendoorEmail,
-          vendoorPassword
+          product: product,
+          userId: user.$id,
+          userName: user.name,
+          markupPercentage: markupPercentage
         })
       });
 
@@ -172,7 +220,7 @@ export default function VendoorImport() {
 
       toast({
         title: 'نجح!',
-        description: `تم استيراد ${product.title} بنجاح`,
+        description: data.message || `تم استيراد ${product.title} بنجاح`,
       });
 
       // تحديث حالة المنتج
@@ -192,6 +240,67 @@ export default function VendoorImport() {
         newSet.delete(product.id);
         return newSet;
       });
+    }
+  };
+
+  /**
+   * استيراد جميع المنتجات دفعة واحدة
+   */
+  const handleImportAll = async () => {
+    if (!user) {
+      toast({
+        title: 'خطأ',
+        description: 'يجب تسجيل الدخول أولاً',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (products.length === 0) {
+      toast({
+        title: 'تحذير',
+        description: 'لا توجد منتجات للاستيراد',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setImportingAll(true);
+
+    try {
+      const response = await fetch('/api/vendoor/import-multiple', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          products: products,
+          userId: user.$id,
+          userName: user.name,
+          markupPercentage: markupPercentage
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('فشل استيراد المنتجات');
+      }
+
+      const data = await response.json();
+
+      toast({
+        title: 'نجح! 🎉',
+        description: data.message || 'تم استيراد المنتجات بنجاح',
+      });
+
+      // تحديث حالة جميع المنتجات
+      setProducts(prev => prev.map(p => ({ ...p, imported: true })));
+
+    } catch (error: any) {
+      toast({
+        title: 'خطأ',
+        description: error.message || 'فشل استيراد المنتجات',
+        variant: 'destructive'
+      });
+    } finally {
+      setImportingAll(false);
     }
   };
 
@@ -235,26 +344,34 @@ export default function VendoorImport() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="vendoor-email">البريد الإلكتروني لـ Ven-door</Label>
+              {/* استيراد منتج واحد */}
+              <div className="space-y-2 p-4 border rounded-lg bg-muted/50">
+                <Label htmlFor="single-product-id">استيراد منتج واحد (رقم المنتج)</Label>
+                <div className="flex gap-2">
                   <Input
-                    id="vendoor-email"
+                    id="single-product-id"
                     type="text"
-                    placeholder="almlmibrahym574@gmail.com"
-                    value={vendoorEmail}
-                    onChange={(e) => setVendoorEmail(e.target.value)}
+                    placeholder="4259"
+                    value={singleProductId}
+                    onChange={(e) => setSingleProductId(e.target.value)}
+                    className="flex-1"
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="vendoor-password">كلمة المرور</Label>
-                  <Input
-                    id="vendoor-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={vendoorPassword}
-                    onChange={(e) => setVendoorPassword(e.target.value)}
-                  />
+                  <Button
+                    onClick={handleScrapeSingle}
+                    disabled={isScrapingSingle}
+                  >
+                    {isScrapingSingle ? (
+                      <>
+                        <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                        جاري...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="ml-2 h-4 w-4" />
+                        جلب
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
 
@@ -274,7 +391,7 @@ export default function VendoorImport() {
                     ) : (
                       <>
                         <Download className="ml-2 h-4 w-4" />
-                        {WORKER_URL ? 'جلب جميع المنتجات' : 'جلب المنتجات (localhost فقط)'}
+                        جلب جميع المنتجات (41 صفحة)
                       </>
                     )}
                   </Button>
@@ -294,38 +411,6 @@ export default function VendoorImport() {
                   />
                 </div>
 
-                {!WORKER_URL && (
-                  <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
-                    <div className="flex items-start gap-2">
-                      <span className="text-lg">💡</span>
-                      <div className="space-y-2">
-                        <p><strong>للعمل في Production:</strong></p>
-                        <p className="text-xs">
-                          الخيار 1: نشر Cloudflare Worker (راجع <code>CLOUDFLARE_QUICK_START.md</code>)
-                        </p>
-                        <p className="text-xs">
-                          الخيار 2: تشغيل السكريبت محلياً ورفع الملف:
-                        </p>
-                        <code className="block p-2 bg-black/10 dark:bg-white/10 rounded font-mono text-xs">
-                          node scripts/fetch-vendoor-catalog.mjs
-                        </code>
-                        <p className="text-xs">ثم ارفع ملف <code className="px-1 py-0.5 bg-black/10 dark:bg-white/10 rounded">vendoor-products-detailed.json</code> باستخدام زر "رفع ملف JSON".</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {WORKER_URL && (
-                  <div className="text-sm text-success bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-900">
-                    <div className="flex items-start gap-2">
-                      <span className="text-lg">✅</span>
-                      <div>
-                        <p><strong>Cloudflare Worker متصل</strong></p>
-                        <p className="text-xs mt-1 opacity-80">يمكنك الآن جلب المنتجات مباشرة من Production!</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {isScrapingAll && (
@@ -354,7 +439,43 @@ export default function VendoorImport() {
                   اختر المنتجات التي تريد استيرادها إلى موقعك
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                {/* إعدادات الاستيراد */}
+                <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg">
+                  <div className="flex-1">
+                    <Label htmlFor="markup">نسبة الهامش الربحي (%)</Label>
+                    <Input
+                      id="markup"
+                      type="number"
+                      value={markupPercentage}
+                      onChange={(e) => setMarkupPercentage(Number(e.target.value))}
+                      min="0"
+                      max="100"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="flex-1 flex items-end">
+                    <Button
+                      onClick={handleImportAll}
+                      disabled={importingAll}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {importingAll ? (
+                        <>
+                          <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                          جاري الاستيراد...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="ml-2 h-4 w-4" />
+                          استيراد جميع المنتجات ({products.length})
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {products.map((product) => (
                     <Card key={product.id} className="overflow-hidden">
@@ -435,21 +556,95 @@ export default function VendoorImport() {
             <CardHeader>
               <CardTitle>إعدادات الاستيراد</CardTitle>
               <CardDescription>
-                قم بتخصيص إعدادات استيراد المنتجات
+                قم بتخصيص إعدادات استيراد المنتجات والتحديث التلقائي
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>نسبة الهامش الربحي الافتراضية (%)</Label>
-                <Input type="number" placeholder="20" defaultValue="20" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>الفئة الافتراضية</Label>
-                <Input placeholder="أحذية" />
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">إعدادات الاستيراد</h3>
+                
+                <div className="space-y-2">
+                  <Label>نسبة الهامش الربحي الافتراضية (%)</Label>
+                  <Input 
+                    type="number" 
+                    value={markupPercentage}
+                    onChange={(e) => setMarkupPercentage(Number(e.target.value))}
+                    min="0"
+                    max="100"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    سيتم إضافة هذه النسبة على سعر Vendoor الأصلي
+                  </p>
+                </div>
               </div>
 
-              <Button>حفظ الإعدادات</Button>
+              <div className="border-t pt-6 space-y-4">
+                <h3 className="font-semibold text-lg">التحديث التلقائي</h3>
+                
+                <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-start gap-3">
+                    <RefreshCw className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div className="flex-1">
+                      <h4 className="font-medium mb-1">التحديث التلقائي اليومي</h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        يتم تحديث الأسعار والمخزون تلقائياً كل يوم في الساعة 3 صباحاً
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900 rounded-md">
+                          <div className="h-2 w-2 bg-green-600 rounded-full animate-pulse"></div>
+                          <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                            نشط
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={async () => {
+                    try {
+                      setAutoSyncEnabled(true);
+                      const response = await fetch('/api/vendoor/sync-manual', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                      });
+                      const data = await response.json();
+                      
+                      toast({
+                        title: data.success ? 'نجح!' : 'خطأ',
+                        description: data.success 
+                          ? `تم تحديث ${data.updated} منتج بنجاح`
+                          : data.error || 'فشل التحديث',
+                        variant: data.success ? 'default' : 'destructive'
+                      });
+                    } catch (error: any) {
+                      toast({
+                        title: 'خطأ',
+                        description: error.message || 'فشل التحديث اليدوي',
+                        variant: 'destructive'
+                      });
+                    } finally {
+                      setAutoSyncEnabled(false);
+                    }
+                  }}
+                  disabled={autoSyncEnabled}
+                  variant="outline"
+                  className="w-full"
+                >
+                  {autoSyncEnabled ? (
+                    <>
+                      <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                      جاري التحديث...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="ml-2 h-4 w-4" />
+                      تحديث يدوي الآن
+                    </>
+                  )}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

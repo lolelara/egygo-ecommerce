@@ -42,10 +42,18 @@ import {
   deleteReview,
 } from "./routes/reviews";
 import {
-  scrapeAllProducts,
+  scrapeAllProducts as scrapeAllProductsOld,
   getScrapingProgress,
-  importProduct,
+  importProduct as importProductOld,
 } from "./routes/vendoor";
+import {
+  scrapeAllProducts,
+  scrapeSingleProduct,
+  importProduct,
+  importMultipleProducts,
+  updateVendoorProducts,
+} from "./routes/vendoor-new";
+import { startVendoorSyncCron, runManualSync } from "./cron/vendoor-sync";
 import { scrapeProduct } from "./routes/scrape-product";
 import { 
   advancedScrapeProduct,
@@ -177,6 +185,21 @@ export function createServer() {
   app.post("/api/admin/update-user-role", updateUserRoleServer);
   app.post("/api/admin/approve-user", approveUser);
   app.get("/api/admin/orders", getOrders);
+
+  // Vendoor APIs
+  app.post("/api/vendoor/scrape-all", scrapeAllProducts);
+  app.post("/api/vendoor/scrape-single", scrapeSingleProduct);
+  app.post("/api/vendoor/import-product", importProduct);
+  app.post("/api/vendoor/import-multiple", importMultipleProducts);
+  app.post("/api/vendoor/update-products", updateVendoorProducts);
+  app.post("/api/vendoor/sync-manual", async (_req, res) => {
+    try {
+      const result = await runManualSync();
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
   app.put("/api/admin/orders/:id/status", updateOrderStatus);
   app.get("/api/admin/commissions", getCommissions);
   app.put("/api/admin/commissions/:id/status", updateCommissionStatus);
@@ -273,6 +296,10 @@ export function createServer() {
   app.post("/api/notifications/mark-all-read", markAllAsRead);
   app.delete("/api/notifications/:id", deleteNotification);
   app.post("/api/notifications/broadcast", broadcastNotification);
+
+  // Start Vendoor Sync Cron Job
+  startVendoorSyncCron();
+  console.log('✅ Vendoor auto-sync cron job initialized');
 
   return app;
 }
