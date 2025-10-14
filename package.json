@@ -62,6 +62,8 @@
     "create-demo-intermediary": "tsx scripts/create-demo-intermediary.ts",
     "fix-demo-intermediary": "tsx scripts/fix-demo-intermediary.ts",
     "cleanup-and-seed": "tsx scripts/cleanup-and-seed.ts",
+    "test-vendoor": "tsx scripts/test-vendoor-function.ts",
+    "warmup-vendoor": "tsx scripts/warmup-vendoor.ts",
     "db:migrate": "echo 'Using Appwrite instead of Prisma'",
     "db:seed": "echo 'Using Appwrite instead of Prisma'",
     "db:studio": "echo 'Using Appwrite instead of Prisma'",

@@ -15,6 +15,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  fetchAllVendoorProducts, 
+  fetchSingleVendoorProduct, 
+  importVendoorProduct,
+  manualVendoorSync,
+  checkVendoorFunctionStatus
+} from '@/lib/vendoor-function-api';
 
 interface VendoorProduct {
   id: string;

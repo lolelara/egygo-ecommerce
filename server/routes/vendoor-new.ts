@@ -420,3 +420,14 @@ export const updateVendoorProducts: RequestHandler = async (req, res) => {
     });
   }
 };
+
+/**
+ * Warmup endpoint - يبقي Function نشط
+ */
+export const warmupHandler: RequestHandler = async (req, res) => {
+  res.json({ 
+    status: 'warm', 
+    timestamp: new Date().toISOString(),
+    message: 'Vendoor Function is ready'
+  });
+};

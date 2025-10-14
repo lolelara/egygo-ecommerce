@@ -52,6 +52,7 @@ import {
   importProduct,
   importMultipleProducts,
   updateVendoorProducts,
+  warmupHandler,
 } from "./routes/vendoor-new";
 import { startVendoorSyncCron, runManualSync } from "./cron/vendoor-sync";
 import { scrapeProduct } from "./routes/scrape-product";
@@ -187,6 +188,7 @@ export function createServer() {
   app.get("/api/admin/orders", getOrders);
 
   // Vendoor APIs
+  app.get("/api/vendoor/warmup", warmupHandler); // Warmup endpoint
   app.post("/api/vendoor/scrape-all", scrapeAllProducts);
   app.post("/api/vendoor/scrape-single", scrapeSingleProduct);
   app.post("/api/vendoor/import-product", importProduct);
