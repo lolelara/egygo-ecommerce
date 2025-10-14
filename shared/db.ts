@@ -1,13 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+// This file is deprecated - we use Appwrite instead of Prisma
+// Keeping it for backward compatibility but it does nothing
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+export const prisma = {
+  // Placeholder object for backward compatibility
+  $connect: async () => {},
+  $disconnect: async () => {},
 };
-
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ["query"],
-  });
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
