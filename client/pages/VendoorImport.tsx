@@ -19,6 +19,7 @@ import {
   fetchAllVendoorProducts, 
   fetchSingleVendoorProduct, 
   importVendoorProduct,
+  importMultipleVendoorProducts,
   manualVendoorSync,
   checkVendoorFunctionStatus
 } from '@/lib/vendoor-function-api';
@@ -63,29 +64,15 @@ export default function VendoorImport() {
     setScrapingProgress({ current: 0, total: 41 });
 
     try {
-      const response = await fetch('/api/vendoor/scrape-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: VENDOOR_EMAIL,
-          password: VENDOOR_PASSWORD,
-          maxPages: 41
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`فشل جلب المنتجات: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
+      // استخدام Vendoor Function API مباشرة
+      const data = await fetchAllVendoorProducts();
       
       if (data.success && data.products) {
         setProducts(data.products);
         
         toast({
           title: 'نجح! 🎉',
-          description: `تم جلب ${data.totalProducts} منتج من ${data.totalPages} صفحة`,
+          description: `تم جلب ${data.products.length} منتج`,
         });
       } else {
         throw new Error(data.error || 'فشل في جلب المنتجات');
@@ -110,7 +97,7 @@ export default function VendoorImport() {
   const handleScrapeSingle = async () => {
     if (!singleProductId.trim()) {
       toast({
-        title: 'تحذير',
+        title: 'خطأ',
         description: 'الرجاء إدخال رقم المنتج',
         variant: 'destructive'
       });
@@ -120,21 +107,9 @@ export default function VendoorImport() {
     setIsScrapingSingle(true);
 
     try {
-      const response = await fetch('/api/vendoor/scrape-single', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: VENDOOR_EMAIL,
-          password: VENDOOR_PASSWORD,
-          productId: singleProductId.trim()
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('فشل جلب المنتج');
-      }
-
-      const data = await response.json();
+      // استخدام Vendoor Function API مباشرة
+      const product = await fetchSingleVendoorProduct(singleProductId);
+      const data = { success: true, product };
       
       if (data.success && data.product) {
         setProducts(prev => [data.product, ...prev]);
@@ -196,34 +171,11 @@ export default function VendoorImport() {
    * استيراد منتج إلى الموقع
    */
   const handleImportProduct = async (product: VendoorProduct) => {
-    if (!user) {
-      toast({
-        title: 'خطأ',
-        description: 'يجب تسجيل الدخول أولاً',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     setImportingProducts(prev => new Set(prev).add(product.id));
 
     try {
-      const response = await fetch('/api/vendoor/import-product', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          product: product,
-          userId: user.$id,
-          userName: user.name,
-          markupPercentage: markupPercentage
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('فشل استيراد المنتج');
-      }
-
-      const data = await response.json();
+      // استخدام Vendoor Function API مباشرة
+      const data = await importVendoorProduct(product.id, markupPercentage);
 
       toast({
         title: 'نجح!',
@@ -254,18 +206,9 @@ export default function VendoorImport() {
    * استيراد جميع المنتجات دفعة واحدة
    */
   const handleImportAll = async () => {
-    if (!user) {
-      toast({
-        title: 'خطأ',
-        description: 'يجب تسجيل الدخول أولاً',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     if (products.length === 0) {
       toast({
-        title: 'تحذير',
+        title: 'تنبيه',
         description: 'لا توجد منتجات للاستيراد',
         variant: 'destructive'
       });
@@ -275,22 +218,11 @@ export default function VendoorImport() {
     setImportingAll(true);
 
     try {
-      const response = await fetch('/api/vendoor/import-multiple', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          products: products,
-          userId: user.$id,
-          userName: user.name,
-          markupPercentage: markupPercentage
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('فشل استيراد المنتجات');
-      }
-
-      const data = await response.json();
+      // استخدام Vendoor Function API مباشرة
+      const data = await importMultipleVendoorProducts(
+        products.map(p => p.id),
+        markupPercentage
+      );
 
       toast({
         title: 'نجح! 🎉',
