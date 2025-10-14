@@ -9,11 +9,11 @@
       "execute": ["any"],
       "events": [],
       "schedule": "",
-      "timeout": 15,
+      "timeout": 900,
       "enabled": true,
       "logging": true,
-      "entrypoint": "src/main.js",
-      "commands": "pnpm install && pnpm run build",
+      "entrypoint": "src/main-commonjs.js",
+      "commands": "pnpm install",
       "specification": "s-4vcpu-4gb",
       "path": "functions/vendoor-scraper"
     }

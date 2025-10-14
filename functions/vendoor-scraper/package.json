@@ -2,7 +2,8 @@
   "name": "vendoor-scraper",
   "version": "1.0.0",
   "description": "Appwrite Function to scrape Vendoor products",
-  "main": "src/main.js",
+  "main": "src/main-commonjs.js",
+  "type": "commonjs",
   "scripts": {
     "test": "node test.js",
     "build": "echo 'No build needed'",
