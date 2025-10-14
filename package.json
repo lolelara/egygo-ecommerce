@@ -61,13 +61,14 @@
     "fix-coupons": "tsx scripts/fix-coupons-collection.ts",
     "create-demo-intermediary": "tsx scripts/create-demo-intermediary.ts",
     "fix-demo-intermediary": "tsx scripts/fix-demo-intermediary.ts",
+    "cleanup-and-seed": "tsx scripts/cleanup-and-seed.ts",
     "db:migrate": "echo 'Using Appwrite instead of Prisma'",
     "db:seed": "echo 'Using Appwrite instead of Prisma'",
     "db:studio": "echo 'Using Appwrite instead of Prisma'",
     "db:push": "echo 'Using Appwrite instead of Prisma'"
   },
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=20.0.0",
     "npm": ">=8.0.0"
   },
   "dependencies": {
