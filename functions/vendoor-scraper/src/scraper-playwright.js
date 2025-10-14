@@ -2,7 +2,7 @@
  * Vendoor Scraper using Playwright with webkit (lighter than Puppeteer)
  */
 
-const { chromium } = require('playwright'); // chromium يعمل في Appwrite بدون deps
+const { chromium } = require('playwright-core'); // استخدام playwright-core
 
 const BASE = 'https://aff.ven-door.com';
 const LOGIN_URL = `${BASE}/login`;
