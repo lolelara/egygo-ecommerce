@@ -10,7 +10,7 @@
     "deploy": "appwrite deploy function"
   },
   "dependencies": {
-    "puppeteer": "^24.23.0",
+    "playwright": "^1.40.0",
     "node-appwrite": "^13.0.0"
   },
   "devDependencies": {},

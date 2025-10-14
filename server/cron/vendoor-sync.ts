@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { chromium } from 'playwright';
+import { webkit } from 'playwright'; // استخدام webkit (أخف من chromium)
 
 const VENDOOR_EMAIL = 'almlmibrahym574@gmail.com';
 const VENDOOR_PASSWORD = 'hema2004';
@@ -124,7 +124,7 @@ export async function syncVendoorProducts() {
   
   let browser;
   try {
-    browser = await chromium.launch({ 
+    const browser = await webkit.launch({ 
       headless: true, 
       args: ['--no-sandbox','--disable-setuid-sandbox'] 
     });

@@ -13,7 +13,7 @@
       "enabled": true,
       "logging": true,
       "entrypoint": "src/main-commonjs.js",
-      "commands": "pnpm install",
+      "commands": "pnpm install && npx playwright install webkit",
       "specification": "s-4vcpu-4gb",
       "path": "functions/vendoor-scraper"
     }
