@@ -152,6 +152,40 @@ export async function importProductFromUrl(
       }
     }
     
+    // Get default category if not provided
+    let finalCategoryId = categoryId;
+    if (!finalCategoryId) {
+      try {
+        // Try to find "Imported Products" category
+        const categoriesResponse = await databases.listDocuments(
+          DATABASE_ID,
+          appwriteConfig.collections.categories,
+          [Query.equal('name', 'منتجات مستوردة'), Query.limit(1)]
+        );
+        
+        if (categoriesResponse.documents.length > 0) {
+          finalCategoryId = categoriesResponse.documents[0].$id;
+        } else {
+          // Create default category if it doesn't exist
+          const newCategory = await databases.createDocument(
+            DATABASE_ID,
+            appwriteConfig.collections.categories,
+            ID.unique(),
+            {
+              name: 'منتجات مستوردة',
+              slug: 'imported-products',
+              description: 'منتجات تم استيرادها من مواقع أخرى',
+              isActive: true
+            }
+          );
+          finalCategoryId = newCategory.$id;
+        }
+      } catch (error) {
+        console.error('Error getting/creating category:', error);
+        throw new Error('فشل في تحديد التصنيف. يرجى المحاولة مرة أخرى.');
+      }
+    }
+    
     // Create product in database
     const productData = {
       name: scrapedData.name,
@@ -163,12 +197,13 @@ export async function importProductFromUrl(
       sourceUrl: url,
       sourceUrlHash: hashUrl(url), // Add hash for faster lookups
       images: uploadedImages.length > 0 ? uploadedImages : ['https://via.placeholder.com/400'],
-      category: categoryId || scrapedData.category || 'imported',
+      categoryId: finalCategoryId, // Use categoryId instead of category
       stock: 999, // Default high stock for imported products
       isActive: true,
+      merchantId: user.$id, // Required field
+      merchantName: user.name,
       intermediaryId: user.$id,
-      intermediaryName: user.name,
-      $createdAt: new Date().toISOString()
+      intermediaryName: user.name
     };
     
     const product = await databases.createDocument(
