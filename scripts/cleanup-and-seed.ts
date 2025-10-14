@@ -55,12 +55,41 @@ const testUsers = [
 ];
 
 /**
- * حذف جميع المستخدمين
+ * حذف جميع المستخدمين من Auth و Users Collection
  */
 async function deleteAllUsers() {
   console.log('🗑️  حذف جميع المستخدمين...');
   
   try {
+    // حذف من Users Collection أولاً
+    let hasMoreDocs = true;
+    let deletedDocsCount = 0;
+    
+    while (hasMoreDocs) {
+      const usersDocs = await databases.listDocuments(
+        DATABASE_ID,
+        'users',
+        [Query.limit(100)]
+      );
+      
+      if (usersDocs.documents.length === 0) {
+        hasMoreDocs = false;
+        break;
+      }
+      
+      for (const doc of usersDocs.documents) {
+        try {
+          await databases.deleteDocument(DATABASE_ID, 'users', doc.$id);
+          deletedDocsCount++;
+        } catch (error: any) {
+          console.log(`  ✗ فشل حذف document: ${error.message}`);
+        }
+      }
+    }
+    
+    console.log(`  ✓ تم حذف ${deletedDocsCount} document من users collection`);
+    
+    // حذف من Auth
     let hasMore = true;
     let deletedCount = 0;
     
@@ -83,7 +112,7 @@ async function deleteAllUsers() {
       }
     }
     
-    console.log(`✅ تم حذف ${deletedCount} مستخدم\n`);
+    console.log(`✅ تم حذف ${deletedCount} مستخدم من Auth\n`);
   } catch (error: any) {
     console.error('❌ خطأ في حذف المستخدمين:', error.message);
   }
@@ -217,6 +246,44 @@ async function createTestUser(userData: typeof testUsers[0]) {
     );
     
     console.log(`  ✓ تم إنشاء مستخدم: ${userData.name} (${userData.email})`);
+    
+    // إضافة المستخدم إلى collection users
+    try {
+      const userDoc = {
+        email: userData.email,
+        name: userData.name,
+        phone: userData.phone,
+        alternativePhone: '',
+        address: '',
+        isAffiliate: userData.role === 'affiliate',
+        isMerchant: userData.role === 'merchant',
+        isIntermediary: userData.role === 'intermediary',
+        affiliateCode: userData.role === 'affiliate' ? `AFF${Date.now().toString().slice(-6)}` : null,
+        commissionRate: 0.15,
+        totalEarnings: 0,
+        pendingEarnings: 0,
+        referralCount: 0,
+        accountStatus: 'approved',
+        isActive: true,
+        approvedAt: new Date().toISOString(),
+        approvedBy: 'system',
+        rejectionReason: null,
+      };
+      
+      await databases.createDocument(
+        DATABASE_ID,
+        'users',
+        user.$id,
+        userDoc
+      );
+      
+      console.log(`    ✓ تم إضافة البيانات إلى collection users`);
+    } catch (error: any) {
+      console.log(`    ✗ فشل إضافة البيانات: ${error.message}`);
+    }
+    
+    // ملاحظة: affiliates collection سيتم إنشاؤها تلقائياً عند أول استخدام
+    // البيانات الأساسية موجودة في users collection مع isAffiliate=true
     
     return user;
   } catch (error: any) {
