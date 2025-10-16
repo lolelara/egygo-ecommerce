@@ -1,15 +1,14 @@
-
-/* Optimized font loading with font-display: swap for better performance */
+/* Import all external styles first */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Import Enhanced Styles */
 @import './styles/animations.css';
 @import './styles/gradients.css';
 @import './styles/shimmer.css';
 @import './styles/color-effects.css';
+
+/* Then Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   body {

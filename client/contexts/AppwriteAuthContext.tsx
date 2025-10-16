@@ -326,8 +326,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: currentUser.email,
         name: currentUser.name
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
+      
+      // Handle specific error cases
+      if (error?.code === 409 || error?.message?.includes('already exists')) {
+        throw new Error('هذا البريد الإلكتروني أو رقم الهاتف مستخدم بالفعل. يرجى تسجيل الدخول أو استخدام بريد آخر.');
+      }
+      
       throw error;
     } finally {
       setLoading(false);

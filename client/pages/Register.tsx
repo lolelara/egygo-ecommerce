@@ -169,9 +169,7 @@ export default function Register() {
               commissionRate: accountType === 'affiliate' ? 10 : 0,
               businessName: '',
               businessAddress: '',
-              taxId: '',
-              referredBy: formData.referralCode || '', // Save referral code
-              referredByName: referrerInfo?.name || ''
+              taxId: ''
             }
           );
           console.log('✅ User preferences created for admin panel');

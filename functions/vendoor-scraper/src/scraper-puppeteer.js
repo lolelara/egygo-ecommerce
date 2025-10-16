@@ -1,9 +1,11 @@
 /**
- * Vendoor Scraper using Puppeteer with chrome-aws-lambda (works in Appwrite)
+ * Vendoor Scraper using Puppeteer with @sparticuz/chromium (works in Appwrite)
+ * Version 2.0.0 - Using @sparticuz/chromium instead of chrome-aws-lambda
+ * Updated: Oct 15, 2025
  */
 
-const chromium = require('chrome-aws-lambda');
-const puppeteer = chromium.puppeteer || require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
+const puppeteer = require('puppeteer-core');
 
 const BASE = 'https://aff.ven-door.com';
 const LOGIN_URL = `${BASE}/login`;

@@ -49,7 +49,7 @@ module.exports = async ({ req, res, log, error }) => {
         success: true,
         message: 'Vendoor Scraper Function is running',
         timestamp: new Date().toISOString(),
-        version: '1.0.0'
+        version: '2.0.0'
       };
       
     } else if (action === 'scrape-all') {

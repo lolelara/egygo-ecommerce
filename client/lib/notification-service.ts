@@ -171,17 +171,36 @@ class NotificationService {
     userId: string,
     callback: (notification: Notification) => void
   ) {
-    return client.subscribe(
-      `databases.${appwriteConfig.databaseId}.collections.${NOTIFICATIONS_COLLECTION_ID}.documents`,
-      (response) => {
-        const payload = response.payload as unknown as Notification;
-        
-        // Only trigger callback for notifications belonging to this user
-        if (payload.userId === userId) {
-          callback(payload);
+    try {
+      const unsubscribe = client.subscribe(
+        `databases.${appwriteConfig.databaseId}.collections.${NOTIFICATIONS_COLLECTION_ID}.documents`,
+        (response) => {
+          const payload = response.payload as unknown as Notification;
+          
+          // Only trigger callback for notifications belonging to this user
+          if (payload.userId === userId) {
+            callback(payload);
+          }
         }
-      }
-    );
+      );
+      
+      // Return a safe unsubscribe function
+      return () => {
+        try {
+          if (typeof unsubscribe === 'function') {
+            unsubscribe();
+          }
+        } catch (error) {
+          // Ignore WebSocket already closed errors
+          if (!error?.message?.includes('CLOSING or CLOSED')) {
+            console.error('Error unsubscribing from notifications:', error);
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error subscribing to notifications:', error);
+      return () => {}; // Return no-op function
+    }
   }
 
   /**
