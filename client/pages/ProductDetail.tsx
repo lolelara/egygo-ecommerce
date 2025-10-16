@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -45,17 +45,56 @@ export default function ProductDetail() {
   const [totalStock, setTotalStock] = useState<number>(0);
   const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
 
-  // Available colors (يمكن جلبها من API لاحقاً)
-  const availableColors = [
-    { name: "أسود", value: "black", hex: "#000000" },
-    { name: "أبيض", value: "white", hex: "#FFFFFF", border: true },
-    { name: "أزرق", value: "blue", hex: "#3B82F6" },
-    { name: "أحمر", value: "red", hex: "#EF4444" },
-    { name: "أخضر", value: "green", hex: "#10B981" },
-  ];
+  // Color mappings (للترجمة والعرض)
+  const colorMappings: Record<string, {name: string, hex: string, border?: boolean}> = {
+    'black': { name: "أسود", hex: "#000000" },
+    'white': { name: "أبيض", hex: "#FFFFFF", border: true },
+    'blue': { name: "أزرق", hex: "#3B82F6" },
+    'red': { name: "أحمر", hex: "#EF4444" },
+    'green': { name: "أخضر", hex: "#10B981" },
+    'yellow': { name: "أصفر", hex: "#FBBF24" },
+    'purple': { name: "بنفسجي", hex: "#A855F7" },
+    'pink': { name: "وردي", hex: "#EC4899" },
+    'gray': { name: "رمادي", hex: "#6B7280" },
+    'brown': { name: "بني", hex: "#92400E" },
+  };
 
-  // Available sizes
-  const availableSizes = ["S", "M", "L", "XL", "XXL"];
+  // استخراج الألوان المتاحة من الـ inventory
+  const availableColors = useMemo(() => {
+    if (inventory.length === 0) return [];
+    
+    const uniqueColors = [...new Set(inventory
+      .filter(item => item.quantity > 0 && item.color)
+      .map(item => item.color.toLowerCase())
+    )];
+    
+    return uniqueColors.map(color => ({
+      name: colorMappings[color]?.name || color,
+      value: color,
+      hex: colorMappings[color]?.hex || '#999999',
+      border: colorMappings[color]?.border,
+    }));
+  }, [inventory]);
+
+  // استخراج المقاسات المتاحة من الـ inventory
+  const availableSizes = useMemo(() => {
+    if (inventory.length === 0) return [];
+    
+    const uniqueSizes = [...new Set(inventory
+      .filter(item => item.quantity > 0 && item.size)
+      .map(item => item.size.toUpperCase())
+    )];
+    
+    // ترتيب المقاسات
+    const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+    return uniqueSizes.sort((a, b) => {
+      const aIndex = sizeOrder.indexOf(a);
+      const bIndex = sizeOrder.indexOf(b);
+      if (aIndex === -1) return 1;
+      if (bIndex === -1) return -1;
+      return aIndex - bIndex;
+    });
+  }, [inventory]);
 
   // Fetch product details
   const { data: product, isLoading } = useQuery({

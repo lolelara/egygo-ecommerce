@@ -15,11 +15,14 @@ interface EnvVars {
 
 function getEnvVar(key: keyof EnvVars): string {
   // Type-safe access to environment variables
-  const envVars = (typeof import.meta !== 'undefined' && import.meta.env) 
-    ? import.meta.env as unknown as EnvVars
-    : process?.env as unknown as EnvVars;
-  
-  return (envVars?.[key] as string) || '';
+  try {
+    // @ts-ignore - Vite specific import.meta.env
+    const env = (globalThis as any).import?.meta?.env || {};
+    return (env[key] as string) || '';
+  } catch (e) {
+    // Fallback for non-Vite environments
+  }
+  return '';
 }
 
 export const env = {

@@ -31,14 +31,13 @@ export function lazyLoad<T extends ComponentType<any>>(
 }
 
 // ============================================
-// PUBLIC PAGES (High Priority - Not Lazy)
+// PUBLIC PAGES (High Priority - Lazy for better code splitting)
 // ============================================
-// These are loaded immediately for better UX
 export { default as Index } from '@/pages/Index';
 export { default as Login } from '@/pages/Login';
 export { default as Register } from '@/pages/Register';
-export { default as Products } from '@/pages/Products';
-export { default as ProductDetail } from '@/pages/ProductDetail';
+export const Products = lazyLoad(() => import('@/pages/Products'));
+export const ProductDetail = lazyLoad(() => import('@/pages/ProductDetail'));
 
 // ============================================
 // CUSTOMER PAGES (Medium Priority - Lazy)
@@ -99,6 +98,8 @@ export const AdminShipping = lazyLoad(() => import('@/pages/AdminShipping'));
 export const AdminAdvancedSettings = lazyLoad(() => import('@/pages/AdminAdvancedSettings'));
 export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
 export const AdminCoupons = lazyLoad(() => import('@/pages/AdminCoupons'));
+export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'));
+export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
 
 // STATIC/INFO PAGES (Low Priority - Lazy)
 // ============================================

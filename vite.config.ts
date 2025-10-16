@@ -27,9 +27,36 @@ export default defineConfig(({ mode }) => ({
   appType: "spa", // This tells Vite to handle SPA routing properly
   build: {
     outDir: "../dist",
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            // React ecosystem
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react';
+            }
+            // UI libraries
+            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
+              return 'vendor-ui';
+            }
+            // Animation libraries
+            if (id.includes('gsap') || id.includes('three') || id.includes('swiper')) {
+              return 'vendor-animations';
+            }
+            // Appwrite
+            if (id.includes('appwrite')) {
+              return 'vendor-appwrite';
+            }
+            // Query & Forms
+            if (id.includes('@tanstack') || id.includes('react-hook-form')) {
+              return 'vendor-query';
+            }
+            // Other vendors
+            return 'vendor-other';
+          }
+        },
       },
     },
     // Copy _redirects and .htaccess to dist

@@ -238,7 +238,7 @@ export class AppwriteService {
 
       // Send notification to user about order confirmation
       try {
-        const { notificationService } = await import('./notification-service');
+        const { default: notificationService } = await import('./notification-service');
         await notificationService.notifyOrderStatus(
           orderData.userId,
           order.$id,
