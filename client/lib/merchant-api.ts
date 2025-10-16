@@ -1,6 +1,7 @@
 import { databases, appwriteConfig, storage } from './appwrite';
 import { Query } from 'appwrite';
 import type { MerchantStats, MerchantProduct, MerchantOrder } from '../../shared/prisma-types';
+import { placeholder } from './placeholder';
 
 // Re-export types for convenience
 export type { MerchantStats, MerchantProduct, MerchantOrder };
@@ -12,8 +13,9 @@ const STORAGE_BUCKET_ID = appwriteConfig.storageId;
 /**
  * Helper function to convert image ID or URL to viewable URL
  */
+
 function getImageUrl(image: any): string {
-  if (!image) return '/placeholder.svg';
+  if (!image) return placeholder.product();
   
   // If it's already an object with url property
   if (typeof image === 'object' && image.url) {
@@ -31,11 +33,11 @@ function getImageUrl(image: any): string {
       return storage.getFileView(STORAGE_BUCKET_ID, image).toString();
     } catch (error) {
       console.error('Error getting image URL:', error);
-      return '/placeholder.svg';
+      return placeholder.product();
     }
   }
   
-  return '/placeholder.svg';
+  return placeholder.product();
 }
 
 /**

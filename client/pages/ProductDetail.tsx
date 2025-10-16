@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Star,
   ShoppingCart,
@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { productsApi, queryKeys } from "@/lib/api";
+import { productsApi, queryKeys, wishlistApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
@@ -36,9 +36,9 @@ export default function ProductDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { addItem } = useCart();
+  const queryClient = useQueryClient();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -214,14 +214,74 @@ export default function ProductDetail() {
     });
   };
 
+  // Check if product is in wishlist
+  const { data: wishlistItems = [] } = useQuery({
+    queryKey: queryKeys.wishlist(user?.$id || ""),
+    queryFn: () => wishlistApi.getUserWishlist(user?.$id || ""),
+    enabled: !!user?.$id,
+  });
+
+  const isWishlisted = useMemo(() => {
+    return wishlistItems.some((item: any) => item.productId === id);
+  }, [wishlistItems, id]);
+
+  const wishlistItem = useMemo(() => {
+    return wishlistItems.find((item: any) => item.productId === id);
+  }, [wishlistItems, id]);
+
+  // Add to wishlist mutation
+  const addToWishlist = useMutation({
+    mutationFn: () => wishlistApi.addToWishlist(user?.$id || "", id || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.$id || "") });
+      toast({
+        title: "✅ تمت الإضافة للمفضلة",
+        description: "تم إضافة المنتج إلى قائمة المفضلة",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في إضافة المنتج للمفضلة",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Remove from wishlist mutation
+  const removeFromWishlist = useMutation({
+    mutationFn: () => wishlistApi.removeFromWishlist(wishlistItem?.id || "", user?.$id || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.$id || "") });
+      toast({
+        title: "تمت الإزالة",
+        description: "تم إزالة المنتج من قائمة المفضلة",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في إزالة المنتج من المفضلة",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleToggleWishlist = () => {
-    setIsWishlisted(!isWishlisted);
-    toast({
-      title: isWishlisted ? "تمت الإزالة من المفضلة" : "تمت الإضافة للمفضلة",
-      description: isWishlisted
-        ? "تم إزالة المنتج من قائمة المفضلة"
-        : "تم إضافة المنتج إلى قائمة المفضلة",
-    });
+    if (!user) {
+      toast({
+        title: "يجب تسجيل الدخول",
+        description: "يرجى تسجيل الدخول لإضافة المنتجات إلى المفضلة",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isWishlisted) {
+      removeFromWishlist.mutate();
+    } else {
+      addToWishlist.mutate();
+    }
   };
 
   const handleShare = () => {
@@ -482,10 +542,15 @@ export default function ProductDetail() {
                   size="lg"
                   variant={isWishlisted ? "default" : "outline"}
                   onClick={handleToggleWishlist}
+                  disabled={addToWishlist.isPending || removeFromWishlist.isPending}
                 >
-                  <Heart
-                    className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`}
-                  />
+                  {addToWishlist.isPending || removeFromWishlist.isPending ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Heart
+                      className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`}
+                    />
+                  )}
                 </Button>
                 <Button size="lg" variant="outline" onClick={handleShare}>
                   <Share2 className="h-5 w-5" />

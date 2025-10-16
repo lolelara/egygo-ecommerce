@@ -121,6 +121,8 @@ const ProductForm = ({
     console.log('📦 Inventory data being saved:', inventoryData);
     console.log('📊 Total stock calculated:', totalStock);
 
+    const finalStock = totalStock || formData.stockQuantity || 0;
+    
     const submitData = {
       ...formData,
       images: formData.images,
@@ -131,7 +133,10 @@ const ProductForm = ({
       colors: colorsArray,
       sizes: sizesArray,
       colorSizeInventory: JSON.stringify(inventoryData),
-      stock: totalStock || formData.stockQuantity || 0, // Use total from inventory or default
+      stock: finalStock, // Use total from inventory or default
+      stockQuantity: finalStock, // Also set stockQuantity
+      inStock: finalStock > 0, // Set inStock based on stock availability
+      isActive: finalStock > 0, // Auto-activate if stock available
     };
     
     console.log('💾 Submit data:', submitData);

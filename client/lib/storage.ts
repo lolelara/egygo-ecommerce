@@ -1,4 +1,5 @@
-import { storage } from "./appwrite";
+import { storage, appwriteConfig } from './appwrite';
+import { placeholder } from './placeholder';
 import { ID } from "appwrite";
 
 const BUCKET_ID = "product-images";
@@ -90,7 +91,7 @@ export const storageUtils = {
    * Handles both file IDs and existing URLs
    */
   getImageUrl: (image: string | { url: string } | undefined): string => {
-    if (!image) return "/placeholder.svg";
+    if (!image) return placeholder.product();
     
     // If it's already an object with url property
     if (typeof image === 'object' && 'url' in image) {
@@ -107,7 +108,7 @@ export const storageUtils = {
       return storage.getFileView(BUCKET_ID, image).toString();
     }
     
-    return "/placeholder.svg";
+    return placeholder.product();
   },
 
   /**
@@ -115,7 +116,7 @@ export const storageUtils = {
    */
   getImageUrls: (images: (string | { url: string })[] | undefined): string[] => {
     if (!images || !Array.isArray(images) || images.length === 0) {
-      return ["/placeholder.svg"];
+      return [placeholder.product()];
     }
     
     return images.map(img => storageUtils.getImageUrl(img));

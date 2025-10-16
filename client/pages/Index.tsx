@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/lib/storage";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
+import { placeholder } from "@/lib/placeholder";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
 import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
 import { useEffect } from "react";
@@ -259,7 +260,7 @@ export default function Index() {
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                 <div className="relative">
                   <img
-                    src={category.image || "/placeholder.svg"}
+                    src={category.image || placeholder.category(category.name)}
                     alt={category.name}
                     className="w-full h-32 object-cover"
                   />

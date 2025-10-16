@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { storageUtils, type UploadedFile } from "@/lib/storage";
 import { useToast } from "@/hooks/use-toast";
+import { placeholder } from "@/lib/placeholder";
 
 interface ImageUploaderProps {
   value: string[];
@@ -165,7 +166,7 @@ export function ImageUploader({
                   className="w-full h-full object-cover rounded-lg"
                   onError={(e) => {
                     // Fallback if image fails to load
-                    e.currentTarget.src = "/placeholder.svg";
+                    e.currentTarget.src = placeholder.product();
                   }}
                 />
 
