@@ -199,7 +199,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
       className="block"
       onClick={handleView}
     >
-      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full border-2 hover:border-primary">
+      <Card className="card-hover group overflow-hidden h-full border-2">
         {/* Image Container */}
         <div className="relative overflow-hidden">
           <img
@@ -303,7 +303,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
               size="sm"
               onClick={handleAddToCart}
               disabled={isAddingToCart}
-              className="group-hover:scale-105 transition-transform"
+              className="btn-hover-lift"
             >
               {isAddingToCart ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />

@@ -235,6 +235,7 @@ export default function Products() {
       {/* Clear Filters */}
       <Button
         variant="outline"
+        className="btn-hover-lift w-full"
         onClick={() => {
           setSelectedCategories([]);
           setPriceRange({ min: 0, max: 1000 });
@@ -242,7 +243,6 @@ export default function Products() {
           setSearchQuery("");
           setPage(1);
         }}
-        className="w-full"
       >
         مسح جميع المرشحات
       </Button>
@@ -262,7 +262,13 @@ export default function Products() {
       <div className="container mx-auto px-4 py-16 text-center">
         <h2 className="text-2xl font-bold mb-4">حدث خطأ</h2>
         <p className="text-muted-foreground mb-4">فشل في تحميل المنتجات</p>
-        <Button onClick={() => window.location.reload()}>إعادة المحاولة</Button>
+        <Button
+          variant="outline"
+          className="btn-hover-lift"
+          onClick={() => window.location.reload()}
+        >
+          إعادة المحاولة
+        </Button>
       </div>
     );
   }
@@ -324,7 +330,10 @@ export default function Products() {
           {/* Mobile Filter Toggle */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" className="lg:hidden">
+              <Button
+                variant="outline"
+                className="btn-hover-lift lg:hidden"
+              >
                 <SlidersHorizontal className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
                 المرشحات
               </Button>
@@ -372,6 +381,7 @@ export default function Products() {
               </p>
               <Button
                 variant="outline"
+                className="btn-hover-lift"
                 onClick={() => {
                   setSelectedCategories([]);
                   setPriceRange({ min: 0, max: 1000 });
