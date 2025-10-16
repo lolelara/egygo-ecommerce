@@ -69,17 +69,17 @@
   <!-- Favicons (handled via manifest/public). Remove broken links to avoid 404s) -->
   <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
   <!-- <link rel="apple-touch-icon" href="/icon-192.png" /> -->
-    <script type="module" crossorigin src="/assets/index-DAwEpow4.js"></script>
+    <script type="module" crossorigin src="/assets/index-C03DQAFm.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/vendor-ui-BA32w1ww.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-query-GexG3wnZ.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-other-ws_0vYaO.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-other-C5r3s8Py.js">
     <link rel="modulepreload" crossorigin href="/assets/vendor-animations-W1Z2cmit.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-react-BTCGZZAN.js">
-    <link rel="modulepreload" crossorigin href="/assets/vendor-appwrite-BQhTxLk4.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-react-BMq-IxHG.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-appwrite-BGb_FC-V.js">
     <link rel="stylesheet" crossorigin href="/assets/vendor-react-DFW2o1-N.css">
     <link rel="stylesheet" crossorigin href="/assets/vendor-other-FVOTwPhI.css">
     <link rel="stylesheet" crossorigin href="/assets/vendor-animations-BpgSqZrL.css">
-    <link rel="stylesheet" crossorigin href="/assets/index-B3YGSXOD.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-RKT96HES.css">
   </head>
 
   <body>
@@ -93,10 +93,27 @@
     <!-- Register Service Worker for PWA -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => console.log('SW registered:', registration))
-            .catch(error => console.log('SW registration failed:', error));
+        window.addEventListener('load', async () => {
+          try {
+            // Clear old service workers and caches first
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+              await registration.unregister();
+            }
+            
+            const cacheNames = await caches.keys();
+            for (let name of cacheNames) {
+              await caches.delete(name);
+            }
+            
+            console.log('Old SW and caches cleared');
+            
+            // Register new service worker
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('SW registered:', registration);
+          } catch (error) {
+            console.log('SW registration failed:', error);
+          }
         });
       }
     </script>

@@ -1,13 +1,7 @@
 // Service Worker for performance optimization
-const CACHE_NAME = 'egygo-v2';
-const STATIC_CACHE = 'egygo-static-v2';
-const DYNAMIC_CACHE = 'egygo-dynamic-v2';
-
-// Domains to skip (CORS issues)
-const SKIP_DOMAINS = [
-  'assets.appwrite.io',
-  'cloud.appwrite.io',
-];
+const CACHE_NAME = 'egygo-v1';
+const STATIC_CACHE = 'egygo-static-v1';
+const DYNAMIC_CACHE = 'egygo-dynamic-v1';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
@@ -82,12 +76,6 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) {
     return;
-  }
-
-  // Skip domains that cause CORS issues
-  if (SKIP_DOMAINS.some(domain => url.hostname.includes(domain))) {
-    console.log('[SW] Skipping external domain:', url.hostname);
-    return; // Let browser handle normally
   }
 
   // Handle different types of requests
