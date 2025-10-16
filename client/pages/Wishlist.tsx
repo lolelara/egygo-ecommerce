@@ -108,7 +108,7 @@ export default function Wishlist() {
                   لم تقم بإضافة أي منتجات إلى قائمة المفضلة بعد
                 </p>
                 <Link to="/products">
-                  <Button className="mt-6">
+                  <Button className="mt-6 btn-hover-lift">
                     تصفح المنتجات
                   </Button>
                 </Link>
@@ -118,7 +118,7 @@ export default function Wishlist() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {wishlistItems.map((item: any) => (
-              <Card key={item.id} className="group hover:shadow-lg transition-shadow">
+              <Card key={item.id} className="card-hover group">
                 <CardContent className="p-4">
                   {/* Product Image */}
                   <Link to={`/products/${item.productId}`}>
@@ -182,7 +182,7 @@ export default function Wishlist() {
                       <Button
                         onClick={() => handleAddToCart(item.product)}
                         disabled={!item.product.inStock}
-                        className="flex-1"
+                        className="flex-1 btn-hover-lift"
                       >
                         <ShoppingCart className="h-4 w-4 ml-2" />
                         أضف للسلة

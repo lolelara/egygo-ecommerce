@@ -47,6 +47,7 @@ import {
 } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
 import { getImageUrl } from "@/lib/storage";
+import { PageLoader } from "@/components/ui/loading-screen";
 import type {
   Product,
   Category,
@@ -580,21 +581,7 @@ export default function AdminProducts() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold tracking-tight">
-              إدارة المنتجات
-            </h1>
-          </div>
-          <div className="animate-pulse">
-            <div className="h-10 bg-muted rounded mb-4"></div>
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-16 bg-muted rounded"></div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <PageLoader message="جاري تحميل المنتجات..." />
       </AdminLayout>
     );
   }

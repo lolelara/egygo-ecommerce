@@ -53,7 +53,7 @@ export default function Categories() {
               to={category.slug ? `/category/${category.slug}` : '#'}
               className={`group ${!category.slug ? 'pointer-events-none' : ''}`}
             >
-              <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+              <Card className="overflow-hidden card-hover group">
                 <div className="relative aspect-square">
                   <img
                     src={getImageUrl(category.image) || placeholder.category(category.name)}

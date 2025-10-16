@@ -257,7 +257,7 @@ export default function Index() {
               to={`/products?category=${category.slug}`}
               className="group"
             >
-              <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group-hover:scale-105">
+              <Card className="overflow-hidden card-hover group">
                 <div className="relative">
                   <img
                     src={category.image || placeholder.category(category.name)}
