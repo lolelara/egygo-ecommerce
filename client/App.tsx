@@ -28,8 +28,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AIAssistant } from "./components/AIAssistant";
@@ -81,15 +79,15 @@ const App = () => (
                 <Routes>
                 {/* Critical routes - not lazy loaded */}
                 <Route path="/" element={<Index />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
+                <Route path="/products" element={<LazyRoutes.Products />} />
+                <Route path="/product/:id" element={<LazyRoutes.ProductDetail />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 
                 {/* Special pages - Lazy */}
                 <Route path="/categories" element={<LazyRoutes.Categories />} />
                 <Route path="/category" element={<LazyRoutes.Categories />} />
-                <Route path="/category/:slug" element={<Products />} />
+                <Route path="/category/:slug" element={<LazyRoutes.Products />} />
                 
                 {/* Affiliate public pages */}
                 <Route path="/affiliate" element={<LazyRoutes.Affiliate />} />

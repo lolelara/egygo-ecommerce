@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AppwriteService, { databases, appwriteConfig } from '../lib/appwrite';
+import { Query } from 'appwrite';
 
 interface User {
   $id: string;
@@ -84,7 +85,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Try to get user data from userPreferences collection
         let userData: any = {};
         try {
-          const { Query } = await import('appwrite');
           const userPrefsResponse = await databases.listDocuments(
             appwriteConfig.databaseId,
             'userPreferences',
@@ -286,8 +286,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Create user document in users collection for admin dashboard
       try {
-        const { databases, appwriteConfig } = await import('@/lib/appwrite');
-        
         await databases.createDocument(
           appwriteConfig.databaseId,
           appwriteConfig.collections.users,
