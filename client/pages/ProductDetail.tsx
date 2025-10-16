@@ -528,7 +528,7 @@ export default function ProductDetail() {
               <div className="flex gap-3">
                 <Button
                   size="lg"
-                  className="flex-1"
+                  className="flex-1 btn-hover-lift"
                   onClick={handleAddToCart}
                   disabled={totalStock === 0}
                 >

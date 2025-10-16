@@ -28,6 +28,7 @@ import {
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { Link, Navigate } from "react-router-dom";
+import { PageLoader } from "@/components/ui/loading-screen";
 import PendingApprovalScreen from "@/components/PendingApprovalScreen";
 import { 
   getMerchantStats, 
@@ -93,12 +94,7 @@ export default function MerchantDashboard() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="flex items-center justify-center h-[60vh]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">جاري تحميل البيانات...</p>
-          </div>
-        </div>
+        <PageLoader message="جاري تحميل لوحة التحكم..." />
       </AdminLayout>
     );
   }

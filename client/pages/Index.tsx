@@ -151,7 +151,7 @@ export default function Index() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="text-primary font-semibold"
+                  className="text-primary font-semibold btn-hover-lift"
                   asChild
                 >
                   <Link to="/products">
@@ -162,7 +162,7 @@ export default function Index() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 btn-hover-lift"
                   asChild
                 >
                   <Link to="/affiliate">

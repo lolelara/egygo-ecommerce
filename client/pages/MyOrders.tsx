@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { ordersApi, queryKeys } from "@/lib/api";
+import { PageLoader } from "@/components/ui/loading-screen";
 
 interface Order {
   id: string;
@@ -119,14 +120,7 @@ export default function MyOrders() {
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">جاري تحميل طلباتك...</p>
-        </div>
-      </div>
-    );
+    return <PageLoader message="جاري تحميل طلباتك..." />;
   }
 
   if (isError) {
