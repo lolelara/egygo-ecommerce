@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { customerApi } from "@/lib/customer-api";
 import { account } from "@/lib/appwrite-client";
+import { placeholder } from "@/lib/placeholder";
 
 export default function CustomerAccount() {
   const { user } = useAuth();
@@ -421,7 +422,7 @@ export default function CustomerAccount() {
                       <Card key={item.$id}>
                         <CardContent className="p-4">
                           <img
-                            src={item.productImage || "/placeholder.svg"}
+                            src={item.productImage || placeholder.product(item.productName)}
                             alt={item.productName}
                             className="w-full h-40 object-cover rounded mb-3"
                           />

@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Heart, ShoppingCart, Trash2, Package } from "lucide-react";
 import SEO from "@/components/SEO";
 import { getImageUrl } from "@/lib/storage";
+import { PageLoader } from "@/components/ui/loading-screen";
 
 export default function Wishlist() {
   const { user } = useAuth();
@@ -74,16 +75,7 @@ export default function Wishlist() {
   }
 
   if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <Package className="mx-auto h-12 w-12 text-muted-foreground animate-pulse" />
-            <p className="mt-4 text-muted-foreground">جاري التحميل...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoader message="جاري تحميل قائمة المفضلة..." />;
   }
 
   return (

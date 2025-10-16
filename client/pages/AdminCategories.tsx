@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Category } from "@shared/api";
 import { adminCategoriesApi } from "@/lib/admin-api";
 import { categoriesApi } from "@/lib/api";
+import { placeholder } from "@/lib/placeholder";
 
 const CategoryForm = ({
   category,
@@ -145,7 +146,7 @@ const CategoryForm = ({
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, image: e.target.value }))
           }
-          placeholder="/placeholder.svg"
+          placeholder="رابط الصورة"
         />
       </div>
 
@@ -380,7 +381,7 @@ export default function AdminCategories() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
-                          src={category.image || "/placeholder.svg"}
+                          src={category.image || placeholder.category(category.name)}
                           alt={category.name}
                           className="w-10 h-10 rounded object-cover"
                         />

@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Copy, ExternalLink, DollarSign, TrendingUp, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import QuickShareButtons from "@/components/affiliate/QuickShareButtons";
+import { placeholder } from "@/lib/placeholder";
 
 interface Product {
   $id: string;
@@ -181,7 +182,7 @@ export default function AffiliateProductLinks() {
                   >
                     <div className="flex items-start gap-4 mb-4">
                       <img
-                        src={product.images[0] || "/placeholder.svg"}
+                        src={product.images[0] || placeholder.product(product.name)}
                         alt={product.name}
                         className="w-16 h-16 object-cover rounded"
                       />

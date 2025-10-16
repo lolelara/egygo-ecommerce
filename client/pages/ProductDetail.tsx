@@ -30,6 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import ProductReviews from "@/components/ProductReviews";
 import { placeholder } from "@/lib/placeholder";
+import { PageLoader } from "@/components/ui/loading-screen";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -143,11 +144,7 @@ export default function ProductDetail() {
   }, [product]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <PageLoader message="جاري تحميل تفاصيل المنتج..." />;
   }
 
   if (!product) {

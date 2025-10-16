@@ -6,6 +6,7 @@ import { Loader2, Package } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getImageUrl } from "@/lib/storage";
 import { CategoryCardSkeleton } from "@/components/LoadingSkeletons";
+import { placeholder } from "@/lib/placeholder";
 
 export default function Categories() {
   const { data: categoriesData, isLoading } = useQuery({
@@ -55,7 +56,7 @@ export default function Categories() {
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 group-hover:scale-105">
                 <div className="relative aspect-square">
                   <img
-                    src={getImageUrl(category.image) || "/placeholder.svg"}
+                    src={getImageUrl(category.image) || placeholder.category(category.name)}
                     alt={category.name}
                     className="w-full h-full object-cover"
                   />
