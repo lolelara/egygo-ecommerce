@@ -1981,6 +1981,13 @@ const updateVendoorProducts = async (req, res) => {
     });
   }
 };
+const warmupHandler = async (req, res) => {
+  res.json({
+    status: "warm",
+    timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+    message: "Vendoor Function is ready"
+  });
+};
 const VENDOOR_EMAIL = "almlmibrahym574@gmail.com";
 const VENDOOR_PASSWORD = "hema2004";
 const BASE = "https://aff.ven-door.com";
@@ -2083,13 +2090,12 @@ async function scrapeProductsPage(page, pageNum) {
 }
 async function syncVendoorProducts() {
   console.log("🔄 [CRON] Starting Vendoor products sync...");
-  let browser;
   try {
-    browser = await chromium.launch({
+    const browser2 = await chromium.launch({
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
-    const page = await browser.newPage();
+    const page = await browser2.newPage();
     await loginToVendoor(page, VENDOOR_EMAIL, VENDOOR_PASSWORD);
     const allProducts = [];
     for (let p = 1; p <= 41; p++) {
@@ -2102,7 +2108,7 @@ async function syncVendoorProducts() {
       console.log(`📦 [CRON] Scraped page ${p}: ${products.length} products`);
       await sleep(400);
     }
-    await browser.close();
+    await browser2.close();
     const { updateVendoorProducts: updateVendoorProducts2 } = await import("./vendoor-processor-ChBC2yBy.js");
     const results = await updateVendoorProducts2(allProducts);
     console.log(`✅ [CRON] Sync completed: ${results.updated} updated, ${results.failed} failed`);
@@ -2114,9 +2120,6 @@ async function syncVendoorProducts() {
     };
   } catch (error) {
     console.error("❌ [CRON] Error syncing Vendoor products:", error);
-    if (browser) {
-      await browser.close();
-    }
     return {
       success: false,
       error: error.message
@@ -3838,6 +3841,7 @@ function createServer() {
   app2.post("/api/admin/update-user-role", updateUserRole);
   app2.post("/api/admin/approve-user", approveUser);
   app2.get("/api/admin/orders", getOrders);
+  app2.get("/api/vendoor/warmup", warmupHandler);
   app2.post("/api/vendoor/scrape-all", scrapeAllProducts);
   app2.post("/api/vendoor/scrape-single", scrapeSingleProduct);
   app2.post("/api/vendoor/import-product", importProduct);
