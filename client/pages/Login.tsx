@@ -35,22 +35,46 @@ export default function Login() {
 
     try {
       await login(email, password);
-
-      // Redirect based on user role or to main page
-      navigate("/");
+      // Login successful - user will be updated via context
+      // Navigation will happen in useEffect below
     } catch (err: any) {
       setError(
         err?.message || "حدث خطأ أثناء تسجيل الدخول",
       );
-    } finally {
       setIsLoading(false);
     }
   };
 
-  // Redirect if already authenticated
+  // Smart redirect when user is authenticated
+  useEffect(() => {
+    if (user && !isLoading) {
+      // 1. Check if there's a saved redirect path
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+      if (redirectPath && !redirectPath.includes('/login') && !redirectPath.includes('/register')) {
+        sessionStorage.removeItem('redirectAfterLogin');
+        navigate(redirectPath);
+        return;
+      }
+
+      // 2. Redirect based on user role
+      if (user.role === 'admin') {
+        navigate("/admin");
+      } else if (user.isMerchant) {
+        navigate("/merchant/dashboard");
+      } else if (user.isAffiliate) {
+        navigate("/affiliate/dashboard");
+      } else if (user.isIntermediary) {
+        navigate("/intermediary/dashboard");
+      } else {
+        // Regular customer - go to homepage
+        navigate("/");
+      }
+    }
+  }, [user, isLoading, navigate]);
+
+  // Don't render login form if already authenticated
   if (user) {
-    navigate("/");
-    return null;
+    return null; // useEffect will handle redirect
   }
 
   return (

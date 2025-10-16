@@ -49,7 +49,10 @@ export function ProtectedRoute({
 
   // Check if authentication is required
   if (requireAuth && !user) {
-    return <Navigate to="/login" state={{ from: window.location.pathname }} replace />;
+    // Save current page for redirect after login
+    const currentPath = window.location.pathname + window.location.search;
+    sessionStorage.setItem('redirectAfterLogin', currentPath);
+    return <Navigate to="/login" state={{ from: currentPath }} replace />;
   }
 
   // Check permission-based access (more granular than role)
@@ -60,12 +63,20 @@ export function ProtectedRoute({
         <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-red-50 to-orange-50">
           <Alert variant="destructive" className="max-w-md">
             <ShieldAlert className="h-5 w-5" />
-            <AlertTitle className="text-xl font-bold">غير مصرح</AlertTitle>
+            <AlertTitle className="text-xl font-bold">🚫 غير مصرح</AlertTitle>
             <AlertDescription className="mt-2">
-              <p className="mb-4">ليس لديك صلاحية للوصول إلى هذه الصفحة.</p>
-              <Button onClick={() => window.location.href = getDashboardRoute(userRole)}>
-                العودة للوحة التحكم
-              </Button>
+              <p className="mb-2 font-semibold">ليس لديك صلاحية للوصول إلى هذه الصفحة.</p>
+              <p className="text-sm text-muted-foreground mb-4">
+                الصفحة المطلوبة تحتاج صلاحية: <strong>{requiredPermission}</strong>
+              </p>
+              <div className="flex gap-2">
+                <Button onClick={() => window.location.href = getDashboardRoute(userRole)} className="btn-hover-lift">
+                  العودة للوحة التحكم
+                </Button>
+                <Button onClick={() => window.location.href = '/'} variant="outline">
+                  الصفحة الرئيسية
+                </Button>
+              </div>
             </AlertDescription>
           </Alert>
         </div>
@@ -86,18 +97,22 @@ export function ProtectedRoute({
     // Special handling for intermediary, affiliate, and merchant
     if (requiredRole === 'intermediary') {
       if (!user.isIntermediary) {
-        return <Navigate to="/" replace />;
+        // Redirect to appropriate dashboard
+        const redirectPath = getDashboardRoute(userRole);
+        return <Navigate to={redirectPath} replace />;
       }
     } else if (requiredRole === 'affiliate') {
       if (!user.isAffiliate) {
+        // Show affiliate signup page for non-affiliates
         return <Navigate to="/affiliate" replace />;
       }
     } else if (requiredRole === 'merchant') {
       if (!user.isMerchant) {
+        // Show merchant signup page for non-merchants
         return <Navigate to="/merchant" replace />;
       }
     } else if (user.role !== requiredRole) {
-      // For other roles (admin, customer), check exact role match
+      // For other roles (admin, customer), redirect to their dashboard
       const redirectPath = fallbackPath || getDashboardRoute(userRole);
       return <Navigate to={redirectPath} replace />;
     }
