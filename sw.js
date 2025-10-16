@@ -15,6 +15,7 @@ const urlsToCache = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
+      .then(cache => {
         console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
@@ -80,16 +81,29 @@ self.addEventListener('fetch', event => {
                   event.request.url.startsWith('https://')) {
                 cache.put(event.request, responseToCache);
               }
-            });
+            })
+            .catch(err => console.error('Cache put error:', err));
 
           return response;
+        }).catch(error => {
+          console.error('Fetch failed:', error);
+          
+          // Offline fallback for HTML pages
+          if (event.request.destination === 'document') {
+            return caches.match('/offline.html');
+          }
+          
+          // Return a simple error response for other requests
+          return new Response('Network error', {
+            status: 408,
+            statusText: 'Request Timeout'
+          });
         });
       })
-      .catch(() => {
-        // Offline fallback for HTML pages
-        if (event.request.destination === 'document') {
-          return caches.match('/offline.html');
-        }
+      .catch(error => {
+        console.error('Cache match error:', error);
+        // Try to fetch anyway
+        return fetch(event.request);
       })
   );
 });

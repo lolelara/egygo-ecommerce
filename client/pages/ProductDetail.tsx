@@ -29,6 +29,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import ProductReviews from "@/components/ProductReviews";
+import { placeholder } from "@/lib/placeholder";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -162,7 +163,7 @@ export default function ProductDetail() {
 
   const images = product.images?.length
     ? product.images
-    : [{ url: "https://via.placeholder.com/600x600?text=No+Image", alt: product?.name || "منتج" }];
+    : [{ url: placeholder.product(product?.name), alt: product?.name || "منتج" }];
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
