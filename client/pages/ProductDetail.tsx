@@ -141,7 +141,7 @@ export default function ProductDetail() {
       console.error('❌ Error parsing inventory:', error);
       setTotalStock(999);
     }
-  }, [product]);
+  }, [product?.id, product?.colorSizeInventory, product?.stock, product?.stockQuantity]);
 
   if (isLoading) {
     return <PageLoader message="جاري تحميل تفاصيل المنتج..." />;
