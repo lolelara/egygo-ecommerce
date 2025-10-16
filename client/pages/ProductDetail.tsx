@@ -44,8 +44,61 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState("");
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
-  const [totalStock, setTotalStock] = useState<number>(0);
-  const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
+
+  // Fetch product details
+  const { data: product, isLoading } = useQuery({
+    queryKey: [...queryKeys.products, id],
+    queryFn: () => productsApi.getById(id!),
+    enabled: !!id,
+  });
+  
+  // Calculate inventory from product data (using useMemo to prevent infinite loops)
+  const inventory = useMemo(() => {
+    if (!product) return [];
+    
+    try {
+      const inventoryData = (product as any).colorSizeInventory;
+      
+      if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
+        const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
+        
+        if (parsed.length > 0) {
+          console.log('📦 Product inventory loaded:', { inventory: parsed });
+          return parsed;
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error parsing inventory:', error);
+    }
+    
+    return [];
+  }, [product?.id, (product as any)?.colorSizeInventory]);
+  
+  // Calculate total stock from inventory (using useMemo)
+  const totalStock = useMemo(() => {
+    if (!product) return 0;
+    
+    // If we have inventory with quantities
+    if (inventory.length > 0) {
+      const total = inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      console.log('📦 Total stock from inventory:', total);
+      return total;
+    }
+    
+    // Fallback: Check if product has colors/sizes
+    const colors = (product as any).colors || [];
+    const sizes = (product as any).sizes || [];
+    
+    if (colors.length > 0 || sizes.length > 0) {
+      console.log('✅ Product has colors/sizes, defaulting to stock: 999');
+      return 999;
+    }
+    
+    // Use old stock field
+    const oldStock = (product as any).stock || product.stockQuantity || 0;
+    console.log('📦 Using old stock or default:', oldStock || 999);
+    return oldStock > 0 ? oldStock : 999;
+  }, [product?.id, inventory]);
 
   // Color mappings (للترجمة والعرض)
   const colorMappings: Record<string, {name: string, hex: string, border?: boolean}> = {
@@ -63,7 +116,7 @@ export default function ProductDetail() {
 
   // استخراج الألوان المتاحة من الـ inventory
   const availableColors = useMemo(() => {
-    if (inventory.length === 0) return [];
+    if (!inventory || inventory.length === 0) return [];
     
     const uniqueColors = [...new Set(inventory
       .filter(item => item.quantity > 0 && item.color)
@@ -80,7 +133,7 @@ export default function ProductDetail() {
 
   // استخراج المقاسات المتاحة من الـ inventory
   const availableSizes = useMemo(() => {
-    if (inventory.length === 0) return [];
+    if (!inventory || inventory.length === 0) return [];
     
     const uniqueSizes = [...new Set(inventory
       .filter(item => item.quantity > 0 && item.size)
@@ -97,51 +150,6 @@ export default function ProductDetail() {
       return aIndex - bIndex;
     });
   }, [inventory]);
-
-  // Fetch product details
-  const { data: product, isLoading } = useQuery({
-    queryKey: [...queryKeys.products, id],
-    queryFn: () => productsApi.getById(id!),
-    enabled: !!id,
-  });
-  
-  // Calculate total stock from inventory system
-  useEffect(() => {
-    if (!product) return;
-    
-    try {
-      const inventoryData = (product as any).colorSizeInventory;
-      
-      if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
-        const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
-        
-        if (parsed.length > 0) {
-          setInventory(parsed);
-          const total = parsed.reduce((sum, item) => sum + (item.quantity || 0), 0);
-          setTotalStock(total);
-          console.log('📦 Product inventory loaded:', { total, inventory: parsed });
-          return;
-        }
-      }
-      
-      // Fallback: Check if product has colors/sizes
-      const colors = (product as any).colors || [];
-      const sizes = (product as any).sizes || [];
-      
-      if (colors.length > 0 || sizes.length > 0) {
-        setTotalStock(999);
-        console.log('✅ Product has colors/sizes, defaulting to stock: 999');
-      } else {
-        const oldStock = (product as any).stock || product.stockQuantity || 0;
-        setTotalStock(oldStock > 0 ? oldStock : 999);
-        console.log('📦 Using old stock or default:', oldStock || 999);
-      }
-      
-    } catch (error) {
-      console.error('❌ Error parsing inventory:', error);
-      setTotalStock(999);
-    }
-  }, [product?.id, product?.colorSizeInventory, product?.stock, product?.stockQuantity]);
 
   if (isLoading) {
     return <PageLoader message="جاري تحميل تفاصيل المنتج..." />;
