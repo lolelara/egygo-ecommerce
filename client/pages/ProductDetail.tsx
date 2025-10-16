@@ -32,6 +32,20 @@ import ProductReviews from "@/components/ProductReviews";
 import { placeholder } from "@/lib/placeholder";
 import { PageLoader } from "@/components/ui/loading-screen";
 
+// Color mappings (للترجمة والعرض) - خارج الـ component لمنع re-creation
+const COLOR_MAPPINGS: Record<string, {name: string, hex: string, border?: boolean}> = {
+  'black': { name: "أسود", hex: "#000000" },
+  'white': { name: "أبيض", hex: "#FFFFFF", border: true },
+  'blue': { name: "أزرق", hex: "#3B82F6" },
+  'red': { name: "أحمر", hex: "#EF4444" },
+  'green': { name: "أخضر", hex: "#10B981" },
+  'yellow': { name: "أصفر", hex: "#FBBF24" },
+  'purple': { name: "بنفسجي", hex: "#A855F7" },
+  'pink': { name: "وردي", hex: "#EC4899" },
+  'gray': { name: "رمادي", hex: "#6B7280" },
+  'brown': { name: "بني", hex: "#92400E" },
+};
+
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -50,6 +64,8 @@ export default function ProductDetail() {
     queryKey: [...queryKeys.products, id],
     queryFn: () => productsApi.getById(id!),
     enabled: !!id,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
   
   // Calculate inventory from product data (using useMemo to prevent infinite loops)
@@ -100,20 +116,6 @@ export default function ProductDetail() {
     return oldStock > 0 ? oldStock : 999;
   }, [product?.id, inventory]);
 
-  // Color mappings (للترجمة والعرض)
-  const colorMappings: Record<string, {name: string, hex: string, border?: boolean}> = {
-    'black': { name: "أسود", hex: "#000000" },
-    'white': { name: "أبيض", hex: "#FFFFFF", border: true },
-    'blue': { name: "أزرق", hex: "#3B82F6" },
-    'red': { name: "أحمر", hex: "#EF4444" },
-    'green': { name: "أخضر", hex: "#10B981" },
-    'yellow': { name: "أصفر", hex: "#FBBF24" },
-    'purple': { name: "بنفسجي", hex: "#A855F7" },
-    'pink': { name: "وردي", hex: "#EC4899" },
-    'gray': { name: "رمادي", hex: "#6B7280" },
-    'brown': { name: "بني", hex: "#92400E" },
-  };
-
   // استخراج الألوان المتاحة من الـ inventory
   const availableColors = useMemo(() => {
     if (!inventory || inventory.length === 0) return [];
@@ -124,10 +126,10 @@ export default function ProductDetail() {
     )];
     
     return uniqueColors.map(color => ({
-      name: colorMappings[color]?.name || color,
+      name: COLOR_MAPPINGS[color]?.name || color,
       value: color,
-      hex: colorMappings[color]?.hex || '#999999',
-      border: colorMappings[color]?.border,
+      hex: COLOR_MAPPINGS[color]?.hex || '#999999',
+      border: COLOR_MAPPINGS[color]?.border,
     }));
   }, [inventory]);
 
