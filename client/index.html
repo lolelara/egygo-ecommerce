@@ -82,10 +82,27 @@
     <!-- Register Service Worker for PWA -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(registration => console.log('SW registered:', registration))
-            .catch(error => console.log('SW registration failed:', error));
+        window.addEventListener('load', async () => {
+          try {
+            // Clear old service workers and caches first
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (let registration of registrations) {
+              await registration.unregister();
+            }
+            
+            const cacheNames = await caches.keys();
+            for (let name of cacheNames) {
+              await caches.delete(name);
+            }
+            
+            console.log('Old SW and caches cleared');
+            
+            // Register new service worker
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('SW registered:', registration);
+          } catch (error) {
+            console.log('SW registration failed:', error);
+          }
         });
       }
     </script>
