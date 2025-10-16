@@ -6,7 +6,6 @@ import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Client, Functions, ExecutionMethod } from 'appwrite';
 import { buildUserContext, buildAdminContext } from '@/lib/ai-context-builder';
 
 interface Message {
@@ -25,13 +24,6 @@ interface AITip {
     link: string;
   };
 }
-
-// Initialize Appwrite client for Functions
-const client = new Client()
-  .setEndpoint('https://fra.cloud.appwrite.io/v1')
-  .setProject('68d8b9db00134c41e7c8');
-
-const functions = new Functions(client);
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -345,7 +337,13 @@ export function AIAssistant() {
     setIsTyping(true);
 
     try {
-      console.log('✅ Using Appwrite Functions SDK...');
+      console.log('✅ Calling OpenAI API directly...');
+      
+      // Get API key from env
+      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      if (!apiKey) {
+        throw new Error('API key not configured');
+      }
       
       // Check if user is asking for contextual data
       const contextualKeywords = ['راجع', 'شوف بياناتي', 'تقرير', 'نصائح', 'نصيحة', 'جدول تطوير', 'حسابي'];
@@ -368,18 +366,32 @@ export function AIAssistant() {
         content: messageToSend
       });
 
-      // Call Appwrite Function using SDK (handles CORS automatically)
-      const execution = await functions.createExecution(
-        'openai-chat',
-        JSON.stringify({ messages: chatRef.current }),
-        false,
-        '/',
-        ExecutionMethod.POST
-      );
+      // Call OpenAI API directly
+      console.log('📡 Sending request to OpenAI...');
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: chatRef.current,
+          temperature: 0.7,
+          max_tokens: 500
+        })
+      });
 
-      // Parse the response
-      const data = JSON.parse(execution.responseBody);
-      const aiText = data.message || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ OpenAI API Error:', response.status, errorData);
+        throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ OpenAI Response:', data);
+      
+      const aiText = data.choices?.[0]?.message?.content || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
 
       // Add assistant response to history
       chatRef.current.push({

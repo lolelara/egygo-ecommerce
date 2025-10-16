@@ -35,6 +35,10 @@ class ProductAIService {
   constructor() {
     // Get API key from environment or use empty string
     this.apiKey = env.OPENAI_API_KEY;
+    console.log('ProductAIService initialized, API Key present:', !!this.apiKey);
+    if (this.apiKey && this.apiKey.length > 0) {
+      console.log('API Key preview:', this.apiKey.substring(0, 10) + '...');
+    }
   }
 
   /**
@@ -72,6 +76,7 @@ class ProductAIService {
 }`;
 
     try {
+      console.log('🚀 Calling OpenAI API for product description enhancement...');
       const response = await fetch(this.apiEndpoint, {
         method: 'POST',
         headers: {
@@ -96,10 +101,19 @@ class ProductAIService {
       });
 
       if (!response.ok) {
-        throw new Error(`OpenAI API error: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ OpenAI API Error:', response.status, errorData);
+        throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
       }
 
       const data = await response.json();
+      console.log('✅ OpenAI Response received:', data);
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        console.error('❌ Invalid API response structure:', data);
+        throw new Error('Invalid API response structure');
+      }
+      
       const content = data.choices[0].message.content;
       
       // Parse JSON response

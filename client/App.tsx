@@ -143,6 +143,7 @@ const App = () => (
               <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminNotifications /></ProtectedRoute>} />
               <Route path="/admin/ai-dashboard" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAIDashboard /></ProtectedRoute>} />
               <Route path="/admin/ai-tools" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.ProductAIDemo /></ProtectedRoute>} />
+              <Route path="/test-ai" element={<LazyRoutes.TestAI />} />
               
               {/* Merchant Routes - Protected & Lazy */}
               <Route path="/merchant/dashboard" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantDashboard /></ProtectedRoute>} />

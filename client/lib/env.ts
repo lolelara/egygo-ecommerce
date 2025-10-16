@@ -17,10 +17,12 @@ function getEnvVar(key: keyof EnvVars): string {
   // Type-safe access to environment variables
   try {
     // @ts-ignore - Vite specific import.meta.env
-    const env = (globalThis as any).import?.meta?.env || {};
-    return (env[key] as string) || '';
+    if (typeof import !== 'undefined' && import.meta && import.meta.env) {
+      // @ts-ignore
+      return (import.meta.env[key] as string) || '';
+    }
   } catch (e) {
-    // Fallback for non-Vite environments
+    console.error('Error accessing env var:', key, e);
   }
   return '';
 }

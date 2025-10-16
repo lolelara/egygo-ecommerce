@@ -100,6 +100,7 @@ export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotificati
 export const AdminCoupons = lazyLoad(() => import('@/pages/AdminCoupons'));
 export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'));
 export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
+export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 
 // STATIC/INFO PAGES (Low Priority - Lazy)
 // ============================================
