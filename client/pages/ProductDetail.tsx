@@ -162,7 +162,7 @@ export default function ProductDetail() {
 
   const images = product.images?.length
     ? product.images
-    : [{ url: "https://via.placeholder.com/600x600?text=No+Image", alt: product.name }];
+    : [{ url: "https://via.placeholder.com/600x600?text=No+Image", alt: product?.name || "منتج" }];
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -582,7 +582,7 @@ export default function ProductDetail() {
                   </div>
                   <div className="grid grid-cols-2 gap-4 py-2 border-b">
                     <span className="font-semibold">الفئة</span>
-                    <span>{product.category.name}</span>
+                    <span>{product.category?.name || 'غير محدد'}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4 py-2 border-b">
                     <span className="font-semibold">الحالة</span>

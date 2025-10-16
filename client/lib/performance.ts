@@ -388,8 +388,9 @@ export function initPerformanceOptimizations(): void {
   ResourceHints.preconnect('https://api.egygo.com');
 
   // Preload critical resources
-  ResourcePreloader.preloadCSS('/fonts/inter.css');
-  ResourcePreloader.preloadFont('/fonts/inter-var.woff2');
+  // Disabled: fonts are loaded via @fontsource packages
+  // ResourcePreloader.preloadCSS('/fonts/inter.css');
+  // ResourcePreloader.preloadFont('/fonts/inter-var.woff2');
 
   // Register service worker
   ServiceWorkerManager.register();
