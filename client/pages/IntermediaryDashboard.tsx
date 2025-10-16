@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { useNavigate } from 'react-router-dom';
+import { databases } from '@/lib/appwrite';
+import { Query } from 'appwrite';
 import { Package, DollarSign, ShoppingCart, ExternalLink, RefreshCw, Plus, Edit, RotateCw, Clock, Download } from 'lucide-react';
 import { 
   importProductFromUrl, 
@@ -302,8 +304,6 @@ export default function IntermediaryDashboard() {
     const loadIntermediaryInfo = async () => {
       if (!user) return;
       try {
-        const { databases } = await import('@/lib/appwrite');
-        const { Query } = await import('appwrite');
         const response = await databases.listDocuments(
           import.meta.env.VITE_APPWRITE_DATABASE_ID,
           'userPreferences',
