@@ -15,6 +15,7 @@ import {
   Heart
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageLoader } from '@/components/ui/loading-screen';
 
 interface Product {
   id: string;
@@ -125,18 +126,7 @@ export default function CategoryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-48 bg-gray-200 rounded-lg mb-8"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-64 bg-gray-200 rounded-lg"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
+    return <PageLoader message="جاري تحميل المنتجات..." />;
   }
 
   return (
@@ -175,7 +165,7 @@ export default function CategoryPage() {
       {/* Filters and Sort */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="btn-hover-lift">
             <Filter className="h-4 w-4 ml-2" />
             تصفية
           </Button>
@@ -218,7 +208,7 @@ export default function CategoryPage() {
         : 'space-y-4'
       }>
         {products.map(product => (
-          <Card key={product.id} className={viewMode === 'list' ? 'flex' : ''}>
+          <Card key={product.id} className={`card-hover ${viewMode === 'list' ? 'flex' : ''}`}>
             <div className={viewMode === 'list' ? 'w-48' : ''}>
               <div className="relative aspect-square overflow-hidden rounded-t-lg">
                 <img 
@@ -264,7 +254,7 @@ export default function CategoryPage() {
               <div className="flex gap-2">
                 <Button 
                   size="sm" 
-                  className="flex-1"
+                  className="flex-1 btn-hover-lift"
                   disabled={!product.inStock}
                   onClick={() => handleAddToCart(product.id)}
                 >
@@ -287,11 +277,11 @@ export default function CategoryPage() {
       {/* Pagination */}
       <div className="flex justify-center mt-8">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">السابق</Button>
-          <Button variant="default" size="sm">1</Button>
-          <Button variant="outline" size="sm">2</Button>
-          <Button variant="outline" size="sm">3</Button>
-          <Button variant="outline" size="sm">التالي</Button>
+          <Button variant="outline" size="sm" className="btn-hover-lift">السابق</Button>
+          <Button variant="default" size="sm" className="btn-hover-lift">1</Button>
+          <Button variant="outline" size="sm" className="btn-hover-lift">2</Button>
+          <Button variant="outline" size="sm" className="btn-hover-lift">3</Button>
+          <Button variant="outline" size="sm" className="btn-hover-lift">التالي</Button>
         </div>
       </div>
     </div>
