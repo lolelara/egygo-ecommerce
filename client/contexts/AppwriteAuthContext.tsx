@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Check if Appwrite is configured
       if (!AppwriteService.isConfigured()) {
-        console.log('Appwrite not configured, using fallback auth');
+        console.debug('Appwrite not configured, using fallback auth');
         setUser(null);
         return;
       }
@@ -178,8 +178,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUser(null);
       }
-    } catch (error) {
-      console.error('Error checking auth user:', error);
+    } catch (error: any) {
+      // Silently handle 401 Unauthorized (user not logged in)
+      if (error?.code === 401 || error?.type === 'general_unauthorized_scope') {
+        console.debug('User not authenticated');
+      } else {
+        console.error('Error checking auth user:', error);
+      }
       setUser(null);
     } finally {
       setLoading(false);
