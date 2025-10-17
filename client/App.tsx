@@ -32,7 +32,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
 import { AIAssistant } from "./components/AIAssistant";
-import { Breadcrumbs } from "./components/Breadcrumbs";
 import { initPerformanceOptimizations } from './lib/performance';
 import { CookieConsent } from "./components/CookieConsent";
 import { NotificationPermission } from "./components/NotificationPermission";
@@ -56,8 +55,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen flex flex-col">
       <AnnouncementBar />
       <Header cartItemCount={0} />
-      {/* Breadcrumbs: hide on home page only */}
-      {location.pathname !== "/" && <Breadcrumbs />}
+      {/* Breadcrumbs removed to maximize screen space */}
       <main className="flex-1">{children}</main>
       <Footer />
       <ScrollToTopButton />

@@ -81,6 +81,15 @@ export function AnnouncementBar() {
     }
   };
 
+  // Auto-hide after 6 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, 6000); // 6 seconds
+
+    return () => clearTimeout(timer);
+  }, []); // Run only once on mount
+
   // Auto-rotate offers every 5 seconds
   useEffect(() => {
     if (offers.length <= 1) return;
