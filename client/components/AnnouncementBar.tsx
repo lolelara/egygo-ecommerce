@@ -65,8 +65,8 @@ export function AnnouncementBar() {
       // This is expected behavior until the offers collection is created
       setOffers([{
         id: 'default',
-        title: '🎉 عروض خاصة!',
-        description: 'شحن مجاني على جميع الطلبات فوق 500 ج.م',
+        title: '💼 انضم لفريق الشركاء!',
+        description: 'سجّل الآن كتاجر أو مسوق واحصل على عمولات مميزة وأرباح مستمرة',
         backgroundColor: 'from-brand-purple via-brand-orange to-brand-purple',
         textColor: 'text-white',
         isActive: true,

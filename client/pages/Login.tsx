@@ -106,7 +106,7 @@ export default function Login() {
               <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
                 <Truck className="h-6 w-6" />
               </div>
-              <div>شحن مجاني فوق 500 ج.م</div>
+              <div>توصيل سريع وآمن</div>
             </div>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">

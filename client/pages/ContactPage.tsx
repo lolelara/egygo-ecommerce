@@ -210,9 +210,9 @@ export default function ContactPage() {
               <div className="flex items-start gap-3">
                 <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-semibold mb-1">هل الشحن مجاني؟</h4>
+                  <h4 className="font-semibold mb-1">كيف أصبح تاجر أو مسوق؟</h4>
                   <p className="text-sm text-muted-foreground">
-                    نعم، الشحن مجاني لجميع الطلبات فوق 500 ج.م
+                    سجّل حساب تاجر أو مسوق من صفحة التسجيل واحصل على عمولات مميزة على كل عملية بيع
                   </p>
                 </div>
               </div>

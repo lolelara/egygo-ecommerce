@@ -546,9 +546,9 @@ export default function ProductDetail() {
                     <Truck className="h-5 w-5 text-green-600" />
                   </div>
                   <div>
-                    <p className="font-bold">شحن مجاني 🚚</p>
+                    <p className="font-bold">توصيل سريع 🚚</p>
                     <p className="text-sm text-muted-foreground">
-                      للطلبات فوق 500 ج.م
+                      خلال 2-5 أيام عمل
                     </p>
                   </div>
                 </div>
@@ -652,10 +652,10 @@ export default function ProductDetail() {
                 <div>
                   <h3 className="font-semibold mb-3">سياسة الشحن</h3>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>• شحن مجاني للطلبات فوق 500 ج.م</li>
                     <li>• التوصيل خلال 2-5 أيام عمل</li>
                     <li>• الدفع عند الاستلام متاح</li>
                     <li>• تتبع الشحنة متاح لجميع الطلبات</li>
+                    <li>• أسعار الشحن تُحسب حسب الوزن والمنطقة</li>
                   </ul>
                 </div>
                 <Separator />

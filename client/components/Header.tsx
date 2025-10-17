@@ -61,7 +61,7 @@ export function Header({ cartItemCount }: HeaderProps) {
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-4">
-              <span className="text-muted-foreground hidden sm:inline">🎉 شحن مجاني للطلبات فوق 500 ج.م</span>
+              <span className="text-muted-foreground hidden sm:inline">💼 سجّل كتاجر أو مسوق واربح عمولات مميزة!</span>
             </div>
             <div className="flex items-center gap-1">
               <LanguageToggle />

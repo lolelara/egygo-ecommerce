@@ -342,31 +342,10 @@ export default function Cart() {
                         <Truck className="h-4 w-4" />
                         <span className="text-muted-foreground">الشحن</span>
                       </div>
-                      <span className={shipping === 0 ? "text-green-600 dark:text-green-400" : ""}>
+                      <span>
                         {shipping === 0 ? "مجاني" : `${shipping} ج.م`}
                       </span>
                     </div>
-
-                    {subtotalAfterDiscount < 500 ? (
-                      <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/20 dark:to-yellow-950/20 rounded-lg space-y-2">
-                        <div className="flex items-center justify-between text-xs font-medium">
-                          <span>الشحن المجاني</span>
-                          <span className="text-primary">{Math.round((subtotalAfterDiscount / 500) * 100)}%</span>
-                        </div>
-                        <Progress value={(subtotalAfterDiscount / 500) * 100} className="h-2" />
-                        <p className="text-xs text-muted-foreground">
-                          <Package className="h-3 w-3 inline-block ml-1" />
-                          أضف <span className="font-bold text-primary">{(500 - subtotalAfterDiscount).toLocaleString()} ج.م</span> للحصول على شحن مجاني 🎉
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg">
-                        <div className="flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
-                          <CheckCircle className="h-4 w-4" />
-                          مبروك! الشحن مجاني 🎉
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <Separator />
