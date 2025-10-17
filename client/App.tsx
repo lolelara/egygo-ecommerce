@@ -30,6 +30,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { I18nProvider } from "./lib/i18n";
 import { AIAssistant } from "./components/AIAssistant";
 import { Breadcrumbs } from "./components/Breadcrumbs";
 import { initPerformanceOptimizations } from './lib/performance';
@@ -74,13 +75,14 @@ const App = () => (
     <HelmetProvider>
       <ParallaxProvider>
         <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <CartProvider>
-                <FavoritesProvider>
-                  <TooltipProvider>
-                    <Toaster position="top-center" richColors closeButton />
-                    <HashRouter>
+          <I18nProvider defaultLocale="ar">
+            <QueryClientProvider client={queryClient}>
+              <AuthProvider>
+                <CartProvider>
+                  <FavoritesProvider>
+                    <TooltipProvider>
+                      <Toaster position="top-center" richColors closeButton />
+                      <HashRouter>
               <Layout>
                 <Routes>
                 {/* Critical routes - not lazy loaded */}
@@ -176,11 +178,12 @@ const App = () => (
             </Routes>
           </Layout>
         </HashRouter>
-        </TooltipProvider>
-        </FavoritesProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+            </TooltipProvider>
+          </FavoritesProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+          </I18nProvider>
         </ThemeProvider>
       </ParallaxProvider>
     </HelmetProvider>
