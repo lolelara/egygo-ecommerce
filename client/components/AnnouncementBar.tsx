@@ -61,11 +61,11 @@ export function AnnouncementBar() {
         priority: doc.priority || 0
       })));
     } catch (error) {
-      console.error('Error loading offers:', error);
-      // Fallback to default offer
+      // Silently fall back to default offer if collection doesn't exist
+      // This is expected behavior until the offers collection is created
       setOffers([{
         id: 'default',
-        title: 'عروض خاصة!',
+        title: '🎉 عروض خاصة!',
         description: 'شحن مجاني على جميع الطلبات فوق 500 ج.م',
         backgroundColor: 'from-brand-purple via-brand-orange to-brand-purple',
         textColor: 'text-white',
