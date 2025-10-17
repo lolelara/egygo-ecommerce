@@ -99,8 +99,7 @@ async function createOffersCollection() {
       databaseId,
       'offers',
       'isActive',
-      true,
-      true
+      true // required, no default value
     );
     console.log('  ✓ isActive');
     
@@ -110,8 +109,7 @@ async function createOffersCollection() {
       'offers',
       'targetAudience',
       ['all', 'customer', 'affiliate', 'merchant'],
-      true,
-      'all'
+      true // required, no default value
     );
     console.log('  ✓ targetAudience');
     
@@ -120,8 +118,7 @@ async function createOffersCollection() {
       databaseId,
       'offers',
       'priority',
-      true,
-      1
+      true // required, no default value
     );
     console.log('  ✓ priority');
     
