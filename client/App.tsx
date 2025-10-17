@@ -32,6 +32,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
 import { AIAssistant } from "./components/AIAssistant";
+import { WhatsAppButton } from "./components/WhatsAppButton";
 import { initPerformanceOptimizations } from './lib/performance';
 import { CookieConsent } from "./components/CookieConsent";
 import { NotificationPermission } from "./components/NotificationPermission";
@@ -60,6 +61,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <Footer />
       <ScrollToTopButton />
       <AIAssistant />
+      <WhatsAppButton position="bottom-left" showQuickChat={true} />
       
       {/* Cookie Consent & Notification Permission */}
       <CookieConsent />
@@ -146,6 +148,7 @@ const App = () => (
               <Route path="/admin/shipping" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminShipping /></ProtectedRoute>} />
               <Route path="/admin/advanced-settings" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvancedSettings /></ProtectedRoute>} />
               <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminNotifications /></ProtectedRoute>} />
+              <Route path="/admin/whatsapp" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminWhatsAppManager /></ProtectedRoute>} />
               <Route path="/admin/ai-dashboard" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAIDashboard /></ProtectedRoute>} />
               <Route path="/admin/ai-tools" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.ProductAIDemo /></ProtectedRoute>} />
               <Route path="/test-ai" element={<LazyRoutes.TestAI />} />

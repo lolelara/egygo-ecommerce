@@ -48,6 +48,18 @@ export const translations: Translations = {
       add: 'إضافة',
       search: 'بحث...',
       filter: 'تصفية',
+    },
+    
+    // WhatsApp
+    whatsapp: {
+      chat: 'تواصل عبر واتساب',
+      title: 'دعم العملاء',
+      subtitle: 'نحن هنا للمساعدة',
+      quickMessages: 'رسائل سريعة',
+      customMessage: 'رسالة مخصصة',
+      messagePlaceholder: 'اكتب رسالتك هنا...',
+      send: 'إرسال',
+      poweredBy: 'مدعوم بواسطة',
       sort: 'ترتيب',
       reset: 'إعادة تعيين',
       apply: 'تطبيق',
@@ -370,6 +382,18 @@ export const translations: Translations = {
       error: 'An error occurred',
       warning: 'Warning',
       info: 'Information'
+    },
+    
+    // WhatsApp
+    whatsapp: {
+      chat: 'Chat on WhatsApp',
+      title: 'Customer Support',
+      subtitle: 'We are here to help',
+      quickMessages: 'Quick Messages',
+      customMessage: 'Custom Message',
+      messagePlaceholder: 'Type your message here...',
+      send: 'Send',
+      poweredBy: 'Powered by',
     },
     
     // Products
