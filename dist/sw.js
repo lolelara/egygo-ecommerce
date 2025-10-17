@@ -78,6 +78,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip cross-origin requests (like Appwrite fonts, external APIs)
+  // Only handle same-origin requests to avoid CORS issues
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // Handle different types of requests
   if (isStaticResource(request)) {
     event.respondWith(handleStaticResource(request));

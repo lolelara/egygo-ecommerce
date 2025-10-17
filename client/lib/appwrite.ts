@@ -27,7 +27,8 @@ export const appwriteConfig = {
     withdrawalRequests: 'withdrawal_requests',
     userPreferences: 'user_preferences',
     referrals: 'referrals',
-    referral_earnings: 'referral_earnings'
+    referral_earnings: 'referral_earnings',
+    offers: 'offers'  // Collection for promotional offers/announcements
   }
 };
 

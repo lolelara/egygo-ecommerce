@@ -70,7 +70,7 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# public - commented to allow sw.js and favicon.ico
 
 # Vuepress build output
 .vuepress/dist

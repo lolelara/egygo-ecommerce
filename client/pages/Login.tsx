@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles, Check, Star, Shield, Truck } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,49 +78,140 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* 3D Logo Background */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 scale-150">
-        <div className="w-[600px] h-[600px]">
-          <EgyGoLogo3D size="large" interactive={false} autoRotate={true} showParticles={false} />
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-primary via-purple-600 to-secondary text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="w-full h-full flex items-center justify-center scale-150">
+            <EgyGoLogo3D size="large" interactive={false} autoRotate={true} showParticles={false} />
+          </div>
+        </div>
+        <div className="relative z-10 max-w-md">
+          <Link to="/" className="inline-flex items-center gap-2 text-5xl font-bold mb-6">
+            <Sparkles className="w-12 h-12" />
+            إيجي جو
+          </Link>
+          <p className="text-2xl mb-8 opacity-90">
+            التسوق الذكي يبدأ هنا
+          </p>
+
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Check className="h-6 w-6" />
+              </div>
+              <div>آلاف المنتجات المميزة</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Truck className="h-6 w-6" />
+              </div>
+              <div>شحن مجاني فوق 500 ج.م</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Check className="h-6 w-6" />
+              </div>
+              <div>استرجاع سهل خلال 14 يوم</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Shield className="h-6 w-6" />
+              </div>
+              <div>دفع آمن 100%</div>
+            </div>
+          </div>
+
+          <Card className="bg-white/10 backdrop-blur border-white/20">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm mb-1">
+                    "أفضل موقع تسوق استخدمته! المنتجات عالية الجودة"
+                  </p>
+                  <p className="text-xs opacity-75">- أحمد محمد، القاهرة</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      <div className="max-w-md w-full space-y-8 relative z-10">
-        {/* Header */}
-        <GSAPAnimation animation="fadeIn" duration={1}>
-          <div className="text-center">
+      {/* Right Side - Form */}
+      <div className="flex items-center justify-center p-6 lg:p-12 bg-background">
+        <div className="w-full max-w-md space-y-8">
+          {/* Mobile Logo */}
+          <div className="text-center lg:hidden">
             <Link to="/" className="inline-flex items-center gap-2 text-3xl font-bold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent">
               <Sparkles className="w-8 h-8 text-purple-600" />
               إيجي جو
             </Link>
-            <h2 className="mt-6 text-3xl font-bold bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent">
-              تسجيل الدخول
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              أو{" "}
-              <Link
-                to="/register"
-                className="font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                إنشاء حساب جديد
-              </Link>
+          </div>
+          {/* Header */}
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold">مرحباً بعودتك</h2>
+            <p className="text-muted-foreground">
+              سجل دخولك للمتابعة
             </p>
           </div>
-        </GSAPAnimation>
 
-        {/* Login Form */}
-        <GSAPAnimation animation="slideUp" delay={0.2}>
-          <Card className="shadow-xl border-purple-100 dark:border-purple-900 backdrop-blur-sm bg-white/90 dark:bg-neutral-900/90">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-800">
-            <CardTitle className="text-2xl">أهلاً بك مرة أخرى</CardTitle>
-            <CardDescription>
-              قم بتسجيل الدخول للوصول إلى حسابك ومتابعة التسوق
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Error Message */}
+          {/* Social Login First */}
+          <div className="space-y-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={() => {
+                loginWithGoogle().catch((err) => {
+                  setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
+                  console.error(err);
+                });
+              }}
+            >
+              <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              </svg>
+              تسجيل الدخول بجوجل
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={() => {
+                loginWithFacebook().catch((err) => {
+                  setError("حدث خطأ أثناء تسجيل الدخول بـ Facebook");
+                  console.error(err);
+                });
+              }}
+            >
+              <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+              تسجيل الدخول بفيسبوك
+            </Button>
+          </div>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-background text-muted-foreground">
+                أو
+              </span>
+            </div>
+          </div>
+
+          {/* Email Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Error Message */}
               {error && (
                 <div className="p-3 text-sm text-red-600 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-md shadow-sm">
                   {error}
@@ -207,7 +298,7 @@ export default function Login() {
               </div>
 
               {/* Submit Button */}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" size="lg" className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90" disabled={isLoading}>
                 {isLoading ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -220,114 +311,36 @@ export default function Login() {
                   </div>
                 )}
               </Button>
-            </form>
+          </form>
 
-            {/* Divider */}
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-background text-muted-foreground">
-                    أو
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Login Options */}
-            <div className="mt-6 space-y-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  loginWithGoogle().catch((err) => {
-                    setError("حدث خطأ أثناء تسجيل الدخول بـ Google");
-                    console.error(err);
-                  });
-                }}
-              >
-                <svg
-                  className="w-5 h-5 ml-2 rtl:ml-0 rtl:mr-2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                متابعة بحساب Google
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  loginWithFacebook().catch((err) => {
-                    setError("حدث خطأ أثناء تسجيل الدخول بـ Facebook");
-                    console.error(err);
-                  });
-                }}
-              >
-                <svg
-                  className="w-5 h-5 ml-2 rtl:ml-0 rtl:mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-                متابعة بحساب Facebook
-              </Button>
-            </div>
-
-            {/* Affiliate Program Link */}
-            <div className="mt-6 p-4 bg-brand-orange/10 rounded-lg border border-brand-orange/20">
-              <div className="text-center">
-                <p className="text-sm text-brand-orange font-medium mb-2">
-                  💰 هل تريد الانضمام لبرنامج الشراكة؟
-                </p>
-                <Link
-                  to="/affiliate"
-                  className="text-sm text-brand-orange hover:text-brand-orange/80 font-medium underline"
-                >
-                  اكسب عمولة تصل إلى 25% من كل عملية بيع تحيلها
-                </Link>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        </GSAPAnimation>
-
-        {/* Footer Links */}
-        <GSAPAnimation animation="fadeIn" delay={0.4}>
-          <div className="text-center text-sm text-gray-600">
-          <p>
-            بتسجيل الدخول، فإنك توافق على{" "}
-            <Link to="/terms" className="text-primary hover:text-primary/80">
-              شروط الخدمة
-            </Link>{" "}
-            و{" "}
-            <Link to="/privacy" className="text-primary hover:text-primary/80">
-              سياسة الخصوصية
+          {/* Sign Up Link */}
+          <div className="text-center text-sm mt-6">
+            ليس لديك حساب؟{" "}
+            <Link to="/register" className="text-primary font-semibold hover:underline">
+              سجل الآن
             </Link>
-          </p>
+          </div>
+
+          {/* Affiliate Program */}
+          <Card className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border-orange-200 dark:border-orange-800">
+            <CardContent className="p-4 text-center">
+              <p className="text-sm font-semibold mb-1">
+                💰 انضم لبرنامج الشراكة
+              </p>
+              <Link to="/affiliate" className="text-sm text-orange-600 hover:underline">
+                اكسب عمولة تصل إلى 25%
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <div className="text-center text-xs text-muted-foreground">
+            بتسجيل الدخول، فإنك توافق على{" "}
+            <Link to="/terms" className="hover:underline">شروط الخدمة</Link>
+            {" "}و{" "}
+            <Link to="/privacy" className="hover:underline">سياسة الخصوصية</Link>
+          </div>
         </div>
-        </GSAPAnimation>
       </div>
     </div>
   );

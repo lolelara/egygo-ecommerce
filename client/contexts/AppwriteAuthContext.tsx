@@ -95,7 +95,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             userData = userPrefsResponse.documents[0];
             console.log('✅ Loaded user data from userPreferences:', userData);
           } else {
-            console.log('⚠️ No userPreferences found for user');
+            // User has no preferences yet - this is normal for new users
+            console.debug('No userPreferences found for user (normal for new users)');
           }
         } catch (error) {
           console.log('Error loading userPreferences:', error);

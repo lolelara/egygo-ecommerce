@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Star,
@@ -28,11 +28,35 @@ import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
 import { useEffect } from "react";
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useAuth } from "@/contexts/AppwriteAuthContext";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Index() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect based on user role
+  useEffect(() => {
+    if (user) {
+      // If user is a merchant, redirect to merchant dashboard
+      if (user.role === 'merchant' || user.isMerchant) {
+        navigate('/merchant/dashboard');
+        return;
+      }
+      
+      // If user is an affiliate, redirect to products page
+      if (user.isAffiliate) {
+        navigate('/products');
+        return;
+      }
+      
+      // Admin stays on homepage (can see everything)
+      // Customer stays on homepage (default shopping experience)
+    }
+  }, [user, navigate]);
+
   // Initialize GSAP animations
   useEffect(() => {
     // Only animate if elements exist
@@ -165,7 +189,7 @@ export default function Index() {
                   className="bg-white/10 border-white/30 text-white hover:bg-white/20 btn-hover-lift"
                   asChild
                 >
-                  <Link to="/affiliate">
+                  <Link to="/register?type=affiliate">
                     <Users className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
                     انضم لبرنامج الشراكة
                   </Link>
@@ -510,7 +534,7 @@ export default function Index() {
                 className="text-primary font-semibold"
                 asChild
               >
-                <Link to="/affiliate">
+                <Link to="/register?type=affiliate">
                   انضم لبرنامج الشراكة
                   <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
                 </Link>
@@ -586,7 +610,7 @@ export default function Index() {
               الأكثر مبيعًا
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              منتجاتنا الأكثر شعبية المحبوبة من العملاء حول العالم
+              منتجاتنا الأكثر شعبية المحبوبة من العملاء في جميع أنحاء مصر
             </p>
           </div>
 
@@ -925,7 +949,7 @@ export default function Index() {
                 className="bg-white/10 border-white/30 text-white hover:bg-white/20"
                 asChild
               >
-                <Link to="/affiliate">
+                <Link to="/register?type=affiliate">
                   <TrendingUp className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
                   انضم كمسوق
                 </Link>

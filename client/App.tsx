@@ -33,6 +33,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { AIAssistant } from "./components/AIAssistant";
 import { Breadcrumbs } from "./components/Breadcrumbs";
 import { initPerformanceOptimizations } from './lib/performance';
+import { CookieConsent } from "./components/CookieConsent";
+import { NotificationPermission } from "./components/NotificationPermission";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +61,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <Footer />
       <ScrollToTopButton />
       <AIAssistant />
+      
+      {/* Cookie Consent & Notification Permission */}
+      <CookieConsent />
+      <NotificationPermission />
     </div>
   );
 };
@@ -100,10 +106,8 @@ const App = () => (
                 <Route path="/wishlist" element={<LazyRoutes.Wishlist />} />
               <Route path="/forgot-password" element={<LazyRoutes.ForgotPassword />} />
               <Route path="/account" element={<LazyRoutes.CustomerAccount />} />
-              <Route path="/my-account" element={<LazyRoutes.CustomerAccount />} />
               <Route path="/settings" element={<LazyRoutes.SettingsPage />} />
               <Route path="/orders" element={<LazyRoutes.MyOrders />} />
-              <Route path="/my-orders" element={<LazyRoutes.MyOrders />} />
               <Route path="/orders/:orderId/track" element={<LazyRoutes.OrderTracking />} />
               
               {/* Affiliate Routes - Protected & Lazy */}
@@ -129,15 +133,16 @@ const App = () => (
               <Route path="/admin/analytics" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAnalytics /></ProtectedRoute>} />
               <Route path="/admin/products" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminProducts /></ProtectedRoute>} />
               <Route path="/admin/products-advanced" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminProductsAdvanced /></ProtectedRoute>} />
+              <Route path="/admin/product-approval" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminProductApproval /></ProtectedRoute>} />
               <Route path="/admin/categories" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCategories /></ProtectedRoute>} />
               <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUsers /></ProtectedRoute>} />
               <Route path="/admin/user-management" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUserManagement /></ProtectedRoute>} />
               <Route path="/admin/users-fixed" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUserManagementFixed /></ProtectedRoute>} />
               <Route path="/admin/orders" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminOrders /></ProtectedRoute>} />
-              <Route path="/admin/affiliates" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUsers /></ProtectedRoute>} />
               <Route path="/admin/commissions" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCommissions /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminSettingsPage /></ProtectedRoute>} />
               <Route path="/admin/coupons" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCouponsManager /></ProtectedRoute>} />
+              <Route path="/admin/offers" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminOffersManager /></ProtectedRoute>} />
               <Route path="/admin/shipping" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminShipping /></ProtectedRoute>} />
               <Route path="/admin/advanced-settings" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvancedSettings /></ProtectedRoute>} />
               <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminNotifications /></ProtectedRoute>} />

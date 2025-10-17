@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, Truck, MapPin, Phone, Mail, User, ArrowRight, Tag, X } from "lucide-react";
+import { CreditCard, Truck, MapPin, Phone, Mail, User, ArrowRight, Tag, X, Package, Shield, CheckCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ export default function Checkout() {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
@@ -150,22 +151,46 @@ export default function Checkout() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">إتمام الطلب</h1>
+          <h1 className="text-3xl font-bold mb-2">إتمام الطلب 💳</h1>
           <p className="text-muted-foreground">
-            أكمل البيانات لإتمام طلبك
+            أكمل البيانات لإتمام طلبك بأمان
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          {/* Checkout Progress Bar */}
+          {/* Progress Steps */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-muted-foreground">السلة</span>
-              <span className="text-xs font-medium text-primary">البيانات</span>
-              <span className="text-xs font-medium text-muted-foreground">تأكيد</span>
+            <div className="flex items-center justify-between max-w-3xl mx-auto">
+              {/* Step 1 - Cart (Completed) */}
+              <div className="flex flex-col items-center flex-1">
+                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-green-500 text-white mb-2">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+                <span className="text-sm font-semibold text-green-600">السلة</span>
+              </div>
+              
+              <div className="flex-1 h-1 bg-primary -mx-2" />
+              
+              {/* Step 2 - Info (Current) */}
+              <div className="flex flex-col items-center flex-1">
+                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-primary text-white mb-2 animate-pulse">
+                  2
+                </div>
+                <span className="text-sm font-semibold text-primary">البيانات</span>
+              </div>
+              
+              <div className="flex-1 h-1 bg-gray-200 -mx-2" />
+              
+              {/* Step 3 - Confirm (Pending) */}
+              <div className="flex flex-col items-center flex-1">
+                <div className="h-10 w-10 rounded-full flex items-center justify-center bg-gray-200 text-gray-600 mb-2">
+                  3
+                </div>
+                <span className="text-sm font-medium text-gray-600">التأكيد</span>
+              </div>
             </div>
-            <Progress value={66} className="h-2 bg-muted" />
           </div>
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Checkout Form */}
@@ -300,42 +325,70 @@ export default function Checkout() {
                     onValueChange={setPaymentMethod}
                     className="space-y-3"
                   >
-                    <div className="flex items-center space-x-2 space-x-reverse p-4 border rounded-lg cursor-pointer hover:bg-muted">
-                      <RadioGroupItem value="cash" id="cash" />
-                      <Label htmlFor="cash" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <Truck className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-semibold">الدفع عند الاستلام</p>
-                            <p className="text-sm text-muted-foreground">
-                              ادفع نقداً عند استلام الطلب
-                            </p>
+                    {/* Cash on Delivery */}
+                    <div className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      paymentMethod === 'cash' ? 'border-green-500 bg-green-50 dark:bg-green-950/20' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="cash" id="cash" />
+                        <Label htmlFor="cash" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                              <Package className="h-5 w-5 text-green-600" />
+                            </div>
+                            <div>
+                              <p className="font-bold">الدفع عند الاستلام 📦</p>
+                              <p className="text-sm text-muted-foreground">
+                                ادفع نقداً عند استلام الطلب
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </Label>
+                        </Label>
+                      </div>
                     </div>
 
-                    <div className="flex items-center space-x-2 space-x-reverse p-4 border rounded-lg cursor-pointer hover:bg-muted">
-                      <RadioGroupItem value="card" id="card" />
-                      <Label htmlFor="card" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-3">
-                          <CreditCard className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-semibold flex items-center gap-2">
-                              الدفع بالبطاقة
-                              {/* Payment icons */}
-                              <span className="inline-flex gap-1 ml-2">
-                                <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><rect width="24" height="14" rx="2" fill="#fff"/><text x="3" y="11" font-size="8" fill="#1a237e">VISA</text></svg>
-                                <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><rect width="24" height="14" rx="2" fill="#fff"/><circle cx="8" cy="7" r="5" fill="#f44336"/><circle cx="16" cy="7" r="5" fill="#ff9800"/><text x="5" y="12" font-size="6" fill="#222">MC</text></svg>
-                                <svg width="24" height="14" viewBox="0 0 24 14" fill="none"><rect width="24" height="14" rx="2" fill="#fff"/><text x="2" y="11" font-size="8" fill="#1976d2">AMEX</text></svg>
-                              </span>
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Visa, Mastercard, American Express
-                            </p>
+                    {/* Vodafone Cash */}
+                    <div className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      paymentMethod === 'vodafone' ? 'border-red-500 bg-red-50 dark:bg-red-950/20' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="vodafone" id="vodafone" />
+                        <Label htmlFor="vodafone" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                              <Phone className="h-5 w-5 text-red-600" />
+                            </div>
+                            <div>
+                              <p className="font-bold">فودافون كاش 📱</p>
+                              <p className="text-sm text-muted-foreground">
+                                تحويل فوري عبر فودافون كاش
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </Label>
+                        </Label>
+                      </div>
+                    </div>
+
+                    {/* Credit Card */}
+                    <div className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                      paymentMethod === 'card' ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20' : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                      <div className="flex items-center gap-3">
+                        <RadioGroupItem value="card" id="card" />
+                        <Label htmlFor="card" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                              <CreditCard className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="font-bold">بطاقة ائتمان 💳</p>
+                              <p className="text-sm text-muted-foreground">
+                                Visa, Mastercard, Amex
+                              </p>
+                            </div>
+                          </div>
+                        </Label>
+                      </div>
                     </div>
                   </RadioGroup>
 
@@ -451,11 +504,11 @@ export default function Checkout() {
                   </div>
 
                   {/* Submit Button */}
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Button
                       type="submit"
                       size="lg"
-                      className="w-full"
+                      className="w-full h-14 text-lg bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
                       disabled={isProcessing}
                     >
                       {isProcessing ? (
@@ -472,10 +525,20 @@ export default function Checkout() {
                     )}
                   </div>
 
-                  {/* Security Note */}
-                  <div className="space-y-2 text-xs text-muted-foreground text-center">
-                    <p>🔒 معاملاتك آمنة ومشفرة</p>
-                    <p>سيتم التواصل معك خلال 24 ساعة</p>
+                  {/* Trust Badges */}
+                  <div className="pt-4 border-t space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Shield className="h-4 w-4 text-green-600" />
+                      <span>دفع آمن ومشفر 100%</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="h-4 w-4 text-blue-600" />
+                      <span>التواصل خلال 24 ساعة</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Package className="h-4 w-4 text-purple-600" />
+                      <span>توصيل سريع وآمن</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

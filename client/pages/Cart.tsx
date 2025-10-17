@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, Truck, Package } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag, Truck, Package, Shield, RotateCcw, CheckCircle, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import CouponInput from "@/components/cart/CouponInput";
 import { type Coupon } from "@/lib/coupons-api";
 
@@ -90,25 +91,37 @@ export default function Cart() {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center space-y-6">
-            <div className="flex justify-center">
-              <div className="p-6 bg-muted rounded-full">
-                <ShoppingBag className="h-16 w-16 text-muted-foreground" />
+          <Card className="max-w-2xl mx-auto border-2 border-dashed">
+            <CardContent className="py-16">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary/10 to-purple-600/10 flex items-center justify-center">
+                    <ShoppingBag className="h-12 w-12 text-primary" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold">سلة التسوق فارغة</h1>
+                  <p className="text-muted-foreground">
+                    لم تضف أي منتجات بعد. ابدأ بإضافة منتجاتك المفضلة!
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button size="lg" asChild className="bg-gradient-to-r from-primary to-purple-600">
+                    <Link to="/products">
+                      <ShoppingBag className="h-5 w-5 ml-2" />
+                      ابدأ التسوق
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link to="/deals">
+                      <Tag className="h-5 w-5 ml-2" />
+                      العروض الخاصة
+                    </Link>
+                  </Button>
+                </div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold">سلة التسوق فارغة</h1>
-              <p className="text-muted-foreground">
-                لم تقم بإضافة أي منتجات إلى سلة التسوق بعد
-              </p>
-            </div>
-            <Button size="lg" asChild>
-              <Link to="/products">
-                تصفح المنتجات
-                <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-              </Link>
-            </Button>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -117,11 +130,18 @@ export default function Cart() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">سلة التسوق</h1>
-          <p className="text-muted-foreground">
-            لديك {cartItems.length} منتج في السلة
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">سلة التسوق 🛒</h1>
+            <p className="text-muted-foreground">
+              لديك <span className="font-semibold text-primary">{cartItems.length}</span> {cartItems.length === 1 ? "منتج" : "منتجات"} في السلة
+            </p>
+          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/products">
+              متابعة التسوق
+            </Link>
+          </Button>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -327,10 +347,24 @@ export default function Cart() {
                       </span>
                     </div>
 
-                    {subtotalAfterDiscount < 500 && (
-                      <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg text-xs text-blue-700 dark:text-blue-300">
-                        <Package className="h-4 w-4 inline-block ml-1" />
-                        اشترِ بـ {(500 - subtotalAfterDiscount).toLocaleString()} ج.م إضافية للحصول على شحن مجاني!
+                    {subtotalAfterDiscount < 500 ? (
+                      <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/20 dark:to-yellow-950/20 rounded-lg space-y-2">
+                        <div className="flex items-center justify-between text-xs font-medium">
+                          <span>الشحن المجاني</span>
+                          <span className="text-primary">{Math.round((subtotalAfterDiscount / 500) * 100)}%</span>
+                        </div>
+                        <Progress value={(subtotalAfterDiscount / 500) * 100} className="h-2" />
+                        <p className="text-xs text-muted-foreground">
+                          <Package className="h-3 w-3 inline-block ml-1" />
+                          أضف <span className="font-bold text-primary">{(500 - subtotalAfterDiscount).toLocaleString()} ج.م</span> للحصول على شحن مجاني 🎉
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400">
+                          <CheckCircle className="h-4 w-4" />
+                          مبروك! الشحن مجاني 🎉
+                        </div>
                       </div>
                     )}
                   </div>
@@ -342,16 +376,35 @@ export default function Cart() {
                     <span className="text-primary">{total.toLocaleString()} ج.م</span>
                   </div>
 
-                  <Button size="lg" className="w-full" asChild>
+                  <Button size="lg" className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90" asChild>
                     <Link to="/checkout">
-                      إتمام الطلب
-                      <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
+                      <CheckCircle className="h-5 w-5 ml-2" />
+                      إتمام عملية الشراء 💳
                     </Link>
                   </Button>
 
                   <Button variant="outline" size="lg" className="w-full" asChild>
-                    <Link to="/products">متابعة التسوق</Link>
+                    <Link to="/products">
+                      <ShoppingBag className="h-4 w-4 ml-2" />
+                      متابعة التسوق
+                    </Link>
                   </Button>
+
+                  {/* Trust Badges */}
+                  <div className="pt-4 border-t space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Shield className="h-4 w-4 text-green-600" />
+                      <span>دفع آمن ومشفر 100%</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <RotateCcw className="h-4 w-4 text-blue-600" />
+                      <span>إرجاع مجاني خلال 14 يوم</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Truck className="h-4 w-4 text-purple-600" />
+                      <span>توصيل سريع في جميع أنحاء مصر</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

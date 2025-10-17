@@ -17,7 +17,7 @@ echo ✅ Replaced useEffect with useMemo for inventory
 echo ✅ Replaced useEffect with useMemo for totalStock
 echo ✅ Proper dependency array to prevent re-renders
 echo.
-pause
+pause 
 echo.
 echo [1/3] Adding changes...
 git add client/pages/ProductDetail.tsx

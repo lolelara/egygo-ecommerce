@@ -282,7 +282,7 @@ export function generateLocalBusinessSchema() {
     name: 'إيجي جو - EgyGo',
     description: 'متجرك الإلكتروني الأول في مصر للتسوق الآمن والسريع',
     url: 'https://egygo.me',
-    telephone: '+20-100-123-4567',
+    telephone: '+20-103-432-4951',
     email: 'info@egygo.me',
     address: {
       '@type': 'PostalAddress',

@@ -14,6 +14,7 @@ import {
 import { getImageUrl } from "@/lib/storage";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig } from "@/lib/appwrite";
 import { Query } from "appwrite";
 import type { ProductWithRelations } from "@shared/prisma-types";
@@ -26,9 +27,13 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
   const { toast } = useToast();
   const { addItem } = useCart();
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { user } = useAuth();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [views, setViews] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  // Check if user is affiliate
+  const isAffiliate = user?.isAffiliate;
 
   // Load real view count from database
   useEffect(() => {
@@ -194,12 +199,12 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
     : 0;
 
   return (
-    <Link
-      to={`/product/${product.id}`}
-      className="block"
-      onClick={handleView}
-    >
-      <Card className="card-hover group overflow-hidden h-full border-2">
+    <Card className="card-hover group overflow-hidden h-full border-2 relative">
+      <Link
+        to={`/product/${product.id}`}
+        className="block absolute inset-0 z-0"
+        onClick={handleView}
+      />
         {/* Image Container */}
         <div className="relative overflow-hidden">
           <img
@@ -224,12 +229,13 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
           </div>
 
           {/* Action Buttons */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <Button
               size="icon"
               variant="secondary"
-              className="rounded-full shadow-lg hover:scale-110 transition-transform"
+              className="rounded-full shadow-lg hover:scale-110 transition-transform relative z-10"
               onClick={handleToggleFavorite}
+              type="button"
             >
               <Heart 
                 className={`h-4 w-4 ${isFav ? 'fill-red-500 text-red-500' : ''}`}
@@ -239,8 +245,9 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
             <Button
               size="icon"
               variant="secondary"
-              className="rounded-full shadow-lg hover:scale-110 transition-transform"
+              className="rounded-full shadow-lg hover:scale-110 transition-transform relative z-10"
               onClick={handleShare}
+              type="button"
             >
               <Share2 className="h-4 w-4" />
             </Button>
@@ -254,7 +261,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
         </div>
 
         {/* Content */}
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="p-4 space-y-3 relative z-10">
           {/* Rating */}
           <div className="flex items-center gap-2">
             <div className="flex">
@@ -297,13 +304,29 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
                   </span>
                 )}
               </div>
+              
+              {/* Affiliate Commission Display */}
+              {isAffiliate && product.affiliateCommission && product.affiliateCommission > 0 && (
+                <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-md px-2 py-1 border border-orange-200 dark:border-orange-800">
+                  <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
+                    عمولتك:
+                  </span>
+                  <span className="text-sm font-bold text-orange-700 dark:text-orange-300">
+                    {((product.price * product.affiliateCommission) / 100).toFixed(2)} ج.م
+                  </span>
+                  <span className="text-xs text-orange-500">
+                    ({product.affiliateCommission}%)
+                  </span>
+                </div>
+              )}
             </div>
 
             <Button
               size="sm"
               onClick={handleAddToCart}
               disabled={isAddingToCart}
-              className="btn-hover-lift"
+              className="btn-hover-lift relative z-10"
+              type="button"
             >
               {isAddingToCart ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
@@ -316,7 +339,6 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
             </Button>
           </div>
         </CardContent>
-      </Card>
-    </Link>
+    </Card>
   );
 }

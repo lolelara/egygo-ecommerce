@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Sparkles, Check, Star, Shield, Truck, Phone } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig } from "@/lib/appwrite";
 import { Query, ID } from "appwrite";

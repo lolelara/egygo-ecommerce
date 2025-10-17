@@ -84,6 +84,8 @@ export const AdminDashboard = lazyLoad(() => import('@/pages/AdminDashboard'));
 export const EnhancedAdminDashboard = lazyLoad(() => import('@/pages/EnhancedAdminDashboard'));
 export const AdminUsers = lazyLoad(() => import('@/pages/AdminUsers'));
 export const AdminCouponsManager = lazyLoad(() => import('@/pages/AdminCouponsManager'));
+export const AdminOffersManager = lazyLoad(() => import('@/pages/AdminOffersManager'));
+export const AdminProductApproval = lazyLoad(() => import('@/pages/AdminProductApproval'));
 export const AdminProducts = lazyLoad(() => import('@/pages/AdminProducts'));
 export const AdminOrders = lazyLoad(() => import('@/pages/AdminOrders'));
 export const AdminAnalytics = lazyLoad(() => import('@/pages/AdminAnalytics'));

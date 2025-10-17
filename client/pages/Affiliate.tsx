@@ -67,9 +67,9 @@ export default function Affiliate() {
     },
     {
       icon: Globe,
-      title: "وصول عالمي",
-      description: "روج للعملاء حول العالم مع الشحن الدولي",
-      highlight: "عالمي",
+      title: "وصول لمصر كلها",
+      description: "روج لملايين العملاء في جميع أنحاء مصر",
+      highlight: "مصر كلها",
     },
     {
       icon: Clock,

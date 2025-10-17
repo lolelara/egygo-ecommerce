@@ -46,6 +46,7 @@ import {
   TrendingDown,
 } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
+import VideoUploader from "@/components/VideoUploader";
 import { getImageUrl } from "@/lib/storage";
 import { PageLoader } from "@/components/ui/loading-screen";
 import type {
@@ -83,6 +84,8 @@ const ProductForm = ({
     affiliateCommission: product?.affiliateCommission || 8,
     colors: (product as any)?.colors?.join(", ") || "",
     sizes: (product as any)?.sizes?.join(", ") || "",
+    verificationVideo: (product as any)?.verificationVideo || "",
+    approvalStatus: (product as any)?.approvalStatus || "pending",
   });
   
   // Inventory management state
@@ -122,7 +125,8 @@ const ProductForm = ({
     console.log('📦 Inventory data being saved:', inventoryData);
     console.log('📊 Total stock calculated:', totalStock);
 
-    const finalStock = totalStock || formData.stockQuantity || 0;
+    // Use inventory total if available, otherwise use stockQuantity, default to 100 for new products
+    const finalStock = totalStock > 0 ? totalStock : (formData.stockQuantity || 100);
     
     const submitData = {
       ...formData,
@@ -134,10 +138,10 @@ const ProductForm = ({
       colors: colorsArray,
       sizes: sizesArray,
       colorSizeInventory: JSON.stringify(inventoryData),
-      stock: finalStock, // Use total from inventory or default
+      stock: finalStock, // Use total from inventory or stockQuantity
       stockQuantity: finalStock, // Also set stockQuantity
-      inStock: finalStock > 0, // Set inStock based on stock availability
-      isActive: finalStock > 0, // Auto-activate if stock available
+      inStock: true, // Always set to true for products with stock
+      isActive: true, // Always activate new products (admin can deactivate manually)
     };
     
     console.log('💾 Submit data:', submitData);
@@ -343,6 +347,18 @@ const ProductForm = ({
             setFormData((prev) => ({ ...prev, images: urls }))
           }
           maxFiles={5}
+        />
+      </div>
+
+      {/* Video Verification */}
+      <div className="space-y-2">
+        <VideoUploader
+          value={formData.verificationVideo}
+          onChange={(url) =>
+            setFormData((prev) => ({ ...prev, verificationVideo: url }))
+          }
+          label="فيديو التحقق من المنتج"
+          required={!product}
         />
       </div>
 

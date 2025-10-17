@@ -16,6 +16,9 @@ import {
   Check,
   ZoomIn,
   X,
+  RotateCcw,
+  BadgeCheck,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +34,7 @@ import { useCart } from "@/contexts/CartContext";
 import ProductReviews from "@/components/ProductReviews";
 import { placeholder } from "@/lib/placeholder";
 import { PageLoader } from "@/components/ui/loading-screen";
+import { EnhancedProductGallery } from "@/components/product/EnhancedProductGallery";
 
 // Color mappings (للترجمة والعرض) - خارج الـ component لمنع re-creation
 const COLOR_MAPPINGS: Record<string, {name: string, hex: string, border?: boolean}> = {
@@ -338,52 +342,13 @@ export default function ProductDetail() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
-          {/* Product Images */}
-          <div className="space-y-4">
-            {/* Main Image with Zoom */}
-            <div 
-              className="relative aspect-square rounded-lg overflow-hidden bg-muted group cursor-zoom-in"
-              onClick={() => setIsLightboxOpen(true)}
-              onMouseEnter={() => setIsImageZoomed(true)}
-              onMouseLeave={() => setIsImageZoomed(false)}
-            >
-              <img
-                src={images[selectedImage].url}
-                alt={images[selectedImage].alt || product.name}
-                className={`w-full h-full object-cover transition-transform duration-300 ${
-                  isImageZoomed ? "scale-110" : "scale-100"
-                }`}
-              />
-              {discount > 0 && (
-                <Badge className="absolute top-4 left-4 bg-red-500">
-                  خصم {discount}%
-                </Badge>
-              )}
-              {/* Zoom Icon Overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-              </div>
-            </div>
-            {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedImage === index
-                        ? "border-primary"
-                        : "border-transparent hover:border-muted-foreground"
-                    }`}
-                  >
-                    <img
-                      src={image.url}
-                      alt={image.alt || `${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
+          {/* Product Images - Enhanced Gallery */}
+          <div>
+            <EnhancedProductGallery images={images} />
+            {discount > 0 && (
+              <Badge className="mt-4 bg-gradient-to-r from-red-500 to-orange-500 text-lg px-4 py-2">
+                وفّر {(product.originalPrice! - product.price).toFixed(2)} ج.م ({discount}% خصم)
+              </Badge>
             )}
           </div>
 
@@ -537,78 +502,86 @@ export default function ProductDetail() {
                 </span>
               </div>
 
-              <div className="flex gap-3">
+              <div className="space-y-3">
                 <Button
                   size="lg"
-                  className="flex-1 btn-hover-lift"
+                  className="w-full h-14 text-lg bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
                   onClick={handleAddToCart}
                   disabled={totalStock === 0}
                 >
-                  <ShoppingCart className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
-                  أضف إلى السلة
+                  <ShoppingCart className="ml-2 h-5 w-5" />
+                  أضف إلى السلة 🛒
                 </Button>
-                <Button
-                  size="lg"
-                  variant={isWishlisted ? "default" : "outline"}
-                  onClick={handleToggleWishlist}
-                  disabled={addToWishlist.isPending || removeFromWishlist.isPending}
-                >
-                  {addToWishlist.isPending || removeFromWishlist.isPending ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Heart
-                      className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`}
-                    />
-                  )}
-                </Button>
-                <Button size="lg" variant="outline" onClick={handleShare}>
-                  <Share2 className="h-5 w-5" />
-                </Button>
-              </div>
 
-              <Button
-                size="lg"
-                variant="secondary"
-                className="w-full"
-                asChild
-                disabled={totalStock === 0}
-              >
-                <Link to="/cart">
-                  اشتر الآن
-                  <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-                </Link>
-              </Button>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    size="lg"
+                    variant={isWishlisted ? "default" : "outline"}
+                    onClick={handleToggleWishlist}
+                    disabled={addToWishlist.isPending || removeFromWishlist.isPending}
+                    className="h-12"
+                  >
+                    {addToWishlist.isPending || removeFromWishlist.isPending ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <>
+                        <Heart className={`h-5 w-5 ml-2 ${isWishlisted ? "fill-current" : ""}`} />
+                        {isWishlisted ? "في المفضلة" : "أضف للمفضلة"}
+                      </>
+                    )}
+                  </Button>
+                  <Button size="lg" variant="outline" onClick={handleShare} className="h-12">
+                    <Share2 className="h-5 w-5 ml-2" />
+                    مشاركة
+                  </Button>
+                </div>
+              </div>
             </div>
 
-            {/* Features */}
-            <Card>
+            {/* Trust Signals - Enhanced */}
+            <Card className="border-2">
               <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Truck className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
+                  <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <Truck className="h-5 w-5 text-green-600" />
+                  </div>
                   <div>
-                    <p className="font-semibold">شحن مجاني</p>
+                    <p className="font-bold">شحن مجاني 🚚</p>
                     <p className="text-sm text-muted-foreground">
                       للطلبات فوق 500 ج.م
                     </p>
                   </div>
                 </div>
-                <Separator />
-                <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                    <RotateCcw className="h-5 w-5 text-blue-600" />
+                  </div>
                   <div>
-                    <p className="font-semibold">ضمان الجودة</p>
+                    <p className="font-bold">إرجاع مجاني 🔄</p>
                     <p className="text-sm text-muted-foreground">
-                      ضمان استرجاع المال لمدة 14 يوم
+                      خلال 14 يوم من الاستلام
                     </p>
                   </div>
                 </div>
-                <Separator />
-                <div className="flex items-center gap-3">
-                  <Package className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
+                  <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <Shield className="h-5 w-5 text-purple-600" />
+                  </div>
                   <div>
-                    <p className="font-semibold">توصيل سريع</p>
+                    <p className="font-bold">دفع آمن 🔒</p>
                     <p className="text-sm text-muted-foreground">
-                      يصلك خلال 2-5 أيام عمل
+                      معاملات مشفرة 100%
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20">
+                  <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                    <BadgeCheck className="h-5 w-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="font-bold">منتج أصلي ✓</p>
+                    <p className="text-sm text-muted-foreground">
+                      ضمان الجودة والأصالة
                     </p>
                   </div>
                 </div>
