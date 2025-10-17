@@ -59,6 +59,60 @@ export default function ProductDetail() {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
 
+  // Wishlist hooks moved above early returns to preserve hooks order across renders
+  // Check if product is in wishlist
+  const { data: wishlistItems = [] } = useQuery({
+    queryKey: queryKeys.wishlist(user?.$id || ""),
+    queryFn: () => wishlistApi.getUserWishlist(user?.$id || ""),
+    enabled: !!user?.$id,
+  });
+
+  const isWishlisted = useMemo(() => {
+    return wishlistItems.some((item: any) => item.productId === id);
+  }, [wishlistItems, id]);
+
+  const wishlistItem = useMemo(() => {
+    return wishlistItems.find((item: any) => item.productId === id);
+  }, [wishlistItems, id]);
+
+  // Add to wishlist mutation
+  const addToWishlist = useMutation({
+    mutationFn: () => wishlistApi.addToWishlist(user?.$id || "", id || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.$id || "") });
+      toast({
+        title: "✅ تمت الإضافة للمفضلة",
+        description: "تم إضافة المنتج إلى قائمة المفضلة",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في إضافة المنتج للمفضلة",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Remove from wishlist mutation
+  const removeFromWishlist = useMutation({
+    mutationFn: () => wishlistApi.removeFromWishlist(wishlistItem?.id || "", user?.$id || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.$id || "") });
+      toast({
+        title: "تمت الإزالة",
+        description: "تم إزالة المنتج من قائمة المفضلة",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في إزالة المنتج من المفضلة",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Fetch product details
   const { data: product, isLoading } = useQuery({
     queryKey: [...queryKeys.products, id],
@@ -221,58 +275,6 @@ export default function ProductDetail() {
     });
   };
 
-  // Check if product is in wishlist
-  const { data: wishlistItems = [] } = useQuery({
-    queryKey: queryKeys.wishlist(user?.$id || ""),
-    queryFn: () => wishlistApi.getUserWishlist(user?.$id || ""),
-    enabled: !!user?.$id,
-  });
-
-  const isWishlisted = useMemo(() => {
-    return wishlistItems.some((item: any) => item.productId === id);
-  }, [wishlistItems, id]);
-
-  const wishlistItem = useMemo(() => {
-    return wishlistItems.find((item: any) => item.productId === id);
-  }, [wishlistItems, id]);
-
-  // Add to wishlist mutation
-  const addToWishlist = useMutation({
-    mutationFn: () => wishlistApi.addToWishlist(user?.$id || "", id || ""),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.$id || "") });
-      toast({
-        title: "✅ تمت الإضافة للمفضلة",
-        description: "تم إضافة المنتج إلى قائمة المفضلة",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "خطأ",
-        description: error.message || "فشل في إضافة المنتج للمفضلة",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Remove from wishlist mutation
-  const removeFromWishlist = useMutation({
-    mutationFn: () => wishlistApi.removeFromWishlist(wishlistItem?.id || "", user?.$id || ""),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.wishlist(user?.$id || "") });
-      toast({
-        title: "تمت الإزالة",
-        description: "تم إزالة المنتج من قائمة المفضلة",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "خطأ",
-        description: error.message || "فشل في إزالة المنتج من المفضلة",
-        variant: "destructive",
-      });
-    },
-  });
 
   const handleToggleWishlist = () => {
     if (!user) {
