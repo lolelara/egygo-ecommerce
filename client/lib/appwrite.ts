@@ -1,4 +1,5 @@
 import { Client, Account, Databases, Storage, Functions, OAuthProvider } from 'appwrite';
+import notificationService from './notification-service';
 
 // Appwrite configuration
 export const appwriteConfig = {
@@ -238,7 +239,6 @@ export class AppwriteService {
 
       // Send notification to user about order confirmation
       try {
-        const { default: notificationService } = await import('./notification-service');
         await notificationService.notifyOrderStatus(
           orderData.userId,
           order.$id,

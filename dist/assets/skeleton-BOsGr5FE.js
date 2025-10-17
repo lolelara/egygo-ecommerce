@@ -1,0 +1,1 @@
+import{j as s}from"./vendor-react-BMq-IxHG.js";import{O as t}from"./index-D6krH_cr.js";function n({className:e,shimmer:m=!1,...r}){return s.jsx("div",{className:t(m?"shimmer bg-muted rounded-md":"animate-pulse rounded-md bg-muted",e),...r})}export{n as S};

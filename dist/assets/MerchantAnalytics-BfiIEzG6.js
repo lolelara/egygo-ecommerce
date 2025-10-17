@@ -1,1 +1,0 @@
-import i from"./AdminAnalytics-CzWs8GIP.js";import"./vendor-react-BMq-IxHG.js";import"./vendor-ui-BA32w1ww.js";import"./vendor-query-GexG3wnZ.js";import"./vendor-other-C5r3s8Py.js";import"./vendor-animations-W1Z2cmit.js";import"./index-DuObFWLq.js";import"./vendor-appwrite-BGb_FC-V.js";import"./LoadingSkeletons-DAs8Sw-3.js";import"./skeleton-DMaUp_11.js";export{i as default};
