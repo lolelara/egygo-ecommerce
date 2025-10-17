@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { wishlistApi, queryKeys } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
@@ -18,6 +18,7 @@ export default function Wishlist() {
   const { addItem } = useCart();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Fetch wishlist
   const { data: wishlistItems = [], isLoading } = useQuery({
@@ -66,9 +67,9 @@ export default function Wishlist() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!user) {
-      window.location.href = "/login";
+      navigate("/login", { replace: true });
     }
-  }, [user]);
+  }, [user, navigate]);
 
   if (!user) {
     return null;

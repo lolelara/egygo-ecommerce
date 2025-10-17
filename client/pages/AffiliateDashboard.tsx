@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DollarSign,
   TrendingUp,
@@ -53,6 +53,7 @@ import WithdrawalRequest from "@/components/affiliate/WithdrawalRequest";
 export default function AffiliateDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [products, setProducts] = useState<ProductWithRelations[]>([]);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
@@ -173,10 +174,10 @@ export default function AffiliateDashboard() {
                 {error}
               </h2>
               <div className="flex gap-4 justify-center">
-                <Button onClick={() => window.location.href = '/login'} variant="outline">
+                <Button onClick={() => navigate('/login')} variant="outline">
                   تسجيل الدخول
                 </Button>
-                <Button onClick={() => window.location.href = '/affiliate'}>
+                <Button onClick={() => navigate('/affiliate')}>
                   التسجيل كمسوق
                 </Button>
               </div>

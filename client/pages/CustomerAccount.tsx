@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import { placeholder } from "@/lib/placeholder";
 export default function CustomerAccount() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -224,7 +226,7 @@ export default function CustomerAccount() {
               <p className="text-muted-foreground mb-4">
                 يجب عليك تسجيل الدخول للوصول إلى حسابك
               </p>
-              <Button onClick={() => window.location.href = "/login"}>
+              <Button onClick={() => navigate("/login")}>
                 تسجيل الدخول
               </Button>
             </div>
@@ -365,7 +367,7 @@ export default function CustomerAccount() {
                   <div className="text-center py-8">
                     <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-muted-foreground">لا توجد طلبات حتى الآن</p>
-                    <Button className="mt-4" onClick={() => window.location.href = "/products"}>
+                    <Button className="mt-4" onClick={() => navigate("/products")}>
                       تسوق الآن
                     </Button>
                   </div>
@@ -412,7 +414,7 @@ export default function CustomerAccount() {
                   <div className="text-center py-8">
                     <Heart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-muted-foreground">قائمة المفضلة فارغة</p>
-                    <Button className="mt-4" onClick={() => window.location.href = "/products"}>
+                    <Button className="mt-4" onClick={() => navigate("/products")}>
                       اكتشف المنتجات
                     </Button>
                   </div>
