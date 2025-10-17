@@ -63,10 +63,15 @@ export function AnnouncementBar() {
     } catch (error) {
       // Silently fall back to default offer if collection doesn't exist
       // This is expected behavior until the offers collection is created
+      const lang = document.documentElement.lang || 'ar';
+      const isArabic = lang === 'ar';
+      
       setOffers([{
         id: 'default',
-        title: '💼 انضم لفريق الشركاء!',
-        description: 'سجّل الآن كتاجر أو مسوق واحصل على عمولات مميزة وأرباح مستمرة',
+        title: isArabic ? '💼 انضم لفريق الشركاء!' : '💼 Join Our Partners Team!',
+        description: isArabic 
+          ? 'سجّل الآن كتاجر أو مسوق واحصل على عمولات مميزة وأرباح مستمرة'
+          : 'Register now as a merchant or affiliate and get exclusive commissions and continuous earnings',
         backgroundColor: 'from-brand-purple via-brand-orange to-brand-purple',
         textColor: 'text-white',
         isActive: true,

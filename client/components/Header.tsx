@@ -23,6 +23,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useI18n } from "@/lib/i18n";
 import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
@@ -39,6 +40,7 @@ export function Header({ cartItemCount }: HeaderProps) {
   const { user, logout } = useAuth();
   const { items, itemCount } = useCart();
   const { favorites } = useFavorites();
+  const { t } = useI18n();
   const totalItems = cartItemCount ?? itemCount;
   const wishlistCount = favorites.length;
 
@@ -61,7 +63,7 @@ export function Header({ cartItemCount }: HeaderProps) {
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-4">
-              <span className="text-muted-foreground hidden sm:inline">💼 سجّل كتاجر أو مسوق واربح عمولات مميزة!</span>
+              <span className="text-muted-foreground hidden sm:inline">💼 {t('marketing.registerEarn')}</span>
             </div>
             <div className="flex items-center gap-1">
               <LanguageToggle />

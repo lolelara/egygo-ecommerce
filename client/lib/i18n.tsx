@@ -169,6 +169,168 @@ export const translations: Translations = {
       passwordMismatch: 'كلمات المرور غير متطابقة',
       minLength: 'يجب أن يكون الطول أكبر من {min} أحرف',
       maxLength: 'يجب أن يكون الطول أقل من {max} حرف'
+    },
+    
+    // Site
+    site: {
+      name: 'إيجي جو',
+      slogan: 'التسوق الذكي يبدأ هنا',
+      joinFamily: 'انضم إلى عائلة إيجي جو',
+      smartShopping: 'أهلاً بك في عالم التسوق الذكي'
+    },
+    
+    // Trust Signals
+    trust: {
+      fastDelivery: 'توصيل سريع',
+      freeReturn: 'إرجاع مجاني',
+      securePayment: 'دفع آمن',
+      original: 'منتج أصلي',
+      secureEncrypted: 'دفع آمن ومشفر 100%',
+      freeReturn14Days: 'إرجاع مجاني خلال 14 يوم',
+      fastSecureDelivery: 'توصيل سريع وآمن',
+      deliveryTime: 'خلال 2-5 أيام عمل',
+      originalQuality: 'ضمان الجودة والأصالة',
+      contact24h: 'التواصل خلال 24 ساعة'
+    },
+    
+    // Register Page
+    register: {
+      title: 'إنشاء حساب جديد',
+      subtitle: 'املأ البيانات للبدء',
+      fullName: 'الاسم الكامل',
+      enterName: 'أدخل اسمك الكامل',
+      enterEmail: 'أدخل بريدك الإلكتروني',
+      enterPhone: 'مثال: 01012345678',
+      phoneNote: 'سيتم استخدام هذا الرقم للتواصل معك',
+      alternativePhone: 'رقم هاتف بديل (اختياري)',
+      alternativePhoneNote: 'يمكنك إضافة رقم آخر للتواصل معك',
+      whatsappAvailable: 'هذا الرقم متاح على WhatsApp أو للاتصال',
+      whatsappNote: 'تأكد من إمكانية التواصل معك عبر هذا الرقم',
+      confirmPassword: 'تأكيد كلمة المرور',
+      showPassword: 'إظهار كلمة المرور',
+      hidePassword: 'إخفاء كلمة المرور',
+      accountType: 'نوع الحساب',
+      accountTypeNote: 'اختر نوع حسابك',
+      customer: 'عميل',
+      customerDesc: 'للتسوق والشراء',
+      affiliate: 'مسوق',
+      affiliateDesc: 'اربح عمولات على المبيعات',
+      merchant: 'تاجر',
+      merchantDesc: 'بيع منتجاتك',
+      referralCode: 'كود الإحالة (اختياري)',
+      enterReferralCode: 'أدخل كود الإحالة إن وجد',
+      referredBy: 'تمت الإحالة من',
+      invalidReferralCode: 'كود الإحالة غير صحيح',
+      acceptTerms: 'أوافق على',
+      termsAndConditions: 'الشروط والأحكام',
+      and: 'و',
+      privacyPolicy: 'سياسة الخصوصية',
+      createAccount: 'إنشاء الحساب',
+      creating: 'جاري إنشاء الحساب...',
+      orRegisterWith: 'أو يمكنك التسجيل عبر',
+      registerGoogle: 'التسجيل بحساب Google',
+      registerFacebook: 'التسجيل بحساب Facebook',
+      dataProtected: 'جميع بياناتك محمية وفق',
+      oneAccount: 'حساب واحد لجميع الخدمات',
+      exclusiveCommissions: 'عمولات مميزة للتجار والمسوقين',
+      secureData: 'بيانات آمنة ومشفرة',
+      testimonial: 'تجربة رائعة! التسجيل سهل والمنصة احترافية جداً',
+      testimonialAuthor: 'أحمد محمد، تاجر شريك',
+      safe: 'آمن',
+      trusted: 'موثوق',
+      fast: 'سريع'
+    },
+    
+    // Login Page  
+    login: {
+      title: 'تسجيل الدخول',
+      subtitle: 'مرحباً بعودتك',
+      welcomeBack: 'أهلاً بعودتك إلى إيجي جو',
+      enterCredentials: 'أدخل بياناتك للمتابعة',
+      loginButton: 'تسجيل الدخول',
+      loggingIn: 'جاري تسجيل الدخول...',
+      orLoginWith: 'أو سجّل الدخول عبر',
+      loginGoogle: 'تسجيل الدخول بحساب Google',
+      loginFacebook: 'تسجيل الدخول بحساب Facebook',
+      thousandsProducts: 'آلاف المنتجات المميزة',
+      easyReturn: 'استرجاع سهل خلال 14 يوم',
+      testimonial: 'أفضل موقع تسوق استخدمته! المنتجات عالية الجودة',
+      testimonialAuthor: 'أحمد محمد، القاهرة'
+    },
+    
+    // Products Page
+    productsPage: {
+      allProducts: 'جميع المنتجات',
+      discoverProducts: 'اكتشف مجموعتنا الكاملة من المنتجات عالية الجودة',
+      productsAvailable: 'منتج متاح',
+      searchProducts: 'البحث عن المنتجات...',
+      sortBy: 'ترتيب حسب',
+      featured: 'مميز',
+      priceLowToHigh: 'السعر: من الأقل إلى الأعلى',
+      priceHighToLow: 'السعر: من الأعلى إلى الأقل',
+      highestRated: 'الأعلى تقييمًا',
+      newest: 'الأحدث',
+      filters: 'المرشحات',
+      categories: 'الفئات',
+      priceRange: 'نطاق السعر',
+      min: 'الحد الأدنى',
+      max: 'الحد الأقصى',
+      specialOffers: 'العروض الخاصة',
+      saleOnly: 'المنتجات المخفضة فقط',
+      clearFilters: 'مسح جميع المرشحات',
+      showing: 'عرض',
+      of: 'من',
+      product: 'منتج',
+      noProducts: 'لا توجد منتجات',
+      tryFilters: 'جرّب تعديل معايير البحث أو التصفية',
+      viewCategories: 'عرض الفئات',
+      page: 'صفحة'
+    },
+    
+    // Checkout Page
+    checkout: {
+      title: 'إتمام الطلب',
+      steps: {
+        cart: 'السلة',
+        information: 'البيانات',
+        confirmation: 'التأكيد'
+      },
+      shippingAddress: 'عنوان الشحن',
+      fullName: 'الاسم الكامل',
+      phoneNumber: 'رقم الهاتف',
+      city: 'المدينة',
+      selectCity: 'اختر المدينة',
+      address: 'العنوان',
+      addressPlaceholder: 'الشارع، رقم المبنى، الشقة',
+      postalCode: 'الرمز البريدي',
+      landmark: 'علامة مميزة',
+      landmarkPlaceholder: 'بجوار المسجد / المدرسة',
+      paymentMethod: 'طريقة الدفع',
+      cashOnDelivery: 'الدفع عند الاستلام',
+      cashOnDeliveryDesc: 'ادفع نقداً عند استلام الطلب',
+      vodafoneCash: 'فودافون كاش',
+      vodafoneCashDesc: 'تحويل فوري عبر فودافون كاش',
+      creditCard: 'بطاقة ائتمان',
+      creditCardDesc: 'Visa, Mastercard, Amex',
+      cardNumber: 'رقم البطاقة',
+      expiryDate: 'تاريخ الانتهاء',
+      additionalNotes: 'ملاحظات إضافية',
+      notesPlaceholder: 'أي ملاحظات خاصة بالطلب...',
+      orderSummary: 'ملخص الطلب',
+      quantity: 'الكمية',
+      subtotal: 'المجموع الفرعي',
+      shipping: 'الشحن',
+      free: 'مجاني',
+      total: 'الإجمالي',
+      confirmOrder: 'تأكيد الطلب',
+      processing: 'جاري المعالجة...'
+    },
+    
+    // Marketing Messages
+    marketing: {
+      partnerProgram: 'انضم لفريق الشركاء!',
+      partnerDesc: 'سجّل الآن كتاجر أو مسوق واحصل على عمولات مميزة وأرباح مستمرة',
+      registerEarn: 'سجّل كتاجر أو مسوق واربح عمولات مميزة!'
     }
   },
   
@@ -316,6 +478,168 @@ export const translations: Translations = {
       passwordMismatch: 'Passwords do not match',
       minLength: 'Must be at least {min} characters',
       maxLength: 'Must be at most {max} characters'
+    },
+    
+    // Site
+    site: {
+      name: 'EgyGo',
+      slogan: 'Smart Shopping Starts Here',
+      joinFamily: 'Join the EgyGo Family',
+      smartShopping: 'Welcome to the World of Smart Shopping'
+    },
+    
+    // Trust Signals
+    trust: {
+      fastDelivery: 'Fast Delivery',
+      freeReturn: 'Free Return',
+      securePayment: 'Secure Payment',
+      original: 'Original Product',
+      secureEncrypted: '100% Secure & Encrypted Payment',
+      freeReturn14Days: 'Free Return within 14 Days',
+      fastSecureDelivery: 'Fast & Secure Delivery',
+      deliveryTime: 'Within 2-5 Business Days',
+      originalQuality: 'Quality & Authenticity Guaranteed',
+      contact24h: 'Contact within 24 Hours'
+    },
+    
+    // Register Page
+    register: {
+      title: 'Create New Account',
+      subtitle: 'Fill in the details to get started',
+      fullName: 'Full Name',
+      enterName: 'Enter your full name',
+      enterEmail: 'Enter your email',
+      enterPhone: 'Example: 01012345678',
+      phoneNote: 'This number will be used to contact you',
+      alternativePhone: 'Alternative Phone (optional)',
+      alternativePhoneNote: 'You can add another number to contact you',
+      whatsappAvailable: 'This number is available on WhatsApp or for calls',
+      whatsappNote: 'Make sure we can reach you via this number',
+      confirmPassword: 'Confirm Password',
+      showPassword: 'Show Password',
+      hidePassword: 'Hide Password',
+      accountType: 'Account Type',
+      accountTypeNote: 'Choose your account type',
+      customer: 'Customer',
+      customerDesc: 'For shopping and purchases',
+      affiliate: 'Affiliate',
+      affiliateDesc: 'Earn commissions on sales',
+      merchant: 'Merchant',
+      merchantDesc: 'Sell your products',
+      referralCode: 'Referral Code (optional)',
+      enterReferralCode: 'Enter referral code if available',
+      referredBy: 'Referred by',
+      invalidReferralCode: 'Invalid referral code',
+      acceptTerms: 'I agree to the',
+      termsAndConditions: 'Terms and Conditions',
+      and: 'and',
+      privacyPolicy: 'Privacy Policy',
+      createAccount: 'Create Account',
+      creating: 'Creating account...',
+      orRegisterWith: 'Or register with',
+      registerGoogle: 'Register with Google',
+      registerFacebook: 'Register with Facebook',
+      dataProtected: 'Your data is protected according to our',
+      oneAccount: 'One account for all services',
+      exclusiveCommissions: 'Exclusive commissions for merchants and affiliates',
+      secureData: 'Secure & Encrypted Data',
+      testimonial: 'Great experience! Registration is easy and the platform is very professional',
+      testimonialAuthor: 'Ahmed Mohamed, Partner Merchant',
+      safe: 'Safe',
+      trusted: 'Trusted',
+      fast: 'Fast'
+    },
+    
+    // Login Page
+    login: {
+      title: 'Login',
+      subtitle: 'Welcome Back',
+      welcomeBack: 'Welcome Back to EgyGo',
+      enterCredentials: 'Enter your credentials to continue',
+      loginButton: 'Login',
+      loggingIn: 'Logging in...',
+      orLoginWith: 'Or login with',
+      loginGoogle: 'Login with Google',
+      loginFacebook: 'Login with Facebook',
+      thousandsProducts: 'Thousands of Premium Products',
+      easyReturn: 'Easy Return within 14 Days',
+      testimonial: 'Best shopping site I\'ve used! High quality products',
+      testimonialAuthor: 'Ahmed Mohamed, Cairo'
+    },
+    
+    // Products Page
+    productsPage: {
+      allProducts: 'All Products',
+      discoverProducts: 'Discover our complete range of high-quality products',
+      productsAvailable: 'products available',
+      searchProducts: 'Search for products...',
+      sortBy: 'Sort by',
+      featured: 'Featured',
+      priceLowToHigh: 'Price: Low to High',
+      priceHighToLow: 'Price: High to Low',
+      highestRated: 'Highest Rated',
+      newest: 'Newest',
+      filters: 'Filters',
+      categories: 'Categories',
+      priceRange: 'Price Range',
+      min: 'Minimum',
+      max: 'Maximum',
+      specialOffers: 'Special Offers',
+      saleOnly: 'On Sale Only',
+      clearFilters: 'Clear All Filters',
+      showing: 'Showing',
+      of: 'of',
+      product: 'product',
+      noProducts: 'No Products Found',
+      tryFilters: 'Try adjusting your search or filter criteria',
+      viewCategories: 'View Categories',
+      page: 'Page'
+    },
+    
+    // Checkout Page
+    checkout: {
+      title: 'Checkout',
+      steps: {
+        cart: 'Cart',
+        information: 'Information',
+        confirmation: 'Confirmation'
+      },
+      shippingAddress: 'Shipping Address',
+      fullName: 'Full Name',
+      phoneNumber: 'Phone Number',
+      city: 'City',
+      selectCity: 'Select City',
+      address: 'Address',
+      addressPlaceholder: 'Street, Building Number, Apartment',
+      postalCode: 'Postal Code',
+      landmark: 'Landmark',
+      landmarkPlaceholder: 'Near Mosque / School',
+      paymentMethod: 'Payment Method',
+      cashOnDelivery: 'Cash on Delivery',
+      cashOnDeliveryDesc: 'Pay cash upon receiving the order',
+      vodafoneCash: 'Vodafone Cash',
+      vodafoneCashDesc: 'Instant transfer via Vodafone Cash',
+      creditCard: 'Credit Card',
+      creditCardDesc: 'Visa, Mastercard, Amex',
+      cardNumber: 'Card Number',
+      expiryDate: 'Expiry Date',
+      additionalNotes: 'Additional Notes',
+      notesPlaceholder: 'Any special notes about the order...',
+      orderSummary: 'Order Summary',
+      quantity: 'Quantity',
+      subtotal: 'Subtotal',
+      shipping: 'Shipping',
+      free: 'Free',
+      total: 'Total',
+      confirmOrder: 'Confirm Order',
+      processing: 'Processing...'
+    },
+    
+    // Marketing Messages
+    marketing: {
+      partnerProgram: 'Join Our Partners Team!',
+      partnerDesc: 'Register now as a merchant or affiliate and get exclusive commissions and continuous earnings',
+      registerEarn: 'Register as merchant or affiliate and earn exclusive commissions!'
     }
   }
 };
