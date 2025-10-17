@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { databases, appwriteConfig, functions } from '@/lib/appwrite';
+import { databases, appwriteConfig } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
+import { handleFirstPurchase as handleFirstPurchaseHelper, handlePurchaseCommission as handlePurchaseCommissionHelper } from '@/lib/referral-helper';
 
 interface ReferralStats {
   totalReferrals: number;
@@ -162,6 +163,7 @@ export function useReferralSystem() {
 
   /**
    * Register new user with referral code
+   * Note: تم استبدال Cloud Function بـ helper function
    */
   const registerWithReferral = async (
     userId: string,
@@ -170,20 +172,10 @@ export function useReferralSystem() {
     referralCode?: string
   ) => {
     try {
-      // Call Appwrite Function
-      const response = await functions.createExecution(
-        'referral-handler',
-        JSON.stringify({
-          action: 'register',
-          userId,
-          userName,
-          userEmail,
-          referralCode,
-        })
-      );
-
-      const result = JSON.parse(response.responseBody);
-      return result;
+      // تم نقل المنطق إلى Register.tsx مباشرة
+      // هذه الدالة موجودة للتوافق مع الكود القديم فقط
+      console.log('registerWithReferral: Use Register.tsx directly');
+      return { success: true };
     } catch (error) {
       console.error('Error registering with referral:', error);
       throw error;
@@ -192,20 +184,11 @@ export function useReferralSystem() {
 
   /**
    * Handle first purchase
+   * استخدام referral-helper بدلاً من Cloud Function
    */
   const handleFirstPurchase = async (userId: string, orderId: string, orderAmount: number) => {
     try {
-      const response = await functions.createExecution(
-        'referral-handler',
-        JSON.stringify({
-          action: 'first_purchase',
-          userId,
-          orderId,
-          orderAmount,
-        })
-      );
-
-      const result = JSON.parse(response.responseBody);
+      const result = await handleFirstPurchaseHelper(userId, orderId, orderAmount);
       
       // Reload data
       await loadReferralData();
@@ -219,6 +202,7 @@ export function useReferralSystem() {
 
   /**
    * Handle purchase commission
+   * استخدام referral-helper بدلاً من Cloud Function
    */
   const handlePurchaseCommission = async (
     userId: string,
@@ -226,17 +210,7 @@ export function useReferralSystem() {
     orderAmount: number
   ) => {
     try {
-      const response = await functions.createExecution(
-        'referral-handler',
-        JSON.stringify({
-          action: 'purchase',
-          userId,
-          orderId,
-          orderAmount,
-        })
-      );
-
-      const result = JSON.parse(response.responseBody);
+      const result = await handlePurchaseCommissionHelper(userId, orderId, orderAmount);
       
       // Reload data
       await loadReferralData();

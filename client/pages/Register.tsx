@@ -205,12 +205,16 @@ export default function Register() {
                 {
                   referrerId: referrerInfo.userId,
                   referredUserId: registeredUser.$id,
+                  referredUserName: formData.name,
+                  referredUserEmail: formData.email,
                   referralCode: formData.referralCode,
                   status: 'pending', // Will be 'completed' after first purchase
+                  reward: 0, // Will be updated after first purchase
+                  level: 1, // First level referral
                   createdAt: new Date().toISOString()
                 }
               );
-              console.log('✅ Referral record created');
+              console.log('✅ Referral record created with complete data');
               
               // Notify the referrer
               await databases.createDocument(
