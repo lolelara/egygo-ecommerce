@@ -24,9 +24,30 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isRTL, setIsRTL] = useState(true);
 
   const { login, loginWithGoogle, loginWithFacebook, user } = useAuth();
   const navigate = useNavigate();
+
+  // Detect language direction
+  useEffect(() => {
+    const checkLanguage = () => {
+      const htmlDir = document.documentElement.dir;
+      const htmlLang = document.documentElement.lang;
+      setIsRTL(htmlDir === 'rtl' || htmlLang === 'ar');
+    };
+    
+    checkLanguage();
+    
+    // Watch for language changes
+    const observer = new MutationObserver(checkLanguage);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dir', 'lang']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,9 +99,9 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-primary via-purple-600 to-secondary text-white relative overflow-hidden">
+    <div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
+      {/* Left Side - Branding (appears on right in RTL, left in LTR) */}
+      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-primary via-purple-600 to-secondary text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
         <div className="absolute inset-0 opacity-10">
           <div className="w-full h-full flex items-center justify-center scale-150">
             <EgyGoLogo3D size="large" interactive={false} autoRotate={true} showParticles={false} />
@@ -138,8 +159,8 @@ export default function Login() {
         </div>
       </div>
 
-      {/* Right Side - Form */}
-      <div className="flex items-center justify-center p-6 lg:p-12 bg-background">
+      {/* Right Side - Form (appears on left in RTL, right in LTR) */}
+      <div className={`flex items-center justify-center p-6 lg:p-12 bg-background ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Logo */}
           <div className="text-center lg:hidden">

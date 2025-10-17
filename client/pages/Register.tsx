@@ -38,10 +38,31 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [referrerInfo, setReferrerInfo] = useState<any>(null);
+  const [isRTL, setIsRTL] = useState(true);
 
   const { register, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Detect language direction
+  useEffect(() => {
+    const checkLanguage = () => {
+      const htmlDir = document.documentElement.dir;
+      const htmlLang = document.documentElement.lang;
+      setIsRTL(htmlDir === 'rtl' || htmlLang === 'ar');
+    };
+    
+    checkLanguage();
+    
+    // Watch for language changes
+    const observer = new MutationObserver(checkLanguage);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['dir', 'lang']
+    });
+    
+    return () => observer.disconnect();
+  }, []);
 
   // Check if account type is specified in URL
   useEffect(() => {
@@ -261,57 +282,98 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100 dark:from-neutral-900 dark:via-purple-950 dark:to-neutral-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* 3D Logo Background */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 scale-150">
-        <div className="w-[600px] h-[600px]">
-          <EgyGoLogo3D size="large" interactive={false} autoRotate={true} showParticles={false} />
+    <div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
+      {/* Left Side - Branding (appears on right in RTL, left in LTR) */}
+      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-primary via-purple-600 to-secondary text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
+        <div className="absolute inset-0 opacity-10">
+          <div className="w-full h-full flex items-center justify-center scale-150">
+            <EgyGoLogo3D size="large" interactive={false} autoRotate={true} showParticles={false} />
+          </div>
+        </div>
+        <div className="relative z-10 max-w-md">
+          <Link to="/" className="inline-flex items-center gap-2 text-5xl font-bold mb-6">
+            <Sparkles className="w-12 h-12" />
+            إيجي جو
+          </Link>
+          <p className="text-2xl mb-8 opacity-90">
+            انضم إلى عائلة إيجي جو
+          </p>
+
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Check className="h-6 w-6" />
+              </div>
+              <div>حساب واحد لجميع الخدمات</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Star className="h-6 w-6" />
+              </div>
+              <div>عمولات مميزة للتجار والمسوقين</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Shield className="h-6 w-6" />
+              </div>
+              <div>بيانات آمنة ومشفرة</div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <Truck className="h-6 w-6" />
+              </div>
+              <div>توصيل سريع وآمن</div>
+            </div>
+          </div>
+
+          <Card className="bg-white/10 backdrop-blur border-white/20">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm opacity-90 mb-2">
+                    "تجربة رائعة! التسجيل سهل والمنصة احترافية جداً"
+                  </p>
+                  <p className="text-xs opacity-75">- أحمد محمد، تاجر شريك</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
-      <div className="max-w-md w-full space-y-8 relative z-10">
-        {/* Header */}
-        <GSAPAnimation animation="fadeIn" duration={1}>
-          <div className="text-center mb-2">
-            <Link to="/" className="inline-flex items-center gap-2 text-4xl font-extrabold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent drop-shadow-lg">
-              <Sparkles className="w-10 h-10 text-purple-600" />
-              إيجي جو
-            </Link>
-            <h2 className="mt-4 text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">
-              أهلاً بك في عالم التسوق الذكي
+      {/* Right Side - Form (appears on left in RTL, right in LTR) */}
+      <div className={`flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
+        <div className="w-full max-w-md space-y-6">
+          {/* Header */}
+          <div className="text-center">
+            <h2 className="text-3xl font-bold">
+              إنشاء حساب جديد
             </h2>
-            <p className="mt-2 text-base text-gray-700 dark:text-gray-200">
-              أنشئ حسابك الجديد وابدأ رحلتك معنا الآن
+            <p className="mt-2 text-muted-foreground">
+              املأ البيانات للبدء
             </p>
-            <p className="mt-2 text-sm text-gray-600">
-              أو
+            <p className="mt-2 text-sm">
+              لديك حساب بالفعل؟{" "}
               <Link
                 to="/login"
-                className="font-medium text-primary hover:text-primary/80 transition-colors mx-1"
+                className="font-medium text-primary hover:text-primary/80 transition-colors"
               >
-                تسجيل الدخول لحساب موجود
+                تسجيل الدخول
               </Link>
             </p>
           </div>
-        </GSAPAnimation>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-gradient-to-r from-red-100 to-red-200 border-2 border-red-400 text-red-700 px-4 py-3 rounded-lg text-center text-sm font-medium shadow-lg animate-pulse">
-            {error}
-          </div>
-        )}
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 dark:bg-red-950/20 border-2 border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg text-center text-sm font-medium">
+              {error}
+            </div>
+          )}
 
-        {/* Register Form */}
-        <GSAPAnimation animation="slideUp" delay={0.2}>
-          <Card className="shadow-2xl border-2 border-purple-200 dark:border-purple-800 backdrop-blur-sm bg-white/90 dark:bg-neutral-900/90">
-          <CardHeader className="bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-800">
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">انضم إلى إيجي جو</CardTitle>
-            <CardDescription className="text-gray-700 dark:text-gray-200">
-              استمتع بتجربة تسوق احترافية وميزات حصرية
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+          {/* Register Form */}
+          <Card className="shadow-lg">
+          <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name Field */}
               <div>
@@ -752,12 +814,12 @@ export default function Register() {
             </div>
 
             {/* Privacy Note */}
-            <div className="text-xs text-gray-500 text-center mt-6">
+            <div className="text-xs text-muted-foreground text-center mt-6">
               جميع بياناتك محمية وفق <Link to="/privacy" className="underline text-primary">سياسة الخصوصية</Link> الخاصة بنا.
             </div>
           </CardContent>
         </Card>
-        </GSAPAnimation>
+        </div>
       </div>
     </div>
   );
