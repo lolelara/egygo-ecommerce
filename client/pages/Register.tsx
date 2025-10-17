@@ -649,21 +649,39 @@ export default function Register() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-brand-orange to-brand-purple text-white font-bold py-3 text-lg rounded-lg shadow-md hover:from-brand-purple hover:to-brand-orange transition-all duration-200"
+                size="lg"
+                className="w-full h-14 bg-gradient-to-r from-primary via-purple-600 to-secondary text-white font-bold text-lg rounded-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
                 disabled={isLoading || !acceptTerms}
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     جاري إنشاء الحساب...
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-base font-bold">إنشاء الحساب</span>
+                    <Check className="h-5 w-5" />
+                    <span>إنشاء الحساب</span>
                     <ArrowRight className="h-5 w-5 rtl:rotate-180" />
                   </div>
                 )}
               </Button>
+              
+              {/* Trust Signals */}
+              <div className="mt-4 grid grid-cols-3 gap-2 text-xs text-center">
+                <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-green-50 dark:bg-green-950/20">
+                  <Shield className="h-4 w-4 text-green-600" />
+                  <span className="text-green-700 dark:text-green-400 font-semibold">آمن</span>
+                </div>
+                <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-blue-50 dark:bg-blue-950/20">
+                  <Star className="h-4 w-4 text-blue-600" />
+                  <span className="text-blue-700 dark:text-blue-400 font-semibold">موثوق</span>
+                </div>
+                <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-purple-50 dark:bg-purple-950/20">
+                  <Truck className="h-4 w-4 text-purple-600" />
+                  <span className="text-purple-700 dark:text-purple-400 font-semibold">سريع</span>
+                </div>
+              </div>
             </form>
 
             {/* Divider */}
