@@ -188,9 +188,8 @@ export default function AdminPendingAccounts() {
             userId: userId,
             title: '🎉 تمت الموافقة على حسابك',
             message: 'مرحباً بك! تم قبول حسابك. يرجى تسجيل الخروج ثم الدخول مرة أخرى لتفعيل حسابك والوصول إلى لوحة التحكم.',
-            type: 'alert',
+            type: 'tip',
             isRead: false,
-            isNew: true,
           }
         );
       } catch (notifError) {
@@ -278,9 +277,8 @@ export default function AdminPendingAccounts() {
             userId: selectedUser.$id,
             title: 'تحديث حول طلب حسابك',
             message: `عذراً، لم يتم قبول حسابك. السبب: ${rejectionReason}`,
-            type: 'alert',
+            type: 'warning',
             isRead: false,
-            isNew: true,
           }
         );
       } catch (notifError) {
