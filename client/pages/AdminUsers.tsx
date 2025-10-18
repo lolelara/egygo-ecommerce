@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight, TrendingUp, UserCheck, UserX, Shield } from 'lucide-react';
 import { databases, appwriteConfig } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -455,8 +455,88 @@ export default function AdminUsers() {
 
   const totalPages = Math.ceil(totalUsers / USERS_PER_PAGE);
 
+  // Calculate statistics from filtered users
+  const stats = useMemo(() => {
+    const totalCount = totalUsers;
+    const customerCount = users.filter(u => u.role === 'customer').length;
+    const affiliateCount = users.filter(u => u.isAffiliate).length;
+    const merchantCount = users.filter(u => u.isMerchant).length;
+    const adminCount = users.filter(u => u.role === 'admin').length;
+    const pendingCount = users.filter(u => u.accountStatus === 'pending').length;
+    const approvedCount = users.filter(u => u.accountStatus === 'approved').length;
+    
+    return {
+      total: totalCount,
+      customer: customerCount,
+      affiliate: affiliateCount,
+      merchant: merchantCount,
+      admin: adminCount,
+      pending: pendingCount,
+      approved: approvedCount,
+    };
+  }, [users, totalUsers]);
+
   return (
     <AdminLayout>
+      {/* Statistics Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        {/* Total Users */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">إجمالي المستخدمين</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.approved} موافق عليه، {stats.pending} معلق
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Customers */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">العملاء</CardTitle>
+            <UserCheck className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{stats.customer}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              المستخدمين العاديين
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Affiliates */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">المسوقين</CardTitle>
+            <TrendingUp className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats.affiliate}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              الشركاء المسوقين
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Merchants */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">التجار</CardTitle>
+            <Shield className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">{stats.merchant}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats.admin > 0 && `+ ${stats.admin} مدير`}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
