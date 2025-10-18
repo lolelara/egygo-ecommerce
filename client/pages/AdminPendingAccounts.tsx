@@ -171,10 +171,12 @@ export default function AdminPendingAccounts() {
           {
             userId: userId,
             title: '🎉 تمت الموافقة على حسابك',
-            message: 'مرحباً بك! تم قبول حسابك ويمكنك الآن الاستفادة من جميع المميزات',
+            message: 'مرحباً بك! تم قبول حسابك. يرجى تسجيل الخروج ثم الدخول مرة أخرى لتفعيل حسابك والوصول إلى لوحة التحكم.',
             type: 'info',
             isRead: false,
             link: '/dashboard',
+            actionLabel: 'تسجيل الخروج',
+            actionLink: '/logout',
           }
         );
       } catch (notifError) {
@@ -183,7 +185,7 @@ export default function AdminPendingAccounts() {
 
       toast({
         title: "✅ تمت الموافقة",
-        description: `تم قبول حساب ${userName} بنجاح. سيتم تحديث حالته تلقائياً.`,
+        description: `تم قبول حساب ${userName} بنجاح. يرجى إخبار المستخدم بتسجيل الخروج والدخول مرة أخرى.`,
       });
 
       // Refresh list
