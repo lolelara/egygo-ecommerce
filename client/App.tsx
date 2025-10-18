@@ -36,6 +36,7 @@ import { WhatsAppButton } from "./components/WhatsAppButton";
 import { initPerformanceOptimizations } from './lib/performance';
 import { CookieConsent } from "./components/CookieConsent";
 import { NotificationPermission } from "./components/NotificationPermission";
+import { loadRecaptchaScript } from "./lib/recaptcha-service";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   // Initialize global enhancements
   useEffect(() => {
     initializeEnhancements();
+    
+    // Load reCAPTCHA script
+    loadRecaptchaScript().catch(err => {
+      console.error('Failed to load reCAPTCHA:', err);
+    });
   }, []);
   
   return (

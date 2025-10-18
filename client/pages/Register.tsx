@@ -18,6 +18,8 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
+import { RecaptchaBadge } from "@/components/RecaptchaBadge";
+import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -154,6 +156,12 @@ export default function Register() {
     setIsLoading(true);
 
     try {
+      // Validate reCAPTCHA
+      const recaptchaResult = await validateRecaptcha(RecaptchaActions.REGISTER);
+      if (!recaptchaResult.success) {
+        throw new Error(recaptchaResult.error || 'فشل التحقق من reCAPTCHA');
+      }
+
       // Register with account type
       const registeredUser = await register(
         formData.email,
@@ -732,6 +740,9 @@ export default function Register() {
                   </div>
                 )}
               </Button>
+
+              {/* reCAPTCHA Badge */}
+              <RecaptchaBadge className="mt-2" />
               
               {/* Trust Signals */}
               <div className="mt-4 grid grid-cols-3 gap-2 text-xs text-center">

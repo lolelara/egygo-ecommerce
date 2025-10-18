@@ -16,6 +16,8 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
+import { RecaptchaBadge } from "@/components/RecaptchaBadge";
+import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +57,12 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      // Validate reCAPTCHA
+      const recaptchaResult = await validateRecaptcha(RecaptchaActions.LOGIN);
+      if (!recaptchaResult.success) {
+        throw new Error(recaptchaResult.error || 'فشل التحقق من reCAPTCHA');
+      }
+
       await login(email, password);
       // Login successful - user will be updated via context
       // Navigation will happen in useEffect below
@@ -332,6 +340,9 @@ export default function Login() {
                   </div>
                 )}
               </Button>
+
+              {/* reCAPTCHA Badge */}
+              <RecaptchaBadge className="mt-2" />
           </form>
 
           {/* Sign Up Link */}
