@@ -188,7 +188,7 @@ export default function AdminPendingAccounts() {
             userId: userId,
             title: '🎉 تمت الموافقة على حسابك',
             message: 'مرحباً بك! تم قبول حسابك. يرجى تسجيل الخروج ثم الدخول مرة أخرى لتفعيل حسابك والوصول إلى لوحة التحكم.',
-            type: 'tip',
+            type: 'info',
             isRead: false,
           }
         );
@@ -277,7 +277,7 @@ export default function AdminPendingAccounts() {
             userId: selectedUser.$id,
             title: 'تحديث حول طلب حسابك',
             message: `عذراً، لم يتم قبول حسابك. السبب: ${rejectionReason}`,
-            type: 'warning',
+            type: 'alert',
             isRead: false,
           }
         );
