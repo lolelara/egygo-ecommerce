@@ -130,11 +130,17 @@ export default function AdminPendingAccounts() {
 
   const approveAccount = async (userId: string, userName: string) => {
     try {
-      const approvalData = {
+      // Data for users collection (has all fields)
+      const usersApprovalData = {
         accountStatus: 'approved',
         approvedAt: new Date().toISOString(),
         approvedBy: user?.$id,
         isActive: true,
+      };
+
+      // Data for userPreferences (only has accountStatus)
+      const prefsApprovalData = {
+        accountStatus: 'approved',
       };
 
       // Update in users collection
@@ -142,7 +148,7 @@ export default function AdminPendingAccounts() {
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
         userId,
-        approvalData
+        usersApprovalData
       );
 
       // CRITICAL: Also update userPreferences collection
@@ -160,7 +166,7 @@ export default function AdminPendingAccounts() {
             appwriteConfig.databaseId,
             'userPreferences',
             prefsDoc.$id,
-            approvalData
+            prefsApprovalData
           );
           console.log('✅ Updated userPreferences for:', userId);
         }
@@ -184,7 +190,7 @@ export default function AdminPendingAccounts() {
             message: 'مرحباً بك! تم قبول حسابك. يرجى تسجيل الخروج ثم الدخول مرة أخرى لتفعيل حسابك والوصول إلى لوحة التحكم.',
             type: 'alert',
             isRead: false,
-            createdAt: new Date().toISOString(),
+            isNew: true,
           }
         );
       } catch (notifError) {
@@ -222,10 +228,16 @@ export default function AdminPendingAccounts() {
     }
 
     try {
-      const rejectionData = {
+      // Data for users collection (has all fields)
+      const usersRejectionData = {
         accountStatus: 'rejected',
         rejectionReason: rejectionReason,
         isActive: false,
+      };
+
+      // Data for userPreferences (only accountStatus)
+      const prefsRejectionData = {
+        accountStatus: 'rejected',
       };
 
       // Update in users collection
@@ -233,7 +245,7 @@ export default function AdminPendingAccounts() {
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
         selectedUser.$id,
-        rejectionData
+        usersRejectionData
       );
 
       // Also update userPreferences
@@ -249,7 +261,7 @@ export default function AdminPendingAccounts() {
             appwriteConfig.databaseId,
             'userPreferences',
             prefsResponse.documents[0].$id,
-            rejectionData
+            prefsRejectionData
           );
         }
       } catch (prefsError) {
@@ -268,7 +280,7 @@ export default function AdminPendingAccounts() {
             message: `عذراً، لم يتم قبول حسابك. السبب: ${rejectionReason}`,
             type: 'alert',
             isRead: false,
-            createdAt: new Date().toISOString(),
+            isNew: true,
           }
         );
       } catch (notifError) {
