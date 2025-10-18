@@ -3,6 +3,12 @@ import { PageSkeleton, StatsCardSkeleton, TableSkeleton } from "@/components/Loa
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig, account } from "@/lib/appwrite";
 import { Query, ID } from "appwrite";
+import { 
+  safeUpdateDocument, 
+  safeCreateNotification,
+  validateUsersUpdate,
+  validateUserPreferencesUpdate 
+} from "@/lib/schema-validator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -143,15 +149,16 @@ export default function AdminPendingAccounts() {
         accountStatus: 'approved',
       };
 
-      // Update in users collection
-      await databases.updateDocument(
+      // Update in users collection (with validation)
+      await safeUpdateDocument(
+        databases,
         appwriteConfig.databaseId,
-        appwriteConfig.collections.users,
+        'users',
         userId,
         usersApprovalData
       );
 
-      // CRITICAL: Also update userPreferences collection
+      // CRITICAL: Also update userPreferences collection (with validation)
       try {
         // Find userPreferences document by userId
         const prefsResponse = await databases.listDocuments(
@@ -162,7 +169,8 @@ export default function AdminPendingAccounts() {
 
         if (prefsResponse.documents.length > 0) {
           const prefsDoc = prefsResponse.documents[0];
-          await databases.updateDocument(
+          await safeUpdateDocument(
+            databases,
             appwriteConfig.databaseId,
             'userPreferences',
             prefsDoc.$id,
@@ -178,16 +186,17 @@ export default function AdminPendingAccounts() {
       // Note: user_updates collection is optional
       // User will see changes after logout/login
 
-      // Create notification for approved user
+      // Create notification for approved user (with validation)
       try {
-        await databases.createDocument(
+        await safeCreateNotification(
+          databases,
           appwriteConfig.databaseId,
           appwriteConfig.collections.notifications || 'notifications',
           'unique()',
           {
             userId: userId,
             title: '🎉 تمت الموافقة على حسابك',
-            message: 'مرحباً بك! تم قبول حسابك. يرجى تسجيل الخروج ثم الدخول مرة أخرى لتفعيل حسابك والوصول إلى لوحة التحكم.',
+            message: 'مرحباً بك! تم قبول حسابك. سيتم تحديث حسابك تلقائياً خلال ثوانٍ. إذا لم يحدث ذلك، يرجى تسجيل الخروج والدخول مرة أخرى.',
             type: 'info',
             isRead: false,
           }

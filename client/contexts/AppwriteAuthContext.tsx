@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import AppwriteService, { databases, appwriteConfig } from '../lib/appwrite';
 import { Query } from 'appwrite';
+import { startSessionSync } from '../lib/session-sync';
 
 interface User {
   $id: string;
@@ -63,9 +64,17 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const syncCleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     checkAuthUser();
+    
+    // Cleanup session sync on unmount
+    return () => {
+      if (syncCleanupRef.current) {
+        syncCleanupRef.current();
+      }
+    };
   }, []);
 
   const checkAuthUser = async () => {
@@ -155,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
         
-        setUser({
+        const newUser = {
           $id: currentUser.$id,
           name: userData.name || currentUser.name,
           email: userData.email || currentUser.email,
@@ -174,6 +183,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           approvedAt: userData.approvedAt || prefs.approvedAt,
           approvedBy: userData.approvedBy || prefs.approvedBy,
           rejectionReason: userData.rejectionReason || prefs.rejectionReason
+        };
+        
+        setUser(newUser);
+        
+        // Start session sync for auto-refresh
+        if (syncCleanupRef.current) {
+          syncCleanupRef.current(); // Cleanup previous sync
+        }
+        
+        syncCleanupRef.current = startSessionSync({
+          userId: currentUser.$id,
+          onUpdate: (updatedData) => {
+            console.log('🔄 Session auto-updated:', updatedData);
+            setUser(prev => prev ? {
+              ...prev,
+              accountStatus: updatedData.accountStatus,
+              approvedAt: updatedData.approvedAt,
+              approvedBy: updatedData.approvedBy,
+              rejectionReason: updatedData.rejectionReason
+            } : null);
+          },
+          interval: 10000 // Check every 10 seconds
         });
       } else {
         setUser(null);

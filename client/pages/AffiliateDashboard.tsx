@@ -186,30 +186,62 @@ export default function AffiliateDashboard() {
         </Card>
       ) : stats ? (
         <>
-          {/* Header */}
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">
-                مرحباً، {user?.name || "الشريك"}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                إليك نظرة عامة على أداء شراكتك
-              </p>
+          {/* Header with Referral Code */}
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-600 to-yellow-500 bg-clip-text text-transparent">
+                  مرحباً، {user?.name || "الشريك"}
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  إليك نظرة عامة على أداء شراكتك
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
+                  شريك نشط
+                </Badge>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg">
-                شريك نشط
-              </Badge>
-            </div>
+            
+            {/* Referral Code Card */}
+            <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-orange-50/50 dark:from-primary/10 dark:to-neutral-800">
+              <CardContent className="pt-6">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <LinkIcon className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-muted-foreground">
+                        كود الإحالة الخاص بك
+                      </Label>
+                      <p className="text-2xl font-bold text-primary mt-1">
+                        {user?.affiliateCode || `AFF${user?.$id?.slice(0, 6).toUpperCase()}`}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      const code = user?.affiliateCode || `AFF${user?.$id?.slice(0, 6).toUpperCase()}`;
+                      navigator.clipboard.writeText(code);
+                      toast({
+                        title: "تم النسخ!",
+                        description: "تم نسخ كود الإحالة بنجاح",
+                      });
+                    }}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <Copy className="h-4 w-4" />
+                    نسخ الكود
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Quick Actions Panel */}
-          <QuickActionsPanel onCalculatorClick={() => setShowCalculator(!showCalculator)} />
-
-          {/* Earnings Calculator (Conditional) */}
-          {showCalculator && <EarningsCalculator />}
-
-          {/* Stats Cards */}
+          {/* Stats Cards - الأهم أولاً */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="border-orange-200 dark:border-orange-900 shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-white to-orange-50/30 dark:from-neutral-800 dark:to-neutral-800">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -278,319 +310,44 @@ export default function AffiliateDashboard() {
         </Card>
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="links">روابط الشراكة</TabsTrigger>
-          <TabsTrigger value="performance">الأداء</TabsTrigger>
-          <TabsTrigger value="resources">مصادر التسويق</TabsTrigger>
-        </TabsList>
+      {/* Main Content - Simplified */}
+      <div className="space-y-6">
+        {/* Recent Activity & Withdrawal */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <RecentActivityTimeline />
+          <WithdrawalRequest 
+            availableBalance={stats?.totalEarnings || 0}
+            pendingWithdrawals={stats?.pendingEarnings || 0}
+          />
+        </div>
 
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          {/* Smart Notifications & Performance Insights */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            <SmartNotifications />
-            <PerformanceInsights stats={stats} />
-          </div>
+        {/* Performance Insights & Top Products */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <PerformanceInsights stats={stats} />
+          <TopProductsWidget />
+        </div>
 
-          {/* Top Products & Leaderboard */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            <TopProductsWidget />
+        {/* Tabs for Additional Content */}
+        <Tabs defaultValue="links" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="links">روابط الشراكة</TabsTrigger>
+            <TabsTrigger value="leaderboard">المتصدرين</TabsTrigger>
+          </TabsList>
+
+          {/* Links Tab */}
+          <TabsContent value="links" className="space-y-6">
+            <AffiliateProductLinks />
+          </TabsContent>
+
+          {/* Leaderboard Tab */}
+          <TabsContent value="leaderboard" className="space-y-6">
             <LeaderboardWidget 
               currentUserRank={3} 
               currentUserEarnings={stats?.totalEarnings || 0} 
             />
-          </div>
-
-          {/* Recent Activity & Withdrawal */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            <RecentActivityTimeline />
-            <WithdrawalRequest 
-              availableBalance={stats?.totalEarnings || 0}
-              pendingWithdrawals={stats?.pendingEarnings || 0}
-            />
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Account Info */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    معلومات الحساب
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">كود الشراكة</Label>
-                      <div className="flex items-center gap-2 mt-1">
-                        <code className="bg-muted px-2 py-1 rounded text-sm">
-                          {stats.affiliateCode}
-                        </code>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            copyToClipboard(stats.affiliateCode, "code")
-                          }
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">
-                        معدل العمولة
-                      </Label>
-                      <p className="text-lg font-semibold text-brand-orange mt-1">
-                        {stats.commissionRate}%
-                      </p>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        عدد الإحالات
-                      </Label>
-                      <p className="text-lg font-semibold mt-1">
-                        {stats.referralCount}
-                      </p>
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium">
-                        تاريخ الانضمام
-                      </Label>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {new Date().toLocaleDateString("ar")}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>النشاط الأخير</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {stats.recentCommissions && stats.recentCommissions.length > 0 ? (
-                      stats.recentCommissions.slice(0, 5).map((commission: any) => (
-                        <div
-                          key={commission.id}
-                          className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                              <DollarSign className="h-4 w-4 text-green-600" />
-                            </div>
-                            <div>
-                              <p className="font-medium">عمولة جديدة</p>
-                              <p className="text-sm text-muted-foreground">
-                                طلب #{commission.orderId.substring(0, 8)}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-green-600">
-                              +{(commission.amount || 0).toFixed(2)} ج.م
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(commission.createdAt).toLocaleDateString("ar")}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        لا يوجد نشاط حديث
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>إجراءات سريعة</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" asChild>
-                    <Link to="/affiliate/withdraw">
-                      <DollarSign className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
-                      سحب الأرباح
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <Link to="/affiliate/resources">
-                      <Download className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
-                      مواد التسويق
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <Link to="/affiliate/support">
-                      <Users className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
-                      الدعم الفني
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>الأرباح المعلقة</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-brand-orange">
-                      {(stats.pendingEarnings || 0).toFixed(2)} ج.م
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      سيتم دفعها خلال 7 أيام
-                    </p>
-                    <Button size="sm" className="mt-3" asChild>
-                      <Link to="/affiliate/withdraw">عرض التفاصيل</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-
-        {/* Links Tab */}
-        <TabsContent value="links" className="space-y-6">
-          <AffiliateProductLinks />
-        </TabsContent>
-
-        {/* Performance Tab */}
-        <TabsContent value="performance" className="space-y-6">
-          {/* Product Comparison Tool */}
-          <ProductComparison />
-
-          {/* Advanced Analytics Component */}
-          <AffiliateStats affiliateId={user?.$id || ''} />
-          
-          <div className="grid lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>إحصائيات الأداء</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">
-                      {stats.clicks || 0}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      إجمالي النقرات
-                    </div>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">
-                      {stats.conversions || 0}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      إجمالي التحويلات
-                    </div>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">
-                      {stats.conversionRate || 0}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      معدل التحويل
-                    </div>
-                  </div>
-                  <div className="text-center p-4 bg-muted/50 rounded-lg">
-                    <div className="text-2xl font-bold">
-                      {stats.referralCount || 0}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      عدد الإحالات
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Resources Tab */}
-        <TabsContent value="resources" className="space-y-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Share2 className="h-5 w-5" />
-                  بانرات إعلانية
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  قم بتحميل بانرات جاهزة لاستخدامها في موقعك أو وسائل التواصل
-                </p>
-                <Button className="w-full" asChild>
-                  <Link to="/affiliate/banners">تحميل البانرات</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  نصائح التسويق
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  اكتشف أفضل الاستراتيجيات لزيادة مبيعاتك وأرباحك
-                </p>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/affiliate/marketing-tips">عرض النصائح</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  الكورسات التسويقية
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  تعلم استراتيجيات التسويق الاحترافية لزيادة مبيعاتك
-                </p>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/affiliate/courses">عرض الكورسات</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </div>
         </>
       ) : (
         <div className="flex flex-col items-center justify-center min-h-[400px] text-center">

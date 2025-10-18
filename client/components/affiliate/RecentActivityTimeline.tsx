@@ -30,6 +30,13 @@ export default function RecentActivityTimeline({ activities: propActivities }: R
   useEffect(() => {
     if (!propActivities && user?.$id) {
       loadActivities();
+      
+      // Auto-refresh every 30 seconds
+      const interval = setInterval(() => {
+        loadActivities();
+      }, 30000);
+      
+      return () => clearInterval(interval);
     }
   }, [user, propActivities]);
 
