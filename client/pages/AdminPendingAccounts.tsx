@@ -169,22 +169,8 @@ export default function AdminPendingAccounts() {
         // Continue anyway - users collection is updated
       }
 
-      // IMPORTANT: Also create a document in a sync collection
-      // This will be used by the user's refresh function
-      try {
-        await databases.createDocument(
-          appwriteConfig.databaseId,
-          'user_updates',
-          ID.unique(),
-          {
-            userId: userId,
-            ...approvalData,
-            timestamp: new Date().toISOString()
-          }
-        );
-      } catch (syncError) {
-        console.log('Sync collection not available, user will see update on next refresh');
-      }
+      // Note: user_updates collection is optional
+      // User will see changes after logout/login
 
       // Create notification for approved user
       try {
@@ -196,11 +182,9 @@ export default function AdminPendingAccounts() {
             userId: userId,
             title: '🎉 تمت الموافقة على حسابك',
             message: 'مرحباً بك! تم قبول حسابك. يرجى تسجيل الخروج ثم الدخول مرة أخرى لتفعيل حسابك والوصول إلى لوحة التحكم.',
-            type: 'info',
+            type: 'alert',
             isRead: false,
-            link: '/dashboard',
-            actionLabel: 'تسجيل الخروج',
-            actionLink: '/logout',
+            createdAt: new Date().toISOString(),
           }
         );
       } catch (notifError) {
@@ -238,29 +222,53 @@ export default function AdminPendingAccounts() {
     }
 
     try {
+      const rejectionData = {
+        accountStatus: 'rejected',
+        rejectionReason: rejectionReason,
+        isActive: false,
+      };
+
+      // Update in users collection
       await databases.updateDocument(
         appwriteConfig.databaseId,
         appwriteConfig.collections.users,
         selectedUser.$id,
-        {
-          accountStatus: 'rejected',
-          rejectionReason: rejectionReason,
-          isActive: false,
-        }
+        rejectionData
       );
+
+      // Also update userPreferences
+      try {
+        const prefsResponse = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          'userPreferences',
+          [Query.equal('userId', selectedUser.$id)]
+        );
+
+        if (prefsResponse.documents.length > 0) {
+          await databases.updateDocument(
+            appwriteConfig.databaseId,
+            'userPreferences',
+            prefsResponse.documents[0].$id,
+            rejectionData
+          );
+        }
+      } catch (prefsError) {
+        console.error('Error updating userPreferences:', prefsError);
+      }
 
       // Create notification for rejected user
       try {
         await databases.createDocument(
           appwriteConfig.databaseId,
-          appwriteConfig.collections.notifications,
+          appwriteConfig.collections.notifications || 'notifications',
           'unique()',
           {
             userId: selectedUser.$id,
             title: 'تحديث حول طلب حسابك',
             message: `عذراً، لم يتم قبول حسابك. السبب: ${rejectionReason}`,
-            type: 'account_rejected',
+            type: 'alert',
             isRead: false,
+            createdAt: new Date().toISOString(),
           }
         );
       } catch (notifError) {
