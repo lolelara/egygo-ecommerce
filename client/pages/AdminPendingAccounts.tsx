@@ -145,6 +145,30 @@ export default function AdminPendingAccounts() {
         approvalData
       );
 
+      // CRITICAL: Also update userPreferences collection
+      try {
+        // Find userPreferences document by userId
+        const prefsResponse = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          'userPreferences',
+          [Query.equal('userId', userId)]
+        );
+
+        if (prefsResponse.documents.length > 0) {
+          const prefsDoc = prefsResponse.documents[0];
+          await databases.updateDocument(
+            appwriteConfig.databaseId,
+            'userPreferences',
+            prefsDoc.$id,
+            approvalData
+          );
+          console.log('✅ Updated userPreferences for:', userId);
+        }
+      } catch (prefsError) {
+        console.error('Error updating userPreferences:', prefsError);
+        // Continue anyway - users collection is updated
+      }
+
       // IMPORTANT: Also create a document in a sync collection
       // This will be used by the user's refresh function
       try {
