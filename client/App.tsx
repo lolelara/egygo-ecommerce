@@ -37,6 +37,8 @@ import { initPerformanceOptimizations } from './lib/performance';
 import { CookieConsent } from "./components/CookieConsent";
 import { NotificationPermission } from "./components/NotificationPermission";
 import { loadRecaptchaScript } from "./lib/recaptcha-service";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
+import { initializeAnalytics, trackPageView } from "./lib/analytics";
 
 const queryClient = new QueryClient();
 
@@ -56,7 +58,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     loadRecaptchaScript().catch(err => {
       console.error('Failed to load reCAPTCHA:', err);
     });
+
+    // Initialize Analytics (GA4 + Facebook Pixel)
+    initializeAnalytics();
   }, []);
+
+  // Track page views on route change
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -72,6 +82,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Cookie Consent & Notification Permission */}
       <CookieConsent />
       <NotificationPermission />
+      
+      {/* PWA Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   );
 };
