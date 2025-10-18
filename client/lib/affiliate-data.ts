@@ -48,7 +48,6 @@ export async function getAffiliateStats(affiliateId: string) {
       totalEarnings: 0,
       pendingEarnings: 0,
       thisMonthEarnings: 0,
-      conversionRate: 0,
       updatedAt: new Date().toISOString()
     };
 
@@ -88,7 +87,7 @@ export async function getAffiliateActivities(affiliateId: string, limit = 10) {
       appwriteConfig.collections.affiliateActivities,
       [
         Query.equal('affiliateId', affiliateId),
-        Query.orderDesc('createdAt'),
+        Query.orderDesc('$createdAt'),
         Query.limit(limit)
       ]
     );
@@ -139,7 +138,7 @@ export async function getAffiliateNotifications(userId: string, limit = 5) {
       appwriteConfig.collections.notifications,
       [
         Query.equal('userId', userId),
-        Query.orderDesc('createdAt'),
+        Query.orderDesc('$createdAt'),
         Query.limit(limit)
       ]
     );
@@ -170,7 +169,7 @@ export async function getWithdrawalRequests(affiliateId: string) {
       appwriteConfig.collections.withdrawalRequests,
       [
         Query.equal('affiliateId', affiliateId),
-        Query.orderDesc('createdAt'),
+        Query.orderDesc('$createdAt'),
         Query.limit(10)
       ]
     );

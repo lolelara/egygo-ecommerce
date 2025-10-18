@@ -37,7 +37,6 @@ export async function logAffiliateActivity(params: LogActivityParams): Promise<v
       orderId: params.orderId || '',
       link: params.link || '',
       metadata: JSON.stringify(params.metadata || {}),
-      createdAt: new Date().toISOString(),
     };
 
     await databases.createDocument(
@@ -84,7 +83,6 @@ export async function logClickActivity(
         productId,
         productName,
         link,
-        clickedAt: new Date().toISOString(),
         ipAddress: '', // Can be filled from server-side
         userAgent: navigator.userAgent,
       }
@@ -205,9 +203,6 @@ export async function updateAffiliateStats(
         totalEarnings: updates.totalEarnings !== undefined ? updates.totalEarnings : currentStats.totalEarnings,
         pendingEarnings: updates.pendingEarnings !== undefined ? updates.pendingEarnings : currentStats.pendingEarnings,
         thisMonthEarnings: updates.thisMonthEarnings !== undefined ? updates.thisMonthEarnings : currentStats.thisMonthEarnings,
-        conversionRate: currentStats.totalClicks > 0 
-          ? ((updates.totalOrders || currentStats.totalOrders) / (updates.totalClicks || currentStats.totalClicks)) * 100 
-          : 0,
         updatedAt: new Date().toISOString(),
       };
 
@@ -230,8 +225,6 @@ export async function updateAffiliateStats(
           totalEarnings: updates.totalEarnings || 0,
           pendingEarnings: updates.pendingEarnings || 0,
           thisMonthEarnings: updates.thisMonthEarnings || 0,
-          conversionRate: 0,
-          createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
       );

@@ -158,8 +158,7 @@ export const customerApi = {
         DATABASE_ID,
         ADDRESSES_COLLECTION_ID,
         [
-          Query.equal('userId', userId),
-          Query.orderDesc('isDefault')
+          Query.equal('userId', userId)
         ]
       );
       return response.documents;
