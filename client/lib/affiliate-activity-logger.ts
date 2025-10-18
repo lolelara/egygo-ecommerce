@@ -37,6 +37,7 @@ export async function logAffiliateActivity(params: LogActivityParams): Promise<v
       orderId: params.orderId || '',
       link: params.link || '',
       metadata: JSON.stringify(params.metadata || {}),
+      createdAt: new Date().toISOString(),
     };
 
     await databases.createDocument(

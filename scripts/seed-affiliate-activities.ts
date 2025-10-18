@@ -139,6 +139,7 @@ async function seedActivities() {
               orderId: '',
               link: '',
               metadata: '{}',
+              createdAt,
             }
           );
 

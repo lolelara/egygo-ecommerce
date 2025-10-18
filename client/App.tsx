@@ -135,15 +135,23 @@ const App = () => (
               
               {/* Affiliate Routes - Protected & Lazy */}
               <Route path="/l/:linkCode" element={<LazyRoutes.ProductLanding />} />
+              <Route path="/affiliate/dashboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateDashboard /></ProtectedRoute>} />
+              <Route path="/affiliate/landing-pages" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLandingPages /></ProtectedRoute>} />
               <Route path="/affiliate/links" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLinkManager /></ProtectedRoute>} />
               <Route path="/affiliate/analytics" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
               <Route path="/affiliate/creatives" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateCreatives /></ProtectedRoute>} />
               <Route path="/affiliate/coupons" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateCoupons /></ProtectedRoute>} />
-              <Route path="/affiliate/dashboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateDashboard /></ProtectedRoute>} />
               <Route path="/affiliate/banners" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateBanners /></ProtectedRoute>} />
               <Route path="/affiliate/marketing-tips" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateMarketingTips /></ProtectedRoute>} />
               <Route path="/affiliate/courses" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateCourses /></ProtectedRoute>} />
               <Route path="/affiliate/withdraw" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateWithdrawPage /></ProtectedRoute>} />
+              <Route path="/affiliate/withdrawals" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateWithdrawPage /></ProtectedRoute>} />
+              <Route path="/affiliate/earnings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
+              <Route path="/affiliate/leaderboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateReferralSystem /></ProtectedRoute>} />
+              <Route path="/affiliate/campaigns" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateCreatives /></ProtectedRoute>} />
+              <Route path="/affiliate/rewards" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateReferralSystem /></ProtectedRoute>} />
+              <Route path="/affiliate/reports" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
+              <Route path="/affiliate/settings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.UpdateAffiliatePrefs /></ProtectedRoute>} />
               <Route path="/affiliate/resources" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateResourcesPage /></ProtectedRoute>} />
               <Route path="/affiliate/support" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateSupportPage /></ProtectedRoute>} />
               <Route path="/affiliate/referrals" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateReferralSystem /></ProtectedRoute>} />
