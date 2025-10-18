@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Sparkles, Check, Star, Shield, Truck, Phone } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Sparkles, Check, Star, Shield, Truck, Phone, MapPin } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig } from "@/lib/appwrite";
 import { Query, ID } from "appwrite";
@@ -14,12 +14,20 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
+import { egyptGovernorates, getCitiesByGovernorate } from "@/lib/egypt-locations";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +40,10 @@ export default function Register() {
     password: "",
     confirmPassword: "",
     referralCode: "",
+    governorate: "",
+    city: "",
   });
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
   // Note: 'intermediary' role can only be activated by admin for existing customer accounts
   const [accountType, setAccountType] = useState<'customer' | 'affiliate' | 'merchant'>('customer');
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -118,6 +129,27 @@ export default function Register() {
       }));
     };
 
+  // Handle governorate change
+  const handleGovernorateChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      governorate: value,
+      city: "", // Reset city when governorate changes
+    }));
+    
+    // Update available cities
+    const cities = getCitiesByGovernorate(value);
+    setAvailableCities(cities.map(c => c.nameAr));
+  };
+
+  // Handle city change
+  const handleCityChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      city: value,
+    }));
+  };
+
   // Redirect if already authenticated
   if (user) {
     navigate("/");
@@ -135,6 +167,16 @@ export default function Register() {
 
     if (!formData.phone) {
       setError("رقم الهاتف مطلوب");
+      return;
+    }
+
+    if (!formData.governorate) {
+      setError("المحافظة مطلوبة");
+      return;
+    }
+
+    if (!formData.city) {
+      setError("المركز/المدينة مطلوب");
       return;
     }
 
@@ -455,6 +497,53 @@ export default function Register() {
                 <p className="text-xs text-muted-foreground mt-1">
                   سيتم استخدام هذا الرقم للتواصل معك
                 </p>
+              </div>
+
+              {/* Governorate Field */}
+              <div>
+                <Label htmlFor="governorate">
+                  المحافظة <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.governorate}
+                  onValueChange={handleGovernorateChange}
+                  required
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="اختر المحافظة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {egyptGovernorates.map((gov) => (
+                      <SelectItem key={gov.name} value={gov.nameAr}>
+                        {gov.nameAr}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* City Field */}
+              <div>
+                <Label htmlFor="city">
+                  المركز/المدينة <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={formData.city}
+                  onValueChange={handleCityChange}
+                  disabled={!formData.governorate}
+                  required
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={formData.governorate ? "اختر المركز/المدينة" : "اختر المحافظة أولاً"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableCities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* WhatsApp Confirmation */}
