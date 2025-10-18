@@ -445,3 +445,94 @@
 .loading-dots span:nth-child(2) {
   animation-delay: -0.16s;
 }
+
+/* ===== RIPPLE EFFECT ===== */
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+/* ===== SLIDE UP ===== */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+/* ===== SUCCESS CHECKMARK ===== */
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-checkmark {
+  animation: checkmark 0.6s ease forwards;
+}
+
+/* ===== SHAKE (for errors) ===== */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-10px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(10px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease;
+}
+
+/* ===== MICRO-INTERACTIONS ===== */
+.hover-brightness:hover {
+  filter: brightness(1.1);
+  transition: filter 0.2s ease;
+}
+
+.hover-shadow-sm:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.hover-shadow-md:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.hover-shadow-lg:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+/* Active/Press Effect */
+.active-press:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+.active-brightness:active {
+  filter: brightness(0.9);
+  transition: filter 0.1s ease;
+}
