@@ -333,6 +333,51 @@ async function createNotificationsCollection() {
 }
 
 /**
+ * Create Addresses Collection
+ */
+async function createAddressesCollection() {
+  console.log('📦 Creating Addresses Collection...');
+  
+  try {
+    await databases.createCollection(
+      DATABASE_ID,
+      'addresses',
+      'User Addresses',
+      [
+        Permission.read(Role.users()),
+        Permission.create(Role.users()),
+        Permission.update(Role.users()),
+        Permission.delete(Role.users()),
+      ]
+    );
+
+    // Attributes
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'userId', 255, true);
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'name', 255, true);
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'phone', 50, true);
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'street', 500, true);
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'city', 100, true);
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'state', 100, false);
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'postalCode', 20, false);
+    await databases.createStringAttribute(DATABASE_ID, 'addresses', 'country', 100, false, 'Egypt');
+    await databases.createBooleanAttribute(DATABASE_ID, 'addresses', 'isDefault', true, false);
+    await databases.createEnumAttribute(DATABASE_ID, 'addresses', 'type', ['home', 'work', 'other'], false, 'home');
+
+    // Indexes
+    await databases.createIndex(DATABASE_ID, 'addresses', 'userId_idx', 'key', ['userId']);
+    await databases.createIndex(DATABASE_ID, 'addresses', 'isDefault_idx', 'key', ['isDefault']);
+
+    console.log('✅ Addresses Collection created successfully');
+  } catch (error: any) {
+    if (error.code === 409) {
+      console.log('⚠️  Addresses Collection already exists');
+    } else {
+      console.error('❌ Error creating Addresses Collection:', error.message);
+    }
+  }
+}
+
+/**
  * Main Setup Function
  */
 async function setupAppwriteCollections() {
@@ -349,6 +394,7 @@ async function setupAppwriteCollections() {
   }
 
   try {
+    await createAddressesCollection();
     await createFavoritesCollection();
     await createProductViewsCollection();
     await createAffiliateActivitiesCollection();

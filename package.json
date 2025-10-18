@@ -71,7 +71,7 @@
     "setup:preferences": "tsx scripts/update-user-preferences.ts",
     "setup:offers": "tsx scripts/create-offers-collection.ts",
     "setup:offers:reset": "tsx scripts/delete-and-recreate-offers.ts",
-    "setup:all": "npm run setup:referrals && npm run setup:preferences && npm run setup:offers",
+    "setup:all": "npm run setup-appwrite && npm run setup-collections && npm run setup:referrals && npm run setup:preferences && npm run setup:offers",
     "warmup-vendoor": "tsx scripts/warmup-vendoor.ts",
     "db:migrate": "echo 'Using Appwrite instead of Prisma'",
     "db:seed": "echo 'Using Appwrite instead of Prisma'",
