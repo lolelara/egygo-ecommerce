@@ -15,14 +15,14 @@ import { useI18n } from '@/lib/i18n';
 interface WhatsAppButtonProps {
   phone?: string;
   message?: string;
-  position?: 'bottom-right' | 'bottom-left';
+  position?: 'bottom-right' | 'bottom-left'; // bottom-left = يمين في RTL
   showQuickChat?: boolean;
 }
 
 export function WhatsAppButton({
   phone,
   message,
-  position = 'bottom-right',
+  position = 'bottom-left',
   showQuickChat = true,
 }: WhatsAppButtonProps) {
   const [isOpen, setIsOpen] = useState(false);

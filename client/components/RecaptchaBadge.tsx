@@ -11,6 +11,11 @@ interface RecaptchaBadgeProps {
 }
 
 export function RecaptchaBadge({ className = '' }: RecaptchaBadgeProps) {
+  // Hidden by default - reCAPTCHA v3 works invisibly
+  return null;
+  
+  // Uncomment below to show badge if needed
+  /*
   return (
     <div className={`flex items-center justify-center gap-2 text-xs text-muted-foreground ${className}`}>
       <Shield className="h-3 w-3" />
@@ -27,6 +32,7 @@ export function RecaptchaBadge({ className = '' }: RecaptchaBadgeProps) {
       </span>
     </div>
   );
+  */
 }
 
 export default RecaptchaBadge;
