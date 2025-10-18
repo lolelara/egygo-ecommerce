@@ -15,8 +15,21 @@ import {
   Target,
   BarChart3,
   LinkIcon,
-  Share2
+  Share2,
+  Menu,
+  X,
+  Bell,
+  User as UserIcon,
 } from "lucide-react";
+import { AffiliateSidebar } from "@/components/AffiliateSidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DashboardStatsSkeleton } from "@/components/LoadingSkeletons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -60,6 +73,7 @@ export default function AffiliateDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -160,8 +174,75 @@ export default function AffiliateDashboard() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8 bg-gradient-to-br from-orange-50/50 via-white to-yellow-50/50 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-900 min-h-screen">
-      {loading ? (
+    <div className="flex h-screen overflow-hidden">
+      {/* Sidebar - Desktop */}
+      <div className="hidden lg:block">
+        <AffiliateSidebar />
+      </div>
+
+      {/* Sidebar - Mobile */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+          <div className="absolute right-0 top-0 h-full">
+            <AffiliateSidebar />
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar */}
+        <header className="flex h-16 items-center justify-between border-b bg-background px-6">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+            <div>
+              <h2 className="text-lg font-semibold">مرحباً، {user?.name}</h2>
+              <p className="text-sm text-muted-foreground">
+                كود الإحالة: {user?.affiliateCode || `AFF${user?.$id?.slice(0, 6).toUpperCase()}`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Notifications */}
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center">
+                3
+              </Badge>
+            </Button>
+
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <UserIcon className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>حسابي</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>الملف الشخصي</DropdownMenuItem>
+                <DropdownMenuItem>الإعدادات</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/logout')}>تسجيل الخروج</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-y-auto bg-muted/40">
+          <div className="container mx-auto px-4 py-8 space-y-8">
+            {loading ? (
         <div className="py-8">
           <DashboardStatsSkeleton count={4} />
         </div>
@@ -357,6 +438,9 @@ export default function AffiliateDashboard() {
           </Button>
         </div>
       )}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
