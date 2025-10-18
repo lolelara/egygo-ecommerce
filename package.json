@@ -73,6 +73,7 @@
     "setup:offers:reset": "tsx scripts/delete-and-recreate-offers.ts",
     "setup:all": "npm run setup-appwrite && npm run setup-collections && npm run setup:referrals && npm run setup:preferences && npm run setup:offers",
     "setup:commissions": "npx tsx scripts/setup-commission-collections.ts",
+    "setup:locations": "npx tsx scripts/add-location-fields.ts",
     "seed:activities": "npx tsx scripts/seed-affiliate-activities.ts",
     "warmup-vendoor": "tsx scripts/warmup-vendoor.ts",
     "db:migrate": "echo 'Using Appwrite instead of Prisma'",

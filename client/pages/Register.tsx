@@ -227,6 +227,8 @@ export default function Register() {
               email: formData.email,
               name: formData.name,
               phone: formData.phone || '',
+              governorate: formData.governorate,
+              city: formData.city,
               role: accountType === 'merchant' ? 'merchant' : 
                     accountType === 'affiliate' ? 'affiliate' : 'customer',
               accountStatus: accountType === 'customer' ? 'approved' : 'pending',
