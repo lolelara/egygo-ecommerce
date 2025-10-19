@@ -163,14 +163,19 @@ export default function AdminProductApproval() {
         ID.unique(),
         {
           userId: selectedProduct.merchantId,
-          type: actionType === 'approve' ? 'product_approved' : 'product_rejected',
+          type: actionType === 'approve' ? 'info' : 'alert',
           title: actionType === 'approve' ? 'تمت الموافقة على المنتج' : 'تم رفض المنتج',
           message: actionType === 'approve' 
             ? `تمت الموافقة على منتج "${selectedProduct.name}" وهو الآن متاح للعرض`
             : `تم رفض منتج "${selectedProduct.name}". السبب: ${rejectionReason}`,
-          productId: selectedProduct.$id,
-          isRead: false,
-          createdAt: new Date().toISOString(),
+          read: false,
+          relatedId: selectedProduct.$id,
+          metadata: JSON.stringify({
+            productId: selectedProduct.$id,
+            productName: selectedProduct.name,
+            action: actionType,
+            rejectionReason: actionType === 'reject' ? rejectionReason : undefined
+          })
         }
       );
 

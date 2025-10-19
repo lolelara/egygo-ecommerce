@@ -192,13 +192,18 @@ export default function AdminPendingAccounts() {
           databases,
           appwriteConfig.databaseId,
           appwriteConfig.collections.notifications || 'notifications',
-          'unique()',
+          ID.unique(),
           {
             userId: userId,
             title: '🎉 تمت الموافقة على حسابك',
             message: 'مرحباً بك! تم قبول حسابك. سيتم تحديث حسابك تلقائياً خلال ثوانٍ. إذا لم يحدث ذلك، يرجى تسجيل الخروج والدخول مرة أخرى.',
             type: 'info',
-            isRead: false,
+            read: false,
+            relatedId: userId,
+            metadata: JSON.stringify({
+              action: 'approved',
+              userName: userName
+            })
           }
         );
       } catch (notifError) {
@@ -281,13 +286,19 @@ export default function AdminPendingAccounts() {
         await databases.createDocument(
           appwriteConfig.databaseId,
           appwriteConfig.collections.notifications || 'notifications',
-          'unique()',
+          ID.unique(),
           {
             userId: selectedUser.$id,
             title: 'تحديث حول طلب حسابك',
             message: `عذراً، لم يتم قبول حسابك. السبب: ${rejectionReason}`,
             type: 'alert',
-            isRead: false,
+            read: false,
+            relatedId: selectedUser.$id,
+            metadata: JSON.stringify({
+              action: 'rejected',
+              rejectionReason: rejectionReason,
+              userName: selectedUser.name
+            })
           }
         );
       } catch (notifError) {

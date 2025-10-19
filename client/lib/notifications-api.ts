@@ -105,7 +105,7 @@ export async function getUnreadCount(): Promise<number> {
       NOTIFICATIONS_COLLECTION_ID,
       [
         Query.equal('userId', user.$id),
-        Query.equal('isRead', false),
+        Query.equal('read', false),
         Query.limit(1000)
       ]
     );
@@ -126,7 +126,7 @@ export async function markAsRead(notificationId: string): Promise<void> {
       DATABASE_ID,
       NOTIFICATIONS_COLLECTION_ID,
       notificationId,
-      { isRead: true }
+      { read: true }
     );
   } catch (error) {
     console.error('Error marking notification as read:', error);
@@ -146,7 +146,7 @@ export async function markAllAsRead(): Promise<void> {
       NOTIFICATIONS_COLLECTION_ID,
       [
         Query.equal('userId', user.$id),
-        Query.equal('isRead', false),
+        Query.equal('read', false),
         Query.limit(100)
       ]
     );
@@ -157,7 +157,7 @@ export async function markAllAsRead(): Promise<void> {
           DATABASE_ID,
           NOTIFICATIONS_COLLECTION_ID,
           notification.$id,
-          { isRead: true }
+          { read: true }
         )
       )
     );
@@ -190,7 +190,7 @@ export async function createNotification(
   userId: string,
   title: string,
   message: string,
-  type: 'info' | 'success' | 'warning' | 'error' | 'promotion' = 'info',
+  type: 'order' | 'shipping' | 'delivery' | 'alert' | 'info' | 'commission' | 'affiliate' = 'info',
   link?: string
 ): Promise<Notification> {
   try {
@@ -203,8 +203,9 @@ export async function createNotification(
         title,
         message,
         type,
-        isRead: false,
-        link: link || null
+        read: false,
+        relatedId: userId,
+        metadata: link ? JSON.stringify({ link }) : undefined
       }
     );
 
