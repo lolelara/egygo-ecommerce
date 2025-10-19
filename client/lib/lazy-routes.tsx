@@ -101,7 +101,6 @@ export const AdminSettingsPage = lazyLoad(() => import('@/pages/AdminSettingsPag
 export const AdminShipping = lazyLoad(() => import('@/pages/AdminShipping'));
 export const AdminAdvancedSettings = lazyLoad(() => import('@/pages/AdminAdvancedSettings'));
 export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
-export const AdminWhatsAppManager = lazyLoad(() => import('@/pages/AdminWhatsAppManager'));
 export const AdminCoupons = lazyLoad(() => import('@/pages/AdminCoupons'));
 export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'));
 export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
