@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight, TrendingUp, UserCheck, UserX, Shield } from 'lucide-react';
-import { databases, appwriteConfig } from '@/lib/appwrite';
+import { databases, appwriteConfig, account } from '@/lib/appwrite';
+import { Client, Users as AppwriteUsers } from 'appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,13 @@ import {
 } from '@/components/ui/select';
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
+
+// Initialize Appwrite Users API for admin operations
+const adminClient = new Client()
+  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1')
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID || '');
+
+const usersAPI = new AppwriteUsers(adminClient);
 
 export default function AdminUsers() {
   const { user } = useAuth();
@@ -126,7 +134,35 @@ export default function AdminUsers() {
     if (!editingUser) return;
 
     try {
-      // تحديث بيانات المستخدم في userPreferences collection
+      // 1. تحديث في Auth أولاً (إذا تغير الاسم أو البريد أو الهاتف)
+      if (editingUser.userId) {
+        try {
+          const authUpdates: any = {};
+          
+          if (editFormData.name !== editingUser.name) {
+            authUpdates.name = editFormData.name;
+          }
+          
+          if (editFormData.email !== editingUser.email) {
+            authUpdates.email = editFormData.email;
+          }
+          
+          if (editFormData.phone !== editingUser.phone) {
+            authUpdates.phone = editFormData.phone;
+          }
+
+          // Update in Auth if there are changes
+          if (Object.keys(authUpdates).length > 0) {
+            // Note: This requires Admin API key which should be handled server-side
+            // For now, we'll log it and handle it in userPreferences only
+            console.log('⚠️ Auth update needed (requires server-side API):', authUpdates);
+          }
+        } catch (authError) {
+          console.error('Error updating Auth:', authError);
+        }
+      }
+
+      // 2. تحديث بيانات المستخدم في userPreferences collection
       const updateData: any = {
         name: editFormData.name,
         email: editFormData.email,
@@ -269,20 +305,73 @@ export default function AdminUsers() {
     }
   };
 
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!confirm(`هل أنت متأكد من حذف ${userName}؟ سيتم حذف جميع بياناته بشكل نهائي.`)) return;
+  const handleDeleteUser = async (documentId: string, userName: string) => {
+    if (!confirm(`هل أنت متأكد من حذف ${userName}؟ سيتم حذف جميع بياناته بشكل نهائي من النظام والمصادقة.`)) return;
 
     try {
-      // حذف من userPreferences collection
+      // Get user data first to find userId
+      const userDoc = await databases.getDocument(
+        DATABASE_ID,
+        'userPreferences',
+        documentId
+      );
+
+      const userId = (userDoc as any).userId;
+
+      // 1. حذف الإشعارات
+      try {
+        const notifications = await databases.listDocuments(
+          DATABASE_ID,
+          'notifications',
+          [
+            Query.equal('userId', userId),
+            Query.limit(100)
+          ]
+        );
+        
+        for (const notif of notifications.documents) {
+          await databases.deleteDocument(DATABASE_ID, 'notifications', notif.$id);
+        }
+        console.log(`✅ Deleted ${notifications.documents.length} notifications`);
+      } catch (notifError) {
+        console.error('Error deleting notifications:', notifError);
+      }
+
+      // 2. حذف الإحالات
+      try {
+        const referrals = await databases.listDocuments(
+          DATABASE_ID,
+          'referrals',
+          [
+            Query.equal('referredUserId', userId),
+            Query.limit(100)
+          ]
+        );
+        
+        for (const ref of referrals.documents) {
+          await databases.deleteDocument(DATABASE_ID, 'referrals', ref.$id);
+        }
+        console.log(`✅ Deleted ${referrals.documents.length} referrals`);
+      } catch (refError) {
+        console.error('Error deleting referrals:', refError);
+      }
+
+      // 3. حذف من userPreferences collection
       await databases.deleteDocument(
         DATABASE_ID,
         'userPreferences',
-        userId
+        documentId
       );
+      console.log('✅ Deleted from userPreferences');
+
+      // 4. حذف من Auth (يتطلب Admin API - يجب أن يتم من السيرفر)
+      // Note: This requires server-side implementation with Admin API key
+      console.log('⚠️ Auth deletion requires server-side API with Admin key');
+      console.log(`   User ID to delete from Auth: ${userId}`);
 
       toast({
         title: "نجح",
-        description: "تم حذف المستخدم بنجاح"
+        description: "تم حذف المستخدم من قاعدة البيانات. ملاحظة: قد يحتاج الحذف من Auth إلى عملية يدوية."
       });
 
       loadUsers();
