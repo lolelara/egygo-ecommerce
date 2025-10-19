@@ -80,7 +80,7 @@ export default function AdminUsers() {
 
       const response = await databases.listDocuments(
         DATABASE_ID,
-        'users',
+        'userPreferences',
         queries
       );
       
@@ -126,21 +126,23 @@ export default function AdminUsers() {
     if (!editingUser) return;
 
     try {
-      // تحديث بيانات المستخدم في users collection
+      // تحديث بيانات المستخدم في userPreferences collection
       const updateData: any = {
         name: editFormData.name,
         email: editFormData.email,
         phone: editFormData.phone || '',
+        role: editFormData.role,
       };
 
       // تحديث الأدوار
       updateData.isAffiliate = editFormData.role === 'affiliate';
       updateData.isMerchant = editFormData.role === 'merchant';
       updateData.isIntermediary = editFormData.role === 'intermediary';
+      updateData.isAdmin = editFormData.role === 'admin';
 
       await databases.updateDocument(
         DATABASE_ID,
-        'users',
+        'userPreferences',
         editingUser.$id,
         updateData
       );
@@ -268,12 +270,13 @@ export default function AdminUsers() {
   };
 
   const handleDeleteUser = async (userId: string, userName: string) => {
-    if (!confirm(`هل أنت متأكد من حذف ${userName}؟`)) return;
+    if (!confirm(`هل أنت متأكد من حذف ${userName}؟ سيتم حذف جميع بياناته بشكل نهائي.`)) return;
 
     try {
+      // حذف من userPreferences collection
       await databases.deleteDocument(
         DATABASE_ID,
-        'users',
+        'userPreferences',
         userId
       );
 

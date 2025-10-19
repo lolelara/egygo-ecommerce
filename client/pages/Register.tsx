@@ -272,14 +272,19 @@ export default function Register() {
               await databases.createDocument(
                 appwriteConfig.databaseId,
                 appwriteConfig.collections.notifications,
-                'unique()',
+                ID.unique(),
                 {
                   userId: referrerInfo.userId,
                   title: '🎉 إحالة جديدة!',
                   message: `قام ${formData.name} بالتسجيل باستخدام كود الإحالة الخاص بك`,
                   type: 'affiliate',
-                  isRead: false,
-                  link: '/affiliate/referrals'
+                  read: false,
+                  relatedId: registeredUser.$id,
+                  metadata: JSON.stringify({
+                    referralCode: formData.referralCode,
+                    newUserName: formData.name,
+                    link: '/affiliate/referrals'
+                  })
                 }
               );
             } catch (refError) {
@@ -296,7 +301,7 @@ export default function Register() {
           await databases.createDocument(
             appwriteConfig.databaseId,
             appwriteConfig.collections.notifications,
-            'unique()',
+            ID.unique(),
             {
               userId: registeredUser.$id,
               title: '👋 مرحباً بك في إيجي جو',
@@ -304,8 +309,12 @@ export default function Register() {
                 ? 'نتمنى لك تجربة تسوق ممتعة! ابدأ باستكشاف منتجاتنا الآن'
                 : '⏳ تم استلام طلبك وجاري المراجعة. سنخطرك فوراً عند الموافقة على حسابك',
               type: 'info',
-              isRead: false,
-              link: accountType === 'customer' ? '/products' : undefined,
+              read: false,
+              relatedId: registeredUser.$id,
+              metadata: JSON.stringify({
+                accountType: accountType,
+                link: accountType === 'customer' ? '/products' : undefined
+              })
             }
           );
         } catch (notifError) {
