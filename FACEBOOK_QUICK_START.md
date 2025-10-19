@@ -47,6 +47,20 @@
    ✅ yourdomain.com (للإنتاج)
 ```
 
+#### **د. أضف Privacy Policy و Terms:**
+```
+1. Settings → Basic
+2. Privacy Policy URL:
+   ✅ http://localhost:5173/#/privacy
+   
+3. Terms of Service URL:
+   ✅ http://localhost:5173/#/terms
+```
+
+**📌 روابط صفحاتك:**
+- Privacy: `http://localhost:5173/#/privacy`
+- Terms: `http://localhost:5173/#/terms`
+
 ---
 
 ### **2. في Appwrite Console:**

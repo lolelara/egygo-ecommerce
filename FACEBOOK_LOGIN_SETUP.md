@@ -39,9 +39,18 @@
 #### **ج. Privacy Policy URL:**
 ```
 1. في Basic Settings
-2. Privacy Policy URL: https://yourdomain.com/privacy
-3. Terms of Service URL: https://yourdomain.com/terms
+2. Privacy Policy URL: 
+   - للتطوير: http://localhost:5173/#/privacy
+   - للإنتاج: https://yourdomain.com/#/privacy
+   
+3. Terms of Service URL:
+   - للتطوير: http://localhost:5173/#/terms
+   - للإنتاج: https://yourdomain.com/#/terms
 ```
+
+**📌 روابط الصفحات في موقعك:**
+- Privacy Policy: `/#/privacy`
+- Terms of Service: `/#/terms`
 
 ---
 
