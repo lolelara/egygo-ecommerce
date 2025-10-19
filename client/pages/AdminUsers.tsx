@@ -3,7 +3,6 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight, TrendingUp, UserCheck, UserX, Shield } from 'lucide-react';
 import { databases, appwriteConfig, account } from '@/lib/appwrite';
-import { Client, Users as AppwriteUsers } from 'appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,12 +21,66 @@ import {
 
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABASE_ID;
 
-// Initialize Appwrite Users API for admin operations
-const adminClient = new Client()
-  .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1')
-  .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID || '');
+// Admin API helper functions
+const ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1';
+const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID || '';
+const API_KEY = import.meta.env.APPWRITE_API_KEY || '';
 
-const usersAPI = new AppwriteUsers(adminClient);
+const adminAPI = {
+  async updateUserName(userId: string, name: string) {
+    const response = await fetch(`${ENDPOINT}/users/${userId}/name`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Appwrite-Project': PROJECT_ID,
+        'X-Appwrite-Key': API_KEY,
+      },
+      body: JSON.stringify({ name })
+    });
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  },
+  
+  async updateUserEmail(userId: string, email: string) {
+    const response = await fetch(`${ENDPOINT}/users/${userId}/email`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Appwrite-Project': PROJECT_ID,
+        'X-Appwrite-Key': API_KEY,
+      },
+      body: JSON.stringify({ email })
+    });
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  },
+  
+  async updateUserPhone(userId: string, phone: string) {
+    const response = await fetch(`${ENDPOINT}/users/${userId}/phone`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Appwrite-Project': PROJECT_ID,
+        'X-Appwrite-Key': API_KEY,
+      },
+      body: JSON.stringify({ number: phone })
+    });
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  },
+  
+  async deleteUser(userId: string) {
+    const response = await fetch(`${ENDPOINT}/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-Appwrite-Project': PROJECT_ID,
+        'X-Appwrite-Key': API_KEY,
+      }
+    });
+    if (!response.ok) throw new Error(await response.text());
+    return response.status === 204;
+  }
+};
 
 export default function AdminUsers() {
   const { user } = useAuth();
@@ -137,28 +190,39 @@ export default function AdminUsers() {
       // 1. تحديث في Auth أولاً (إذا تغير الاسم أو البريد أو الهاتف)
       if (editingUser.userId) {
         try {
-          const authUpdates: any = {};
+          let authUpdated = false;
           
+          // Update name in Auth
           if (editFormData.name !== editingUser.name) {
-            authUpdates.name = editFormData.name;
+            await adminAPI.updateUserName(editingUser.userId, editFormData.name);
+            console.log('✅ Updated name in Auth');
+            authUpdated = true;
           }
           
+          // Update email in Auth
           if (editFormData.email !== editingUser.email) {
-            authUpdates.email = editFormData.email;
+            await adminAPI.updateUserEmail(editingUser.userId, editFormData.email);
+            console.log('✅ Updated email in Auth');
+            authUpdated = true;
           }
           
-          if (editFormData.phone !== editingUser.phone) {
-            authUpdates.phone = editFormData.phone;
+          // Update phone in Auth
+          if (editFormData.phone && editFormData.phone !== editingUser.phone) {
+            await adminAPI.updateUserPhone(editingUser.userId, editFormData.phone);
+            console.log('✅ Updated phone in Auth');
+            authUpdated = true;
           }
 
-          // Update in Auth if there are changes
-          if (Object.keys(authUpdates).length > 0) {
-            // Note: This requires Admin API key which should be handled server-side
-            // For now, we'll log it and handle it in userPreferences only
-            console.log('⚠️ Auth update needed (requires server-side API):', authUpdates);
+          if (authUpdated) {
+            console.log('✅ Auth updated successfully!');
           }
-        } catch (authError) {
-          console.error('Error updating Auth:', authError);
+        } catch (authError: any) {
+          console.error('❌ Error updating Auth:', authError);
+          toast({
+            title: "تحذير",
+            description: `تم التحديث في قاعدة البيانات لكن فشل التحديث في Auth: ${authError.message}`,
+            variant: "destructive"
+          });
         }
       }
 
@@ -364,15 +428,23 @@ export default function AdminUsers() {
       );
       console.log('✅ Deleted from userPreferences');
 
-      // 4. حذف من Auth (يتطلب Admin API - يجب أن يتم من السيرفر)
-      // Note: This requires server-side implementation with Admin API key
-      console.log('⚠️ Auth deletion requires server-side API with Admin key');
-      console.log(`   User ID to delete from Auth: ${userId}`);
-
-      toast({
-        title: "نجح",
-        description: "تم حذف المستخدم من قاعدة البيانات. ملاحظة: قد يحتاج الحذف من Auth إلى عملية يدوية."
-      });
+      // 4. حذف من Auth
+      try {
+        await adminAPI.deleteUser(userId);
+        console.log('✅ Deleted from Auth');
+        
+        toast({
+          title: "نجح",
+          description: "تم حذف المستخدم بالكامل من النظام والمصادقة (Auth)"
+        });
+      } catch (authError: any) {
+        console.error('❌ Error deleting from Auth:', authError);
+        toast({
+          title: "تحذير",
+          description: `تم الحذف من قاعدة البيانات لكن فشل الحذف من Auth: ${authError.message}`,
+          variant: "destructive"
+        });
+      }
 
       loadUsers();
     } catch (error) {
