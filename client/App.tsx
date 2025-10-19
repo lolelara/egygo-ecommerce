@@ -29,6 +29,7 @@ import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
+import AuthCallback from "./pages/AuthCallback";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
@@ -112,6 +113,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/logout" element={<Logout />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 
                 {/* Special pages - Lazy */}
                 <Route path="/categories" element={<LazyRoutes.Categories />} />

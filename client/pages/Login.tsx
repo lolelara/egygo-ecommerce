@@ -18,6 +18,7 @@ import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
+import { FacebookLoginButton } from "@/components/FacebookLoginButton";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -344,6 +345,21 @@ export default function Login() {
               {/* reCAPTCHA Badge */}
               <RecaptchaBadge className="mt-2" />
           </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                أو
+              </span>
+            </div>
+          </div>
+
+          {/* Facebook Login */}
+          <FacebookLoginButton />
 
           {/* Sign Up Link */}
           <div className="text-center text-sm mt-6">
