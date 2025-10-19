@@ -48,7 +48,7 @@ export default function MerchantNotifications() {
         type: doc.type || 'info',
         title: doc.title,
         message: doc.message,
-        isRead: doc.isRead || false,
+        isRead: doc.read || false,
         createdAt: doc.$createdAt
       })));
     } catch (error) {
@@ -71,7 +71,7 @@ export default function MerchantNotifications() {
     },
     {
       id: '2',
-      type: 'stock',
+      type: 'alert',
       title: 'تنبيه مخزون',
       message: 'منتج "ساعة ذكية" أوشك على النفاد (5 قطع متبقية)',
       isRead: false,

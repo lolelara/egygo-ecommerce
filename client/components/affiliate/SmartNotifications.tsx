@@ -52,7 +52,7 @@ export default function SmartNotifications() {
         appwriteConfig.databaseId,
         appwriteConfig.collections.notifications,
         notificationId,
-        { isRead: true, isNew: false } as any
+        { read: true }
       );
       
       // Update local state
