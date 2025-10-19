@@ -137,6 +137,7 @@ const App = () => (
               {/* Affiliate Routes - Protected & Lazy */}
               <Route path="/l/:linkCode" element={<LazyRoutes.ProductLanding />} />
               <Route path="/affiliate/dashboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateDashboard /></ProtectedRoute>} />
+              <Route path="/affiliate/earnings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateEarningsHistory /></ProtectedRoute>} />
               <Route path="/affiliate/landing-pages" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLandingPages /></ProtectedRoute>} />
               <Route path="/affiliate/links" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLinkManager /></ProtectedRoute>} />
               <Route path="/affiliate/analytics" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
@@ -172,6 +173,7 @@ const App = () => (
               <Route path="/admin/users-fixed" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUserManagementFixed /></ProtectedRoute>} />
               <Route path="/admin/orders" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminOrders /></ProtectedRoute>} />
               <Route path="/admin/commissions" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCommissions /></ProtectedRoute>} />
+              <Route path="/admin/financial" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminFinancialDashboard /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminSettingsPage /></ProtectedRoute>} />
               <Route path="/admin/coupons" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCouponsManager /></ProtectedRoute>} />
               <Route path="/admin/offers" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminOffersManager /></ProtectedRoute>} />
@@ -184,6 +186,7 @@ const App = () => (
               
               {/* Merchant Routes - Protected & Lazy */}
               <Route path="/merchant/dashboard" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantDashboard /></ProtectedRoute>} />
+              <Route path="/merchant/financial" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantFinancialHistory /></ProtectedRoute>} />
               
               {/* Intermediary Routes - Protected & Lazy */}
               <Route path="/intermediary/dashboard" element={<ProtectedRoute requiredRole="intermediary"><LazyRoutes.IntermediaryDashboard /></ProtectedRoute>} />

@@ -69,6 +69,7 @@ export const AffiliateWithdrawPage = lazyLoad(() => import('@/pages/AffiliateWit
 export const AffiliateResourcesPage = lazyLoad(() => import('@/pages/AffiliateResourcesPage'));
 export const AffiliateSupportPage = lazyLoad(() => import('@/pages/AffiliateSupportPage'));
 export const AffiliateReferralSystem = lazyLoad(() => import('@/pages/AffiliateReferralSystem'));
+export const AffiliateEarningsHistory = lazyLoad(() => import('@/pages/AffiliateEarningsHistory'));
 
 // ============================================
 // MERCHANT PAGES (Lazy)
@@ -78,6 +79,7 @@ export const MerchantDashboard = lazyLoad(() => import('@/pages/MerchantDashboar
 export const MerchantProducts = lazyLoad(() => import('@/pages/MerchantProducts'));
 export const MerchantOrders = lazyLoad(() => import('@/pages/MerchantOrders'));
 export const MerchantAnalytics = lazyLoad(() => import('@/pages/MerchantAnalytics'));
+export const MerchantFinancialHistory = lazyLoad(() => import('@/pages/MerchantFinancialHistory'));
 
 // ============================================
 // ADMIN PAGES (Lazy)
@@ -103,6 +105,7 @@ export const AdminAdvancedSettings = lazyLoad(() => import('@/pages/AdminAdvance
 export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
 export const AdminCoupons = lazyLoad(() => import('@/pages/AdminCoupons'));
 export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'));
+export const AdminFinancialDashboard = lazyLoad(() => import('@/pages/AdminFinancialDashboard'));
 export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
 export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 
