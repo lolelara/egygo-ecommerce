@@ -1,36 +1,53 @@
 /**
- * Simple Financial Collections Setup
- * Run with: node scripts/setup-financial-collections-simple.js YOUR_API_KEY
+ * Financial Collections Setup - Using .env file
+ * Run with: node scripts/setup-financial-env.js
  */
 
 import { Client, Databases, Storage, Permission, Role } from 'node-appwrite';
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
-// Get API key from command line argument
-const apiKey = process.argv[2];
+// Load .env file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+config({ path: join(__dirname, '..', '.env') });
 
-if (!apiKey) {
-  console.log('❌ Error: API Key required!');
-  console.log('\n📋 Usage:');
-  console.log('  node scripts/setup-financial-collections-simple.js YOUR_API_KEY');
-  console.log('\n🔑 Get your API Key:');
-  console.log('  1. Go to: https://cloud.appwrite.io/console');
-  console.log('  2. Select your project');
-  console.log('  3. Settings → API Keys → Create API Key');
-  console.log('  4. Select ALL scopes');
-  console.log('  5. Copy the key and run this script again\n');
+// Get configuration from .env
+const ENDPOINT = process.env.VITE_APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
+const PROJECT_ID = process.env.VITE_APPWRITE_PROJECT_ID;
+const DATABASE_ID = process.env.VITE_APPWRITE_DATABASE_ID || '68de037e003bd03c4d45';
+const API_KEY = process.env.APPWRITE_API_KEY;
+
+console.log('🔧 Configuration:');
+console.log('  Endpoint:', ENDPOINT);
+console.log('  Project ID:', PROJECT_ID);
+console.log('  Database ID:', DATABASE_ID);
+console.log('  API Key:', API_KEY ? '✅ Found' : '❌ Missing');
+console.log('');
+
+if (!API_KEY) {
+  console.log('❌ Error: APPWRITE_API_KEY not found in .env file!');
+  console.log('\n📝 Add this to your .env file:');
+  console.log('  APPWRITE_API_KEY=your_api_key_here\n');
+  process.exit(1);
+}
+
+if (!PROJECT_ID) {
+  console.log('❌ Error: VITE_APPWRITE_PROJECT_ID not found in .env file!');
+  console.log('\n📝 Add this to your .env file:');
+  console.log('  VITE_APPWRITE_PROJECT_ID=your_project_id_here\n');
   process.exit(1);
 }
 
 const client = new Client();
 client
-  .setEndpoint('https://cloud.appwrite.io/v1')
-  .setProject('66d8b9db00134c41e7c8')
-  .setKey(apiKey);
+  .setEndpoint(ENDPOINT)
+  .setProject(PROJECT_ID)
+  .setKey(API_KEY);
 
 const databases = new Databases(client);
 const storage = new Storage(client);
-
-const DATABASE_ID = '68d8b9db00134c41e7c8';
 
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -60,7 +77,7 @@ async function setupFinancialCollections() {
       );
       merchantPaymentsId = merchantPaymentsCollection.$id;
       console.log('✅ merchantPayments collection created:', merchantPaymentsId);
-      await sleep(2000); // Wait for collection to be ready
+      await sleep(2000);
     } catch (error) {
       if (error.code === 409) {
         console.log('⚠️  merchantPayments collection already exists');
