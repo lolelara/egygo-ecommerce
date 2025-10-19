@@ -87,6 +87,27 @@ Facebook App Dashboard → Settings → Basic → App Domains
 
 ---
 
+## 5️⃣ **Data Deletion Callback URL**
+
+### **للتطوير (Development):**
+```
+http://localhost:5173/#/data-deletion
+```
+
+### **للإنتاج (Production):**
+```
+https://yourdomain.com/#/data-deletion
+```
+
+**📍 أين تضعه:**
+```
+Facebook App Dashboard → App Review → User Data Deletion → Data deletion callback URL
+```
+
+**⚠️ مهم جداً:** هذا الرابط مطلوب من Facebook لجميع التطبيقات التي تستخدم OAuth!
+
+---
+
 ## 📝 **نموذج إعداد Facebook App:**
 
 ### **Settings → Basic:**
@@ -117,6 +138,7 @@ Valid OAuth Redirect URIs:
 ✅ App Domains (localhost)
 ✅ OAuth Redirect URIs (3 روابط على الأقل)
 ✅ Appwrite Redirect URL (الأهم!)
+✅ Data Deletion Callback URL في App Review (مطلوب!)
 ```
 
 ---
@@ -210,7 +232,30 @@ Docs: https://appwrite.io/docs/products/auth/oauth2
 ```
 Privacy: http://localhost:5173/#/privacy
 Terms: http://localhost:5173/#/terms
+Data Deletion: http://localhost:5173/#/data-deletion
 Login: http://localhost:5173/#/login
+```
+
+---
+
+## 🗑️ **Data Deletion - معلومات إضافية:**
+
+### **ما يحدث عند طلب الحذف:**
+```
+1. المستخدم يفتح /data-deletion
+2. يدخل البريد الإلكتروني
+3. يضغط "إرسال طلب الحذف"
+4. النظام يحفظ الطلب
+5. يتم حذف البيانات خلال 30 يوماً
+```
+
+### **البيانات المحذوفة:**
+```
+✅ معلومات الحساب
+✅ سجل الطلبات
+✅ العناوين المحفوظة
+✅ قائمة المفضلة
+✅ بيانات تسجيل الدخول
 ```
 
 ---

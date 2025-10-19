@@ -30,6 +30,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Logout from "./pages/Logout";
 import AuthCallback from "./pages/AuthCallback";
+import DataDeletion from "./pages/DataDeletion";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
@@ -204,6 +205,8 @@ const App = () => (
               <Route path="/faq" element={<LazyRoutes.FAQPage />} />
               <Route path="/privacy" element={<LazyRoutes.PrivacyPolicy />} />
               <Route path="/terms" element={<LazyRoutes.TermsOfService />} />
+              <Route path="/data-deletion" element={<DataDeletion />} />
+              <Route path="/data-deletion-status" element={<DataDeletion />} />
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
