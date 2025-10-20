@@ -28,6 +28,8 @@ import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 import { egyptGovernorates, getCitiesByGovernorate } from "@/lib/egypt-locations";
+import { rateLimiter } from "@/lib/advanced-rate-limiter";
+import { validateInput, schemas } from "@/lib/advanced-validation";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -159,6 +161,30 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Check rate limit
+    if (!rateLimiter.check(formData.email, {
+      maxRequests: 3,
+      windowMs: 60000,
+      blockDuration: 600000
+    })) {
+      setError('محاولات كثيرة جداً. حاول بعد 10 دقائق');
+      return;
+    }
+
+    // Validate phone
+    const phoneValidation = validateInput(schemas.egyptianPhone, formData.phone);
+    if (!phoneValidation.success) {
+      setError(phoneValidation.errors?.[0] || 'رقم هاتف غير صحيح');
+      return;
+    }
+
+    // Validate email
+    const emailValidation = validateInput(schemas.email, formData.email);
+    if (!emailValidation.success) {
+      setError(emailValidation.errors?.[0] || 'بريد إلكتروني غير صحيح');
+      return;
+    }
 
     if (!acceptTerms) {
       setError("يجب الموافقة على شروط الخدمة للمتابعة");

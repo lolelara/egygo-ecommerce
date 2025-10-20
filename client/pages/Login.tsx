@@ -19,6 +19,7 @@ import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 import { FacebookLoginButton } from "@/components/FacebookLoginButton";
+import { rateLimiter } from "@/lib/advanced-rate-limiter";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -58,6 +59,15 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      // Check rate limit
+      if (!rateLimiter.check(email, {
+        maxRequests: 5,
+        windowMs: 60000,
+        blockDuration: 300000
+      })) {
+        throw new Error('محاولات كثيرة جداً. حاول بعد 5 دقائق');
+      }
+
       // Validate reCAPTCHA
       const recaptchaResult = await validateRecaptcha(RecaptchaActions.LOGIN);
       if (!recaptchaResult.success) {

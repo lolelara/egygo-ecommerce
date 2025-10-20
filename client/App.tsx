@@ -32,6 +32,7 @@ import Logout from "./pages/Logout";
 import AuthCallback from "./pages/AuthCallback";
 import DataDeletion from "./pages/DataDeletion";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { EnhancedErrorBoundary } from "./components/EnhancedErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
 import { AIAssistant } from "./components/AIAssistant";
@@ -41,6 +42,7 @@ import { NotificationPermission } from "./components/NotificationPermission";
 import { loadRecaptchaScript } from "./lib/recaptcha-service";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 import { initializeAnalytics, trackPageView } from "./lib/analytics";
+import { analytics } from "./lib/enhanced-analytics";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +70,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   // Track page views on route change
   useEffect(() => {
     trackPageView(location.pathname);
+    analytics.trackPageView(location.pathname);
   }, [location]);
   
   return (
@@ -91,7 +94,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <ErrorBoundary>
+  <EnhancedErrorBoundary>
     <HelmetProvider>
       <ParallaxProvider>
         <ThemeProvider>
@@ -222,7 +225,7 @@ const App = () => (
         </ThemeProvider>
       </ParallaxProvider>
     </HelmetProvider>
-  </ErrorBoundary>
+  </EnhancedErrorBoundary>
 );
 
 createRoot(document.getElementById("root")!).render(<App />);
