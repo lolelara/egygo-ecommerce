@@ -25,7 +25,7 @@ import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
 import { placeholder } from "@/lib/placeholder";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
 import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { analytics } from "@/lib/enhanced-analytics";
@@ -37,6 +37,32 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // Typewriter effect state
+  const [displayedText, setDisplayedText] = useState("");
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const words = ["تسوق بذكاء،", "اربح أكثر", "وفر المال", "حقق أحلامك"];
+  
+  // Typewriter effect
+  useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    let currentIndex = 0;
+    
+    const typingInterval = setInterval(() => {
+      if (currentIndex <= currentWord.length) {
+        setDisplayedText(currentWord.substring(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+        // Wait before switching to next word
+        setTimeout(() => {
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        }, 2000);
+      }
+    }, 100);
+    
+    return () => clearInterval(typingInterval);
+  }, [currentWordIndex]);
 
   // Redirect based on user role
   useEffect(() => {
@@ -163,9 +189,9 @@ export default function Index() {
                 <Badge variant="secondary" className="bg-yellow-500 text-white shadow-lg">
                   ✨ منتجات مميزة
                 </Badge>
-                <h1 className="egygo-heading text-4xl lg:text-6xl font-bold leading-tight text-white">
-                  تسوق بذكاء،
-                  <span className="text-yellow-300"> اربح أكثر</span>
+                <h1 className="egygo-heading text-4xl lg:text-6xl font-bold leading-tight text-white min-h-[120px]">
+                  <span className="text-yellow-300">{displayedText}</span>
+                  <span className="animate-pulse">|</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
                   اكتشف مجموعة متنوعة من المنتجات عالية الجودة وانضم لبرنامج الشراكة لتحقيق دخل إضافي مميز.
