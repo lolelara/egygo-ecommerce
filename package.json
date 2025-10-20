@@ -79,7 +79,8 @@
     "db:migrate": "echo 'Using Appwrite instead of Prisma'",
     "db:seed": "echo 'Using Appwrite instead of Prisma'",
     "db:studio": "echo 'Using Appwrite instead of Prisma'",
-    "db:push": "echo 'Using Appwrite instead of Prisma'"
+    "db:push": "echo 'Using Appwrite instead of Prisma'",
+    "setup:database": "node setup-database.cjs"
   },
   "engines": {
     "node": ">=18.0.0",
