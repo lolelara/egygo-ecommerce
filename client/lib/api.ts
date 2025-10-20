@@ -43,6 +43,9 @@ export const productsApi = {
 
       const queries = [];
       
+      // Only show approved products (not pending)
+      queries.push(Query.equal("status", "approved"));
+      
       // Add filters
       if (filters?.categoryId) {
         queries.push(Query.equal("categoryId", filters.categoryId));
