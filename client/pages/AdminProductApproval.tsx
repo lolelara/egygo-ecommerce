@@ -49,7 +49,7 @@ interface Product {
   price: number;
   images: string[];
   verificationVideo?: string;
-  approvalStatus: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected';
   rejectionReason?: string;
   merchantId: string;
   merchantName?: string;
@@ -81,7 +81,7 @@ export default function AdminProductApproval() {
       const queries = [Query.orderDesc('$createdAt'), Query.limit(100)];
       
       if (filterStatus !== 'all') {
-        queries.push(Query.equal('approvalStatus', filterStatus));
+        queries.push(Query.equal('status', filterStatus));
       }
 
       const response = await databases.listDocuments(
@@ -150,7 +150,7 @@ export default function AdminProductApproval() {
         appwriteConfig.collections.products,
         selectedProduct.$id!,
         {
-          approvalStatus: actionType === 'approve' ? 'approved' : 'rejected',
+          status: actionType === 'approve' ? 'approved' : 'rejected',
           rejectionReason: actionType === 'reject' ? rejectionReason : null,
           approvedAt: actionType === 'approve' ? new Date().toISOString() : null,
         }
@@ -211,7 +211,7 @@ export default function AdminProductApproval() {
     }
   };
 
-  const pendingCount = products.filter(p => p.approvalStatus === 'pending').length;
+  const pendingCount = products.filter(p => p.status === 'pending').length;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -317,7 +317,7 @@ export default function AdminProductApproval() {
                         <span className="text-muted-foreground text-sm">لا يوجد</span>
                       )}
                     </TableCell>
-                    <TableCell>{getStatusBadge(product.approvalStatus)}</TableCell>
+                    <TableCell>{getStatusBadge(product.status)}</TableCell>
                     <TableCell>
                       {product.createdAt
                         ? new Date(product.createdAt).toLocaleDateString('ar-EG')
@@ -325,7 +325,7 @@ export default function AdminProductApproval() {
                     </TableCell>
                     <TableCell className="text-left">
                       <div className="flex gap-2">
-                        {product.approvalStatus === 'pending' && (
+                        {product.status === 'pending' && (
                           <>
                             <Button
                               variant="default"
@@ -346,7 +346,7 @@ export default function AdminProductApproval() {
                             </Button>
                           </>
                         )}
-                        {product.approvalStatus === 'rejected' && product.rejectionReason && (
+                        {product.status === 'rejected' && product.rejectionReason && (
                           <Button
                             variant="outline"
                             size="sm"
