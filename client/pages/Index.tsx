@@ -160,12 +160,12 @@ export default function Index() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
               <div className="space-y-4">
-                <Badge variant="secondary" className="text-primary bg-gradient-to-r from-white to-yellow-50 shadow-lg">
+                <Badge variant="secondary" className="egygo-badge-secondary egygo-shadow-glow-secondary">
                   ✨ منتجات مميزة
                 </Badge>
-                <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+                <h1 className="egygo-heading text-4xl lg:text-6xl font-bold leading-tight">
                   تسوق بذكاء،
-                  <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent"> اربح أكثر</span>
+                  <span className="egygo-gradient-secondary bg-clip-text text-transparent"> اربح أكثر</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
                   اكتشف مجموعة متنوعة من المنتجات عالية الجودة وانضم لبرنامج الشراكة لتحقيق دخل إضافي مميز.
@@ -176,7 +176,7 @@ export default function Index() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="text-primary font-semibold btn-hover-lift"
+                  className="egygo-btn-secondary egygo-hover-lift"
                   asChild
                 >
                   <Link to="/products">
@@ -187,7 +187,7 @@ export default function Index() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="bg-white/10 border-white/30 text-white hover:bg-white/20 btn-hover-lift"
+                  className="egygo-glass text-white egygo-hover-lift"
                   asChild
                 >
                   <Link to="/register?type=affiliate">
@@ -199,15 +199,15 @@ export default function Index() {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4 pt-8">
-                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                <div className="egygo-glass-dark rounded-xl p-4 text-center egygo-hover-scale">
                   <div className="text-2xl font-bold text-yellow-300">+10K</div>
                   <div className="text-sm text-white/80">عميل راضي</div>
                 </div>
-                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                <div className="egygo-glass-dark rounded-xl p-4 text-center egygo-hover-scale">
                   <div className="text-2xl font-bold text-green-300">+500</div>
                   <div className="text-sm text-white/80">منتج</div>
                 </div>
-                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 hover:bg-white/20 transition-all">
+                <div className="egygo-glass-dark rounded-xl p-4 text-center egygo-hover-scale">
                   <div className="text-2xl font-bold text-blue-300">+1K</div>
                   <div className="text-sm text-white/80">مسوق</div>
                 </div>
@@ -219,7 +219,7 @@ export default function Index() {
                 <div className="space-y-4">
                   {featuredProducts.slice(0, 2).map((product, index) => (
                     <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl">
+                      <Card className="egygo-glass-dark egygo-hover-lift cursor-pointer">
                         <CardContent className="p-4">
                           <img
                             src={getImageUrl(product.images?.[0])}
@@ -240,7 +240,7 @@ export default function Index() {
                 <div className="space-y-4 mt-8">
                   {featuredProducts.slice(2, 4).map((product, index) => (
                     <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl">
+                      <Card className="egygo-glass-dark egygo-hover-lift cursor-pointer">
                         <CardContent className="p-4">
                           <img
                             src={getImageUrl(product.images?.[0])}
@@ -277,19 +277,19 @@ export default function Index() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <Card className="text-center p-6 feature-card hover:shadow-xl transition-all">
+          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
             <div className="text-4xl font-bold text-primary mb-2">+10,000</div>
             <div className="text-muted-foreground">عميل نشط</div>
           </Card>
-          <Card className="text-center p-6 feature-card hover:shadow-xl transition-all">
+          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
             <div className="text-4xl font-bold text-brand-purple mb-2">+500</div>
             <div className="text-muted-foreground">تاجر ناجح</div>
           </Card>
-          <Card className="text-center p-6 feature-card hover:shadow-xl transition-all">
+          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
             <div className="text-4xl font-bold text-brand-orange mb-2">+2,000</div>
             <div className="text-muted-foreground">مسوق نشط</div>
           </Card>
-          <Card className="text-center p-6 feature-card hover:shadow-xl transition-all">
+          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
             <div className="text-4xl font-bold text-success mb-2">5M+</div>
             <div className="text-muted-foreground">جنيه مبيعات</div>
           </Card>
@@ -311,7 +311,7 @@ export default function Index() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* للعملاء */}
-            <Card className="p-6 hover:shadow-xl transition-all">
+            <Card className="egygo-card egygo-hover-lift p-6">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 text-primary rounded-full mb-4">
                   <ShoppingCart className="h-8 w-8" />
@@ -344,7 +344,7 @@ export default function Index() {
             </Card>
 
             {/* للتجار */}
-            <Card className="p-6 border-brand-purple hover:shadow-xl transition-all">
+            <Card className="egygo-card egygo-hover-lift p-6 border-brand-purple">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-purple/10 text-brand-purple rounded-full mb-4">
                   <Sparkles className="h-8 w-8" />
@@ -377,7 +377,7 @@ export default function Index() {
             </Card>
 
             {/* للمسوقين */}
-            <Card className="p-6 border-brand-orange hover:shadow-xl transition-all">
+            <Card className="egygo-card egygo-hover-lift p-6 border-brand-orange">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-orange/10 text-brand-orange rounded-full mb-4">
                   <TrendingUp className="h-8 w-8" />
@@ -908,10 +908,10 @@ export default function Index() {
       </section>
 
       {/* Final CTA - دعوة نهائية */}
-      <section className="bg-gradient-to-r from-primary via-purple-600 to-secondary text-white py-20">
+      <section className="egygo-gradient-ocean text-white py-20 egygo-animate-fade-in">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto space-y-8">
-            <Badge variant="secondary" className="text-primary bg-white/90 mb-4">
+            <Badge variant="secondary" className="egygo-badge-primary bg-white/90 mb-4">
               🚀 ابدأ الآن
             </Badge>
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
