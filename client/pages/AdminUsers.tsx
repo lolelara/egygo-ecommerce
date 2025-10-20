@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight, TrendingUp, UserCheck, UserX, Shield } from 'lucide-react';
+import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight, TrendingUp, UserCheck, UserX, Shield, DollarSign, ShoppingBag, Eye, X } from 'lucide-react';
 import { databases, appwriteConfig, account } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -116,6 +116,12 @@ export default function AdminUsers() {
   const [showIntermediaryModal, setShowIntermediaryModal] = useState(false);
   const [selectedUserForIntermediary, setSelectedUserForIntermediary] = useState<any>(null);
   const [intermediaryMarkup, setIntermediaryMarkup] = useState('20');
+
+  // Financial History Modal State
+  const [showFinancialModal, setShowFinancialModal] = useState(false);
+  const [selectedUserForFinancial, setSelectedUserForFinancial] = useState<any>(null);
+  const [financialData, setFinancialData] = useState<any>({ commissions: [], orders: [] });
+  const [loadingFinancial, setLoadingFinancial] = useState(false);
 
   // Debounce search
   useEffect(() => {
@@ -561,6 +567,57 @@ export default function AdminUsers() {
     loadUsers();
   };
 
+  // Load Financial History
+  const loadFinancialHistory = async (user: any) => {
+    setSelectedUserForFinancial(user);
+    setShowFinancialModal(true);
+    setLoadingFinancial(true);
+
+    try {
+      // Load commissions
+      const commissionsResponse = await databases.listDocuments(
+        DATABASE_ID,
+        'commissions',
+        [
+          Query.equal('userId', user.userId || user.$id),
+          Query.orderDesc('$createdAt'),
+          Query.limit(50)
+        ]
+      );
+
+      // Load orders
+      const ordersResponse = await databases.listDocuments(
+        DATABASE_ID,
+        'orders',
+        [
+          Query.equal('userId', user.userId || user.$id),
+          Query.orderDesc('$createdAt'),
+          Query.limit(50)
+        ]
+      );
+
+      setFinancialData({
+        commissions: commissionsResponse.documents,
+        orders: ordersResponse.documents
+      });
+    } catch (error) {
+      console.error('Error loading financial history:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل تحميل السجل المالي",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingFinancial(false);
+    }
+  };
+
+  const closeFinancialModal = () => {
+    setShowFinancialModal(false);
+    setSelectedUserForFinancial(null);
+    setFinancialData({ commissions: [], orders: [] });
+  };
+
   const getRoleBadge = (user: any) => {
     // تحديد الدور بناءً على الحقول
     let role = 'customer';
@@ -825,7 +882,19 @@ export default function AdminUsers() {
                         </code>
                       </td>
                       <td className="p-2">
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
+                          {/* View Financial History Button */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                            onClick={() => loadFinancialHistory(u)}
+                            title="عرض السجل المالي والطلبات"
+                          >
+                            <Eye className="h-4 w-4 ml-1" />
+                            السجل
+                          </Button>
+
                           {/* Activate Intermediary Button */}
                           {!u.isIntermediary && !u.isMerchant && !u.isAffiliate && (
                             <Button
@@ -1022,6 +1091,188 @@ export default function AdminUsers() {
                 className="bg-purple-600 hover:bg-purple-700"
               >
                 تفعيل الوسيط
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Financial History Modal */}
+      {showFinancialModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="p-6 border-b flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <DollarSign className="h-6 w-6 text-green-600" />
+                  السجل المالي والطلبات
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedUserForFinancial?.name} - {selectedUserForFinancial?.email}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={closeFinancialModal}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {loadingFinancial ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">جاري التحميل...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Commissions Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <DollarSign className="h-5 w-5 text-green-600" />
+                      <h3 className="text-lg font-bold">العمولات ({financialData.commissions.length})</h3>
+                    </div>
+                    
+                    {financialData.commissions.length === 0 ? (
+                      <div className="bg-gray-50 rounded-lg p-8 text-center">
+                        <DollarSign className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500">لا توجد عمولات</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {financialData.commissions.map((commission: any) => (
+                          <Card key={commission.$id} className="p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <p className="font-semibold text-green-600">
+                                  {commission.amount?.toFixed(2)} ج.م
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {new Date(commission.$createdAt).toLocaleDateString('ar-EG')}
+                                </p>
+                              </div>
+                              <Badge className={
+                                commission.status === 'paid' ? 'bg-green-100 text-green-800' :
+                                commission.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                              }>
+                                {commission.status === 'paid' ? 'مدفوع' :
+                                 commission.status === 'pending' ? 'معلق' : 'ملغي'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              طلب: {commission.orderId || '-'}
+                            </p>
+                            {commission.description && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                {commission.description}
+                              </p>
+                            )}
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Total Commissions */}
+                    {financialData.commissions.length > 0 && (
+                      <Card className="mt-4 p-4 bg-green-50 border-green-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold">إجمالي العمولات:</span>
+                          <span className="text-xl font-bold text-green-600">
+                            {financialData.commissions
+                              .reduce((sum: number, c: any) => sum + (c.amount || 0), 0)
+                              .toFixed(2)} ج.م
+                          </span>
+                        </div>
+                      </Card>
+                    )}
+                  </div>
+
+                  {/* Orders Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <ShoppingBag className="h-5 w-5 text-blue-600" />
+                      <h3 className="text-lg font-bold">الطلبات ({financialData.orders.length})</h3>
+                    </div>
+                    
+                    {financialData.orders.length === 0 ? (
+                      <div className="bg-gray-50 rounded-lg p-8 text-center">
+                        <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                        <p className="text-gray-500">لا توجد طلبات</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {financialData.orders.map((order: any) => (
+                          <Card key={order.$id} className="p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <p className="font-semibold">
+                                  طلب #{order.orderNumber || order.$id.slice(0, 8)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {new Date(order.$createdAt).toLocaleDateString('ar-EG')}
+                                </p>
+                              </div>
+                              <Badge className={
+                                order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                                order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                                order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                                order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }>
+                                {order.status === 'delivered' ? 'تم التوصيل' :
+                                 order.status === 'shipped' ? 'قيد الشحن' :
+                                 order.status === 'processing' ? 'قيد المعالجة' :
+                                 order.status === 'cancelled' ? 'ملغي' : 'جديد'}
+                              </Badge>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-sm">
+                                <span className="text-gray-600">المبلغ:</span>{' '}
+                                <span className="font-semibold text-blue-600">
+                                  {order.totalAmount?.toFixed(2) || '0.00'} ج.م
+                                </span>
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                المنتجات: {order.items?.length || 0}
+                              </p>
+                              {order.paymentMethod && (
+                                <p className="text-xs text-gray-500">
+                                  الدفع: {order.paymentMethod}
+                                </p>
+                              )}
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Total Orders */}
+                    {financialData.orders.length > 0 && (
+                      <Card className="mt-4 p-4 bg-blue-50 border-blue-200">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold">إجمالي المشتريات:</span>
+                          <span className="text-xl font-bold text-blue-600">
+                            {financialData.orders
+                              .reduce((sum: number, o: any) => sum + (o.totalAmount || 0), 0)
+                              .toFixed(2)} ج.م
+                          </span>
+                        </div>
+                      </Card>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t bg-gray-50">
+              <Button onClick={closeFinancialModal} className="w-full">
+                إغلاق
               </Button>
             </div>
           </div>
