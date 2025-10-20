@@ -314,8 +314,7 @@ export default function Products() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-
-      {/* Search and Controls */}
+        {/* Search and Controls */}
       <div className="flex flex-col lg:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 rtl:right-3 rtl:left-auto" />
@@ -492,6 +491,7 @@ export default function Products() {
         </div>
       </div>
       </div>
+    </div>
     </>
   );
 }
