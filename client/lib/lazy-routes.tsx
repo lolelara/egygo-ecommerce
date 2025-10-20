@@ -77,6 +77,7 @@ export const AffiliateEarningsHistory = lazyLoad(() => import('@/pages/Affiliate
 export const Merchant = lazyLoad(() => import('@/pages/Merchant'));
 export const MerchantDashboard = lazyLoad(() => import('@/pages/MerchantDashboard'));
 export const MerchantProducts = lazyLoad(() => import('@/pages/MerchantProducts'));
+export const MerchantProductsStatus = lazyLoad(() => import('@/pages/MerchantProductsStatus'));
 export const MerchantOrders = lazyLoad(() => import('@/pages/MerchantOrders'));
 export const MerchantAnalytics = lazyLoad(() => import('@/pages/MerchantAnalytics'));
 export const MerchantAdvertising = lazyLoad(() => import('@/pages/MerchantAdvertising'));

@@ -18,6 +18,7 @@ import {
   BarChart3,
   Truck,
   Sparkles,
+  CheckCircle,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,6 +43,12 @@ const adminNavItems = [
     href: "/admin/products",
     icon: Package,
     roles: ['admin', 'merchant'], // المدير والتاجر
+  },
+  {
+    title: "حالة المنتجات",
+    href: "/merchant/products-status",
+    icon: CheckCircle,
+    roles: ['merchant'], // فقط التاجر
   },
   {
     title: "موافقة المنتجات",
