@@ -41,7 +41,7 @@ export default function Index() {
   // Typewriter effect state
   const [displayedText, setDisplayedText] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const words = ["تسوق بذكاء،", "اربح أكثر", "وفر المال", "حقق أحلامك"];
+  const words = ["متفوتش الفرصة", "اعمل دخل بسهولة", "حافظ على فلوسك", "اكسب أكتر"];
   
   // Typewriter effect
   useEffect(() => {

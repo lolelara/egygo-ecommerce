@@ -133,7 +133,7 @@ export default function MerchantDashboard() {
               مرحباً {user?.name}، إليك ملخص منتجاتك ومبيعاتك
             </p>
           </div>
-          <Link to="/admin/products">
+          <Link to="/merchant/products">
             <Button>
               <Plus className="h-4 w-4 ml-2" />
               إضافة منتج جديد
@@ -239,7 +239,7 @@ export default function MerchantDashboard() {
                   أفضل منتجاتك أداءً هذا الشهر
                 </CardDescription>
               </div>
-              <Link to="/admin/products">
+              <Link to="/merchant/products">
                 <Button variant="outline" size="sm">
                   عرض الكل <ArrowUpRight className="h-4 w-4 mr-1" />
                 </Button>
@@ -252,7 +252,7 @@ export default function MerchantDashboard() {
                 <div className="text-center py-8 text-muted-foreground">
                   <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
                   <p>لا توجد منتجات بعد</p>
-                  <Link to="/admin/products">
+                  <Link to="/merchant/products">
                     <Button className="mt-4" size="sm">
                       <Plus className="h-4 w-4 ml-1" />
                       إضافة منتج
@@ -317,7 +317,7 @@ export default function MerchantDashboard() {
                         </div>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Link to={`/admin/products/${product.id}`}>
+                        <Link to={`/merchant/products/${product.id}`}>
                           <Button variant="outline" size="sm">
                             <Edit className="h-4 w-4 ml-1" />
                             تعديل
@@ -486,7 +486,7 @@ export default function MerchantDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link to="/admin/products">
+              <Link to="/merchant/products">
                 <Button variant="outline" className="w-full h-auto py-4">
                   <div className="flex flex-col items-center gap-2">
                     <Plus className="h-6 w-6" />
@@ -494,7 +494,7 @@ export default function MerchantDashboard() {
                   </div>
                 </Button>
               </Link>
-              <Link to="/admin/products">
+              <Link to="/merchant/products">
                 <Button variant="outline" className="w-full h-auto py-4">
                   <div className="flex flex-col items-center gap-2">
                     <Package className="h-6 w-6" />
@@ -502,11 +502,11 @@ export default function MerchantDashboard() {
                   </div>
                 </Button>
               </Link>
-              <Link to="/admin/categories">
+              <Link to="/merchant/analytics">
                 <Button variant="outline" className="w-full h-auto py-4">
                   <div className="flex flex-col items-center gap-2">
                     <BarChart3 className="h-6 w-6" />
-                    <span>إدارة الفئات</span>
+                    <span>التقارير</span>
                   </div>
                 </Button>
               </Link>
