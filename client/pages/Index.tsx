@@ -194,7 +194,7 @@ export default function Index() {
                   <span className="animate-pulse">|</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
-                  اكتشف مجموعة متنوعة من المنتجات عالية الجودة وانضم لبرنامج الشراكة لتحقيق دخل إضافي مميز.
+                  اتسوق ما بين الآلاف من المنتجات بأسعار تنافسية
                 </p>
               </div>
 
