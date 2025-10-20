@@ -160,12 +160,12 @@ export default function Index() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
               <div className="space-y-4">
-                <Badge variant="secondary" className="egygo-badge-secondary egygo-shadow-glow-secondary">
+                <Badge variant="secondary" className="bg-yellow-500 text-white shadow-lg">
                   ✨ منتجات مميزة
                 </Badge>
-                <h1 className="egygo-heading text-4xl lg:text-6xl font-bold leading-tight">
+                <h1 className="egygo-heading text-4xl lg:text-6xl font-bold leading-tight text-white">
                   تسوق بذكاء،
-                  <span className="egygo-gradient-secondary bg-clip-text text-transparent"> اربح أكثر</span>
+                  <span className="text-yellow-300"> اربح أكثر</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
                   اكتشف مجموعة متنوعة من المنتجات عالية الجودة وانضم لبرنامج الشراكة لتحقيق دخل إضافي مميز.
@@ -911,7 +911,7 @@ export default function Index() {
       <section className="egygo-gradient-ocean text-white py-20 egygo-animate-fade-in">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto space-y-8">
-            <Badge variant="secondary" className="egygo-badge-primary bg-white/90 mb-4">
+            <Badge variant="secondary" className="bg-white text-blue-600 shadow-lg mb-4">
               🚀 ابدأ الآن
             </Badge>
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
