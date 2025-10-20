@@ -573,33 +573,76 @@ export default function AdminUsers() {
     setShowFinancialModal(true);
     setLoadingFinancial(true);
 
-    try {
-      // Load commissions
-      const commissionsResponse = await databases.listDocuments(
-        DATABASE_ID,
-        'commissions',
-        [
-          Query.equal('userId', user.userId || user.$id),
-          Query.orderDesc('$createdAt'),
-          Query.limit(50)
-        ]
-      );
+    let commissions: any[] = [];
+    let orders: any[] = [];
 
-      // Load orders
-      const ordersResponse = await databases.listDocuments(
-        DATABASE_ID,
-        'orders',
-        [
-          Query.equal('userId', user.userId || user.$id),
-          Query.orderDesc('$createdAt'),
-          Query.limit(50)
-        ]
-      );
+    try {
+      // Try to load commissions - try different attribute names
+      try {
+        const commissionsResponse = await databases.listDocuments(
+          DATABASE_ID,
+          'commissions',
+          [
+            Query.equal('affiliateId', user.userId || user.$id),
+            Query.orderDesc('$createdAt'),
+            Query.limit(50)
+          ]
+        );
+        commissions = commissionsResponse.documents;
+      } catch (commError: any) {
+        console.log('Commissions error:', commError.message);
+        // Try alternative attribute name
+        try {
+          const commissionsResponse = await databases.listDocuments(
+            DATABASE_ID,
+            'commissions',
+            [
+              Query.orderDesc('$createdAt'),
+              Query.limit(50)
+            ]
+          );
+          // Filter manually by user
+          commissions = commissionsResponse.documents.filter((c: any) => 
+            c.affiliateId === user.userId || c.affiliateId === user.$id ||
+            c.userId === user.userId || c.userId === user.$id
+          );
+        } catch (e) {
+          console.log('Could not load commissions');
+        }
+      }
+
+      // Try to load orders
+      try {
+        const ordersResponse = await databases.listDocuments(
+          DATABASE_ID,
+          'orders',
+          [
+            Query.orderDesc('$createdAt'),
+            Query.limit(100)
+          ]
+        );
+        // Filter by user email or ID
+        orders = ordersResponse.documents.filter((o: any) => 
+          o.userEmail === user.email ||
+          o.userId === user.userId ||
+          o.userId === user.$id ||
+          o.customerEmail === user.email
+        );
+      } catch (ordError) {
+        console.log('Orders error:', ordError);
+      }
 
       setFinancialData({
-        commissions: commissionsResponse.documents,
-        orders: ordersResponse.documents
+        commissions,
+        orders
       });
+
+      if (commissions.length === 0 && orders.length === 0) {
+        toast({
+          title: "لا توجد بيانات",
+          description: "لا توجد عمولات أو طلبات لهذا المستخدم",
+        });
+      }
     } catch (error) {
       console.error('Error loading financial history:', error);
       toast({
