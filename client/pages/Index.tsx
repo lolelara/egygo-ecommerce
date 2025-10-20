@@ -28,6 +28,7 @@ import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
 import { useEffect } from "react";
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { analytics } from "@/lib/enhanced-analytics";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 
 // Register GSAP plugins

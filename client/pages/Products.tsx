@@ -39,6 +39,9 @@ import { ProductFilters } from "@shared/prisma-types";
 import { getImageUrl } from "@/lib/storage";
 import { ProductGridSkeleton } from "@/components/LoadingSkeletons";
 import EnhancedProductCard from "@/components/EnhancedProductCard";
+import { SEOHead } from "@/components/SEOHead";
+import { ProductCardSkeleton } from "@/components/SkeletonLoader";
+import { analytics } from "@/lib/enhanced-analytics";
 
 type SortOption = "featured" | "price_asc" | "price_desc" | "rating" | "newest";
 
@@ -278,6 +281,13 @@ export default function Products() {
   }
 
   return (
+    <>
+      <SEOHead
+        title={currentCategory ? currentCategory.name : "جميع المنتجات"}
+        description={currentCategory ? `تصفح منتجات ${currentCategory.name} عالية الجودة` : "اكتشف مجموعتنا الكاملة من المنتجات"}
+        keywords={['منتجات', 'تسوق', 'مصر', currentCategory?.name || '']}
+      />
+      
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-primary/10 via-purple-50 to-orange-50 dark:from-primary/5 dark:via-purple-950/20 dark:to-orange-950/20 py-12">
@@ -482,6 +492,6 @@ export default function Products() {
         </div>
       </div>
       </div>
-    </div>
+    </>
   );
 }
