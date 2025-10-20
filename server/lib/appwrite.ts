@@ -25,7 +25,14 @@ export const COLLECTIONS = {
   FAMILY_MEMBERS: 'family_members',
   AR_MODELS: 'ar_models',
   CHAT_MESSAGES: 'chat_messages',
-  BUNDLES: 'bundles'
+  BUNDLES: 'bundles',
+  ANALYTICS: 'analytics'
+};
+
+// Export config for easier access
+export const appwriteConfig = {
+  databaseId: DATABASE_ID,
+  analyticsCollectionId: COLLECTIONS.ANALYTICS,
 };
 
 // ===== HELPER FUNCTIONS =====

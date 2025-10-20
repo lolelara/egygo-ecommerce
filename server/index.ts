@@ -157,6 +157,10 @@ export function createServer() {
   // AI Chat API
   app.post("/api/chat", handleChatCompletion);
 
+  // Analytics API
+  const analyticsRouter = require("./routes/analytics").default;
+  app.use("/api", analyticsRouter);
+
   // Products API
   app.get("/api/products", getProducts);
   app.get("/api/products/:id", getProductById);

@@ -40,6 +40,12 @@ class Analytics {
     const events = [...this.queue];
     this.queue = [];
     
+    // Log in development
+    if (import.meta.env.DEV) {
+      console.log('📊 Analytics events:', events);
+    }
+    
+    // Send to API
     try {
       await fetch('/api/analytics', {
         method: 'POST',
@@ -48,6 +54,8 @@ class Analytics {
       });
     } catch (error) {
       console.error('Failed to send analytics:', error);
+      // Re-queue events on failure
+      this.queue.push(...events);
     }
   }
   
