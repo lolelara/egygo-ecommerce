@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -35,6 +35,8 @@ import ProductReviews from "@/components/ProductReviews";
 import { placeholder } from "@/lib/placeholder";
 import { PageLoader } from "@/components/ui/loading-screen";
 import { EnhancedProductGallery } from "@/components/product/EnhancedProductGallery";
+import { SEOHead } from "@/components/SEOHead";
+import { analytics } from "@/lib/enhanced-analytics";
 
 // Color mappings (للترجمة والعرض) - خارج الـ component لمنع re-creation
 const COLOR_MAPPINGS: Record<string, {name: string, hex: string, border?: boolean}> = {
@@ -234,6 +236,13 @@ export default function ProductDetail() {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
+  // Track product view
+  useEffect(() => {
+    if (product) {
+      analytics.trackProductView(product.id, product.name);
+    }
+  }, [product]);
+
   const handleAddToCart = () => {
     // التحقق من اختيار اللون
     if (availableColors.length > 0 && !selectedColor) {
@@ -272,6 +281,9 @@ export default function ProductDetail() {
     });
 
     const details = [colorName, selectedSize].filter(Boolean).join(" - ");
+
+    // Track add to cart
+    analytics.trackAddToCart(product.id, product.price);
 
     toast({
       title: "✅ تمت الإضافة لسلة التسوق",
@@ -314,6 +326,15 @@ export default function ProductDetail() {
   };
 
   return (
+    <>
+      <SEOHead
+        title={product.name}
+        description={product.description}
+        keywords={[product.name, product.category?.name || '', 'منتج', 'تسوق']}
+        image={product.images?.[0] || ''}
+        type="product"
+      />
+      
     <div className="min-h-screen bg-background">
       {/* Breadcrumb */}
       <div className="border-b">
@@ -755,5 +776,6 @@ export default function ProductDetail() {
         </div>
       )}
     </div>
+    </>
   );
 }
