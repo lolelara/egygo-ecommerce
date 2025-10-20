@@ -79,6 +79,7 @@ export const MerchantDashboard = lazyLoad(() => import('@/pages/MerchantDashboar
 export const MerchantProducts = lazyLoad(() => import('@/pages/MerchantProducts'));
 export const MerchantOrders = lazyLoad(() => import('@/pages/MerchantOrders'));
 export const MerchantAnalytics = lazyLoad(() => import('@/pages/MerchantAnalytics'));
+export const MerchantAdvertising = lazyLoad(() => import('@/pages/MerchantAdvertising'));
 export const MerchantFinancialHistory = lazyLoad(() => import('@/pages/MerchantFinancialHistory'));
 
 // ============================================

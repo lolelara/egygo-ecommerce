@@ -229,6 +229,7 @@ export const adminProductsApi = {
         isFeatured: product.isFeatured ?? false,
         rating: 0,
         reviewCount: 0,
+        status: userId ? 'pending' : 'approved', // Merchant products need approval, admin products are auto-approved
       };
 
       // Add optional fields if they exist in the product data

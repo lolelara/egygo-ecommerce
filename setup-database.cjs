@@ -218,6 +218,47 @@ async function setupCollections() {
       console.log('⚠️  product_variants already exists\n');
     }
 
+    // 8. Advertisements
+    console.log('📢 Creating advertisements...');
+    try {
+      await databases.createCollection(
+        DATABASE_ID,
+        'advertisements',
+        'Advertisements',
+        [
+          Permission.read(Role.any()),
+          Permission.create(Role.users()),
+          Permission.update(Role.users()),
+          Permission.delete(Role.users())
+        ]
+      );
+
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'merchantId', 255, true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'merchantName', 255, true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'productId', 255, true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'productName', 500, true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'productImage', 1000, false);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'adType', 50, true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'placement', 50, true);
+      await databases.createIntegerAttribute(DATABASE_ID, 'advertisements', 'duration', true);
+      await databases.createFloatAttribute(DATABASE_ID, 'advertisements', 'price', true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'startDate', 50, true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'endDate', 50, true);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'status', 50, true);
+      await databases.createIntegerAttribute(DATABASE_ID, 'advertisements', 'clicks', true, 0);
+      await databases.createIntegerAttribute(DATABASE_ID, 'advertisements', 'impressions', true, 0);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'paymentProof', 1000, false);
+      await databases.createStringAttribute(DATABASE_ID, 'advertisements', 'createdAt', 50, true);
+      
+      await databases.createIndex(DATABASE_ID, 'advertisements', 'idx_merchant', 'key', ['merchantId']);
+      await databases.createIndex(DATABASE_ID, 'advertisements', 'idx_status', 'key', ['status']);
+      await databases.createIndex(DATABASE_ID, 'advertisements', 'idx_adType', 'key', ['adType']);
+      
+      console.log('✅ advertisements created\n');
+    } catch (error) {
+      console.log('⚠️  advertisements already exists\n');
+    }
+
     console.log('\n✅ Database setup completed!');
     console.log('\n📊 Collections created:');
     console.log('   1. stock_notifications ✅');
@@ -227,6 +268,7 @@ async function setupCollections() {
     console.log('   5. flash_sales ✅');
     console.log('   6. affiliate_goals ✅');
     console.log('   7. product_variants ✅');
+    console.log('   8. advertisements ✅');
     console.log('\n🎉 Ready to use!');
 
   } catch (error) {

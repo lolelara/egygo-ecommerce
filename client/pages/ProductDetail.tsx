@@ -238,10 +238,10 @@ export default function ProductDetail() {
 
   // Track product view
   useEffect(() => {
-    if (product) {
+    if (product?.id) {
       analytics.trackProductView(product.id, product.name);
     }
-  }, [product]);
+  }, [product?.id, product?.name]);
 
   const handleAddToCart = () => {
     // التحقق من اختيار اللون

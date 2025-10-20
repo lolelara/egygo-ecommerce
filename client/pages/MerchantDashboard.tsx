@@ -24,6 +24,7 @@ import {
   BarChart3,
   ArrowUpRight,
   Loader2,
+  Megaphone,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
@@ -510,12 +511,14 @@ export default function MerchantDashboard() {
                   </div>
                 </Button>
               </Link>
-              <Button variant="outline" className="w-full h-auto py-4">
-                <div className="flex flex-col items-center gap-2">
-                  <Star className="h-6 w-6" />
-                  <span>عرض التقييمات</span>
-                </div>
-              </Button>
+              <Link to="/merchant/advertising">
+                <Button variant="outline" className="w-full h-auto py-4 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+                  <div className="flex flex-col items-center gap-2">
+                    <Megaphone className="h-6 w-6 text-purple-600" />
+                    <span className="text-purple-700 font-semibold">روّج منتجاتك</span>
+                  </div>
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

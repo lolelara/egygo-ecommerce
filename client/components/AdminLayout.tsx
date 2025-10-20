@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { usePendingAccountsCount } from "@/hooks/usePendingAccountsCount";
+import { usePendingProductsCount } from "@/hooks/usePendingProductsCount";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -41,6 +42,13 @@ const adminNavItems = [
     href: "/admin/products",
     icon: Package,
     roles: ['admin', 'merchant'], // المدير والتاجر
+  },
+  {
+    title: "موافقة المنتجات",
+    href: "/admin/product-approval",
+    icon: UserCheck,
+    roles: ['admin'], // فقط المدير
+    badge: true, // سيظهر عدد المنتجات المعلقة
   },
   {
     title: "إدارة الفئات",
@@ -115,6 +123,7 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { count: pendingCount } = usePendingAccountsCount();
+  const pendingProductsCount = usePendingProductsCount();
 
   const handleLogout = () => {
     // TODO: Implement logout logic
@@ -156,6 +165,11 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
               {item.href === '/admin/pending-accounts' && pendingCount > 0 && (
                 <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
                   {pendingCount}
+                </Badge>
+              )}
+              {item.href === '/admin/product-approval' && pendingProductsCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                  {pendingProductsCount}
                 </Badge>
               )}
             </Link>
