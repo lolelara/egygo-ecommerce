@@ -23,6 +23,7 @@ import { getImageUrl } from "@/lib/storage";
 import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
 import { placeholder } from "@/lib/placeholder";
+import { formatPrice, formatDiscount } from "@/lib/currency";
 import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
 import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
 import { useEffect, useState } from "react";
@@ -256,7 +257,7 @@ export default function Index() {
                             {product.name}
                           </h3>
                           <p className="text-brand-yellow font-bold">
-                            ${product.price}
+                            {formatPrice(product.price)}
                           </p>
                         </CardContent>
                       </Card>
@@ -277,7 +278,7 @@ export default function Index() {
                             {product.name}
                           </h3>
                           <p className="text-brand-yellow font-bold">
-                            ${product.price}
+                            {formatPrice(product.price)}
                           </p>
                         </CardContent>
                       </Card>
@@ -506,7 +507,7 @@ export default function Index() {
               image: getImageUrl(p.images?.[0]),
               rating: p.rating,
               reviews: p.reviewCount,
-              badge: p.originalPrice && p.originalPrice > p.price ? `وفر $${(p.originalPrice - p.price).toFixed(0)}` : undefined,
+              badge: p.originalPrice && p.originalPrice > p.price ? formatDiscount(p.originalPrice, p.price) : undefined,
               description: p.description || ''
             }))}
             variant="cards"
@@ -683,12 +684,12 @@ export default function Index() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold">
-                            ${product.price}
+                            {formatPrice(product.price)}
                           </span>
                           {product.originalPrice &&
                             product.originalPrice > product.price && (
                               <span className="text-sm text-muted-foreground line-through">
-                                ${product.originalPrice}
+                                {formatPrice(product.originalPrice)}
                               </span>
                             )}
                         </div>
