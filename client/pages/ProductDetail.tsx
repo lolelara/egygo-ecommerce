@@ -155,8 +155,8 @@ export default function ProductDetail() {
     }
   }
 
-  // استخراج الألوان المتاحة من الـ inventory
-  const availableColors = useMemo(() => {
+  // استخراج الألوان المتاحة من الـ inventory - direct calculation
+  const availableColors = (() => {
     if (!inventory || inventory.length === 0) return [];
     
     const uniqueColors = [...new Set(inventory
@@ -170,10 +170,10 @@ export default function ProductDetail() {
       hex: COLOR_MAPPINGS[color]?.hex || '#999999',
       border: COLOR_MAPPINGS[color]?.border,
     }));
-  }, [inventory]);
+  })();
 
-  // استخراج المقاسات المتاحة من الـ inventory
-  const availableSizes = useMemo(() => {
+  // استخراج المقاسات المتاحة من الـ inventory - direct calculation
+  const availableSizes = (() => {
     if (!inventory || inventory.length === 0) return [];
     
     const uniqueSizes = [...new Set(inventory
@@ -190,7 +190,7 @@ export default function ProductDetail() {
       if (bIndex === -1) return -1;
       return aIndex - bIndex;
     });
-  }, [inventory]);
+  })();
 
   if (isLoading) {
     return <PageLoader message="جاري تحميل تفاصيل المنتج..." />;
