@@ -58,6 +58,7 @@ export const AffiliateDashboard = lazyLoad(() => import('@/pages/AffiliateDashbo
 export const NewAffiliateDashboard = lazyLoad(() => import('@/pages/NewAffiliateDashboard'));
 export const EnhancedAffiliateDashboard = lazyLoad(() => import('@/pages/EnhancedAffiliateDashboard'));
 export const AffiliateLandingPages = lazyLoad(() => import('@/pages/AffiliateLandingPages'));
+export const AffiliateChallenges = lazyLoad(() => import('@/pages/AffiliateChallenges'));
 export const AffiliateAnalytics = lazyLoad(() => import('@/pages/AffiliateAnalytics'));
 export const AffiliateLinkManager = lazyLoad(() => import('@/pages/AffiliateLinkManager'));
 export const AffiliateCreatives = lazyLoad(() => import('@/pages/AffiliateCreatives'));
