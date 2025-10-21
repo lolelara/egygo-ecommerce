@@ -133,14 +133,21 @@ export default function ProductDetail() {
   let totalStock = 0;
   
   if (product?.id) {
+    console.log('🔍 Product data:', product);
+    console.log('📦 Raw product object:', JSON.stringify(product, null, 2));
+    
     try {
       const inventoryData = (product as any)?.colorSizeInventory;
+      console.log('📊 colorSizeInventory field:', inventoryData);
+      console.log('📊 Type of colorSizeInventory:', typeof inventoryData);
       
       if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
-        const parsed = JSON.parse(inventoryData);
+        const parsed = typeof inventoryData === 'string' ? JSON.parse(inventoryData) : inventoryData;
+        console.log('✅ Parsed inventory:', parsed);
         
         if (Array.isArray(parsed) && parsed.length > 0) {
           inventory = parsed;
+          console.log('✅ Inventory array set:', inventory);
         }
       }
     } catch (error) {
@@ -150,9 +157,14 @@ export default function ProductDetail() {
     // Calculate total stock
     if (inventory.length > 0) {
       totalStock = inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      console.log('✅ Total stock from inventory:', totalStock);
     } else {
       totalStock = (product as any)?.stock || product?.stockQuantity || 0;
+      console.log('⚠️ Using fallback stock:', totalStock, 'from stock:', (product as any)?.stock, 'or stockQuantity:', product?.stockQuantity);
     }
+    
+    console.log('📊 Final totalStock:', totalStock);
+    console.log('📊 Final inventory:', inventory);
   }
 
   // استخراج الألوان المتاحة من الـ inventory - direct calculation

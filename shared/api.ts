@@ -27,6 +27,11 @@ export interface Product {
   rating: number;
   reviewCount: number;
   affiliateCommission: number; // Percentage commission for affiliates
+  stockQuantity?: number; // Total quantity in stock
+  stock?: number; // Alternative stock field
+  colorSizeInventory?: string; // JSON string of color/size inventory array
+  colors?: string[]; // Available colors
+  sizes?: string[]; // Available sizes
 }
 
 export interface Category {

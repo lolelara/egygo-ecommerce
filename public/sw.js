@@ -1,7 +1,7 @@
 // Service Worker for performance optimization
-const CACHE_NAME = 'egygo-v1';
-const STATIC_CACHE = 'egygo-static-v1';
-const DYNAMIC_CACHE = 'egygo-dynamic-v1';
+const CACHE_NAME = 'egygo-v2';
+const STATIC_CACHE = 'egygo-static-v2';
+const DYNAMIC_CACHE = 'egygo-dynamic-v2';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
@@ -77,6 +77,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip external resources entirely to avoid CORS issues
+  if (url.origin !== self.location.origin) {
+    // Let the browser handle external resources normally
+    return;
+  }
+
   // Handle different types of requests
   if (isStaticResource(request)) {
     event.respondWith(handleStaticResource(request));
@@ -92,6 +98,10 @@ self.addEventListener('fetch', (event) => {
 // Check if request is for static resources
 function isStaticResource(request) {
   const url = new URL(request.url);
+  // Skip external resources (like Appwrite assets) to avoid CORS issues
+  if (url.origin !== self.location.origin) {
+    return false;
+  }
   return url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|ico)$/);
 }
 
