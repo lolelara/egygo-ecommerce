@@ -157,7 +157,7 @@ export default function Wishlist() {
                 <CardContent className="p-4">
                   {/* Product Image */}
                   <div className="relative aspect-square mb-4 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-                    <Link to={`/products/${item.productId}`}>
+                    <Link to={`/product/${item.productId}`}>
                       <img
                         src={getImageUrl(item.product.images?.[0])}
                         alt={item.product.name}
@@ -189,7 +189,7 @@ export default function Wishlist() {
 
                   {/* Product Info */}
                   <div className="space-y-2">
-                    <Link to={`/products/${item.productId}`}>
+                    <Link to={`/product/${item.productId}`}>
                       <h3 className="font-semibold text-lg line-clamp-2 hover:text-primary">
                         {item.product.name}
                       </h3>
@@ -252,7 +252,7 @@ export default function Wishlist() {
                         size="sm"
                         asChild
                       >
-                        <Link to={`/products/${item.productId}`}>
+                        <Link to={`/product/${item.productId}`}>
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
