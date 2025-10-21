@@ -161,14 +161,16 @@ export default function AffiliateLandingPages() {
     setIsGenerating(true);
     
     try {
-      const slug = formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-      const pageId = ID.unique();
-      
       // Extract product ID from URL
       const productId = formData.productUrl.split('/').pop()?.split('?')[0] || '';
       
-      // Generate affiliate link (without hash)
-      const affiliateLink = `https://egygo.me/product/${productId}?ref=${user.affiliateCode || user.$id}`;
+      // Generate affiliate link with hash for HashRouter compatibility
+      const affiliateLink = `https://egygo.me/#/product/${productId}?ref=${user.affiliateCode || user.$id}`;
+      
+      // Create unique slug with timestamp to avoid duplicates
+      const baseSlug = formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+      const uniqueSlug = `${baseSlug}-${Date.now()}`;
+      const pageId = ID.unique();
       
       // Save to database
       const landingPage = await databases.createDocument(
@@ -188,7 +190,7 @@ export default function AffiliateLandingPages() {
           features: formData.features,
           testimonials: formData.testimonials,
           countdown: formData.countdown,
-          slug: slug,
+          slug: uniqueSlug,
           views: 0,
           clicks: 0,
           conversions: 0,
@@ -196,8 +198,7 @@ export default function AffiliateLandingPages() {
         }
       );
       
-      const url = `https://egygo.me/lp/${slug}`;
-      setGeneratedUrl(affiliateLink); // Use affiliate link instead
+      setGeneratedUrl(affiliateLink);
       
       // Reload landing pages
       await loadLandingPages();
@@ -211,12 +212,13 @@ export default function AffiliateLandingPages() {
       
       // Fallback: generate link without saving
       const productId = formData.productUrl.split('/').pop()?.split('?')[0] || '';
-      const affiliateLink = `https://egygo.me/product/${productId}?ref=${user.affiliateCode || user.$id}`;
+      const affiliateLink = `https://egygo.me/#/product/${productId}?ref=${user.affiliateCode || user.$id}`;
       setGeneratedUrl(affiliateLink);
       
       toast({
         title: '⚠️ تم إنشاء الرابط',
         description: 'الرابط جاهز لكن لم يتم حفظه في قاعدة البيانات',
+        variant: 'default',
       });
     } finally {
       setIsGenerating(false);
