@@ -232,7 +232,8 @@ export default function ProductDetail() {
     if (product?.id) {
       analytics.trackProductView(product.id, product.name);
     }
-  }, [product?.id, product?.name]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]); // Only track when product ID changes, not name
 
   const handleAddToCart = () => {
     // التحقق من اختيار اللون
