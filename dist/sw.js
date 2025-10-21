@@ -8,9 +8,8 @@ const CRITICAL_RESOURCES = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/fonts/inter-var.woff2',
-  '/images/logo.png',
-  '/images/favicon.ico'
+  '/favicon.ico',
+  '/placeholder.svg'
 ];
 
 // API endpoints to cache
@@ -75,12 +74,6 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) {
-    return;
-  }
-
-  // Skip cross-origin requests (like Appwrite fonts, external APIs)
-  // Only handle same-origin requests to avoid CORS issues
-  if (url.origin !== self.location.origin) {
     return;
   }
 

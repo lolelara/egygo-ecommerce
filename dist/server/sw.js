@@ -8,9 +8,8 @@ const CRITICAL_RESOURCES = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/fonts/inter-var.woff2',
-  '/images/logo.png',
-  '/images/favicon.ico'
+  '/favicon.ico',
+  '/placeholder.svg'
 ];
 
 // API endpoints to cache

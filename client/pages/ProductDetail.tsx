@@ -128,45 +128,49 @@ export default function ProductDetail() {
     refetchOnWindowFocus: false,
   });
   
-  // Calculate inventory from product data (using useMemo to prevent infinite loops)
-  const inventoryData = (product as any)?.colorSizeInventory;
-  const inventory = useMemo(() => {
-    if (!product?.id || !inventoryData) return [];
+  // Parse inventory once when product loads
+  const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
+  const [totalStock, setTotalStock] = useState(0);
+  
+  useEffect(() => {
+    if (!product?.id) {
+      setInventory([]);
+      setTotalStock(0);
+      return;
+    }
+    
+    let parsedInventory: Array<{color: string, size: string, quantity: number}> = [];
     
     try {
-      if (inventoryData === '[]' || inventoryData === '') {
-        return [];
-      }
+      const inventoryData = (product as any)?.colorSizeInventory;
       
-      const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
-      
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        console.log('📦 Product inventory loaded:', { inventory: parsed });
-        return parsed;
+      if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
+        parsedInventory = JSON.parse(inventoryData);
+        
+        if (!Array.isArray(parsedInventory) || parsedInventory.length === 0) {
+          parsedInventory = [];
+        } else {
+          console.log('📦 Product inventory loaded:', { inventory: parsedInventory });
+        }
       }
     } catch (error) {
       console.error('❌ Error parsing inventory:', error);
+      parsedInventory = [];
     }
     
-    return [];
-  }, [product?.id, inventoryData]); // inventoryData is string, so it's stable
-  
-  // Calculate total stock from inventory (using useMemo)
-  const totalStock = useMemo(() => {
-    if (!product) return 0;
-    
-    // If we have inventory with quantities
-    if (inventory.length > 0) {
-      const total = inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
-      console.log('📦 Total stock from inventory:', total);
-      return total;
+    // Calculate total stock
+    let stock = 0;
+    if (parsedInventory.length > 0) {
+      stock = parsedInventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      console.log('📦 Total stock from inventory:', stock);
+    } else {
+      stock = (product as any).stock || product.stockQuantity || 0;
+      console.log('📦 Using stock field:', stock);
     }
     
-    // If no inventory data, use the stock field directly
-    const oldStock = (product as any).stock || product.stockQuantity || 0;
-    console.log('📦 Using stock field:', oldStock);
-    return oldStock;
-  }, [product?.id, inventory]);
+    setInventory(parsedInventory);
+    setTotalStock(stock);
+  }, [product?.id]); // Only when product ID changes
 
   // استخراج الألوان المتاحة من الـ inventory
   const availableColors = useMemo(() => {

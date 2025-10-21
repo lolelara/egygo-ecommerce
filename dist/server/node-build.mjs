@@ -3819,6 +3819,8 @@ function createServer() {
   });
   app2.get("/api/demo", handleDemo);
   app2.post("/api/chat", handleChatCompletion);
+  const analyticsRouter = require("./routes/analytics").default;
+  app2.use("/api", analyticsRouter);
   app2.get("/api/products", getProducts);
   app2.get("/api/products/:id", getProductById);
   app2.get("/api/categories/:slug/products", getProductsByCategory);
