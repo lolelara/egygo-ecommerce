@@ -202,11 +202,11 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
     <Card className="card-hover group overflow-hidden h-full border-2 relative">
       <Link
         to={`/product/${product.id}`}
-        className="block absolute inset-0 z-0"
+        className="block absolute inset-0 z-[1]"
         onClick={handleView}
       />
         {/* Image Container */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden pointer-events-none">
           <img
             src={getImageUrl(product.images?.[0])}
             alt={product.name}
@@ -229,11 +229,11 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
           </div>
 
           {/* Action Buttons */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[20] pointer-events-auto">
             <Button
               size="icon"
               variant="secondary"
-              className="rounded-full shadow-lg hover:scale-110 transition-transform relative z-10"
+              className="rounded-full shadow-lg hover:scale-110 transition-transform"
               onClick={handleToggleFavorite}
               type="button"
             >
@@ -245,7 +245,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
             <Button
               size="icon"
               variant="secondary"
-              className="rounded-full shadow-lg hover:scale-110 transition-transform relative z-10"
+              className="rounded-full shadow-lg hover:scale-110 transition-transform"
               onClick={handleShare}
               type="button"
             >
@@ -261,7 +261,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
         </div>
 
         {/* Content */}
-        <CardContent className="p-4 space-y-3 relative z-10">
+        <CardContent className="p-4 space-y-3 relative pointer-events-none">
           {/* Rating */}
           <div className="flex items-center gap-2">
             <div className="flex">
@@ -325,7 +325,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
               size="sm"
               onClick={handleAddToCart}
               disabled={isAddingToCart}
-              className="btn-hover-lift relative z-10"
+              className="btn-hover-lift relative z-[20] pointer-events-auto"
               type="button"
             >
               {isAddingToCart ? (
