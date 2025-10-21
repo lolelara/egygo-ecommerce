@@ -15,7 +15,7 @@ export default function AboutPage() {
         <div>
           <h2 className="text-2xl font-bold mb-4">رؤيتنا</h2>
           <p className="text-muted-foreground leading-relaxed">
-            نسعى لأن نكون المنصة الرائدة في التجارة الإلكترونية بالشرق الأوسط، حيث نقدم تجربة تسوق استثنائية تجمع بين التنوع والجودة والسهولة.
+            هدفنا خلق بيئة تنافسية عالية للمنتجات المصرية مع دعم الصناعة المحلية.
           </p>
         </div>
         <div>
@@ -30,28 +30,28 @@ export default function AboutPage() {
         <Card>
           <CardContent className="p-6 text-center">
             <ShoppingBag className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h3 className="font-bold text-2xl mb-2">1000+</h3>
+            <h3 className="font-bold text-2xl mb-2">200+</h3>
             <p className="text-sm text-muted-foreground">منتج متنوع</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h3 className="font-bold text-2xl mb-2">10,000+</h3>
+            <h3 className="font-bold text-2xl mb-2">2,000+</h3>
             <p className="text-sm text-muted-foreground">عميل راضٍ</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <TrendingUp className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h3 className="font-bold text-2xl mb-2">500+</h3>
+            <h3 className="font-bold text-2xl mb-2">150+</h3>
             <p className="text-sm text-muted-foreground">مسوق نشط</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-6 text-center">
             <Heart className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h3 className="font-bold text-2xl mb-2">99%</h3>
+            <h3 className="font-bold text-2xl mb-2">95%</h3>
             <p className="text-sm text-muted-foreground">رضا العملاء</p>
           </CardContent>
         </Card>

@@ -192,4 +192,5 @@ export interface AdminProductCreate {
 
 export interface AdminProductUpdate extends Partial<AdminProductCreate> {
   id: string;
+  status?: 'pending' | 'approved' | 'rejected';
 }

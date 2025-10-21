@@ -528,7 +528,14 @@ export default function AdminProducts() {
         return;
       }
       
-      const updatedProduct = await adminProductsApi.update(data);
+      // If merchant is editing, set status back to pending for re-approval
+      const updateData = { ...data };
+      if (!isAdmin && isMerchantOwner) {
+        updateData.status = 'pending';
+        alert("✅ تم تحديث المنتج بنجاح! سيتم مراجعته من قبل الإدارة قبل نشره.");
+      }
+      
+      const updatedProduct = await adminProductsApi.update(updateData);
       setProducts((prev) =>
         prev.map((product) =>
           product.id === data.id
@@ -539,7 +546,7 @@ export default function AdminProducts() {
       setEditingProduct(null);
     } catch (error) {
       console.error("Error updating product:", error);
-      alert("فشل في تحديث المنتج");
+      alert("فشل في تحديث المنتج: " + (error as any).message);
     }
   };
 

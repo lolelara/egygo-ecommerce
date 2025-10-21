@@ -61,7 +61,7 @@ const adminNavItems = [
     title: "إدارة الفئات",
     href: "/admin/categories",
     icon: FolderOpen,
-    roles: ['admin', 'merchant'], // المدير والتاجر
+    roles: ['admin'], // فقط المدير - التاجر يرى الفئات في صفحة المنتجات
   },
   {
     title: "إدارة المستخدمين والشركاء",

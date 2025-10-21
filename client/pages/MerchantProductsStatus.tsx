@@ -253,7 +253,7 @@ export default function MerchantProductsStatus() {
                           )}
 
                           {product.status === 'approved' && (
-                            <Link to={`/products/${product.$id}`}>
+                            <Link to={`/product/${product.$id}`}>
                               <Button variant="outline" size="sm" className="w-full">
                                 <Eye className="h-4 w-4 ml-2" />
                                 معاينة في الموقع
