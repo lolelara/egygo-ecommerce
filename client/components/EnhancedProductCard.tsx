@@ -206,7 +206,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
         onClick={handleView}
       />
         {/* Image Container */}
-        <div className="relative overflow-hidden pointer-events-none">
+        <div className="relative overflow-hidden">
           <img
             src={getImageUrl(product.images?.[0])}
             alt={product.name}
@@ -229,7 +229,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
           </div>
 
           {/* Action Buttons */}
-          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[20] pointer-events-auto">
+          <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-[20]">
             <Button
               size="icon"
               variant="secondary"
@@ -261,7 +261,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
         </div>
 
         {/* Content */}
-        <CardContent className="p-4 space-y-3 relative pointer-events-none">
+        <CardContent className="p-4 space-y-3 relative">
           {/* Rating */}
           <div className="flex items-center gap-2">
             <div className="flex">
@@ -325,7 +325,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
               size="sm"
               onClick={handleAddToCart}
               disabled={isAddingToCart}
-              className="btn-hover-lift relative z-[20] pointer-events-auto"
+              className="btn-hover-lift relative z-[20]"
               type="button"
             >
               {isAddingToCart ? (
