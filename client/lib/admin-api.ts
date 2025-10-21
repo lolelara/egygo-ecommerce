@@ -216,12 +216,14 @@ export const adminProductsApi = {
       console.log("User ID (merchantId):", userId);
       
       // Prepare document data with optional merchantId, colors, and sizes
+      const stockValue = product.stock || product.stockQuantity || 0;
       const documentData: any = {
         name: product.name,
         description: product.description,
         price: product.price,
         comparePrice: product.comparePrice || product.originalPrice || null,
-        stock: product.stock || product.stockQuantity || 0,
+        stock: stockValue,
+        stockQuantity: stockValue, // Also set stockQuantity to match schema
         categoryId: product.categoryId,
         images: product.images || [],
         tags: product.tags || [],
@@ -336,7 +338,9 @@ export const adminProductsApi = {
         mappedData.comparePrice = updateData.comparePrice || updateData.originalPrice || null;
       }
       if (updateData.stock !== undefined || updateData.stockQuantity !== undefined) {
-        mappedData.stock = updateData.stock ?? updateData.stockQuantity ?? 0;
+        const stockValue = updateData.stock ?? updateData.stockQuantity ?? 0;
+        mappedData.stock = stockValue;
+        mappedData.stockQuantity = stockValue; // Also set stockQuantity to match schema
       }
       if (updateData.categoryId) mappedData.categoryId = updateData.categoryId;
       if (updateData.images) mappedData.images = updateData.images;

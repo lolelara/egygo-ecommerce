@@ -3,7 +3,7 @@
  * أداة توليد صفحات الهبوط للمسوقين
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +35,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
+import { databases, appwriteConfig, ID } from '@/lib/appwrite';
+import { Query } from 'appwrite';
 
 const templates = [
   {
@@ -94,23 +96,131 @@ export default function AffiliateLandingPages() {
 
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [landingPages, setLandingPages] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>([]);
+
+  // Load products for selection
+  useEffect(() => {
+    loadProducts();
+    loadLandingPages();
+  }, [user]);
+
+  const loadProducts = async () => {
+    try {
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.products,
+        [Query.limit(100), Query.equal('isActive', true)]
+      );
+      setProducts(response.documents);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
+  };
+
+  const loadLandingPages = async () => {
+    if (!user?.$id) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        'landing_pages',
+        [Query.equal('affiliateId', user.$id), Query.orderDesc('$createdAt')]
+      );
+      setLandingPages(response.documents);
+    } catch (error) {
+      console.error('Error loading landing pages:', error);
+      // Collection might not exist yet
+      setLandingPages([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGenerate = async () => {
+    if (!user?.$id) {
+      toast({
+        title: '❌ خطأ',
+        description: 'يجب تسجيل الدخول أولاً',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!formData.productUrl) {
+      toast({
+        title: '❌ خطأ',
+        description: 'يرجى إدخال رابط المنتج',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsGenerating(true);
     
-    // Simulate generation
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    const slug = formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-    const url = `https://egygo.me/lp/${user?.affiliateCode}/${slug}`;
-    setGeneratedUrl(url);
-    
-    setIsGenerating(false);
-    
-    toast({
-      title: '✅ تم إنشاء الصفحة!',
-      description: 'صفحة الهبوط جاهزة للاستخدام',
-    });
+    try {
+      const slug = formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+      const pageId = ID.unique();
+      
+      // Extract product ID from URL
+      const productId = formData.productUrl.split('/').pop()?.split('?')[0] || '';
+      
+      // Generate affiliate link (without hash)
+      const affiliateLink = `https://egygo.me/product/${productId}?ref=${user.affiliateCode || user.$id}`;
+      
+      // Save to database
+      const landingPage = await databases.createDocument(
+        appwriteConfig.databaseId,
+        'landing_pages',
+        pageId,
+        {
+          affiliateId: user.$id,
+          title: formData.title,
+          subtitle: formData.subtitle,
+          description: formData.description,
+          ctaText: formData.ctaText,
+          productUrl: formData.productUrl,
+          affiliateLink: affiliateLink,
+          template: selectedTemplate,
+          colorScheme: selectedColor,
+          features: formData.features,
+          testimonials: formData.testimonials,
+          countdown: formData.countdown,
+          slug: slug,
+          views: 0,
+          clicks: 0,
+          conversions: 0,
+          isActive: true,
+        }
+      );
+      
+      const url = `https://egygo.me/lp/${slug}`;
+      setGeneratedUrl(affiliateLink); // Use affiliate link instead
+      
+      // Reload landing pages
+      await loadLandingPages();
+      
+      toast({
+        title: '✅ تم إنشاء الصفحة!',
+        description: 'الرابط التسويقي جاهز للاستخدام',
+      });
+    } catch (error: any) {
+      console.error('Error creating landing page:', error);
+      
+      // Fallback: generate link without saving
+      const productId = formData.productUrl.split('/').pop()?.split('?')[0] || '';
+      const affiliateLink = `https://egygo.me/product/${productId}?ref=${user.affiliateCode || user.$id}`;
+      setGeneratedUrl(affiliateLink);
+      
+      toast({
+        title: '⚠️ تم إنشاء الرابط',
+        description: 'الرابط جاهز لكن لم يتم حفظه في قاعدة البيانات',
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const copyUrl = () => {
@@ -198,11 +308,30 @@ export default function AffiliateLandingPages() {
                   </div>
 
                   <div>
-                    <Label>رابط المنتج</Label>
+                    <Label>اختر المنتج</Label>
+                    <Select
+                      value={formData.productUrl}
+                      onValueChange={(value) => setFormData({ ...formData, productUrl: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر منتج للترويج له" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.map((product: any) => (
+                          <SelectItem key={product.$id} value={`https://egygo.me/product/${product.$id}`}>
+                            {product.name} - {product.price} ج.م
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      أو أدخل رابط المنتج يدوياً
+                    </p>
                     <Input
                       value={formData.productUrl}
                       onChange={(e) => setFormData({ ...formData, productUrl: e.target.value })}
                       placeholder="https://egygo.me/product/..."
+                      className="mt-2"
                     />
                   </div>
                 </CardContent>
@@ -400,20 +529,80 @@ export default function AffiliateLandingPages() {
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">صفحات منشأة</span>
-                <span className="font-semibold">12</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">معدل التحويل</span>
-                <span className="font-semibold text-green-600">8.5%</span>
+                <span className="font-semibold">{landingPages.length}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">إجمالي الزيارات</span>
-                <span className="font-semibold">2,450</span>
+                <span className="font-semibold">
+                  {landingPages.reduce((sum, page) => sum + (page.views || 0), 0)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">إجمالي النقرات</span>
+                <span className="font-semibold text-green-600">
+                  {landingPages.reduce((sum, page) => sum + (page.clicks || 0), 0)}
+                </span>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Saved Landing Pages */}
+      {landingPages.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>صفحاتك المحفوظة</CardTitle>
+            <CardDescription>جميع الروابط التسويقية التي أنشأتها</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {landingPages.map((page: any) => (
+                <div
+                  key={page.$id}
+                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <h4 className="font-semibold">{page.title}</h4>
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {page.description}
+                    </p>
+                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                      <span>👁 {page.views || 0} مشاهدة</span>
+                      <span>🖱 {page.clicks || 0} نقرة</span>
+                      <span>✅ {page.conversions || 0} تحويل</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(page.affiliateLink);
+                        toast({
+                          title: 'تم النسخ!',
+                          description: 'تم نسخ الرابط التسويقي',
+                        });
+                      }}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                    >
+                      <a href={page.affiliateLink} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
