@@ -14,9 +14,25 @@ declare global {
 class Analytics {
   private queue: AnalyticsEvent[] = [];
   private flushInterval = 5000;
+  private timerId: NodeJS.Timeout | null = null;
   
   constructor() {
-    setInterval(() => this.flush(), this.flushInterval);
+    // Only start timer if in browser and not already running
+    if (typeof window !== 'undefined' && !this.timerId) {
+      this.timerId = setInterval(() => this.flush(), this.flushInterval);
+      
+      // Clean up on page unload
+      window.addEventListener('beforeunload', () => this.cleanup());
+    }
+  }
+  
+  private cleanup() {
+    if (this.timerId) {
+      clearInterval(this.timerId);
+      this.timerId = null;
+    }
+    // Flush any remaining events
+    this.flush();
   }
   
   track(event: AnalyticsEvent) {
@@ -45,17 +61,27 @@ class Analytics {
       console.log('📊 Analytics events:', events);
     }
     
-    // Send to API
+    // Send to API only if available
     try {
-      await fetch('/api/analytics', {
+      const response = await fetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ events }),
       });
+      
+      // Don't re-queue on 404 - the endpoint doesn't exist
+      if (response.status === 404) {
+        console.warn('Analytics endpoint not available');
+        return;
+      }
+      
+      if (!response.ok && response.status !== 404) {
+        throw new Error(`Analytics failed: ${response.status}`);
+      }
     } catch (error) {
       console.error('Failed to send analytics:', error);
-      // Re-queue events on failure
-      this.queue.push(...events);
+      // Don't re-queue events - this prevents infinite retries
+      // Just log them for now
     }
   }
   
@@ -111,4 +137,50 @@ class Analytics {
   }
 }
 
-export const analytics = new Analytics();
+// Create a singleton instance lazily
+let analyticsInstance: Analytics | null = null;
+
+// Export a wrapper that creates the instance only when needed
+export const analytics = {
+  trackPageView(page: string) {
+    if (!analyticsInstance) {
+      analyticsInstance = new Analytics();
+    }
+    analyticsInstance.trackPageView(page);
+  },
+  
+  trackProductView(productId: string, productName: string) {
+    if (!analyticsInstance) {
+      analyticsInstance = new Analytics();
+    }
+    analyticsInstance.trackProductView(productId, productName);
+  },
+  
+  trackAddToCart(productId: string, price: number) {
+    if (!analyticsInstance) {
+      analyticsInstance = new Analytics();
+    }
+    analyticsInstance.trackAddToCart(productId, price);
+  },
+  
+  trackPurchase(orderId: string, total: number) {
+    if (!analyticsInstance) {
+      analyticsInstance = new Analytics();
+    }
+    analyticsInstance.trackPurchase(orderId, total);
+  },
+  
+  trackSearch(query: string, resultsCount: number) {
+    if (!analyticsInstance) {
+      analyticsInstance = new Analytics();
+    }
+    analyticsInstance.trackSearch(query, resultsCount);
+  },
+  
+  trackClick(element: string, location: string) {
+    if (!analyticsInstance) {
+      analyticsInstance = new Analytics();
+    }
+    analyticsInstance.trackClick(element, location);
+  }
+};

@@ -296,54 +296,6 @@ export default function Merchant() {
         </div>
       </section>
 
-      {/* Commission Structure */}
-      <section className="bg-secondary/50">
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-              هيكل العمولة
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              مبيعات أعلى = عمولات أقل - كلما بعت أكثر، كلما ربحت أكثر!
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {commissionTiers.map((tier, index) => (
-              <Card
-                key={index}
-                className={`text-center ${tier.borderColor} ${tier.badge ? 'bg-primary/5 border-2' : ''}`}
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <CardTitle className={`text-2xl ${tier.color}`}>
-                      {tier.commission}
-                    </CardTitle>
-                    {tier.badge && <Award className="h-5 w-5 text-primary" />}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    عمولة المنصة
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <p className="font-semibold mb-2">{tier.tier}</p>
-                  <p className="text-sm text-muted-foreground">
-                    مبيعات شهرية: {tier.sales}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              💡 مثال: إذا بعت منتجات بـ 100,000 جنيه شهرياً، ستدفع 8,000 جنيه
-              عمولة وتحتفظ بـ 92,000 جنيه
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* How It Works */}
       <section className="container mx-auto px-4">
         <div className="text-center mb-12">

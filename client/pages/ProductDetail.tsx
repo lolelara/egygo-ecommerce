@@ -218,7 +218,16 @@ export default function ProductDetail() {
   // Track product view
   useEffect(() => {
     if (product?.id) {
-      analytics.trackProductView(product.id, product.name);
+      // Use setTimeout to defer analytics call and prevent any render cycle issues
+      const timer = setTimeout(() => {
+        try {
+          analytics.trackProductView(product.id, product.name);
+        } catch (error) {
+          console.error('Analytics error:', error);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]); // Only track when product ID changes, not name
@@ -263,7 +272,11 @@ export default function ProductDetail() {
     const details = [colorName, selectedSize].filter(Boolean).join(" - ");
 
     // Track add to cart
-    analytics.trackAddToCart(product.id, product.price);
+    try {
+      analytics.trackAddToCart(product.id, product.price);
+    } catch (error) {
+      console.error('Analytics error:', error);
+    }
 
     toast({
       title: "✅ تمت الإضافة لسلة التسوق",

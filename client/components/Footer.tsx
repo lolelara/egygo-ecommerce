@@ -123,14 +123,6 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  to="/affiliate/commission"
-                  className="text-muted-foreground hover:text-secondary transition-colors"
-                >
-                  هيكل العمولة
-                </Link>
-              </li>
-              <li>
-                <Link
                   to="/affiliate/support"
                   className="text-muted-foreground hover:text-secondary transition-colors"
                 >
