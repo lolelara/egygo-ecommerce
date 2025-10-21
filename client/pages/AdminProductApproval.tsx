@@ -157,27 +157,26 @@ export default function AdminProductApproval() {
       );
 
       // Send notification to merchant
-      await databases.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.collections.notifications,
-        ID.unique(),
-        {
-          userId: selectedProduct.merchantId,
-          type: actionType === 'approve' ? 'info' : 'alert',
-          title: actionType === 'approve' ? 'تمت الموافقة على المنتج' : 'تم رفض المنتج',
-          message: actionType === 'approve' 
-            ? `تمت الموافقة على منتج "${selectedProduct.name}" وهو الآن متاح للعرض`
-            : `تم رفض منتج "${selectedProduct.name}". السبب: ${rejectionReason}`,
-          read: false,
-          relatedId: selectedProduct.$id,
-          metadata: JSON.stringify({
-            productId: selectedProduct.$id,
-            productName: selectedProduct.name,
-            action: actionType,
-            rejectionReason: actionType === 'reject' ? rejectionReason : undefined
-          })
-        }
-      );
+      try {
+        await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.notifications,
+          ID.unique(),
+          {
+            userId: selectedProduct.merchantId,
+            type: actionType === 'approve' ? 'info' : 'alert',
+            title: actionType === 'approve' ? 'تمت الموافقة على المنتج' : 'تم رفض المنتج',
+            message: actionType === 'approve' 
+              ? `تمت الموافقة على منتج "${selectedProduct.name}" وهو الآن متاح للعرض`
+              : `تم رفض منتج "${selectedProduct.name}". السبب: ${rejectionReason}`,
+            read: false,
+            relatedId: selectedProduct.$id,
+          }
+        );
+      } catch (notifError) {
+        console.error('Error sending notification:', notifError);
+        // Continue even if notification fails
+      }
 
       toast({
         title: "✅ تم بنجاح",
