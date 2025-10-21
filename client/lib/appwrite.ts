@@ -1,5 +1,8 @@
-import { Client, Account, Databases, Storage, Functions, OAuthProvider } from 'appwrite';
+import { Client, Account, Databases, Storage, Functions, OAuthProvider, ID } from 'appwrite';
 import notificationService from './notification-service';
+
+// Re-export ID for convenience
+export { ID };
 
 // Appwrite configuration
 export const appwriteConfig = {
