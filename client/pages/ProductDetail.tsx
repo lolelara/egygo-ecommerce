@@ -128,49 +128,32 @@ export default function ProductDetail() {
     refetchOnWindowFocus: false,
   });
   
-  // Parse inventory once when product loads
-  const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
-  const [totalStock, setTotalStock] = useState(0);
+  // Simple direct calculation without state or complex memoization
+  let inventory: Array<{color: string, size: string, quantity: number}> = [];
+  let totalStock = 0;
   
-  useEffect(() => {
-    if (!product?.id) {
-      setInventory([]);
-      setTotalStock(0);
-      return;
-    }
-    
-    let parsedInventory: Array<{color: string, size: string, quantity: number}> = [];
-    
+  if (product?.id) {
     try {
       const inventoryData = (product as any)?.colorSizeInventory;
       
       if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
-        parsedInventory = JSON.parse(inventoryData);
+        const parsed = JSON.parse(inventoryData);
         
-        if (!Array.isArray(parsedInventory) || parsedInventory.length === 0) {
-          parsedInventory = [];
-        } else {
-          console.log('📦 Product inventory loaded:', { inventory: parsedInventory });
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          inventory = parsed;
         }
       }
     } catch (error) {
       console.error('❌ Error parsing inventory:', error);
-      parsedInventory = [];
     }
     
     // Calculate total stock
-    let stock = 0;
-    if (parsedInventory.length > 0) {
-      stock = parsedInventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
-      console.log('📦 Total stock from inventory:', stock);
+    if (inventory.length > 0) {
+      totalStock = inventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
     } else {
-      stock = (product as any).stock || product.stockQuantity || 0;
-      console.log('📦 Using stock field:', stock);
+      totalStock = (product as any)?.stock || product?.stockQuantity || 0;
     }
-    
-    setInventory(parsedInventory);
-    setTotalStock(stock);
-  }, [product?.id]); // Only when product ID changes
+  }
 
   // استخراج الألوان المتاحة من الـ inventory
   const availableColors = useMemo(() => {
