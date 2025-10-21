@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -192,6 +192,8 @@ export default function ProductDetail() {
     });
   })();
 
+  // Removed per-page analytics effect to eliminate any chance of hook order mismatch
+
   if (isLoading) {
     return <PageLoader message="جاري تحميل تفاصيل المنتج..." />;
   }
@@ -215,22 +217,7 @@ export default function ProductDetail() {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  // Track product view
-  useEffect(() => {
-    if (product?.id) {
-      // Use setTimeout to defer analytics call and prevent any render cycle issues
-      const timer = setTimeout(() => {
-        try {
-          analytics.trackProductView(product.id, product.name);
-        } catch (error) {
-          console.error('Analytics error:', error);
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product?.id]); // Only track when product ID changes, not name
+  
 
   const handleAddToCart = () => {
     // التحقق من اختيار اللون
