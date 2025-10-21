@@ -161,19 +161,10 @@ export default function ProductDetail() {
       return total;
     }
     
-    // Fallback: Check if product has colors/sizes
-    const colors = (product as any).colors || [];
-    const sizes = (product as any).sizes || [];
-    
-    if (colors.length > 0 || sizes.length > 0) {
-      console.log('✅ Product has colors/sizes, defaulting to stock: 999');
-      return 999;
-    }
-    
-    // Use old stock field
+    // If no inventory data, use the stock field directly
     const oldStock = (product as any).stock || product.stockQuantity || 0;
-    console.log('📦 Using old stock or default:', oldStock || 999);
-    return oldStock > 0 ? oldStock : 999;
+    console.log('📦 Using stock field:', oldStock);
+    return oldStock;
   }, [product?.id, inventory]);
 
   // استخراج الألوان المتاحة من الـ inventory
