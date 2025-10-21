@@ -129,26 +129,27 @@ export default function ProductDetail() {
   });
   
   // Calculate inventory from product data (using useMemo to prevent infinite loops)
+  const inventoryData = (product as any)?.colorSizeInventory;
   const inventory = useMemo(() => {
-    if (!product) return [];
+    if (!product?.id || !inventoryData) return [];
     
     try {
-      const inventoryData = (product as any).colorSizeInventory;
+      if (inventoryData === '[]' || inventoryData === '') {
+        return [];
+      }
       
-      if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
-        const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
-        
-        if (parsed.length > 0) {
-          console.log('📦 Product inventory loaded:', { inventory: parsed });
-          return parsed;
-        }
+      const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
+      
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        console.log('📦 Product inventory loaded:', { inventory: parsed });
+        return parsed;
       }
     } catch (error) {
       console.error('❌ Error parsing inventory:', error);
     }
     
     return [];
-  }, [product?.id, (product as any)?.colorSizeInventory]);
+  }, [product?.id, inventoryData]); // inventoryData is string, so it's stable
   
   // Calculate total stock from inventory (using useMemo)
   const totalStock = useMemo(() => {
