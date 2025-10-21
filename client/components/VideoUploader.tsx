@@ -45,12 +45,28 @@ export default function VideoUploader({
     setUploadProgress(0);
 
     try {
-      // Upload to Appwrite Storage
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) return prev;
+          return prev + 10;
+        });
+      }, 300);
+
+      // Upload to Appwrite Storage with chunked upload for large files
       const response = await storage.createFile(
         appwriteConfig.storageId,
         ID.unique(),
-        file
+        file,
+        undefined, // permissions
+        (progress) => {
+          // Real progress from Appwrite
+          const percentage = Math.round((progress.$id ? 100 : (progress.chunksUploaded / progress.chunksTotal) * 100));
+          setUploadProgress(percentage);
+        }
       );
+
+      clearInterval(progressInterval);
 
       // Get file URL
       const fileUrl = `${response.$id}`;
@@ -62,9 +78,21 @@ export default function VideoUploader({
         setUploadProgress(0);
         setUploading(false);
       }, 500);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error uploading video:", err);
-      setError("فشل رفع الفيديو. حاول مرة أخرى");
+      
+      // More specific error messages
+      let errorMessage = "فشل رفع الفيديو. حاول مرة أخرى";
+      
+      if (err.message?.includes('extension not allowed')) {
+        errorMessage = "نوع الفيديو غير مدعوم. استخدم MP4 أو MOV";
+      } else if (err.message?.includes('size')) {
+        errorMessage = "حجم الفيديو كبير جداً. الحد الأقصى 50 ميجابايت";
+      } else if (err.message?.includes('network') || err.message?.includes('timeout')) {
+        errorMessage = "مشكلة في الاتصال. تحقق من الإنترنت وحاول مرة أخرى";
+      }
+      
+      setError(errorMessage);
       setUploading(false);
       setUploadProgress(0);
     }
