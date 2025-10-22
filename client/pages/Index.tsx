@@ -177,9 +177,13 @@ export default function Index() {
         <div className="absolute top-20 left-10 w-64 h-64 bg-red-400/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" style={{animation: 'float 4s ease-in-out infinite'}}></div>
         
-        {/* Logo Text Background - يدور في الخلفية */}
+        {/* Enhanced 3D Logo Text Background */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-          <div className="text-[20rem] font-black text-white/5 whitespace-nowrap animate-spin-slow">
+          <div className="text-[20rem] font-black text-white/5 whitespace-nowrap animate-spin-slow" style={{
+            textShadow: '0 0 40px rgba(255,255,255,0.1), 0 0 80px rgba(255,255,255,0.05)',
+            transform: 'perspective(500px) rotateX(5deg)',
+            letterSpacing: '0.1em'
+          }}>
             egygo.me
           </div>
         </div>
@@ -242,21 +246,36 @@ export default function Index() {
                 </Button>
               </div>
 
-              {/* Enhanced Stats with Icons */}
+              {/* Enhanced Stats with Animated Counters */}
               <div className="grid grid-cols-3 gap-6 pt-8">
                 <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
-                  <Users className="w-8 h-8 mx-auto mb-3 text-green-300" />
-                  <div className="text-3xl font-black text-white mb-1">+10K</div>
+                  <Users className="w-8 h-8 mx-auto mb-3 text-green-300 animate-bounce" style={{animationDuration: '3s'}} />
+                  <AnimatedCounter 
+                    end={10000} 
+                    prefix="+" 
+                    className="text-3xl font-black text-white mb-1"
+                    duration={2500}
+                  />
                   <div className="text-sm text-white/80 font-medium">عميل راضي</div>
                 </div>
                 <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
-                  <ShoppingCart className="w-8 h-8 mx-auto mb-3 text-blue-300" />
-                  <div className="text-3xl font-black text-white mb-1">+500</div>
+                  <ShoppingCart className="w-8 h-8 mx-auto mb-3 text-blue-300 animate-bounce" style={{animationDuration: '3s', animationDelay: '0.2s'}} />
+                  <AnimatedCounter 
+                    end={500} 
+                    prefix="+" 
+                    className="text-3xl font-black text-white mb-1"
+                    duration={2000}
+                  />
                   <div className="text-sm text-white/80 font-medium">منتج متنوع</div>
                 </div>
                 <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
-                  <TrendingUp className="w-8 h-8 mx-auto mb-3 text-yellow-300" />
-                  <div className="text-3xl font-black text-white mb-1">+1K</div>
+                  <TrendingUp className="w-8 h-8 mx-auto mb-3 text-yellow-300 animate-bounce" style={{animationDuration: '3s', animationDelay: '0.4s'}} />
+                  <AnimatedCounter 
+                    end={1000} 
+                    prefix="+" 
+                    className="text-3xl font-black text-white mb-1"
+                    duration={2200}
+                  />
                   <div className="text-sm text-white/80 font-medium">مسوق ناجح</div>
                 </div>
               </div>
@@ -366,73 +385,99 @@ export default function Index() {
       </section>
 
       {/* Platform Statistics - إحصائيات المنصة */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <Badge className="mb-4">📊 إحصائيات المنصة</Badge>
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <Badge className="mb-6 bg-gradient-to-r from-red-100 to-red-50 text-red-600 border-red-200 px-6 py-2 text-base font-bold">
+            📊 إحصائيات مبهرة
+          </Badge>
+          <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 bg-clip-text text-transparent">
             منصة موثوقة يستخدمها الآلاف
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
             انضم لمجتمع متنامي من التجار والمسوقين والعملاء الراضين
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <AnimatedCounter 
-              end={10000} 
-              prefix="+" 
-              className="text-4xl font-bold text-red-600 mb-2"
-              duration={2500}
-            />
-            <div className="text-muted-foreground">عميل نشط</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 border-2 border-red-100 hover:border-red-300 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <Users className="w-12 h-12 mx-auto mb-4 text-red-600" />
+              <AnimatedCounter 
+                end={10000} 
+                prefix="+" 
+                className="text-5xl font-black text-red-600 mb-3"
+                duration={2500}
+              />
+              <div className="text-gray-600 font-semibold text-base">عميل نشط</div>
+            </CardContent>
           </Card>
-          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <AnimatedCounter 
-              end={500} 
-              prefix="+" 
-              className="text-4xl font-bold text-red-600 mb-2"
-              duration={2000}
-            />
-            <div className="text-muted-foreground">تاجر ناجح</div>
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 border-2 border-blue-100 hover:border-blue-300 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+              <AnimatedCounter 
+                end={500} 
+                prefix="+" 
+                className="text-5xl font-black text-blue-600 mb-3"
+                duration={2000}
+              />
+              <div className="text-gray-600 font-semibold text-base">تاجر ناجح</div>
+            </CardContent>
           </Card>
-          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <AnimatedCounter 
-              end={2000} 
-              prefix="+" 
-              className="text-4xl font-bold text-red-600 mb-2"
-              duration={2200}
-            />
-            <div className="text-muted-foreground">مسوق نشط</div>
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-green-50/30 border-2 border-green-100 hover:border-green-300 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-green-600/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-green-600" />
+              <AnimatedCounter 
+                end={2000} 
+                prefix="+" 
+                className="text-5xl font-black text-green-600 mb-3"
+                duration={2200}
+              />
+              <div className="text-gray-600 font-semibold text-base">مسوق نشط</div>
+            </CardContent>
           </Card>
-          <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <AnimatedCounter 
-              end={5} 
-              suffix="M+" 
-              className="text-4xl font-bold text-red-600 mb-2"
-              duration={2000}
-            />
-            <div className="text-muted-foreground">جنيه مبيعات</div>
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-yellow-50/30 border-2 border-yellow-100 hover:border-yellow-300 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-600/5 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-600" />
+              <AnimatedCounter 
+                end={5} 
+                suffix="M+" 
+                className="text-5xl font-black text-yellow-600 mb-3"
+                duration={2000}
+              />
+              <div className="text-gray-600 font-semibold text-base">جنيه مبيعات</div>
+            </CardContent>
           </Card>
         </div>
       </section>
 
       {/* How It Works - كيف تعمل المنصة */}
-      <section className="bg-muted/40 py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge className="mb-4">⚙️ كيف تعمل</Badge>
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+      <section className="relative bg-gradient-to-b from-muted/30 via-white to-muted/30 py-20 overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute top-10 left-10 w-72 h-72 bg-red-100/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-20">
+            <Badge className="mb-6 bg-gradient-to-r from-red-100 to-blue-100 text-red-600 border-red-200 px-6 py-2 text-base font-bold">
+              ⚙️ كيف تعمل المنصة
+            </Badge>
+            <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 bg-clip-text text-transparent">
               ابدأ رحلتك في 3 خطوات بسيطة
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
               سواء كنت تاجر، مسوق، أو عميل - نحن نسهل عليك البداية
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* للعملاء */}
-            <Card className="egygo-card egygo-hover-lift p-6">
+            <Card className="group relative bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 hover:border-red-200 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-100 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+              <CardContent className="p-8 relative z-10">
               {/* فيديو توضيحي */}
               <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
                 <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
@@ -474,10 +519,16 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+              </CardContent>
             </Card>
 
             {/* للتجار */}
-            <Card className="egygo-card egygo-hover-lift p-6 border-red-200">
+            <Card className="group relative bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 hover:border-red-300 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-200 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="absolute -top-4 -right-4">
+                <Badge className="bg-red-600 text-white px-3 py-1 font-bold">⭐ الأكثر طلباً</Badge>
+              </div>
+              <CardContent className="p-8 relative z-10">
               {/* فيديو توضيحي */}
               <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
                 <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
@@ -519,10 +570,13 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+              </CardContent>
             </Card>
 
             {/* للمسوقين */}
-            <Card className="egygo-card egygo-hover-lift p-6 border-red-200">
+            <Card className="group relative bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 hover:border-green-200 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-100 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+              <CardContent className="p-8 relative z-10">
               {/* فيديو توضيحي */}
               <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
                 <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
@@ -564,6 +618,7 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+              </CardContent>
             </Card>
           </div>
         </div>
