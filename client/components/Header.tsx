@@ -28,6 +28,7 @@ import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
+import { EgyGoLogo } from "./EgyGoLogo";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -187,18 +188,8 @@ export function Header({ cartItemCount }: HeaderProps) {
           </SheetContent>
         </Sheet>
 
-        {/* Logo - Enhanced */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all">
-            <span className="text-white font-bold text-xl">EG</span>
-          </div>
-          <div className="hidden sm:block">
-            <div className="text-xl font-bold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent">
-              إيجي جو
-            </div>
-            <div className="text-[10px] text-muted-foreground">التسوق الذكي</div>
-          </div>
-        </Link>
+        {/* Logo - New Brand Identity */}
+        <EgyGoLogo size="md" variant="default" showArrow={true} />
 
         {/* Desktop Navigation - Streamlined */}
         <nav className="hidden lg:flex items-center gap-1">

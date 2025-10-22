@@ -24,7 +24,7 @@ import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
 import { placeholder } from "@/lib/placeholder";
 import { formatPrice, formatDiscount } from "@/lib/currency";
-import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
+import { EgyGoLogoFull } from "@/components/EgyGoLogo";
 import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
 import { useEffect, useState } from "react";
 import { gsap } from 'gsap';
@@ -170,17 +170,9 @@ export default function Index() {
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-red-600/10 to-red-700/10"></div>
         <div className="absolute inset-0 bg-black/20"></div>
         
-        {/* 3D Logo Background - خلف كل المحتوى مع دوران بطيء */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-25 scale-[2] blur-[1px]">
-          <div className="w-full h-full flex items-center justify-center animate-[spin_60s_linear_infinite]">
-            <EgyGoLogo3D 
-              size="large" 
-              interactive={false} 
-              autoRotate={true} 
-              showParticles={false}
-              colorScheme="gradient"
-            />
-          </div>
+        {/* Logo Background - خلف كل المحتوى */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+          <EgyGoLogoFull className="scale-150" />
         </div>
         
         <div className="relative container mx-auto px-4 py-24 lg:py-32 z-10">
