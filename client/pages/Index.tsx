@@ -194,8 +194,7 @@ export default function Index() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
-                  variant="secondary"
-                  className="egygo-btn-secondary egygo-hover-lift"
+                  className="bg-red-600 hover:bg-red-700 text-white shadow-md"
                   asChild
                 >
                   <Link to="/products">
@@ -206,7 +205,7 @@ export default function Index() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="egygo-glass text-white egygo-hover-lift"
+                  className="border-white text-white hover:bg-white hover:text-red-700"
                   asChild
                 >
                   <Link to="/register?type=affiliate">
