@@ -112,6 +112,16 @@ export const AdminFinancialDashboard = lazyLoad(() => import('@/pages/AdminFinan
 export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
 export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 
+// New Admin Pages - Deals, Advertising, Financial
+export const AdminDealsManager = lazyLoad(() => import('@/pages/AdminDealsManager'));
+export const AdminAdvertisementsManager = lazyLoad(() => import('@/pages/AdminAdvertisementsManager'));
+export const AdminWithdrawals = lazyLoad(() => import('@/pages/AdminWithdrawals'));
+export const AdminMerchantPaymentsManager = lazyLoad(() => import('@/pages/AdminMerchantPaymentsManager'));
+export const AdminFinancialReports = lazyLoad(() => import('@/pages/AdminFinancialReports'));
+
+// Advertising Pages
+export const AdPaymentPage = lazyLoad(() => import('@/pages/AdPaymentPage'));
+
 // STATIC/INFO PAGES (Low Priority - Lazy)
 // ============================================
 export const AboutPage = lazyLoad(() => import('@/pages/AboutPage'));

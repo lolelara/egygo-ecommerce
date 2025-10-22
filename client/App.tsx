@@ -191,6 +191,16 @@ const App = () => (
               <Route path="/admin/ai-tools" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.ProductAIDemo /></ProtectedRoute>} />
               <Route path="/test-ai" element={<LazyRoutes.TestAI />} />
               
+              {/* New Admin Routes - Deals & Advertising */}
+              <Route path="/admin/deals" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminDealsManager /></ProtectedRoute>} />
+              <Route path="/admin/advertisements" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvertisementsManager /></ProtectedRoute>} />
+              <Route path="/admin/withdrawals" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminWithdrawals /></ProtectedRoute>} />
+              <Route path="/admin/merchant-payments" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminMerchantPaymentsManager /></ProtectedRoute>} />
+              <Route path="/admin/reports" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminFinancialReports /></ProtectedRoute>} />
+              
+              {/* Ad Payment Page */}
+              <Route path="/ad-payment" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.AdPaymentPage /></ProtectedRoute>} />
+              
               {/* Merchant Routes - Protected & Lazy */}
               <Route path="/merchant/dashboard" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantDashboard /></ProtectedRoute>} />
               <Route path="/merchant/products" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantProducts /></ProtectedRoute>} />
