@@ -64,17 +64,20 @@ export function EgyGoLogo({
           >
             {/* Curved arrow path - extended and visible */}
             <path
-              d="M 5 38 Q 50 8, 90 18"
+              d="M 5 38 Q 50 8, 88 18"
               stroke={currentColors.arrow}
               strokeWidth="5"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* Arrow head - larger */}
-            <path
-              d="M 90 18 L 78 13 L 83 25 Z"
+            {/* Arrow head - prominent triangular head */}
+            <polygon
+              points="88,18 76,11 78,22"
               fill={currentColors.arrow}
+              stroke={currentColors.arrow}
+              strokeWidth="1"
+              strokeLinejoin="miter"
             />
           </svg>
         )}
