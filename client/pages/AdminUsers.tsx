@@ -109,7 +109,9 @@ export default function AdminUsers() {
     name: '',
     email: '',
     phone: '',
-    role: 'customer'
+    role: 'customer',
+    governorate: '',
+    city: ''
   });
 
   // Intermediary Modal State
@@ -173,7 +175,9 @@ export default function AdminUsers() {
       name: user.name || '',
       email: user.email || '',
       phone: user.phone || '',
-      role: user.role || 'customer'
+      role: user.role || 'customer',
+      governorate: user.governorate || '',
+      city: user.city || ''
     });
     setShowEditModal(true);
   };
@@ -185,7 +189,9 @@ export default function AdminUsers() {
       name: '',
       email: '',
       phone: '',
-      role: 'customer'
+      role: 'customer',
+      governorate: '',
+      city: ''
     });
   };
 
@@ -238,6 +244,8 @@ export default function AdminUsers() {
         email: editFormData.email,
         phone: editFormData.phone || '',
         role: editFormData.role,
+        governorate: editFormData.governorate || '',
+        city: editFormData.city || '',
       };
 
       // تحديث الأدوار
@@ -901,6 +909,7 @@ export default function AdminUsers() {
                     <th className="text-right p-2">الاسم</th>
                     <th className="text-right p-2">البريد</th>
                     <th className="text-right p-2">الهاتف</th>
+                    <th className="text-right p-2">المحافظة</th>
                     <th className="text-right p-2">الدور</th>
                     <th className="text-right p-2">الكود</th>
                     <th className="text-right p-2">الإجراءات</th>
@@ -918,6 +927,12 @@ export default function AdminUsers() {
                       <td className="p-2">{u.name}</td>
                       <td className="p-2">{u.email}</td>
                       <td className="p-2">{u.phone || '-'}</td>
+                      <td className="p-2">
+                        <div className="text-sm">
+                          <div className="font-medium">{u.governorate || '-'}</div>
+                          {u.city && <div className="text-xs text-gray-500">{u.city}</div>}
+                        </div>
+                      </td>
                       <td className="p-2">{getRoleBadge(u)}</td>
                       <td className="p-2">
                         <code className="text-xs bg-gray-100 px-2 py-1 rounded">
@@ -1068,6 +1083,24 @@ export default function AdminUsers() {
               </div>
               
               <div>
+                <Label>المحافظة</Label>
+                <Input
+                  value={editFormData.governorate}
+                  onChange={(e) => setEditFormData({...editFormData, governorate: e.target.value})}
+                  placeholder="مثال: القاهرة"
+                />
+              </div>
+              
+              <div>
+                <Label>المدينة/المركز</Label>
+                <Input
+                  value={editFormData.city}
+                  onChange={(e) => setEditFormData({...editFormData, city: e.target.value})}
+                  placeholder="مثال: مدينة نصر"
+                />
+              </div>
+              
+              <div>
                 <Label>الدور</Label>
                 <select
                   className="w-full p-2 border rounded-md"
@@ -1101,13 +1134,19 @@ export default function AdminUsers() {
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-4">تفعيل دور الوسيط</h2>
             
-            <div className="bg-purple-50 p-4 rounded-lg mb-4">
+            <div className="bg-purple-50 p-4 rounded-lg mb-4 space-y-2">
               <p className="text-sm">
                 <strong>العميل:</strong> {selectedUserForIntermediary?.name}
               </p>
               <p className="text-sm">
                 <strong>البريد:</strong> {selectedUserForIntermediary?.email}
               </p>
+              {selectedUserForIntermediary?.governorate && (
+                <p className="text-sm">
+                  <strong>المحافظة:</strong> {selectedUserForIntermediary?.governorate}
+                  {selectedUserForIntermediary?.city && ` - ${selectedUserForIntermediary?.city}`}
+                </p>
+              )}
             </div>
             
             <div className="mb-4">
@@ -1151,9 +1190,20 @@ export default function AdminUsers() {
                   <DollarSign className="h-6 w-6 text-green-600" />
                   السجل المالي والطلبات
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {selectedUserForFinancial?.name} - {selectedUserForFinancial?.email}
-                </p>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-gray-600">
+                    <strong>الاسم:</strong> {selectedUserForFinancial?.name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    <strong>البريد:</strong> {selectedUserForFinancial?.email}
+                  </p>
+                  {selectedUserForFinancial?.governorate && (
+                    <p className="text-sm text-gray-600">
+                      <strong>المحافظة:</strong> {selectedUserForFinancial?.governorate}
+                      {selectedUserForFinancial?.city && ` - ${selectedUserForFinancial?.city}`}
+                    </p>
+                  )}
+                </div>
               </div>
               <Button
                 variant="ghost"
