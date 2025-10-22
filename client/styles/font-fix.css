@@ -1,0 +1,43 @@
+/**
+ * Font Fix - Prevent Appwrite Font Loading
+ * This file blocks any attempts to load fonts from Appwrite CDN
+ * and ensures only Google Fonts are used
+ */
+
+/* Block Appwrite font loading */
+@font-face {
+  font-family: 'Inter';
+  src: local('Inter');
+  /* This will prevent loading from external sources */
+}
+
+@font-face {
+  font-family: 'FiraCode';
+  src: local('Fira Code');
+  /* This will prevent loading from external sources */
+}
+
+/* Ensure we use Google Fonts Inter instead */
+body,
+html,
+* {
+  font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif !important;
+}
+
+/* Override any Appwrite font references */
+[style*="font-family: Inter"],
+[style*="font-family: 'Inter'"],
+[style*="font-family: FiraCode"],
+[style*="font-family: 'FiraCode'"] {
+  font-family: 'Cairo', 'Inter', sans-serif !important;
+}
+
+/* Ensure code blocks use system fonts */
+code,
+pre,
+.code,
+.monospace {
+  font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
+}
