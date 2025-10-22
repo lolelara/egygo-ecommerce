@@ -62,22 +62,22 @@ export function EgyGoLogo({
             preserveAspectRatio="xMidYMid meet"
             style={{ overflow: 'visible' }}
           >
-            {/* Curved arrow path - points to end of logo */}
+            {/* Curved arrow path - smooth arc like in reference */}
             <path
-              d="M 5 35 Q 50 5, 85 28"
+              d="M 10 35 Q 35 5, 60 10 T 95 22"
               stroke={currentColors.arrow}
-              strokeWidth="5"
+              strokeWidth="6"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* Arrow head - pointing down to logo end */}
-            <polygon
-              points="85,28 79,20 92,23"
+            {/* Arrow head - clear triangular pointer */}
+            <path
+              d="M 95 22 L 88 15 L 90 27 Z"
               fill={currentColors.arrow}
               stroke={currentColors.arrow}
-              strokeWidth="1"
-              strokeLinejoin="miter"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
             />
           </svg>
         )}
