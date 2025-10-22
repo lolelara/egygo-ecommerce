@@ -52,13 +52,14 @@ export function EgyGoLogo({
 
   return (
     <Link to="/" className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex items-center overflow-visible pt-3">
+      <div className="relative flex items-center pt-5 pb-1" style={{ overflow: 'visible' }}>
         {/* Arrow - positioned above text */}
         {showArrow && (
           <svg 
-            className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
+            className={`absolute -top-1 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
             viewBox="0 0 100 40" 
             fill="none"
+            preserveAspectRatio="xMidYMid meet"
           >
             {/* Curved arrow path */}
             <path

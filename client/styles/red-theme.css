@@ -226,3 +226,15 @@ a.text-primary:hover {
 [class*="border-primary"] {
   transition: all 0.2s ease-in-out;
 }
+
+/* Logo arrow visibility fix */
+header,
+.header,
+nav {
+  overflow: visible !important;
+}
+
+header > *,
+.header > * {
+  overflow: visible !important;
+}
