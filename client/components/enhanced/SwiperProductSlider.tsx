@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Heart, Eye, Star } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { useNavigate } from 'react-router-dom';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -47,6 +50,9 @@ export default function SwiperProductSlider({
   slidesPerView = 4
 }: SwiperProductSliderProps) {
   const thumbsSwiper = useRef<any>(null);
+  const { addItem } = useCart();
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const navigate = useNavigate();
 
   const getSwiperConfig = () => {
     const baseConfig = {
@@ -110,16 +116,51 @@ export default function SwiperProductSlider({
     }
   };
 
-  const handleAddToCart = (product: Product) => {
-    toast.success(`تمت إضافة ${product.name} إلى السلة`);
+  const handleAddToCart = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    try {
+      addItem({
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: 1,
+        stockQuantity: 100, // Default stock
+        inStock: true
+      });
+      toast.success(`تمت إضافة ${product.name} إلى السلة`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('فشل في إضافة المنتج للسلة');
+    }
   };
 
-  const handleAddToWishlist = (product: Product) => {
-    toast.success(`تمت إضافة ${product.name} إلى المفضلة`);
+  const handleAddToWishlist = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    try {
+      const productIsFavorite = isFavorite(product.id);
+      
+      if (productIsFavorite) {
+        removeFavorite(product.id);
+        toast.success(`تمت إزالة ${product.name} من المفضلة`);
+      } else {
+        addFavorite(product.id);
+        toast.success(`تمت إضافة ${product.name} إلى المفضلة`);
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      toast.error('فشل في إضافة المنتج للمفضلة');
+    }
   };
 
-  const handleQuickView = (product: Product) => {
-    toast.info(`عرض سريع لـ ${product.name}`);
+  const handleQuickView = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    navigate(`/product/${product.id}`);
   };
 
   return (
@@ -196,7 +237,7 @@ export default function SwiperProductSlider({
                     size="icon"
                     variant="secondary"
                     className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
-                    onClick={() => handleQuickView(product)}
+                    onClick={(e) => handleQuickView(product, e)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
@@ -204,14 +245,14 @@ export default function SwiperProductSlider({
                     size="icon"
                     variant="secondary"
                     className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75"
-                    onClick={() => handleAddToWishlist(product)}
+                    onClick={(e) => handleAddToWishlist(product, e)}
                   >
-                    <Heart className="h-4 w-4" />
+                    <Heart className={`h-4 w-4 ${isFavorite(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
                   </Button>
                   <Button
                     size="icon"
                     className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-150"
-                    onClick={() => handleAddToCart(product)}
+                    onClick={(e) => handleAddToCart(product, e)}
                   >
                     <ShoppingCart className="h-4 w-4" />
                   </Button>
