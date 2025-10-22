@@ -13,6 +13,7 @@ import { adsManager, AD_PRICES, type Advertisement } from '@/lib/ads-manager';
 import { AdminLayout } from '@/components/AdminLayout';
 import { databases, DATABASE_ID } from '@/lib/appwrite-client';
 import { Query } from 'appwrite';
+import { notifyAdCreated } from '@/lib/ad-notifications';
 
 export default function MerchantAdvertising() {
   const [ads, setAds] = useState<Advertisement[]>([]);
@@ -80,7 +81,7 @@ export default function MerchantAdvertising() {
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + (formData.weeks * 7));
 
-      await adsManager.createAd({
+      const createdAd = await adsManager.createAd({
         merchantId: user!.$id,
         merchantName: user!.name,
         productId: product.$id,
@@ -95,9 +96,12 @@ export default function MerchantAdvertising() {
         status: 'pending',
       });
 
+      // Notify admin about new ad
+      await notifyAdCreated('admin', createdAd);
+
       toast({
         title: 'تم الإنشاء',
-        description: 'تم إنشاء الإعلان بنجاح. في انتظار الموافقة.',
+        description: 'تم إنشاء الإعلان بنجاح. في انتظار الموافقة من الإدارة.',
       });
 
       setOpen(false);

@@ -11,6 +11,7 @@ import { TrendingUp, DollarSign, Eye, CheckCircle, XCircle, Clock, Loader2 } fro
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { adsManager, type Advertisement } from '@/lib/ads-manager';
+import { notifyAdApproved, notifyAdRejected } from '@/lib/ad-notifications';
 
 export default function AdminAdvertisementsManager() {
   const { user } = useAuth();
@@ -108,15 +109,17 @@ export default function AdminAdvertisementsManager() {
 
       if (reviewAction === 'approve') {
         await adsManager.approveAd(selectedAd.$id);
+        await notifyAdApproved(selectedAd.merchantId, selectedAd);
         toast({
           title: 'تمت الموافقة',
-          description: 'تم تفعيل الإعلان بنجاح',
+          description: 'تم تفعيل الإعلان وإرسال إشعار للتاجر',
         });
       } else {
         await adsManager.rejectAd(selectedAd.$id, rejectionReason);
+        await notifyAdRejected(selectedAd.merchantId, selectedAd, rejectionReason);
         toast({
           title: 'تم الرفض',
-          description: 'تم رفض الإعلان',
+          description: 'تم رفض الإعلان وإرسال إشعار للتاجر',
         });
       }
 
