@@ -167,10 +167,15 @@ export default function Index() {
     <div className="space-y-16 pb-16">
       <EnhancedSEO {...pageSEO.home()} />
       
-      {/* Hero Section - Red Theme */}
-      <section className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-red-600/10 to-red-700/10"></div>
-        <div className="absolute inset-0 bg-black/20"></div>
+      {/* Hero Section - Enhanced Professional Design */}
+      <section className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-900 text-white overflow-hidden min-h-[90vh] flex items-center">
+        {/* Animated Background Patterns */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+        
+        {/* Floating Geometric Shapes */}
+        <div className="absolute top-20 left-10 w-64 h-64 bg-red-400/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" style={{animation: 'float 4s ease-in-out infinite'}}></div>
         
         {/* Logo Text Background - يدور في الخلفية */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
@@ -182,106 +187,173 @@ export default function Index() {
         <div className="relative container mx-auto px-4 py-24 lg:py-32 z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
-              <div className="space-y-4">
-                <Badge variant="secondary" className="bg-white text-red-600 shadow-lg font-bold">
-                  ✨ منتجات مميزة
+              <div className="space-y-6">
+                <Badge className="bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm text-white border border-white/20 shadow-xl font-bold px-6 py-2 text-base">
+                  ✨ منصة التسويق والتجارة الإلكترونية الأولى
                 </Badge>
-                <h1 className="egygo-heading text-4xl lg:text-6xl font-bold leading-tight text-white min-h-[120px]">
-                  <span className="text-white">{displayedText}</span>
-                  <span className="animate-pulse">|</span>
+                <h1 className="text-5xl lg:text-7xl font-black leading-tight text-white min-h-[140px] drop-shadow-2xl">
+                  <span className="bg-gradient-to-r from-white via-red-50 to-white bg-clip-text text-transparent">
+                    {displayedText}
+                  </span>
+                  <span className="animate-pulse text-red-300">|</span>
                 </h1>
-                <p className="text-xl text-white/90 max-w-lg">
-                  اتسوق ما بين الآلاف من المنتجات بأسعار تنافسية
+                <p className="text-xl lg:text-2xl text-white/90 max-w-2xl font-medium leading-relaxed">
+                  اكتشف آلاف المنتجات، انضم لبرنامج المسوقين، وابدأ تجارتك بكل ثقة وأمان
                 </p>
+                
+                {/* Trust Indicators */}
+                <div className="flex flex-wrap gap-6 pt-4">
+                  <div className="flex items-center gap-2 text-white/90">
+                    <ShieldCheck className="w-5 h-5 text-green-400" />
+                    <span className="text-sm font-medium">دفع آمن 100%</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-white/90">
+                    <Truck className="w-5 h-5 text-blue-400" />
+                    <span className="text-sm font-medium">شحن سريع</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-white/90">
+                    <Award className="w-5 h-5 text-yellow-400" />
+                    <span className="text-sm font-medium">منتجات مضمونة</span>
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
-                  className="bg-red-600 hover:bg-red-700 text-white shadow-md"
+                  className="bg-white text-red-600 hover:bg-red-50 shadow-2xl hover:shadow-red-500/50 transition-all duration-300 hover:scale-105 font-bold text-lg px-8 py-7 rounded-xl"
                   asChild
                 >
                   <Link to="/products">
+                    <ShoppingCart className="ml-2 h-6 w-6 rtl:ml-0 rtl:mr-2" />
                     تسوق الآن
                     <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
                   </Link>
                 </Button>
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-red-700"
+                  className="bg-gradient-to-r from-red-500 to-red-700 border-2 border-white/20 text-white hover:from-red-600 hover:to-red-800 shadow-xl hover:shadow-white/30 transition-all duration-300 hover:scale-105 font-bold text-lg px-8 py-7 rounded-xl backdrop-blur-sm"
                   asChild
                 >
                   <Link to="/register?type=affiliate">
-                    <Users className="ml-2 h-5 w-5 rtl:ml-0 rtl:mr-2" />
-                    انضم لبرنامج الشراكة
+                    <DollarSign className="ml-2 h-6 w-6 rtl:ml-0 rtl:mr-2 animate-pulse" />
+                    اربح معنا الآن
                   </Link>
                 </Button>
               </div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 pt-8">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-all">
-                  <div className="text-2xl font-bold text-white">+10K</div>
-                  <div className="text-sm text-white/80">عميل راضي</div>
+              {/* Enhanced Stats with Icons */}
+              <div className="grid grid-cols-3 gap-6 pt-8">
+                <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
+                  <Users className="w-8 h-8 mx-auto mb-3 text-green-300" />
+                  <div className="text-3xl font-black text-white mb-1">+10K</div>
+                  <div className="text-sm text-white/80 font-medium">عميل راضي</div>
                 </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-all">
-                  <div className="text-2xl font-bold text-white">+500</div>
-                  <div className="text-sm text-white/80">منتج</div>
+                <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
+                  <ShoppingCart className="w-8 h-8 mx-auto mb-3 text-blue-300" />
+                  <div className="text-3xl font-black text-white mb-1">+500</div>
+                  <div className="text-sm text-white/80 font-medium">منتج متنوع</div>
                 </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-all">
-                  <div className="text-2xl font-bold text-white">+1K</div>
-                  <div className="text-sm text-white/80">مسوق</div>
+                <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
+                  <TrendingUp className="w-8 h-8 mx-auto mb-3 text-yellow-300" />
+                  <div className="text-3xl font-black text-white mb-1">+1K</div>
+                  <div className="text-sm text-white/80 font-medium">مسوق ناجح</div>
                 </div>
               </div>
             </div>
 
-            <div className="relative">
-              {/* Featured Products Grid */}
-              <div className="grid grid-cols-2 gap-4 items-center">
-                <div className="space-y-4">
-                  {featuredProducts.slice(0, 2).map((product) => (
-                    <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all cursor-pointer group">
-                        <CardContent className="p-4">
-                          <img
-                            src={getImageUrl(product.images?.[0])}
-                            alt={product.name}
-                            className="w-full h-32 object-cover rounded-lg mb-3 group-hover:scale-105 transition-transform"
-                            onError={(e) => {
-                              e.currentTarget.src = placeholder.product();
-                            }}
-                          />
-                          <h3 className="font-semibold text-white text-sm mb-1">
-                            {product.name}
-                          </h3>
-                          <p className="text-red-300 font-bold">
-                            {formatPrice(product.price)}
-                          </p>
+            <div className="relative hidden lg:block">
+              {/* Enhanced Featured Products Grid */}
+              <div className="grid grid-cols-2 gap-6 items-center">
+                <div className="space-y-6">
+                  {featuredProducts.slice(0, 2).map((product, index) => (
+                    <Link key={product.id} to={`/product/${product.id}`} className="block">
+                      <Card className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border-white/30 hover:from-white/30 hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
+                        <CardContent className="p-0">
+                          <div className="relative overflow-hidden">
+                            <img
+                              src={getImageUrl(product.images?.[0])}
+                              alt={product.name}
+                              className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={(e) => {
+                                e.currentTarget.src = placeholder.product();
+                              }}
+                            />
+                            <div className="absolute top-3 right-3">
+                              <Badge className="bg-red-600 text-white font-bold shadow-lg">
+                                <Sparkles className="w-3 h-3 ml-1" />
+                                مميز
+                              </Badge>
+                            </div>
+                            {product.discount && (
+                              <div className="absolute top-3 left-3">
+                                <Badge className="bg-yellow-400 text-black font-bold">
+                                  -{product.discount}٪
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4 space-y-2">
+                            <h3 className="font-bold text-white text-base line-clamp-1 group-hover:text-red-100 transition-colors">
+                              {product.name}
+                            </h3>
+                            <div className="flex items-center justify-between">
+                              <p className="text-white font-black text-xl">
+                                {formatPrice(product.price)}
+                              </p>
+                              <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
+                                <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+                                <span className="text-white text-sm font-bold">4.8</span>
+                              </div>
+                            </div>
+                          </div>
                         </CardContent>
                       </Card>
                     </Link>
                   ))}
                 </div>
-                <div className="space-y-4 mt-8">
+                <div className="space-y-6 mt-12">
                   {featuredProducts.slice(2, 4).map((product) => (
-                    <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all cursor-pointer group">
-                        <CardContent className="p-4">
-                          <img
-                            src={getImageUrl(product.images?.[0])}
-                            alt={product.name}
-                            className="w-full h-32 object-cover rounded-lg mb-3 group-hover:scale-105 transition-transform"
-                            onError={(e) => {
-                              e.currentTarget.src = placeholder.product();
-                            }}
-                          />
-                          <h3 className="font-semibold text-white text-sm mb-1">
-                            {product.name}
-                          </h3>
-                          <p className="text-red-300 font-bold">
-                            {formatPrice(product.price)}
-                          </p>
+                    <Link key={product.id} to={`/product/${product.id}`} className="block">
+                      <Card className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border-white/30 hover:from-white/30 hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
+                        <CardContent className="p-0">
+                          <div className="relative overflow-hidden">
+                            <img
+                              src={getImageUrl(product.images?.[0])}
+                              alt={product.name}
+                              className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
+                              onError={(e) => {
+                                e.currentTarget.src = placeholder.product();
+                              }}
+                            />
+                            <div className="absolute top-3 right-3">
+                              <Badge className="bg-red-600 text-white font-bold shadow-lg">
+                                <Sparkles className="w-3 h-3 ml-1" />
+                                مميز
+                              </Badge>
+                            </div>
+                            {product.discount && (
+                              <div className="absolute top-3 left-3">
+                                <Badge className="bg-yellow-400 text-black font-bold">
+                                  -{product.discount}٪
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-4 space-y-2">
+                            <h3 className="font-bold text-white text-base line-clamp-1 group-hover:text-red-100 transition-colors">
+                              {product.name}
+                            </h3>
+                            <div className="flex items-center justify-between">
+                              <p className="text-white font-black text-xl">
+                                {formatPrice(product.price)}
+                              </p>
+                              <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
+                                <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+                                <span className="text-white text-sm font-bold">4.8</span>
+                              </div>
+                            </div>
+                          </div>
                         </CardContent>
                       </Card>
                     </Link>
