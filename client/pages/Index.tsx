@@ -172,9 +172,11 @@ export default function Index() {
         <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-red-600/10 to-red-700/10"></div>
         <div className="absolute inset-0 bg-black/20"></div>
         
-        {/* Logo Background - خلف كل المحتوى */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-          <EgyGoLogoFull className="scale-150" />
+        {/* Logo Text Background - يدور في الخلفية */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          <div className="text-[20rem] font-black text-white/5 whitespace-nowrap animate-spin-slow">
+            egygo.me
+          </div>
         </div>
         
         <div className="relative container mx-auto px-4 py-24 lg:py-32 z-10">
@@ -234,15 +236,57 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="relative flex items-center justify-center">
-              {/* 3D Logo - Large and Prominent */}
-              <div className="relative animate-float">
-                <div className="relative w-64 h-64 lg:w-80 lg:h-80">
-                  <EgyGoLogoFull className="drop-shadow-2xl" />
+            <div className="relative">
+              {/* Featured Products Grid */}
+              <div className="grid grid-cols-2 gap-4 items-center">
+                <div className="space-y-4">
+                  {featuredProducts.slice(0, 2).map((product) => (
+                    <Link key={product.id} to={`/product/${product.id}`}>
+                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all cursor-pointer group">
+                        <CardContent className="p-4">
+                          <img
+                            src={getImageUrl(product.images?.[0])}
+                            alt={product.name}
+                            className="w-full h-32 object-cover rounded-lg mb-3 group-hover:scale-105 transition-transform"
+                            onError={(e) => {
+                              e.currentTarget.src = placeholder.product();
+                            }}
+                          />
+                          <h3 className="font-semibold text-white text-sm mb-1">
+                            {product.name}
+                          </h3>
+                          <p className="text-red-300 font-bold">
+                            {formatPrice(product.price)}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
                 </div>
-                
-                {/* Glow effect */}
-                <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl -z-10"></div>
+                <div className="space-y-4 mt-8">
+                  {featuredProducts.slice(2, 4).map((product) => (
+                    <Link key={product.id} to={`/product/${product.id}`}>
+                      <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all cursor-pointer group">
+                        <CardContent className="p-4">
+                          <img
+                            src={getImageUrl(product.images?.[0])}
+                            alt={product.name}
+                            className="w-full h-32 object-cover rounded-lg mb-3 group-hover:scale-105 transition-transform"
+                            onError={(e) => {
+                              e.currentTarget.src = placeholder.product();
+                            }}
+                          />
+                          <h3 className="font-semibold text-white text-sm mb-1">
+                            {product.name}
+                          </h3>
+                          <p className="text-red-300 font-bold">
+                            {formatPrice(product.price)}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
