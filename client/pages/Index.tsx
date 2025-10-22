@@ -234,50 +234,15 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="relative">
-              <div className="grid grid-cols-2 gap-4 items-center">
-                <div className="space-y-4">
-                  {featuredProducts.slice(0, 2).map((product, index) => (
-                    <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="egygo-glass-dark egygo-hover-lift cursor-pointer">
-                        <CardContent className="p-4">
-                          <img
-                            src={getImageUrl(product.images?.[0])}
-                            alt={product.name}
-                            className="w-full h-32 object-cover rounded-lg mb-3"
-                          />
-                          <h3 className="font-semibold text-white text-sm">
-                            {product.name}
-                          </h3>
-                          <p className="text-brand-yellow font-bold">
-                            {formatPrice(product.price)}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
+            <div className="relative flex items-center justify-center">
+              {/* 3D Logo - Large and Prominent */}
+              <div className="relative animate-float">
+                <div className="relative w-64 h-64 lg:w-80 lg:h-80">
+                  <EgyGoLogoFull className="drop-shadow-2xl" />
                 </div>
-                <div className="space-y-4 mt-8">
-                  {featuredProducts.slice(2, 4).map((product, index) => (
-                    <Link key={product.id} to={`/product/${product.id}`}>
-                      <Card className="egygo-glass-dark egygo-hover-lift cursor-pointer">
-                        <CardContent className="p-4">
-                          <img
-                            src={getImageUrl(product.images?.[0])}
-                            alt={product.name}
-                            className="w-full h-32 object-cover rounded-lg mb-3"
-                          />
-                          <h3 className="font-semibold text-white text-sm">
-                            {product.name}
-                          </h3>
-                          <p className="text-brand-yellow font-bold">
-                            {formatPrice(product.price)}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
+                
+                {/* Glow effect */}
+                <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl -z-10"></div>
               </div>
             </div>
           </div>
