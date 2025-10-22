@@ -1,0 +1,143 @@
+# Affiliate Cron Jobs - GitHub Actions
+# تشغيل تلقائي للمهام الدورية
+
+name: Affiliate Cron Jobs
+
+on:
+  schedule:
+    # Daily at midnight (00:00 UTC)
+    - cron: '0 0 * * *'
+    
+    # Weekly on Sunday at midnight
+    - cron: '0 0 * * 0'
+    
+    # Monthly on 1st at midnight
+    - cron: '0 0 1 * *'
+    
+    # Every 6 hours for reminders
+    - cron: '0 */6 * * *'
+    
+    # Hourly for leaderboard
+    - cron: '0 * * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      job_type:
+        description: 'Job type to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - daily
+          - weekly
+          - monthly
+          - hourly
+          - reminders
+          - all
+
+jobs:
+  daily-jobs:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 0 * * *' || github.event.inputs.job_type == 'daily' || github.event.inputs.job_type == 'all'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install node-appwrite
+      
+      - name: Run daily jobs
+        run: node scripts/affiliate-cron-jobs.js daily
+        env:
+          NODE_ENV: production
+
+  weekly-jobs:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 0 * * 0' || github.event.inputs.job_type == 'weekly' || github.event.inputs.job_type == 'all'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install node-appwrite
+      
+      - name: Run weekly jobs
+        run: node scripts/affiliate-cron-jobs.js weekly
+        env:
+          NODE_ENV: production
+
+  monthly-jobs:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 0 1 * *' || github.event.inputs.job_type == 'monthly' || github.event.inputs.job_type == 'all'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install node-appwrite
+      
+      - name: Run monthly jobs
+        run: node scripts/affiliate-cron-jobs.js monthly
+        env:
+          NODE_ENV: production
+
+  hourly-jobs:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 * * * *' || github.event.inputs.job_type == 'hourly' || github.event.inputs.job_type == 'all'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install node-appwrite
+      
+      - name: Run hourly jobs
+        run: node scripts/affiliate-cron-jobs.js hourly
+        env:
+          NODE_ENV: production
+
+  reminder-jobs:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 */6 * * *' || github.event.inputs.job_type == 'reminders' || github.event.inputs.job_type == 'all'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install node-appwrite
+      
+      - name: Run reminder jobs
+        run: node scripts/affiliate-cron-jobs.js reminders
+        env:
+          NODE_ENV: production

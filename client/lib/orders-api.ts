@@ -1,5 +1,6 @@
 import { databases, appwriteConfig } from './appwrite';
 import { Query } from 'appwrite';
+import { trackAffiliateSale } from './affiliate-sales-tracker';
 
 const DATABASE_ID = appwriteConfig.databaseId;
 const COLLECTIONS = appwriteConfig.collections;
@@ -53,7 +54,7 @@ export interface CreateOrderData {
 /**
  * Create a new order
  */
-export async function createOrder(data: CreateOrderData): Promise<Order> {
+export async function createOrder(data: CreateOrderData, affiliateCode?: string): Promise<Order> {
   try {
     // Calculate totals
     const subtotal = data.items.reduce((sum, item) => sum + item.total, 0);
@@ -81,6 +82,7 @@ export async function createOrder(data: CreateOrderData): Promise<Order> {
         paymentMethod: data.paymentMethod,
         shippingAddress: data.shippingAddress,
         notes: data.notes || '',
+        affiliateCode: affiliateCode || '',
       }
     );
 
@@ -121,6 +123,43 @@ export async function createOrder(data: CreateOrderData): Promise<Order> {
         );
       } catch (error) {
         console.error(`Error updating stock for product ${item.productId}:`, error);
+      }
+    }
+
+    // Track affiliate sale if affiliate code provided
+    if (affiliateCode) {
+      try {
+        // Find affiliate by code
+        const affiliatesResponse = await databases.listDocuments(
+          DATABASE_ID,
+          COLLECTIONS.affiliates,
+          [Query.equal('affiliateCode', affiliateCode)]
+        );
+
+        if (affiliatesResponse.documents.length > 0) {
+          const affiliate = affiliatesResponse.documents[0];
+          const affiliateId = affiliate.userId || affiliate.$id;
+          
+          // Calculate commission (10% of subtotal)
+          const commission = subtotal * 0.10;
+
+          // Track the sale for each item
+          for (const item of data.items) {
+            await trackAffiliateSale(
+              affiliateId,
+              order.$id,
+              item.productId,
+              item.name,
+              item.total,
+              commission / data.items.length // Split commission across items
+            );
+          }
+
+          console.log(`✅ Affiliate sale tracked for code: ${affiliateCode}`);
+        }
+      } catch (error) {
+        console.error('Error tracking affiliate sale:', error);
+        // Don't fail the order if affiliate tracking fails
       }
     }
 
