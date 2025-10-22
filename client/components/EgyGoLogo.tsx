@@ -57,27 +57,24 @@ export function EgyGoLogo({
         {showArrow && (
           <svg 
             className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
-            viewBox="0 0 100 45" 
+            viewBox="0 0 120 50" 
             fill="none"
             preserveAspectRatio="xMidYMid meet"
             style={{ overflow: 'visible' }}
           >
-            {/* Curved arrow path - smooth arc like in reference */}
+            {/* Simple curved arrow - clean and professional */}
             <path
-              d="M 10 35 Q 35 5, 60 10 T 95 22"
+              d="M 15 40 Q 40 8, 65 12 Q 90 16, 105 20"
               stroke={currentColors.arrow}
-              strokeWidth="6"
+              strokeWidth="5"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* Arrow head - clear triangular pointer */}
+            {/* Arrow head - simple triangle */}
             <path
-              d="M 95 22 L 88 15 L 90 27 Z"
+              d="M 105 20 L 97 16 L 100 26 Z"
               fill={currentColors.arrow}
-              stroke={currentColors.arrow}
-              strokeWidth="1.5"
-              strokeLinejoin="round"
             />
           </svg>
         )}
