@@ -607,8 +607,7 @@ export default function Index() {
 
               <Button
                 size="lg"
-                variant="secondary"
-                className="text-primary font-semibold"
+                className="bg-white text-red-600 hover:bg-red-50 font-semibold shadow-lg"
                 asChild
               >
                 <Link to="/register?type=affiliate">
@@ -796,7 +795,7 @@ export default function Index() {
                 }].map((item) => (
                   <Card key={item.title} className="h-full">
                     <CardContent className="flex h-full flex-col gap-3 p-5">
-                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600">
                         <item.icon className="h-5 w-5" />
                       </div>
                       <div className="space-y-1">
@@ -839,7 +838,7 @@ export default function Index() {
                     </div>
                   </div>
                 ))}
-                <div className="rounded-xl border border-dashed border-primary/50 p-5 text-center">
+                <div className="rounded-xl border border-dashed border-red-200 p-5 text-center">
                   <h3 className="text-lg font-semibold mb-1">عايز تتأكد بنفسك؟</h3>
                   <p className="text-sm text-muted-foreground mb-4">
                     تواصل مع فريق الدعم أو اطلب مكالمة مجانية دلوقتي وهنرد عليك خلال دقائق.
@@ -855,19 +854,19 @@ export default function Index() {
       </section>
 
       {/* Merchant CTA Section - قسم دعوة التجار */}
-      <section className="bg-gradient-to-r from-brand-purple via-primary to-brand-orange text-white">
+      <section className="bg-gradient-to-r from-red-600 via-red-700 to-red-800 text-white">
         <div className="container mx-auto px-4 py-16">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="inline-block">
-                <Badge variant="secondary" className="text-primary bg-white/90 text-lg px-4 py-2">
+                <Badge className="text-red-600 bg-white shadow-lg text-lg px-4 py-2 font-bold">
                   🏪 للتجار والبائعين
                 </Badge>
               </div>
               <h2 className="text-3xl lg:text-5xl font-bold leading-tight">
                 هل لديك منتجات للبيع؟
                 <br />
-                <span className="text-brand-yellow">ابدأ البيع معنا!</span>
+                <span className="text-white">ابدأ البيع معنا!</span>
               </h2>
               <p className="text-xl text-white/90">
                 انضم إلى أكثر من 500 تاجر ناجح على إيجي جو. عمولات منخفضة (5-10%)،
@@ -896,12 +895,11 @@ export default function Index() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
-                  variant="secondary"
-                  className="text-primary font-semibold"
+                  className="bg-white text-red-600 hover:bg-red-50 font-semibold shadow-lg"
                   asChild
                 >
                   <Link to="/register?type=merchant">
-                    ابدأ البيع الآن
+                    سجل كتاجر الآن
                     <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
                   </Link>
                 </Button>
@@ -989,10 +987,10 @@ export default function Index() {
       </section>
 
       {/* Final CTA - دعوة نهائية */}
-      <section className="egygo-gradient-ocean text-white py-20 egygo-animate-fade-in">
+      <section className="bg-gradient-to-br from-red-600 to-red-800 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto space-y-8">
-            <Badge variant="secondary" className="bg-white text-blue-600 shadow-lg mb-4">
+            <Badge className="bg-white text-red-600 shadow-lg mb-4 font-bold">
               🚀 ابدأ الآن
             </Badge>
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
@@ -1005,8 +1003,7 @@ export default function Index() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
-                variant="secondary"
-                className="text-primary font-semibold"
+                className="bg-white text-red-600 hover:bg-red-50 font-semibold shadow-lg"
                 asChild
               >
                 <Link to="/products">

@@ -27,9 +27,9 @@ export function EgyGoLogo({
   };
 
   const arrowSizes = {
-    sm: 'w-10 h-5',
-    md: 'w-14 h-7',
-    lg: 'w-20 h-10'
+    sm: 'w-12 h-6',
+    md: 'w-16 h-8',
+    lg: 'w-24 h-12'
   };
 
   // Colors based on variant
@@ -52,26 +52,28 @@ export function EgyGoLogo({
 
   return (
     <Link to="/" className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex items-center pt-5 pb-1" style={{ overflow: 'visible' }}>
+      <div className="relative flex items-center pt-6 pb-1 min-h-[3rem]" style={{ overflow: 'visible' }}>
         {/* Arrow - positioned above text */}
         {showArrow && (
           <svg 
-            className={`absolute -top-1 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
-            viewBox="0 0 100 40" 
+            className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
+            viewBox="0 0 100 45" 
             fill="none"
             preserveAspectRatio="xMidYMid meet"
+            style={{ overflow: 'visible' }}
           >
-            {/* Curved arrow path */}
+            {/* Curved arrow path - extended and visible */}
             <path
-              d="M 10 30 Q 50 5, 85 15"
+              d="M 5 38 Q 50 8, 90 18"
               stroke={currentColors.arrow}
-              strokeWidth="4"
+              strokeWidth="5"
               fill="none"
               strokeLinecap="round"
+              strokeLinejoin="round"
             />
-            {/* Arrow head */}
+            {/* Arrow head - larger */}
             <path
-              d="M 85 15 L 75 10 L 80 20 Z"
+              d="M 90 18 L 78 13 L 83 25 Z"
               fill={currentColors.arrow}
             />
           </svg>
