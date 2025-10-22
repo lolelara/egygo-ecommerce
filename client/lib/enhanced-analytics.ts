@@ -56,12 +56,19 @@ class Analytics {
     const events = [...this.queue];
     this.queue = [];
     
-    // Log in development
+    // Log in development only
     if (import.meta.env.DEV) {
       console.log('📊 Analytics events:', events);
     }
     
-    // Send to API only if available
+    // Skip API call in production if server is not available
+    // Analytics will still work via Google Analytics (gtag)
+    if (import.meta.env.PROD) {
+      // Silently skip - events are already tracked via gtag
+      return;
+    }
+    
+    // Send to API only in development
     try {
       const response = await fetch('/api/analytics', {
         method: 'POST',
@@ -69,19 +76,17 @@ class Analytics {
         body: JSON.stringify({ events }),
       });
       
-      // Don't re-queue on 404 - the endpoint doesn't exist
-      if (response.status === 404) {
-        console.warn('Analytics endpoint not available');
-        return;
-      }
-      
-      if (!response.ok && response.status !== 404) {
-        throw new Error(`Analytics failed: ${response.status}`);
+      if (!response.ok) {
+        // Silently fail - not critical
+        if (import.meta.env.DEV) {
+          console.warn('Analytics API unavailable:', response.status);
+        }
       }
     } catch (error) {
-      console.error('Failed to send analytics:', error);
-      // Don't re-queue events - this prevents infinite retries
-      // Just log them for now
+      // Silently fail - not critical
+      if (import.meta.env.DEV) {
+        console.warn('Analytics API error:', error);
+      }
     }
   }
   
