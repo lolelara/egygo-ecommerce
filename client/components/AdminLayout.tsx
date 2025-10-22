@@ -19,6 +19,12 @@ import {
   Truck,
   Sparkles,
   CheckCircle,
+  TrendingUp,
+  Megaphone,
+  Percent,
+  Wallet,
+  CreditCard,
+  FileText,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { usePendingAccountsCount } from "@/hooks/usePendingAccountsCount";
 import { usePendingProductsCount } from "@/hooks/usePendingProductsCount";
+import { usePendingAdsCount } from "@/hooks/usePendingAdsCount";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -94,6 +101,55 @@ const adminNavItems = [
     roles: ['admin'], // فقط المدير
   },
   {
+    title: "إدارة العروض",
+    href: "/admin/deals",
+    icon: Percent,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "إدارة الإعلانات",
+    href: "/admin/advertisements",
+    icon: Megaphone,
+    roles: ['admin'], // فقط المدير
+    badge: true, // سيظهر عدد الإعلانات المعلقة
+  },
+  {
+    title: "الإعلانات",
+    href: "/merchant/advertising",
+    icon: TrendingUp,
+    roles: ['merchant'], // فقط التاجر
+  },
+  {
+    title: "النظام المالي",
+    href: "/admin/financial",
+    icon: Wallet,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "طلبات السحب",
+    href: "/admin/withdrawals",
+    icon: CreditCard,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "مدفوعات التجار",
+    href: "/admin/merchant-payments",
+    icon: DollarSign,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "التقارير المالية",
+    href: "/admin/reports",
+    icon: FileText,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "حسابي المالي",
+    href: "/merchant/financial",
+    icon: Wallet,
+    roles: ['merchant'], // فقط التاجر
+  },
+  {
     title: "التحليلات المتقدمة",
     href: "/admin/analytics",
     icon: BarChart3,
@@ -131,6 +187,7 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
   const { user } = useAuth();
   const { count: pendingCount } = usePendingAccountsCount();
   const pendingProductsCount = usePendingProductsCount();
+  const pendingAdsCount = usePendingAdsCount();
 
   const handleLogout = () => {
     // TODO: Implement logout logic
@@ -177,6 +234,11 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
               {item.href === '/admin/product-approval' && pendingProductsCount > 0 && (
                 <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
                   {pendingProductsCount}
+                </Badge>
+              )}
+              {item.href === '/admin/advertisements' && pendingAdsCount > 0 && (
+                <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                  {pendingAdsCount}
                 </Badge>
               )}
             </Link>
