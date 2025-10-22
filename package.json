@@ -63,6 +63,7 @@
     "sync-existing-users": "tsx scripts/sync-existing-users.ts",
     "fix-coupons": "tsx scripts/fix-coupons-collection.ts",
     "create-demo-intermediary": "tsx scripts/create-demo-intermediary.ts",
+    "create-financial": "node scripts/create-financial-collections.js",
     "add-approval-fields": "tsx scripts/add-product-approval-fields.ts",
     "fix-demo-intermediary": "tsx scripts/fix-demo-intermediary.ts",
     "cleanup-and-seed": "tsx scripts/cleanup-and-seed.ts",
