@@ -34,38 +34,41 @@ async function resetDailyStats() {
   try {
     console.log('🔄 Resetting daily stats...');
 
-    // Get all affiliate stats
+    // Get all affiliate stats - select only specific fields to avoid schema conflicts
     const response = await databases.listDocuments(
       config.databaseId,
       'affiliate_stats',
-      [sdk.Query.limit(1000)]
+      [
+        sdk.Query.limit(1000),
+        sdk.Query.select(['$id', 'affiliateId', 'todaySales'])
+      ]
     );
 
     let updated = 0;
+    let skipped = 0;
+    
     for (const doc of response.documents) {
       try {
-        // Only update fields that exist in the document
-        const updateData = {};
-        if ('todaySales' in doc) {
-          updateData.todaySales = 0;
-        }
-        
-        // Only update if there are fields to update
-        if (Object.keys(updateData).length > 0) {
+        // Check if todaySales exists and needs reset
+        if (doc.todaySales !== undefined && doc.todaySales !== 0) {
           await databases.updateDocument(
             config.databaseId,
             'affiliate_stats',
             doc.$id,
-            updateData
+            {
+              todaySales: 0
+            }
           );
           updated++;
+        } else {
+          skipped++;
         }
       } catch (error) {
         console.error(`Error updating ${doc.$id}:`, error.message);
       }
     }
 
-    console.log(`✅ Daily stats reset complete: ${updated} affiliates updated`);
+    console.log(`✅ Daily stats reset complete: ${updated} affiliates updated, ${skipped} skipped (already 0)`);
   } catch (error) {
     console.error('❌ Error resetting daily stats:', error);
   }
@@ -82,34 +85,36 @@ async function resetWeeklyStats() {
     const response = await databases.listDocuments(
       config.databaseId,
       'affiliate_stats',
-      [sdk.Query.limit(1000)]
+      [
+        sdk.Query.limit(1000),
+        sdk.Query.select(['$id', 'affiliateId', 'weekSales'])
+      ]
     );
 
     let updated = 0;
+    let skipped = 0;
+    
     for (const doc of response.documents) {
       try {
-        // Only update fields that exist in the document
-        const updateData = {};
-        if ('weekSales' in doc) {
-          updateData.weekSales = 0;
-        }
-        
-        // Only update if there are fields to update
-        if (Object.keys(updateData).length > 0) {
+        if (doc.weekSales !== undefined && doc.weekSales !== 0) {
           await databases.updateDocument(
             config.databaseId,
             'affiliate_stats',
             doc.$id,
-            updateData
+            {
+              weekSales: 0
+            }
           );
           updated++;
+        } else {
+          skipped++;
         }
       } catch (error) {
         console.error(`Error updating ${doc.$id}:`, error.message);
       }
     }
 
-    console.log(`✅ Weekly stats reset complete: ${updated} affiliates updated`);
+    console.log(`✅ Weekly stats reset complete: ${updated} affiliates updated, ${skipped} skipped`);
   } catch (error) {
     console.error('❌ Error resetting weekly stats:', error);
   }
@@ -126,34 +131,36 @@ async function resetMonthlyStats() {
     const response = await databases.listDocuments(
       config.databaseId,
       'affiliate_stats',
-      [sdk.Query.limit(1000)]
+      [
+        sdk.Query.limit(1000),
+        sdk.Query.select(['$id', 'affiliateId', 'monthSales'])
+      ]
     );
 
     let updated = 0;
+    let skipped = 0;
+    
     for (const doc of response.documents) {
       try {
-        // Only update fields that exist in the document
-        const updateData = {};
-        if ('monthSales' in doc) {
-          updateData.monthSales = 0;
-        }
-        
-        // Only update if there are fields to update
-        if (Object.keys(updateData).length > 0) {
+        if (doc.monthSales !== undefined && doc.monthSales !== 0) {
           await databases.updateDocument(
             config.databaseId,
             'affiliate_stats',
             doc.$id,
-            updateData
+            {
+              monthSales: 0
+            }
           );
           updated++;
+        } else {
+          skipped++;
         }
       } catch (error) {
         console.error(`Error updating ${doc.$id}:`, error.message);
       }
     }
 
-    console.log(`✅ Monthly stats reset complete: ${updated} affiliates updated`);
+    console.log(`✅ Monthly stats reset complete: ${updated} affiliates updated, ${skipped} skipped`);
   } catch (error) {
     console.error('❌ Error resetting monthly stats:', error);
   }
