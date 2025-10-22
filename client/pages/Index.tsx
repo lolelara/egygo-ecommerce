@@ -305,19 +305,19 @@ export default function Index() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-primary mb-2">+10,000</div>
+            <div className="text-4xl font-bold text-red-600 mb-2">+10,000</div>
             <div className="text-muted-foreground">عميل نشط</div>
           </Card>
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-brand-purple mb-2">+500</div>
+            <div className="text-4xl font-bold text-red-600 mb-2">+500</div>
             <div className="text-muted-foreground">تاجر ناجح</div>
           </Card>
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-brand-orange mb-2">+2,000</div>
+            <div className="text-4xl font-bold text-red-600 mb-2">+2,000</div>
             <div className="text-muted-foreground">مسوق نشط</div>
           </Card>
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-success mb-2">5M+</div>
+            <div className="text-4xl font-bold text-red-600 mb-2">5M+</div>
             <div className="text-muted-foreground">جنيه مبيعات</div>
           </Card>
         </div>
@@ -340,28 +340,28 @@ export default function Index() {
             {/* للعملاء */}
             <Card className="egygo-card egygo-hover-lift p-6">
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 text-primary rounded-full mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
                   <ShoppingCart className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">للعملاء</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
                   <div>
                     <h4 className="font-semibold">تصفح المنتجات</h4>
                     <p className="text-sm text-muted-foreground">اكتشف آلاف المنتجات عالية الجودة</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
                   <div>
                     <h4 className="font-semibold">أضف للسلة</h4>
                     <p className="text-sm text-muted-foreground">اختر ما يعجبك وأضفه لسلة المشتريات</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
                   <div>
                     <h4 className="font-semibold">اطلب واستلم</h4>
                     <p className="text-sm text-muted-foreground">ادفع واستلم طلبك في 2-4 أيام</p>
@@ -371,30 +371,30 @@ export default function Index() {
             </Card>
 
             {/* للتجار */}
-            <Card className="egygo-card egygo-hover-lift p-6 border-brand-purple">
+            <Card className="egygo-card egygo-hover-lift p-6 border-red-200">
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-purple/10 text-brand-purple rounded-full mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
                   <Sparkles className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">للتجار</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-purple text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
                   <div>
                     <h4 className="font-semibold">سجل حساب</h4>
                     <p className="text-sm text-muted-foreground">انشئ حساب تاجر مجاناً</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-purple text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
                   <div>
                     <h4 className="font-semibold">أضف منتجاتك</h4>
                     <p className="text-sm text-muted-foreground">ارفع منتجاتك وحدد الأسعار والعمولات</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-purple text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
                   <div>
                     <h4 className="font-semibold">ابدأ البيع</h4>
                     <p className="text-sm text-muted-foreground">راقب مبيعاتك واستلم أرباحك أسبوعياً</p>
@@ -404,30 +404,30 @@ export default function Index() {
             </Card>
 
             {/* للمسوقين */}
-            <Card className="egygo-card egygo-hover-lift p-6 border-brand-orange">
+            <Card className="egygo-card egygo-hover-lift p-6 border-red-200">
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-orange/10 text-brand-orange rounded-full mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
                   <TrendingUp className="h-8 w-8" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">للمسوقين</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-orange text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
                   <div>
                     <h4 className="font-semibold">انضم مجاناً</h4>
                     <p className="text-sm text-muted-foreground">سجل كمسوق بدون أي رسوم</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-orange text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
                   <div>
                     <h4 className="font-semibold">احصل على روابطك</h4>
                     <p className="text-sm text-muted-foreground">اختر المنتجات وخذ روابط التسويق</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-brand-orange text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
                   <div>
                     <h4 className="font-semibold">سوّق واربح</h4>
                     <p className="text-sm text-muted-foreground">اربح عمولة لحد 25% على كل بيعة</p>
@@ -517,14 +517,14 @@ export default function Index() {
       </section>
 
       {/* Affiliate Program CTA */}
-      <section className="bg-gradient-to-r from-brand-orange to-brand-purple text-white">
+      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white">
         <div className="container mx-auto px-4 py-16">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="space-y-4">
                 <Badge
                   variant="secondary"
-                  className="text-brand-orange bg-white/90"
+                  className="text-red-600 bg-white font-bold"
                 >
                   💰 برنامج الشراكة
                 </Badge>
@@ -655,7 +655,7 @@ export default function Index() {
                     <Badge className="absolute top-2 left-2 bg-success text-success-foreground">
                       الأكثر مبيعًا
                     </Badge>
-                    <div className="absolute top-2 right-2 bg-brand-orange text-white text-xs px-2 py-1 rounded">
+                    <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
                       {product.affiliateCommission}% عمولة
                     </div>
                   </div>
@@ -711,7 +711,7 @@ export default function Index() {
         <div className="container mx-auto px-4 py-16">
           <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] items-center">
             <div className="space-y-6">
-              <Badge className="bg-primary/10 text-primary">
+              <Badge className="bg-red-100 text-red-600">
                 لماذا إيجي جو؟
               </Badge>
               <h2 className="text-3xl lg:text-4xl font-bold leading-tight">
