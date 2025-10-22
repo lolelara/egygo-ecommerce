@@ -52,6 +52,7 @@ interface PendingUser {
   alternativePhone?: string;
   governorate?: string;
   city?: string;
+  address?: string;
   accountStatus: 'pending' | 'approved' | 'rejected';
   isAffiliate: boolean;
   isMerchant: boolean;
@@ -494,12 +495,19 @@ export default function AdminPendingAccounts() {
                         {getAccountTypeBadge(user)}
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">
-                          {user.governorate ? (
+                        <div className="text-sm max-w-xs">
+                          {user.governorate || user.city || user.address ? (
                             <>
-                              <div className="font-medium">{user.governorate}</div>
+                              {user.governorate && (
+                                <div className="font-medium">{user.governorate}</div>
+                              )}
                               {user.city && (
                                 <div className="text-xs text-muted-foreground">{user.city}</div>
+                              )}
+                              {user.address && (
+                                <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                  📍 {user.address}
+                                </div>
                               )}
                             </>
                           ) : (
@@ -685,6 +693,15 @@ export default function AdminPendingAccounts() {
                   </p>
                 </div>
               </div>
+
+              {selectedUser.address && (
+                <div className="mt-4 pt-4 border-t">
+                  <Label className="text-muted-foreground">العنوان التفصيلي</Label>
+                  <div className="mt-2 p-3 bg-muted rounded-lg">
+                    <p className="text-sm">📍 {selectedUser.address}</p>
+                  </div>
+                </div>
+              )}
 
               <div className="flex gap-2 pt-4">
                 <Button
