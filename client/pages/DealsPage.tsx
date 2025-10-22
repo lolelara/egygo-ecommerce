@@ -14,21 +14,49 @@ export default function DealsPage() {
   const { toast } = useToast();
   const [loadingProduct, setLoadingProduct] = useState<string | null>(null);
 
-  // Fetch products with discounts (originalPrice > price)
+  // Fetch featured deals from admin-selected products
   const { data: productsData, isLoading } = useQuery({
     queryKey: [...queryKeys.products, 'deals'],
     queryFn: async () => {
-      const data = await productsApi.getAll({ limit: 50 });
-      // Filter products that have discounts
-      const dealsProducts = data.products.filter(
-        (product: any) => product.originalPrice && product.originalPrice > product.price
-      );
-      // Sort by discount percentage
-      return dealsProducts.sort((a: any, b: any) => {
-        const discountA = ((a.originalPrice - a.price) / a.originalPrice) * 100;
-        const discountB = ((b.originalPrice - b.price) / b.originalPrice) * 100;
-        return discountB - discountA;
-      });
+      try {
+        // Try to fetch featured deals from Appwrite
+        const { databases, appwriteConfig } = await import('@/lib/appwrite');
+        const { Query } = await import('appwrite');
+        
+        const response = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          'featuredDeals',
+          [
+            Query.equal('active', true),
+            Query.orderAsc('order'),
+            Query.limit(50)
+          ]
+        );
+
+        // Map featured deals to product format
+        return response.documents.map((deal: any) => ({
+          id: deal.productId,
+          name: deal.productName,
+          image: deal.productImage,
+          images: [{ url: deal.productImage }],
+          price: deal.price,
+          originalPrice: deal.originalPrice,
+          discount: deal.discount,
+          rating: 4.5,
+        }));
+      } catch (error) {
+        // Fallback to original logic if collection doesn't exist
+        console.log('Featured deals not available, using fallback');
+        const data = await productsApi.getAll({ limit: 50 });
+        const dealsProducts = data.products.filter(
+          (product: any) => product.originalPrice && product.originalPrice > product.price
+        );
+        return dealsProducts.sort((a: any, b: any) => {
+          const discountA = ((a.originalPrice - a.price) / a.originalPrice) * 100;
+          const discountB = ((b.originalPrice - b.price) / b.originalPrice) * 100;
+          return discountB - discountA;
+        });
+      }
     },
   });
 
