@@ -3,8 +3,10 @@
  * سكريبت إنشاء المجموعات المالية والتخزين
  */
 
-const sdk = require('node-appwrite');
-require('dotenv').config();
+import * as sdk from 'node-appwrite';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Initialize Appwrite
 const client = new sdk.Client();
