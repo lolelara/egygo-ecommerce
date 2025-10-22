@@ -29,10 +29,12 @@ export default function IndexClean() {
   }, [user, navigate]);
 
   // Fetch featured products
-  const { data: featuredProducts = [] } = useQuery({
-    queryKey: queryKeys.products.featured(),
-    queryFn: () => productsApi.getFeatured(),
+  const { data: productsData } = useQuery({
+    queryKey: ['products', 'featured', { limit: 12 }],
+    queryFn: () => productsApi.getAll({ limit: 12 }),
   });
+  
+  const featuredProducts = productsData?.products || [];
 
   return (
     <div className="min-h-screen bg-background">
