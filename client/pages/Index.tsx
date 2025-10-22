@@ -619,7 +619,12 @@ export default function Index() {
             </div>
 
             <div className="relative">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-6">
+              {/* Logo decoration */}
+              <div className="absolute -top-10 -right-10 opacity-10 pointer-events-none hidden lg:block">
+                <EgyGoLogoFull />
+              </div>
+              
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-6 relative z-10">
                 <CardHeader>
                   <CardTitle className="text-white">
                     لماذا تختار برنامجنا؟
@@ -627,8 +632,8 @@ export default function Index() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-yellow flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-xs font-bold text-primary">✓</span>
+                    <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-red-600">✓</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-white">
@@ -640,8 +645,8 @@ export default function Index() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-yellow flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-xs font-bold text-primary">✓</span>
+                    <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-red-600">✓</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-white">تتبع فوري</h4>
@@ -651,8 +656,8 @@ export default function Index() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-yellow flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-xs font-bold text-primary">✓</span>
+                    <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-red-600">✓</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-white">دعم تسويقي</h4>
@@ -662,8 +667,8 @@ export default function Index() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-brand-yellow flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-xs font-bold text-primary">✓</span>
+                    <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-red-600">✓</span>
                     </div>
                     <div>
                       <h4 className="font-semibold text-white">دفعات سريعة</h4>
