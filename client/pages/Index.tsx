@@ -14,6 +14,7 @@ import {
   Truck,
   Clock4,
   Sparkles,
+  Play,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -351,6 +352,18 @@ export default function Index() {
           <div className="grid md:grid-cols-3 gap-8">
             {/* للعملاء */}
             <Card className="egygo-card egygo-hover-lift p-6">
+              {/* فيديو توضيحي */}
+              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
+                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Play className="h-8 w-8 text-white mr-1" />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                  <p className="text-white text-sm font-medium">🎬 كيف تتسوق على إيجي جو</p>
+                </div>
+              </div>
+              
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
                   <ShoppingCart className="h-8 w-8" />
@@ -384,6 +397,18 @@ export default function Index() {
 
             {/* للتجار */}
             <Card className="egygo-card egygo-hover-lift p-6 border-red-200">
+              {/* فيديو توضيحي */}
+              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
+                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Play className="h-8 w-8 text-white mr-1" />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                  <p className="text-white text-sm font-medium">🎬 كيف تبدأ البيع كتاجر</p>
+                </div>
+              </div>
+              
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
                   <Sparkles className="h-8 w-8" />
@@ -417,6 +442,18 @@ export default function Index() {
 
             {/* للمسوقين */}
             <Card className="egygo-card egygo-hover-lift p-6 border-red-200">
+              {/* فيديو توضيحي */}
+              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
+                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Play className="h-8 w-8 text-white mr-1" />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                  <p className="text-white text-sm font-medium">🎬 كيف تربح كمسوق</p>
+                </div>
+              </div>
+              
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
                   <TrendingUp className="h-8 w-8" />
