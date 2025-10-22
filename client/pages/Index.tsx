@@ -31,6 +31,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { analytics } from "@/lib/enhanced-analytics";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -296,19 +297,39 @@ export default function Index() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-red-600 mb-2">+10,000</div>
+            <AnimatedCounter 
+              end={10000} 
+              prefix="+" 
+              className="text-4xl font-bold text-red-600 mb-2"
+              duration={2500}
+            />
             <div className="text-muted-foreground">عميل نشط</div>
           </Card>
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-red-600 mb-2">+500</div>
+            <AnimatedCounter 
+              end={500} 
+              prefix="+" 
+              className="text-4xl font-bold text-red-600 mb-2"
+              duration={2000}
+            />
             <div className="text-muted-foreground">تاجر ناجح</div>
           </Card>
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-red-600 mb-2">+2,000</div>
+            <AnimatedCounter 
+              end={2000} 
+              prefix="+" 
+              className="text-4xl font-bold text-red-600 mb-2"
+              duration={2200}
+            />
             <div className="text-muted-foreground">مسوق نشط</div>
           </Card>
           <Card className="egygo-card egygo-hover-lift text-center p-6 feature-card">
-            <div className="text-4xl font-bold text-red-600 mb-2">5M+</div>
+            <AnimatedCounter 
+              end={5} 
+              suffix="M+" 
+              className="text-4xl font-bold text-red-600 mb-2"
+              duration={2000}
+            />
             <div className="text-muted-foreground">جنيه مبيعات</div>
           </Card>
         </div>

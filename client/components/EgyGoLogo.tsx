@@ -27,9 +27,9 @@ export function EgyGoLogo({
   };
 
   const arrowSizes = {
-    sm: 'w-8 h-4',
-    md: 'w-12 h-6',
-    lg: 'w-16 h-8'
+    sm: 'w-10 h-5',
+    md: 'w-14 h-7',
+    lg: 'w-20 h-10'
   };
 
   // Colors based on variant
@@ -52,11 +52,11 @@ export function EgyGoLogo({
 
   return (
     <Link to="/" className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex items-center">
+      <div className="relative flex items-center overflow-visible pt-3">
         {/* Arrow - positioned above text */}
         {showArrow && (
           <svg 
-            className={`absolute -top-3 left-1/2 -translate-x-1/2 ${arrowSizes[size]}`}
+            className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
             viewBox="0 0 100 40" 
             fill="none"
           >
