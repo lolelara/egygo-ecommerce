@@ -27,7 +27,6 @@ import { useI18n } from "@/lib/i18n";
 import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
-import { ThemeSelector } from "./ThemeSelector";
 import { LanguageToggle } from "./LanguageToggle";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
@@ -68,7 +67,6 @@ export function Header({ cartItemCount }: HeaderProps) {
             <div className="flex items-center gap-1">
               <LanguageToggle />
               <div className="h-4 w-px bg-border hidden sm:block" />
-              <ThemeSelector />
               <ThemeToggle />
             </div>
           </div>

@@ -165,10 +165,10 @@ export default function Index() {
     <div className="space-y-16 pb-16">
       <EnhancedSEO {...pageSEO.home()} />
       
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-purple-600 to-secondary text-white overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 animate-pulse"></div>
-        <div className="absolute inset-0 bg-black/10"></div>
+      {/* Hero Section - Red Theme */}
+      <section className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 via-red-600/10 to-red-700/10"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
         
         {/* 3D Logo Background - خلف كل المحتوى مع دوران بطيء */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-25 scale-[2] blur-[1px]">
@@ -187,11 +187,11 @@ export default function Index() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
               <div className="space-y-4">
-                <Badge variant="secondary" className="bg-yellow-500 text-white shadow-lg">
+                <Badge variant="secondary" className="bg-white text-red-600 shadow-lg font-bold">
                   ✨ منتجات مميزة
                 </Badge>
                 <h1 className="egygo-heading text-4xl lg:text-6xl font-bold leading-tight text-white min-h-[120px]">
-                  <span className="text-yellow-300">{displayedText}</span>
+                  <span className="text-white">{displayedText}</span>
                   <span className="animate-pulse">|</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
@@ -226,16 +226,16 @@ export default function Index() {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4 pt-8">
-                <div className="egygo-glass-dark rounded-xl p-4 text-center egygo-hover-scale">
-                  <div className="text-2xl font-bold text-yellow-300">+10K</div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-all">
+                  <div className="text-2xl font-bold text-white">+10K</div>
                   <div className="text-sm text-white/80">عميل راضي</div>
                 </div>
-                <div className="egygo-glass-dark rounded-xl p-4 text-center egygo-hover-scale">
-                  <div className="text-2xl font-bold text-green-300">+500</div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-all">
+                  <div className="text-2xl font-bold text-white">+500</div>
                   <div className="text-sm text-white/80">منتج</div>
                 </div>
-                <div className="egygo-glass-dark rounded-xl p-4 text-center egygo-hover-scale">
-                  <div className="text-2xl font-bold text-blue-300">+1K</div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center hover:bg-white/20 transition-all">
+                  <div className="text-2xl font-bold text-white">+1K</div>
                   <div className="text-sm text-white/80">مسوق</div>
                 </div>
               </div>
