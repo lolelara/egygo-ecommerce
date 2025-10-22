@@ -44,15 +44,22 @@ async function resetDailyStats() {
     let updated = 0;
     for (const doc of response.documents) {
       try {
-        await databases.updateDocument(
-          config.databaseId,
-          'affiliate_stats',
-          doc.$id,
-          {
-            todaySales: 0,
-          }
-        );
-        updated++;
+        // Only update fields that exist in the document
+        const updateData = {};
+        if ('todaySales' in doc) {
+          updateData.todaySales = 0;
+        }
+        
+        // Only update if there are fields to update
+        if (Object.keys(updateData).length > 0) {
+          await databases.updateDocument(
+            config.databaseId,
+            'affiliate_stats',
+            doc.$id,
+            updateData
+          );
+          updated++;
+        }
       } catch (error) {
         console.error(`Error updating ${doc.$id}:`, error.message);
       }
@@ -81,15 +88,22 @@ async function resetWeeklyStats() {
     let updated = 0;
     for (const doc of response.documents) {
       try {
-        await databases.updateDocument(
-          config.databaseId,
-          'affiliate_stats',
-          doc.$id,
-          {
-            weekSales: 0,
-          }
-        );
-        updated++;
+        // Only update fields that exist in the document
+        const updateData = {};
+        if ('weekSales' in doc) {
+          updateData.weekSales = 0;
+        }
+        
+        // Only update if there are fields to update
+        if (Object.keys(updateData).length > 0) {
+          await databases.updateDocument(
+            config.databaseId,
+            'affiliate_stats',
+            doc.$id,
+            updateData
+          );
+          updated++;
+        }
       } catch (error) {
         console.error(`Error updating ${doc.$id}:`, error.message);
       }
@@ -118,15 +132,22 @@ async function resetMonthlyStats() {
     let updated = 0;
     for (const doc of response.documents) {
       try {
-        await databases.updateDocument(
-          config.databaseId,
-          'affiliate_stats',
-          doc.$id,
-          {
-            monthSales: 0,
-          }
-        );
-        updated++;
+        // Only update fields that exist in the document
+        const updateData = {};
+        if ('monthSales' in doc) {
+          updateData.monthSales = 0;
+        }
+        
+        // Only update if there are fields to update
+        if (Object.keys(updateData).length > 0) {
+          await databases.updateDocument(
+            config.databaseId,
+            'affiliate_stats',
+            doc.$id,
+            updateData
+          );
+          updated++;
+        }
       } catch (error) {
         console.error(`Error updating ${doc.$id}:`, error.message);
       }
