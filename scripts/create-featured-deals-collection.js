@@ -53,7 +53,7 @@ async function createFeaturedDealsCollection() {
     await databases.createFloatAttribute(DATABASE_ID, 'featuredDeals', 'originalPrice', true);
     await databases.createIntegerAttribute(DATABASE_ID, 'featuredDeals', 'discount', true);
     await databases.createIntegerAttribute(DATABASE_ID, 'featuredDeals', 'order', true);
-    await databases.createBooleanAttribute(DATABASE_ID, 'featuredDeals', 'active', true, true);
+    await databases.createBooleanAttribute(DATABASE_ID, 'featuredDeals', 'active', false, true); // default: true, required: false
     await databases.createDatetimeAttribute(DATABASE_ID, 'featuredDeals', 'createdAt', true);
 
     console.log('✅ Attributes created');
