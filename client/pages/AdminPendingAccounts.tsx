@@ -50,6 +50,8 @@ interface PendingUser {
   email: string;
   phone: string;
   alternativePhone?: string;
+  governorate?: string;
+  city?: string;
   accountStatus: 'pending' | 'approved' | 'rejected';
   isAffiliate: boolean;
   isMerchant: boolean;
@@ -473,6 +475,7 @@ export default function AdminPendingAccounts() {
                   <TableRow>
                     <TableHead>المستخدم</TableHead>
                     <TableHead>النوع</TableHead>
+                    <TableHead>الموقع</TableHead>
                     <TableHead>التواصل</TableHead>
                     <TableHead>تاريخ التسجيل</TableHead>
                     <TableHead className="text-left">الإجراءات</TableHead>
@@ -489,6 +492,20 @@ export default function AdminPendingAccounts() {
                       </TableCell>
                       <TableCell>
                         {getAccountTypeBadge(user)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {user.governorate ? (
+                            <>
+                              <div className="font-medium">{user.governorate}</div>
+                              {user.city && (
+                                <div className="text-xs text-muted-foreground">{user.city}</div>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
@@ -641,6 +658,18 @@ export default function AdminPendingAccounts() {
                   <div>
                     <Label className="text-muted-foreground">كود المسوق</Label>
                     <p className="font-medium font-mono">{selectedUser.affiliateCode}</p>
+                  </div>
+                )}
+                {selectedUser.governorate && (
+                  <div>
+                    <Label className="text-muted-foreground">المحافظة</Label>
+                    <p className="font-medium">{selectedUser.governorate}</p>
+                  </div>
+                )}
+                {selectedUser.city && (
+                  <div>
+                    <Label className="text-muted-foreground">المركز/المدينة</Label>
+                    <p className="font-medium">{selectedUser.city}</p>
                   </div>
                 )}
                 <div>
