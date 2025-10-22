@@ -24,7 +24,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
-import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
+import { EgyGoLogoFull } from "@/components/EgyGoLogo";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 import { egyptGovernorates, getCitiesByGovernorate } from "@/lib/egypt-locations";
@@ -375,10 +375,10 @@ export default function Register() {
   return (
     <div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
       {/* Left Side - Branding (appears on right in RTL, left in LTR) */}
-      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-primary via-purple-600 to-secondary text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
+      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
         <div className="absolute inset-0 opacity-10">
           <div className="w-full h-full flex items-center justify-center scale-150">
-            <EgyGoLogo3D size="large" interactive={false} autoRotate={true} showParticles={false} />
+            <EgyGoLogoFull />
           </div>
         </div>
         <div className="relative z-10 max-w-md">
@@ -809,7 +809,7 @@ export default function Register() {
                       <p className="text-xs text-brand-purple/80 mt-0.5">
                         اعرض وبع منتجاتك على المنصة
                       </p>
-                      <p className="text-xs text-purple-600 mt-1 font-medium">
+                      <p className="text-xs text-red-600 mt-1 font-medium">
                         ⏳ يتطلب موافقة الإدارة
                       </p>
                     </div>
@@ -850,7 +850,7 @@ export default function Register() {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full h-14 bg-gradient-to-r from-primary via-purple-600 to-secondary text-white font-bold text-lg rounded-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
+                className="w-full h-14 bg-gradient-to-r from-red-600 to-red-800 text-white font-bold text-lg rounded-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
                 disabled={isLoading || !acceptTerms}
               >
                 {isLoading ? (
@@ -880,9 +880,9 @@ export default function Register() {
                   <Star className="h-4 w-4 text-blue-600" />
                   <span className="text-blue-700 dark:text-blue-400 font-semibold">موثوق</span>
                 </div>
-                <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-purple-50 dark:bg-purple-950/20">
-                  <Truck className="h-4 w-4 text-purple-600" />
-                  <span className="text-purple-700 dark:text-purple-400 font-semibold">سريع</span>
+                <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-red-50 dark:bg-red-950/20">
+                  <Truck className="h-4 w-4 text-red-600" />
+                  <span className="text-red-700 dark:text-red-400 font-semibold">سريع</span>
                 </div>
               </div>
             </form>

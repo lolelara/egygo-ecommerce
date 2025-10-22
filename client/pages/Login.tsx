@@ -15,7 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
-import EgyGoLogo3D from "@/components/enhanced/EgyGoLogo3D";
+import { EgyGoLogoFull } from "@/components/EgyGoLogo";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 import { rateLimiter } from "@/lib/advanced-rate-limiter";
@@ -119,10 +119,10 @@ export default function Login() {
   return (
     <div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
       {/* Left Side - Branding (appears on right in RTL, left in LTR) */}
-      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-primary via-purple-600 to-secondary text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
+      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
         <div className="absolute inset-0 opacity-10">
           <div className="w-full h-full flex items-center justify-center scale-150">
-            <EgyGoLogo3D size="large" interactive={false} autoRotate={true} showParticles={false} />
+            <EgyGoLogoFull />
           </div>
         </div>
         <div className="relative z-10 max-w-md">
@@ -182,8 +182,8 @@ export default function Login() {
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Logo */}
           <div className="text-center lg:hidden">
-            <Link to="/" className="inline-flex items-center gap-2 text-3xl font-bold bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent">
-              <Sparkles className="w-8 h-8 text-purple-600" />
+            <Link to="/" className="inline-flex items-center gap-2 text-3xl font-bold text-red-600">
+              <Sparkles className="w-8 h-8 text-red-600" />
               إيجي جو
             </Link>
           </div>
