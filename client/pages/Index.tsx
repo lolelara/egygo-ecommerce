@@ -455,17 +455,17 @@ export default function Index() {
       </section>
 
       {/* How It Works - كيف تعمل المنصة */}
-      <section className="relative bg-gradient-to-b from-muted/30 via-white to-muted/30 py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-b from-muted/30 via-white dark:via-gray-900 to-muted/30 py-20 overflow-hidden">
         {/* Background decorations */}
-        <div className="absolute top-10 left-10 w-72 h-72 bg-red-100/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-100/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-10 left-10 w-72 h-72 bg-red-100/30 dark:bg-red-900/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-100/20 dark:bg-blue-900/20 rounded-full blur-3xl"></div>
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-20">
-            <Badge className="mb-6 bg-gradient-to-r from-red-100 to-blue-100 text-red-600 border-red-200 px-6 py-2 text-base font-bold">
+            <Badge className="mb-6 bg-gradient-to-r from-red-100 to-blue-100 dark:from-red-900/30 dark:to-blue-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 px-6 py-2 text-base font-bold">
               ⚙️ كيف تعمل المنصة
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 bg-clip-text text-transparent">
+            <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 dark:from-gray-100 dark:via-red-400 dark:to-gray-100 bg-clip-text text-transparent">
               ابدأ رحلتك في 3 خطوات بسيطة
             </h2>
             <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
@@ -475,13 +475,13 @@ export default function Index() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* للعملاء */}
-            <Card className="group relative bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 hover:border-red-200 overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-100 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-700 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-100 dark:from-red-900/30 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <CardContent className="p-8 relative z-10">
               {/* فيديو توضيحي */}
-              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
-                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Play className="h-8 w-8 text-white mr-1" />
                   </div>
                 </div>
@@ -491,30 +491,30 @@ export default function Index() {
               </div>
               
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
                   <ShoppingCart className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">للعملاء</h3>
+                <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للعملاء</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
                   <div>
-                    <h4 className="font-semibold">تصفح المنتجات</h4>
+                    <h4 className="font-semibold dark:text-gray-200">تصفح المنتجات</h4>
                     <p className="text-sm text-muted-foreground">اكتشف آلاف المنتجات عالية الجودة</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
                   <div>
-                    <h4 className="font-semibold">أضف للسلة</h4>
+                    <h4 className="font-semibold dark:text-gray-200">أضف للسلة</h4>
                     <p className="text-sm text-muted-foreground">اختر ما يعجبك وأضفه لسلة المشتريات</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
                   <div>
-                    <h4 className="font-semibold">اطلب واستلم</h4>
+                    <h4 className="font-semibold dark:text-gray-200">اطلب واستلم</h4>
                     <p className="text-sm text-muted-foreground">ادفع واستلم طلبك في 2-4 أيام</p>
                   </div>
                 </div>
@@ -523,16 +523,16 @@ export default function Index() {
             </Card>
 
             {/* للتجار */}
-            <Card className="group relative bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 hover:border-red-300 overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-200 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-200 dark:from-red-900/40 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="absolute -top-4 -right-4">
-                <Badge className="bg-red-600 text-white px-3 py-1 font-bold">⭐ الأكثر طلباً</Badge>
+                <Badge className="bg-red-600 dark:bg-red-500 text-white px-3 py-1 font-bold">⭐ الأكثر طلباً</Badge>
               </div>
               <CardContent className="p-8 relative z-10">
               {/* فيديو توضيحي */}
-              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
-                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Play className="h-8 w-8 text-white mr-1" />
                   </div>
                 </div>
@@ -542,30 +542,30 @@ export default function Index() {
               </div>
               
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
                   <Sparkles className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">للتجار</h3>
+                <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للتجار</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
                   <div>
-                    <h4 className="font-semibold">سجل حساب</h4>
+                    <h4 className="font-semibold dark:text-gray-200">سجل حساب</h4>
                     <p className="text-sm text-muted-foreground">انشئ حساب تاجر مجاناً</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
                   <div>
-                    <h4 className="font-semibold">أضف منتجاتك</h4>
+                    <h4 className="font-semibold dark:text-gray-200">أضف منتجاتك</h4>
                     <p className="text-sm text-muted-foreground">ارفع منتجاتك وحدد الأسعار والعمولات</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
                   <div>
-                    <h4 className="font-semibold">ابدأ البيع</h4>
+                    <h4 className="font-semibold dark:text-gray-200">ابدأ البيع</h4>
                     <p className="text-sm text-muted-foreground">راقب مبيعاتك واستلم أرباحك أسبوعياً</p>
                   </div>
                 </div>
@@ -574,13 +574,13 @@ export default function Index() {
             </Card>
 
             {/* للمسوقين */}
-            <Card className="group relative bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 hover:border-green-200 overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-100 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-700 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-100 dark:from-green-900/30 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <CardContent className="p-8 relative z-10">
               {/* فيديو توضيحي */}
-              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 aspect-video group cursor-pointer">
-                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 group-hover:bg-red-600/20 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-red-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Play className="h-8 w-8 text-white mr-1" />
                   </div>
                 </div>
@@ -590,30 +590,30 @@ export default function Index() {
               </div>
               
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
                   <TrendingUp className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold mb-2">للمسوقين</h3>
+                <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للمسوقين</h3>
               </div>
               <div className="space-y-4">
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
                   <div>
-                    <h4 className="font-semibold">انضم مجاناً</h4>
+                    <h4 className="font-semibold dark:text-gray-200">انضم مجاناً</h4>
                     <p className="text-sm text-muted-foreground">سجل كمسوق بدون أي رسوم</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
                   <div>
-                    <h4 className="font-semibold">احصل على روابطك</h4>
+                    <h4 className="font-semibold dark:text-gray-200">احصل على روابطك</h4>
                     <p className="text-sm text-muted-foreground">اختر المنتجات وخذ روابط التسويق</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
                   <div>
-                    <h4 className="font-semibold">سوّق واربح</h4>
+                    <h4 className="font-semibold dark:text-gray-200">سوّق واربح</h4>
                     <p className="text-sm text-muted-foreground">اربح عمولة لحد 25% على كل بيعة</p>
                   </div>
                 </div>
