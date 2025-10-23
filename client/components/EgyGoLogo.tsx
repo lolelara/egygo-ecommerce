@@ -56,8 +56,8 @@ export function EgyGoLogo({
         {/* Enhanced Arrow - positioned above text */}
         {showArrow && (
           <svg 
-            className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none animate-pulse`}
-            viewBox="0 0 140 60" 
+            className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
+            viewBox="0 0 120 50" 
             fill="none"
             preserveAspectRatio="xMidYMid meet"
             style={{ 
@@ -74,24 +74,24 @@ export function EgyGoLogo({
               </linearGradient>
             </defs>
 
-            {/* Smooth curved arrow with better bezier curve */}
+            {/* Smooth curved arrow - single continuous curve */}
             <path
-              d="M 10 48 Q 30 12, 60 15 Q 90 18, 115 25"
+              d="M 15 40 C 30 15, 70 10, 105 18"
               stroke="url(#arrowGradient)"
-              strokeWidth="6"
+              strokeWidth="5"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
               style={{ 
-                strokeDasharray: '200',
-                strokeDashoffset: '200',
+                strokeDasharray: '150',
+                strokeDashoffset: '150',
                 animation: 'drawArrow 2s ease-out forwards'
               }}
             />
             
-            {/* Enhanced arrow head - sleek triangle */}
+            {/* Arrow head at the END - proper triangle */}
             <path
-              d="M 115 25 L 105 20 L 108 32 Z"
+              d="M 105 18 L 98 13 L 98 23 Z"
               fill={currentColors.arrow}
               style={{
                 filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))'
@@ -100,7 +100,7 @@ export function EgyGoLogo({
             
             {/* Subtle glow effect */}
             <path
-              d="M 10 48 Q 30 12, 60 15 Q 90 18, 115 25"
+              d="M 15 40 C 30 15, 70 10, 105 18"
               stroke={currentColors.arrow}
               strokeWidth="2"
               fill="none"
