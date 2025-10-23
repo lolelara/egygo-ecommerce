@@ -55,7 +55,7 @@ interface FeaturedDeal {
 }
 
 interface Product {
-  id: string;
+  $id: string;  // Appwrite uses $id
   name: string;
   price: number;
   originalPrice?: number;
@@ -273,7 +273,7 @@ export default function AdminDealsManager() {
         'featuredDeals',
         ID.unique(),
         {
-          productId: selectedProduct.id,
+          productId: selectedProduct.$id,
           productName: selectedProduct.name,
           productImage: selectedProduct.images?.[0]?.url || selectedProduct.image || '',
           price: selectedProduct.price,
@@ -380,7 +380,7 @@ export default function AdminDealsManager() {
 
   const filteredProducts = allProducts.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    !deals.some(deal => deal.productId === product.id)
+    !deals.some(deal => deal.productId === product.$id)
   );
 
   if (user?.role !== 'admin') {
@@ -558,9 +558,9 @@ export default function AdminDealsManager() {
 
                     return (
                       <div
-                        key={product.id}
+                        key={product.$id}
                         className={`p-4 hover:bg-muted cursor-pointer transition-colors ${
-                          selectedProduct?.id === product.id ? 'bg-primary/10 border-l-4 border-primary' : ''
+                          selectedProduct?.$id === product.$id ? 'bg-primary/10 border-l-4 border-primary' : ''
                         }`}
                         onClick={() => setSelectedProduct(product)}
                       >
@@ -586,7 +586,7 @@ export default function AdminDealsManager() {
                               )}
                             </div>
                           </div>
-                          {selectedProduct?.id === product.id && (
+                          {selectedProduct?.$id === product.$id && (
                             <CheckCircle className="h-6 w-6 text-primary" />
                           )}
                         </div>
