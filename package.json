@@ -65,6 +65,7 @@
     "create-demo-intermediary": "tsx scripts/create-demo-intermediary.ts",
     "create-financial": "node scripts/create-financial-collections.js",
     "create-featured-deals": "node scripts/create-featured-deals-collection.js",
+    "fix-featured-deals": "node scripts/fix-featured-deals-permissions.js",
     "add-approval-fields": "tsx scripts/add-product-approval-fields.ts",
     "fix-demo-intermediary": "tsx scripts/fix-demo-intermediary.ts",
     "cleanup-and-seed": "tsx scripts/cleanup-and-seed.ts",

@@ -35,9 +35,9 @@ async function createFeaturedDealsCollection() {
       'featuredDeals',
       [
         sdk.Permission.read(sdk.Role.any()),
-        sdk.Permission.create(sdk.Role.team('admin')),
-        sdk.Permission.update(sdk.Role.team('admin')),
-        sdk.Permission.delete(sdk.Role.team('admin')),
+        sdk.Permission.create(sdk.Role.users()),
+        sdk.Permission.update(sdk.Role.users()),
+        sdk.Permission.delete(sdk.Role.users()),
       ]
     );
 
