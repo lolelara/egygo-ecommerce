@@ -52,29 +52,61 @@ export function EgyGoLogo({
 
   return (
     <Link to="/" className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex items-center pt-6 pb-1 min-h-[3rem]" style={{ overflow: 'visible' }}>
-        {/* Arrow - positioned above text */}
+      <div className="relative flex items-center pt-8 pb-1 min-h-[3.5rem]" style={{ overflow: 'visible' }}>
+        {/* Enhanced Arrow - positioned above text */}
         {showArrow && (
           <svg 
-            className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
-            viewBox="0 0 120 50" 
+            className={`absolute top-0 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none animate-pulse`}
+            viewBox="0 0 140 60" 
             fill="none"
             preserveAspectRatio="xMidYMid meet"
-            style={{ overflow: 'visible' }}
+            style={{ 
+              overflow: 'visible',
+              filter: 'drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3))'
+            }}
           >
-            {/* Simple curved arrow - clean and professional */}
+            {/* Gradient Definition */}
+            <defs>
+              <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style={{ stopColor: '#3B82F6', stopOpacity: 0.8 }} />
+                <stop offset="50%" style={{ stopColor: '#60A5FA', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: '#2563EB', stopOpacity: 0.9 }} />
+              </linearGradient>
+            </defs>
+
+            {/* Smooth curved arrow with better bezier curve */}
             <path
-              d="M 15 40 Q 40 8, 65 12 Q 90 16, 105 20"
-              stroke={currentColors.arrow}
-              strokeWidth="5"
+              d="M 10 48 Q 30 12, 60 15 Q 90 18, 115 25"
+              stroke="url(#arrowGradient)"
+              strokeWidth="6"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
+              style={{ 
+                strokeDasharray: '200',
+                strokeDashoffset: '200',
+                animation: 'drawArrow 2s ease-out forwards'
+              }}
             />
-            {/* Arrow head - simple triangle */}
+            
+            {/* Enhanced arrow head - sleek triangle */}
             <path
-              d="M 105 20 L 97 16 L 100 26 Z"
+              d="M 115 25 L 105 20 L 108 32 Z"
               fill={currentColors.arrow}
+              style={{
+                filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))'
+              }}
+            />
+            
+            {/* Subtle glow effect */}
+            <path
+              d="M 10 48 Q 30 12, 60 15 Q 90 18, 115 25"
+              stroke={currentColors.arrow}
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.4"
+              style={{ filter: 'blur(2px)' }}
             />
           </svg>
         )}
@@ -85,6 +117,15 @@ export function EgyGoLogo({
           <span className="text-red-600">.me</span>
         </div>
       </div>
+      
+      {/* CSS Animation */}
+      <style>{`
+        @keyframes drawArrow {
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+      `}</style>
     </Link>
   );
 }
