@@ -445,6 +445,144 @@
           "orders": ["ASC"]
         }
       ]
+    },
+    {
+      "collectionId": "withdrawalRequests",
+      "name": "Withdrawal Requests",
+      "permissions": ["read(\"users\")", "create(\"users\")"],
+      "documentSecurity": true,
+      "enabled": true,
+      "attributes": [
+        {
+          "key": "userId",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "userName",
+          "type": "string",
+          "size": 255,
+          "required": true
+        },
+        {
+          "key": "userType",
+          "type": "string",
+          "size": 50,
+          "required": true
+        },
+        {
+          "key": "amount",
+          "type": "float",
+          "required": true,
+          "min": 0
+        },
+        {
+          "key": "method",
+          "type": "string",
+          "size": 100,
+          "required": true
+        },
+        {
+          "key": "accountDetails",
+          "type": "string",
+          "size": 1000,
+          "required": true
+        },
+        {
+          "key": "phoneNumber",
+          "type": "string",
+          "size": 20,
+          "required": false
+        },
+        {
+          "key": "bankName",
+          "type": "string",
+          "size": 200,
+          "required": false
+        },
+        {
+          "key": "accountNumber",
+          "type": "string",
+          "size": 100,
+          "required": false
+        },
+        {
+          "key": "accountHolder",
+          "type": "string",
+          "size": 255,
+          "required": false
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "size": 50,
+          "required": true,
+          "default": "pending"
+        },
+        {
+          "key": "rejectionReason",
+          "type": "string",
+          "size": 1000,
+          "required": false
+        },
+        {
+          "key": "paymentProof",
+          "type": "string",
+          "size": 500,
+          "required": false
+        },
+        {
+          "key": "transactionId",
+          "type": "string",
+          "size": 255,
+          "required": false
+        },
+        {
+          "key": "notes",
+          "type": "string",
+          "size": 2000,
+          "required": false
+        },
+        {
+          "key": "processedAt",
+          "type": "string",
+          "size": 50,
+          "required": false
+        },
+        {
+          "key": "processedBy",
+          "type": "string",
+          "size": 255,
+          "required": false
+        }
+      ],
+      "indexes": [
+        {
+          "key": "userId_index",
+          "type": "key",
+          "attributes": ["userId"],
+          "orders": ["DESC"]
+        },
+        {
+          "key": "status_index",
+          "type": "key",
+          "attributes": ["status"],
+          "orders": ["ASC"]
+        },
+        {
+          "key": "created_at_index",
+          "type": "key",
+          "attributes": ["$createdAt"],
+          "orders": ["DESC"]
+        },
+        {
+          "key": "userType_index",
+          "type": "key",
+          "attributes": ["userType"],
+          "orders": ["ASC"]
+        }
+      ]
     }
   ]
 }

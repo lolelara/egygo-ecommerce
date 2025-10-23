@@ -115,7 +115,7 @@ export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 // New Admin Pages - Deals, Advertising, Financial
 export const AdminDealsManager = lazyLoad(() => import('@/pages/AdminDealsManager'));
 export const AdminAdvertisementsManager = lazyLoad(() => import('@/pages/AdminAdvertisementsManager'));
-export const AdminWithdrawals = lazyLoad(() => import('@/pages/AdminWithdrawals'));
+export const AdminWithdrawals = lazyLoad(() => import('@/pages/AdminWithdrawalsManager'));
 export const AdminMerchantPaymentsManager = lazyLoad(() => import('@/pages/AdminMerchantPaymentsManager'));
 export const AdminFinancialReports = lazyLoad(() => import('@/pages/AdminFinancialReports'));
 

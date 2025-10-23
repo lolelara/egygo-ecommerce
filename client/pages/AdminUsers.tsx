@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from '@/contexts/AppwriteAuthContext';
-import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight, TrendingUp, UserCheck, UserX, Shield, DollarSign, ShoppingBag, Eye, X } from 'lucide-react';
+import { Users, Edit, Trash2, Search, UserPlus, CheckSquare, Square, Trash, UserCog, ChevronLeft, ChevronRight, TrendingUp, UserCheck, UserX, Shield, DollarSign, ShoppingBag, Eye, X, EyeOff } from 'lucide-react';
 import { databases, appwriteConfig, account } from '@/lib/appwrite';
 import { Query, ID } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -124,6 +124,21 @@ export default function AdminUsers() {
   const [selectedUserForFinancial, setSelectedUserForFinancial] = useState<any>(null);
   const [financialData, setFinancialData] = useState<any>({ commissions: [], orders: [] });
   const [loadingFinancial, setLoadingFinancial] = useState(false);
+
+  // Password Visibility State
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+
+  const togglePasswordVisibility = (userId: string) => {
+    setVisiblePasswords(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
 
   // Debounce search
   useEffect(() => {
@@ -908,6 +923,7 @@ export default function AdminUsers() {
                     </th>
                     <th className="text-right p-2">الاسم</th>
                     <th className="text-right p-2">البريد</th>
+                    <th className="text-right p-2">كلمة المرور</th>
                     <th className="text-right p-2">الهاتف</th>
                     <th className="text-right p-2">المحافظة</th>
                     <th className="text-right p-2">الدور</th>
@@ -926,6 +942,30 @@ export default function AdminUsers() {
                       </td>
                       <td className="p-2">{u.name}</td>
                       <td className="p-2">{u.email}</td>
+                      <td className="p-2">
+                        <div className="flex items-center gap-2">
+                          {u.password ? (
+                            <>
+                              <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded font-mono">
+                                {visiblePasswords.has(u.$id) ? u.password : '••••••••'}
+                              </code>
+                              <button
+                                onClick={() => togglePasswordVisibility(u.$id)}
+                                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
+                                title={visiblePasswords.has(u.$id) ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                              >
+                                {visiblePasswords.has(u.$id) ? (
+                                  <EyeOff className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                                ) : (
+                                  <Eye className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                                )}
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">مشفرة</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="p-2">{u.phone || '-'}</td>
                       <td className="p-2">
                         <div className="text-sm">
