@@ -287,7 +287,7 @@ export default function Index() {
                 <div className="space-y-6">
                   {featuredProducts.slice(0, 2).map((product, index) => (
                     <Link key={product.id} to={`/product/${product.id}`} className="block">
-                      <Card className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border-white/30 hover:from-white/30 hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
+                      <Card className="bg-gradient-to-br from-white/95 to-white/90 dark:from-white/20 dark:to-white/5 backdrop-blur-md border-white/30 dark:border-white/30 hover:from-white hover:to-white/95 dark:hover:from-white/30 dark:hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
                         <CardContent className="p-0">
                           <div className="relative overflow-hidden">
                             <img
@@ -313,16 +313,16 @@ export default function Index() {
                             )}
                           </div>
                           <div className="p-4 space-y-2">
-                            <h3 className="font-bold text-white text-base line-clamp-1 group-hover:text-red-100 transition-colors">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1 group-hover:text-red-600 dark:group-hover:text-red-100 transition-colors">
                               {product.name}
                             </h3>
                             <div className="flex items-center justify-between">
-                              <p className="text-white font-black text-xl">
+                              <p className="text-gray-900 dark:text-white font-black text-xl">
                                 {formatPrice(product.price)}
                               </p>
-                              <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
-                                <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                                <span className="text-white text-sm font-bold">4.8</span>
+                              <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/20 px-2 py-1 rounded-full">
+                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 dark:text-yellow-300 dark:fill-yellow-300" />
+                                <span className="text-gray-900 dark:text-white text-sm font-bold">4.8</span>
                               </div>
                             </div>
                           </div>
@@ -334,7 +334,7 @@ export default function Index() {
                 <div className="space-y-6 mt-12">
                   {featuredProducts.slice(2, 4).map((product) => (
                     <Link key={product.id} to={`/product/${product.id}`} className="block">
-                      <Card className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border-white/30 hover:from-white/30 hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
+                      <Card className="bg-gradient-to-br from-white/95 to-white/90 dark:from-white/20 dark:to-white/5 backdrop-blur-md border-white/30 dark:border-white/30 hover:from-white hover:to-white/95 dark:hover:from-white/30 dark:hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
                         <CardContent className="p-0">
                           <div className="relative overflow-hidden">
                             <img
@@ -360,16 +360,16 @@ export default function Index() {
                             )}
                           </div>
                           <div className="p-4 space-y-2">
-                            <h3 className="font-bold text-white text-base line-clamp-1 group-hover:text-red-100 transition-colors">
+                            <h3 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1 group-hover:text-red-600 dark:group-hover:text-red-100 transition-colors">
                               {product.name}
                             </h3>
                             <div className="flex items-center justify-between">
-                              <p className="text-white font-black text-xl">
+                              <p className="text-gray-900 dark:text-white font-black text-xl">
                                 {formatPrice(product.price)}
                               </p>
-                              <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
-                                <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                                <span className="text-white text-sm font-bold">4.8</span>
+                              <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/20 px-2 py-1 rounded-full">
+                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 dark:text-yellow-300 dark:fill-yellow-300" />
+                                <span className="text-gray-900 dark:text-white text-sm font-bold">4.8</span>
                               </div>
                             </div>
                           </div>
@@ -523,10 +523,12 @@ export default function Index() {
             </Card>
 
             {/* للتجار */}
-            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600 overflow-hidden">
+            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600 overflow-visible">
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-200 dark:from-red-900/40 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
-              <div className="absolute -top-4 -right-4">
-                <Badge className="bg-red-600 dark:bg-red-500 text-white px-3 py-1 font-bold">⭐ الأكثر طلباً</Badge>
+              <div className="absolute -top-3 -right-3 z-20">
+                <Badge className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-600 text-white px-4 py-2 font-bold text-sm shadow-xl shadow-red-500/50 dark:shadow-red-400/50 border-2 border-white dark:border-gray-700">
+                  ⭐ الأكثر طلباً
+                </Badge>
               </div>
               <CardContent className="p-8 relative z-10">
               {/* فيديو توضيحي */}
