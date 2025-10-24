@@ -73,6 +73,7 @@ export const AffiliateReferralSystem = lazyLoad(() => import('@/pages/AffiliateR
 export const AffiliateEarningsHistory = lazyLoad(() => import('@/pages/AffiliateEarningsHistory'));
 export const AffiliateProductLinks = lazyLoad(() => import('@/pages/AffiliateProductLinks'));
 export const CustomLandingPage = lazyLoad(() => import('@/pages/CustomLandingPage'));
+export const AffiliateLeaderboard = lazyLoad(() => import('@/pages/AffiliateLeaderboard'));
 
 // ============================================
 // MERCHANT PAGES (Lazy)
