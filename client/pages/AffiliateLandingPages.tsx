@@ -188,14 +188,13 @@ export default function AffiliateLandingPages() {
       const affiliateLink = `https://egygo.me/#/landing/${uniqueSlug}`;
       const pageId = ID.unique();
       
-      // Save to database
+      // Save to database (without productId since it's not in schema)
       const landingPage = await databases.createDocument(
         appwriteConfig.databaseId,
         'landing_pages',
         pageId,
         {
           affiliateId: user.$id,
-          productId: productId,
           title: formData.title,
           subtitle: formData.subtitle,
           description: formData.description,

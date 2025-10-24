@@ -74,9 +74,9 @@ export function EgyGoLogo({
               </linearGradient>
             </defs>
 
-            {/* Smooth curved arrow - single continuous curve */}
+            {/* Smooth curved arrow - horizontal with slight arc */}
             <path
-              d="M 15 40 C 30 15, 70 10, 105 18"
+              d="M 15 22 C 40 15, 75 15, 105 22"
               stroke="url(#arrowGradient)"
               strokeWidth="5"
               fill="none"
@@ -91,7 +91,7 @@ export function EgyGoLogo({
             
             {/* Arrow head at the END - proper triangle */}
             <path
-              d="M 105 18 L 98 13 L 98 23 Z"
+              d="M 105 22 L 98 17 L 98 27 Z"
               fill={currentColors.arrow}
               style={{
                 filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))'
@@ -100,7 +100,7 @@ export function EgyGoLogo({
             
             {/* Subtle glow effect */}
             <path
-              d="M 15 40 C 30 15, 70 10, 105 18"
+              d="M 15 22 C 40 15, 75 15, 105 22"
               stroke={currentColors.arrow}
               strokeWidth="2"
               fill="none"

@@ -97,8 +97,8 @@ export default function CustomLandingPage() {
       console.error('Error updating clicks:', error);
     }
 
-    // Redirect to product page with affiliate reference
-    const productId = landingPage.productId || landingPage.productUrl?.split('/').pop()?.split('?')[0] || '';
+    // Extract productId from productUrl and redirect with affiliate reference
+    const productId = landingPage.productUrl?.split('/').pop()?.split('?')[0] || '';
     const affiliateRef = landingPage.affiliateId || '';
     
     if (productId) {
