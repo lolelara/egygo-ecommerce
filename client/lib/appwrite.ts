@@ -31,7 +31,9 @@ export const appwriteConfig = {
     userPreferences: 'user_preferences',
     referrals: 'referrals',
     referral_earnings: 'referral_earnings',
-    offers: 'offers'  // Collection for promotional offers/announcements
+    offers: 'offers',  // Collection for promotional offers/announcements
+    landing_pages: 'landing_pages',  // Collection for affiliate landing pages
+    affiliate_links: 'affiliate_links'  // Collection for affiliate product links
   }
 };
 

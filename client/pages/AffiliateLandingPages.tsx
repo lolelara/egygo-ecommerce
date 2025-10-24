@@ -180,12 +180,12 @@ export default function AffiliateLandingPages() {
       // Extract product ID from URL
       const productId = formData.productUrl.split('/').pop()?.split('?')[0] || '';
       
-      // Generate affiliate link with hash for HashRouter compatibility
-      const affiliateLink = `https://egygo.me/#/product/${productId}?ref=${user.affiliateCode || user.$id}`;
-      
       // Create unique slug with timestamp to avoid duplicates
       const baseSlug = formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
       const uniqueSlug = `${baseSlug}-${Date.now()}`;
+      
+      // Generate landing page link (not direct product link)
+      const affiliateLink = `https://egygo.me/#/landing/${uniqueSlug}`;
       const pageId = ID.unique();
       
       // Save to database
@@ -195,6 +195,7 @@ export default function AffiliateLandingPages() {
         pageId,
         {
           affiliateId: user.$id,
+          productId: productId,
           title: formData.title,
           subtitle: formData.subtitle,
           description: formData.description,

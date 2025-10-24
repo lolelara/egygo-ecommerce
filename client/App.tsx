@@ -142,8 +142,10 @@ const App = () => (
               
               {/* Affiliate Routes - Protected & Lazy */}
               <Route path="/l/:linkCode" element={<LazyRoutes.ProductLanding />} />
+              <Route path="/landing/:slug" element={<LazyRoutes.CustomLandingPage />} />
               <Route path="/affiliate/dashboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateDashboard /></ProtectedRoute>} />
               <Route path="/affiliate/earnings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateEarningsHistory /></ProtectedRoute>} />
+              <Route path="/affiliate/product-links" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateProductLinks /></ProtectedRoute>} />
               <Route path="/affiliate/landing-pages" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLandingPages /></ProtectedRoute>} />
               <Route path="/affiliate/challenges" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateChallenges /></ProtectedRoute>} />
               <Route path="/affiliate/links" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLinkManager /></ProtectedRoute>} />
