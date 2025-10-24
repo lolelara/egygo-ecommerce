@@ -28,6 +28,10 @@ import {
   Palette,
   Layout,
   Zap,
+  Type,
+  Image,
+  DollarSign,
+  Users,
   CheckCircle2,
   ExternalLink,
   Code,
@@ -94,6 +98,21 @@ export default function AffiliateLandingPages() {
     testimonials: true,
     countdown: false,
     customDomain: false,
+  });
+  
+  // Advanced customization options
+  const [advancedSettings, setAdvancedSettings] = useState({
+    customColor: '#3B82F6',
+    fontSize: 'medium', // small, medium, large
+    fontFamily: 'cairo', // cairo, tajawal, almarai
+    buttonStyle: 'rounded', // rounded, square, pill
+    imageUrl: '',
+    videoUrl: '',
+    showPrice: false,
+    price: '',
+    originalPrice: '',
+    badge: '',
+    socialProof: '',
   });
 
   const [generatedUrl, setGeneratedUrl] = useState('');
@@ -188,7 +207,7 @@ export default function AffiliateLandingPages() {
       const affiliateLink = `https://egygo.me/#/landing/${uniqueSlug}`;
       const pageId = ID.unique();
       
-      // Save to database (without productId since it's not in schema)
+      // Save to database with advanced settings
       const landingPage = await databases.createDocument(
         appwriteConfig.databaseId,
         'landing_pages',
@@ -211,6 +230,8 @@ export default function AffiliateLandingPages() {
           clicks: 0,
           conversions: 0,
           isActive: true,
+          // Advanced settings as JSON string
+          advancedSettings: JSON.stringify(advancedSettings),
         }
       );
       
@@ -484,14 +505,232 @@ export default function AffiliateLandingPages() {
 
             {/* Advanced Tab */}
             <TabsContent value="advanced" className="space-y-4">
+              {/* Typography & Style */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Zap className="h-5 w-5" />
-                    إعدادات متقدمة
+                    <Type className="h-5 w-5" />
+                    الخطوط والنصوص
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <div>
+                    <Label>نوع الخط</Label>
+                    <Select
+                      value={advancedSettings.fontFamily}
+                      onValueChange={(value) =>
+                        setAdvancedSettings({ ...advancedSettings, fontFamily: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cairo">Cairo - القاهرة (افتراضي)</SelectItem>
+                        <SelectItem value="tajawal">Tajawal - تجوال (عصري)</SelectItem>
+                        <SelectItem value="almarai">Almarai - المرعي (واضح)</SelectItem>
+                        <SelectItem value="ibm-plex-arabic">IBM Plex Arabic (احترافي)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>حجم النص</Label>
+                    <Select
+                      value={advancedSettings.fontSize}
+                      onValueChange={(value) =>
+                        setAdvancedSettings({ ...advancedSettings, fontSize: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="small">صغير - للنصوص الطويلة</SelectItem>
+                        <SelectItem value="medium">متوسط - متوازن</SelectItem>
+                        <SelectItem value="large">كبير - للعناوين البارزة</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>شكل الأزرار</Label>
+                    <Select
+                      value={advancedSettings.buttonStyle}
+                      onValueChange={(value) =>
+                        setAdvancedSettings({ ...advancedSettings, buttonStyle: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="rounded">مستدير - Rounded</SelectItem>
+                        <SelectItem value="square">مربع - Square</SelectItem>
+                        <SelectItem value="pill">حبة دواء - Pill</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>لون مخصص (Hex)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        value={advancedSettings.customColor}
+                        onChange={(e) =>
+                          setAdvancedSettings({ ...advancedSettings, customColor: e.target.value })
+                        }
+                        placeholder="#3B82F6"
+                        className="flex-1"
+                      />
+                      <Input
+                        type="color"
+                        value={advancedSettings.customColor}
+                        onChange={(e) =>
+                          setAdvancedSettings({ ...advancedSettings, customColor: e.target.value })
+                        }
+                        className="w-16"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      استخدم لون مخصص بدلاً من القوالب الجاهزة
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Media */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Image className="h-5 w-5" />
+                    الوسائط
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>رابط صورة مخصصة</Label>
+                    <Input
+                      value={advancedSettings.imageUrl}
+                      onChange={(e) =>
+                        setAdvancedSettings({ ...advancedSettings, imageUrl: e.target.value })
+                      }
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      سيتم عرضها كصورة رئيسية للمنتج
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label>رابط فيديو (YouTube/Vimeo)</Label>
+                    <Input
+                      value={advancedSettings.videoUrl}
+                      onChange={(e) =>
+                        setAdvancedSettings({ ...advancedSettings, videoUrl: e.target.value })
+                      }
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      سيتم تضمين الفيديو في الصفحة
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pricing */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    التسعير
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>عرض السعر</Label>
+                      <p className="text-sm text-muted-foreground">إظهار قسم التسعير</p>
+                    </div>
+                    <Switch
+                      checked={advancedSettings.showPrice}
+                      onCheckedChange={(checked) =>
+                        setAdvancedSettings({ ...advancedSettings, showPrice: checked })
+                      }
+                    />
+                  </div>
+
+                  {advancedSettings.showPrice && (
+                    <>
+                      <div>
+                        <Label>السعر الحالي (ج.م)</Label>
+                        <Input
+                          type="number"
+                          value={advancedSettings.price}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, price: e.target.value })
+                          }
+                          placeholder="299"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>السعر الأصلي (ج.م)</Label>
+                        <Input
+                          type="number"
+                          value={advancedSettings.originalPrice}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, originalPrice: e.target.value })
+                          }
+                          placeholder="599"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          لإظهار الخصم
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Social Proof */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    إثبات اجتماعي
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>شارة مخصصة</Label>
+                    <Input
+                      value={advancedSettings.badge}
+                      onChange={(e) =>
+                        setAdvancedSettings({ ...advancedSettings, badge: e.target.value })
+                      }
+                      placeholder="🔥 الأكثر مبيعاً"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      مثل: "الأكثر مبيعاً" أو "خصم محدود"
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label>إحصائية اجتماعية</Label>
+                    <Input
+                      value={advancedSettings.socialProof}
+                      onChange={(e) =>
+                        setAdvancedSettings({ ...advancedSettings, socialProof: e.target.value })
+                      }
+                      placeholder="انضم إلى 10,000+ عميل راضٍ"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      رقم أو إحصائية تزيد الثقة
+                    </p>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <div>
                       <Label>عرض التقييمات</Label>
@@ -514,19 +753,6 @@ export default function AffiliateLandingPages() {
                       checked={formData.countdown}
                       onCheckedChange={(checked) =>
                         setFormData({ ...formData, countdown: checked })
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label>نطاق مخصص</Label>
-                      <p className="text-sm text-muted-foreground">استخدم نطاقك الخاص</p>
-                    </div>
-                    <Switch
-                      checked={formData.customDomain}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, customDomain: checked })
                       }
                     />
                   </div>

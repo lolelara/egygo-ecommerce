@@ -27,9 +27,9 @@ export function EgyGoLogo({
   };
 
   const arrowSizes = {
-    sm: 'w-14 h-7',
-    md: 'w-18 h-9',
-    lg: 'w-26 h-13'
+    sm: 'h-4',
+    md: 'h-5',
+    lg: 'h-7'
   };
 
   // Colors based on variant
@@ -52,17 +52,18 @@ export function EgyGoLogo({
 
   return (
     <Link to="/" className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex items-center pt-4 pb-1 min-h-[3.5rem]" style={{ overflow: 'visible' }}>
-        {/* Enhanced Arrow - positioned above text */}
+      <div className="relative flex items-center pt-6 pb-1 min-h-[3.5rem]" style={{ overflow: 'visible' }}>
+        {/* Enhanced Arrow - positioned at top of text */}
         {showArrow && (
           <svg 
-            className={`absolute top-1 left-1/2 -translate-x-1/2 ${arrowSizes[size]} pointer-events-none`}
-            viewBox="0 0 120 50" 
+            className={`absolute top-0 left-0 right-0 ${arrowSizes[size]} pointer-events-none`}
+            viewBox="0 0 120 30" 
             fill="none"
-            preserveAspectRatio="xMidYMid meet"
+            preserveAspectRatio="none"
             style={{ 
               overflow: 'visible',
-              filter: 'drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3))'
+              filter: 'drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3))',
+              width: '100%'
             }}
           >
             {/* Gradient Definition */}
@@ -74,11 +75,11 @@ export function EgyGoLogo({
               </linearGradient>
             </defs>
 
-            {/* Smooth curved arrow - horizontal with slight arc */}
+            {/* Smooth arrow - horizontal at top */}
             <path
-              d="M 15 22 C 40 15, 75 15, 105 22"
+              d="M 5 10 C 35 8, 85 8, 115 10"
               stroke="url(#arrowGradient)"
-              strokeWidth="5"
+              strokeWidth="4"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -91,7 +92,7 @@ export function EgyGoLogo({
             
             {/* Arrow head at the END - proper triangle */}
             <path
-              d="M 105 22 L 98 17 L 98 27 Z"
+              d="M 115 10 L 108 6 L 108 14 Z"
               fill={currentColors.arrow}
               style={{
                 filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))'
@@ -100,7 +101,7 @@ export function EgyGoLogo({
             
             {/* Subtle glow effect */}
             <path
-              d="M 15 22 C 40 15, 75 15, 105 22"
+              d="M 5 10 C 35 8, 85 8, 115 10"
               stroke={currentColors.arrow}
               strokeWidth="2"
               fill="none"
