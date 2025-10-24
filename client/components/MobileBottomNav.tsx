@@ -96,8 +96,15 @@ export function MobileBottomNav({
                 {item.icon}
                 {item.badge !== undefined && item.badge > 0 && (
                   <Badge
-                    variant="destructive"
-                    className="absolute -top-2 -right-2 h-4 min-w-4 px-1 flex items-center justify-center text-xs"
+                    className={cn(
+                      "absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] font-bold border-2 border-background shadow-md",
+                      item.id === 'cart' 
+                        ? "bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 animate-pulse" 
+                        : "bg-gradient-to-r from-pink-500 to-red-500"
+                    )}
+                    style={item.id === 'cart' ? {
+                      boxShadow: '0 0 8px rgba(239, 68, 68, 0.4)'
+                    } : undefined}
                   >
                     {item.badge > 99 ? '99+' : item.badge}
                   </Badge>

@@ -37,6 +37,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { databases, appwriteConfig, ID } from '@/lib/appwrite';
 import { Query } from 'appwrite';
+import { LandingPagePreview } from '@/components/affiliate/LandingPagePreview';
 
 const templates = [
   {
@@ -111,7 +112,12 @@ export default function AffiliateLandingPages() {
       const response = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.products,
-        [Query.limit(100), Query.equal('isActive', true)]
+        [
+          Query.equal('isActive', true),
+          Query.equal('isApproved', true),
+          Query.orderDesc('$createdAt'),
+          Query.limit(100)
+        ]
       );
       setProducts(response.documents);
     } catch (error) {
@@ -483,14 +489,22 @@ export default function AffiliateLandingPages() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[9/16] bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-lg flex items-center justify-center">
-                <div className="text-center p-6">
-                  <Globe className="h-12 w-12 mx-auto text-primary mb-3" />
-                  <p className="text-sm text-muted-foreground">
-                    معاينة الصفحة ستظهر هنا
-                  </p>
-                </div>
+              <div className="aspect-[9/16] bg-muted rounded-lg overflow-hidden">
+                <LandingPagePreview
+                  title={formData.title}
+                  subtitle={formData.subtitle}
+                  description={formData.description}
+                  ctaText={formData.ctaText}
+                  template={selectedTemplate}
+                  colorScheme={selectedColor}
+                  features={formData.features}
+                  testimonials={formData.testimonials}
+                  countdown={formData.countdown}
+                />
               </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                المعاينة تحدث تلقائياً عند تغيير المحتوى
+              </p>
             </CardContent>
           </Card>
 

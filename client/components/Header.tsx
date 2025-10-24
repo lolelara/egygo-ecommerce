@@ -419,13 +419,22 @@ export function Header({ cartItemCount }: HeaderProps) {
             </Link>
           </Button>
 
-          {/* Cart - Enhanced Badge */}
-          <Button variant="default" size="icon" className="relative bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90" asChild>
+          {/* Cart - Enhanced Badge with Live Count */}
+          <Button 
+            variant="default" 
+            size="icon" 
+            className="relative bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all" 
+            asChild
+          >
             <Link to="/cart">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
                 <Badge
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] bg-gradient-to-r from-orange-500 to-red-500 border-2 border-background animate-pulse"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center text-[11px] font-bold bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 border-2 border-background shadow-lg animate-bounce"
+                  style={{
+                    animation: 'bounce 0.5s ease-in-out',
+                    boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)'
+                  }}
                 >
                   {totalItems}
                 </Badge>

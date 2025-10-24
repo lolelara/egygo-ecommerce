@@ -38,6 +38,7 @@ export default function Affiliate() {
         appwriteConfig.collections.products,
         [
           Query.equal('isActive', true),
+          Query.equal('isApproved', true),
           Query.orderDesc('$createdAt'),
           Query.limit(8)
         ]

@@ -53,7 +53,7 @@ export function AnnouncementBar() {
         id: doc.$id,
         title: doc.title,
         description: doc.description,
-        backgroundColor: doc.backgroundColor || 'from-brand-purple via-brand-orange to-brand-purple',
+        backgroundColor: doc.backgroundColor || 'from-blue-600 via-indigo-600 to-purple-600',
         textColor: doc.textColor || 'text-white',
         icon: doc.icon,
         isActive: doc.isActive,
@@ -72,7 +72,7 @@ export function AnnouncementBar() {
         description: isArabic 
           ? 'سجّل الآن كتاجر أو مسوق واحصل على عمولات مميزة وأرباح مستمرة'
           : 'Register now as a merchant or affiliate and get exclusive commissions and continuous earnings',
-        backgroundColor: 'from-brand-purple via-brand-orange to-brand-purple',
+        backgroundColor: 'from-blue-600 via-indigo-600 to-purple-600',
         textColor: 'text-white',
         isActive: true,
         targetAudience: 'all',
