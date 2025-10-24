@@ -160,7 +160,6 @@ const App = () => (
               <Route path="/affiliate/earnings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
               <Route path="/affiliate/leaderboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLeaderboard /></ProtectedRoute>} />
               <Route path="/affiliate/campaigns" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateCreatives /></ProtectedRoute>} />
-              <Route path="/affiliate/rewards" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateReferralSystem /></ProtectedRoute>} />
               <Route path="/affiliate/reports" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
               <Route path="/affiliate/settings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.UpdateAffiliatePrefs /></ProtectedRoute>} />
               <Route path="/affiliate/resources" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateResourcesPage /></ProtectedRoute>} />

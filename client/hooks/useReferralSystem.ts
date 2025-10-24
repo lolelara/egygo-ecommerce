@@ -119,13 +119,49 @@ export function useReferralSystem() {
         [Query.equal('userId', user.$id), Query.limit(1)]
       );
 
-      if (response.documents.length > 0) {
-        const code = response.documents[0].affiliateCode;
-        setAffiliateCode(code);
-        setReferralLink(`${window.location.origin}/register?ref=${code}`);
+      let code = '';
+      
+      if (response.documents.length > 0 && response.documents[0].affiliateCode) {
+        code = response.documents[0].affiliateCode;
+      } else {
+        // Generate new affiliate code if not exists
+        code = user.$id.substring(0, 8).toUpperCase();
+        
+        // Try to save it
+        try {
+          if (response.documents.length > 0) {
+            // Update existing document
+            await databases.updateDocument(
+              appwriteConfig.databaseId,
+              appwriteConfig.collections.userPreferences,
+              response.documents[0].$id,
+              { affiliateCode: code }
+            );
+          } else {
+            // Create new document
+            await databases.createDocument(
+              appwriteConfig.databaseId,
+              appwriteConfig.collections.userPreferences,
+              ID.unique(),
+              {
+                userId: user.$id,
+                affiliateCode: code,
+              }
+            );
+          }
+        } catch (saveError) {
+          console.error('Error saving affiliate code:', saveError);
+        }
       }
+      
+      setAffiliateCode(code);
+      setReferralLink(`${window.location.origin}/#/register?ref=${code}`);
     } catch (error) {
       console.error('Error loading affiliate code:', error);
+      // Fallback: use user ID
+      const fallbackCode = user.$id.substring(0, 8).toUpperCase();
+      setAffiliateCode(fallbackCode);
+      setReferralLink(`${window.location.origin}/#/register?ref=${fallbackCode}`);
     }
   };
 
