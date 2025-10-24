@@ -32,6 +32,7 @@ import {
   ExternalLink,
   Code,
   Image as ImageIcon,
+  Edit,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
@@ -114,14 +115,23 @@ export default function AffiliateLandingPages() {
         appwriteConfig.collections.products,
         [
           Query.equal('isActive', true),
-          Query.equal('isApproved', true),
           Query.orderDesc('$createdAt'),
           Query.limit(100)
         ]
       );
-      setProducts(response.documents);
+      
+      // Filter approved products on client side (in case isApproved attribute doesn't exist)
+      const approvedProducts = response.documents.filter((doc: any) => doc.isApproved !== false);
+      setProducts(approvedProducts);
+      
+      console.log('Loaded products:', approvedProducts.length);
     } catch (error) {
       console.error('Error loading products:', error);
+      toast({
+        title: '⚠️ تحذير',
+        description: 'لم نتمكن من تحميل المنتجات. حاول مرة أخرى',
+        variant: 'default',
+      });
     }
   };
 
@@ -204,14 +214,28 @@ export default function AffiliateLandingPages() {
         }
       );
       
+      // Set the new generated URL
       setGeneratedUrl(affiliateLink);
+      
+      // Reset form for next link
+      setFormData({
+        title: 'عرض حصري - خصم 50%',
+        subtitle: 'لفترة محدودة فقط',
+        description: 'احصل على أفضل المنتجات بأقل الأسعار',
+        ctaText: 'اشترِ الآن',
+        productUrl: '',
+        features: ['شحن مجاني', 'ضمان سنة', 'دعم 24/7'],
+        testimonials: true,
+        countdown: false,
+        customDomain: false,
+      });
       
       // Reload landing pages
       await loadLandingPages();
       
       toast({
         title: '✅ تم إنشاء الصفحة!',
-        description: 'الرابط التسويقي جاهز للاستخدام',
+        description: 'الرابط التسويقي جاهز للاستخدام. يمكنك إنشاء رابط جديد الآن',
       });
     } catch (error: any) {
       console.error('Error creating landing page:', error);
@@ -237,6 +261,33 @@ export default function AffiliateLandingPages() {
       title: 'تم النسخ!',
       description: 'تم نسخ رابط الصفحة',
     });
+  };
+
+  const loadSavedPage = (page: any) => {
+    // Load saved page data into form
+    setFormData({
+      title: page.title || 'عرض حصري - خصم 50%',
+      subtitle: page.subtitle || 'لفترة محدودة فقط',
+      description: page.description || 'احصل على أفضل المنتجات بأقل الأسعار',
+      ctaText: page.ctaText || 'اشترِ الآن',
+      productUrl: page.productUrl || '',
+      features: page.features || ['شحن مجاني', 'ضمان سنة', 'دعم 24/7'],
+      testimonials: page.testimonials !== undefined ? page.testimonials : true,
+      countdown: page.countdown !== undefined ? page.countdown : false,
+      customDomain: page.customDomain !== undefined ? page.customDomain : false,
+    });
+    
+    setSelectedTemplate(page.template || 'modern');
+    setSelectedColor(page.colorScheme || 'blue');
+    setGeneratedUrl(page.affiliateLink || '');
+    
+    toast({
+      title: '✅ تم التحميل!',
+      description: 'تم تحميل بيانات الصفحة المحفوظة',
+    });
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -325,11 +376,17 @@ export default function AffiliateLandingPages() {
                         <SelectValue placeholder="اختر منتج للترويج له" />
                       </SelectTrigger>
                       <SelectContent>
-                        {products.map((product: any) => (
-                          <SelectItem key={product.$id} value={`https://egygo.me/product/${product.$id}`}>
-                            {product.name} - {product.price} ج.م
-                          </SelectItem>
-                        ))}
+                        {products.length === 0 ? (
+                          <div className="p-4 text-center text-sm text-muted-foreground">
+                            لا توجد منتجات متاحة
+                          </div>
+                        ) : (
+                          products.map((product: any) => (
+                            <SelectItem key={product.$id} value={`https://egygo.me/#/product/${product.$id}`}>
+                              {product.name} - {product.price} ج.م
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -363,17 +420,31 @@ export default function AffiliateLandingPages() {
                       {templates.map((template) => (
                         <div
                           key={template.id}
-                          onClick={() => setSelectedTemplate(template.id)}
-                          className={`cursor-pointer rounded-lg border-2 p-4 transition-all ${
+                          onClick={() => {
+                            setSelectedTemplate(template.id);
+                            toast({
+                              title: `✅ تم اختيار قالب ${template.name}`,
+                              description: 'شاهد التغيير في المعاينة على اليمين',
+                            });
+                          }}
+                          className={`cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md ${
                             selectedTemplate === template.id
-                              ? 'border-primary bg-primary/5'
+                              ? 'border-primary bg-primary/10 shadow-md ring-2 ring-primary/20'
                               : 'border-border hover:border-primary/50'
                           }`}
                         >
-                          <div className="aspect-video bg-muted rounded mb-2 flex items-center justify-center">
-                            <Layout className="h-8 w-8 text-muted-foreground" />
+                          <div className="aspect-video bg-muted rounded mb-2 flex items-center justify-center relative overflow-hidden">
+                            {selectedTemplate === template.id && (
+                              <div className="absolute inset-0 bg-primary/10 animate-pulse" />
+                            )}
+                            <Layout className="h-8 w-8 text-muted-foreground relative z-10" />
                           </div>
-                          <h4 className="font-semibold">{template.name}</h4>
+                          <h4 className="font-semibold flex items-center gap-2">
+                            {template.name}
+                            {selectedTemplate === template.id && (
+                              <CheckCircle2 className="h-4 w-4 text-primary" />
+                            )}
+                          </h4>
                           <p className="text-xs text-muted-foreground">{template.description}</p>
                         </div>
                       ))}
@@ -387,14 +458,21 @@ export default function AffiliateLandingPages() {
                       {colorSchemes.map((scheme) => (
                         <button
                           key={scheme.id}
-                          onClick={() => setSelectedColor(scheme.id)}
-                          className={`relative h-12 rounded-lg transition-all ${
-                            selectedColor === scheme.id ? 'ring-2 ring-primary ring-offset-2' : ''
+                          onClick={() => {
+                            setSelectedColor(scheme.id);
+                            toast({
+                              title: `🎨 تم اختيار لون ${scheme.name}`,
+                              description: 'شاهد التغيير في المعاينة',
+                            });
+                          }}
+                          className={`relative h-12 rounded-lg transition-all hover:scale-105 ${
+                            selectedColor === scheme.id ? 'ring-4 ring-primary ring-offset-2 scale-105' : 'hover:ring-2 hover:ring-gray-300'
                           }`}
                           style={{ backgroundColor: scheme.primary }}
+                          title={scheme.name}
                         >
                           {selectedColor === scheme.id && (
-                            <CheckCircle2 className="absolute inset-0 m-auto h-5 w-5 text-white" />
+                            <CheckCircle2 className="absolute inset-0 m-auto h-6 w-6 text-white drop-shadow-lg" />
                           )}
                         </button>
                       ))}
@@ -593,6 +671,14 @@ export default function AffiliateLandingPages() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => loadSavedPage(page)}
+                      title="تعديل"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => {
                         navigator.clipboard.writeText(page.affiliateLink);
                         toast({
@@ -600,6 +686,7 @@ export default function AffiliateLandingPages() {
                           description: 'تم نسخ الرابط التسويقي',
                         });
                       }}
+                      title="نسخ"
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -607,6 +694,7 @@ export default function AffiliateLandingPages() {
                       variant="outline"
                       size="sm"
                       asChild
+                      title="فتح"
                     >
                       <a href={page.affiliateLink} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="h-4 w-4" />

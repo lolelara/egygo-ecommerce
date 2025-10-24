@@ -1,9 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, DollarSign, Eye, ShoppingCart, Link2, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, DollarSign, Eye, ShoppingCart, Link2, TrendingUp, Sparkles, Share2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { useState, useEffect } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import { getAffiliateActivities } from "@/lib/affiliate-data";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 
@@ -55,62 +57,8 @@ export default function RecentActivityTimeline({ activities: propActivities }: R
     }
   };
 
-  // Sample data for fallback
-  const sampleActivities: Activity[] = [
-    {
-      id: '1',
-      type: 'sale',
-      title: 'مبيعة جديدة',
-      description: 'تم شراء ساعة ذكية عبر رابطك',
-      amount: 45.50,
-      time: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      productName: 'ساعة ذكية متطورة'
-    },
-    {
-      id: '2',
-      type: 'earning',
-      title: 'عمولة مضافة',
-      description: 'تم إضافة عمولة إلى رصيدك',
-      amount: 45.50,
-      time: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-    },
-    {
-      id: '3',
-      type: 'click',
-      title: 'نقرات جديدة',
-      description: '15 نقرة على رابط سماعات لاسلكية',
-      time: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      productName: 'سماعات لاسلكية Pro'
-    },
-    {
-      id: '4',
-      type: 'link_created',
-      title: 'رابط جديد',
-      description: 'تم إنشاء رابط لمنتج كاميرا احترافية',
-      time: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-      productName: 'كاميرا احترافية 4K'
-    },
-    {
-      id: '5',
-      type: 'sale',
-      title: 'مبيعة جديدة',
-      description: 'تم شراء لابتوب ألعاب عبر رابطك',
-      amount: 120.00,
-      time: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      productName: 'لابتوب ألعاب متطور'
-    },
-    {
-      id: '6',
-      type: 'click',
-      title: 'نقرات جديدة',
-      description: '8 نقرات على رابط تابلت رسم',
-      time: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-      productName: 'تابلت رسم رقمي'
-    }
-  ];
-
-  // Use loaded activities or fallback to sample
-  const displayActivities = activities.length > 0 ? activities : (loading ? [] : sampleActivities);
+  // Use only real activities from database - no fake data
+  const displayActivities = activities;
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -218,11 +166,54 @@ export default function RecentActivityTimeline({ activities: propActivities }: R
             );
           })}
 
-          {displayActivities.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <Clock className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>لا توجد نشاطات حديثة</p>
-              <p className="text-xs mt-1">ابدأ بإنشاء روابط ومشاركتها</p>
+          {displayActivities.length === 0 && !loading && (
+            <div className="text-center py-12 px-4">
+              <div className="bg-gradient-to-br from-primary/10 to-purple-500/10 rounded-2xl p-8 border-2 border-dashed border-primary/30">
+                <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-10 w-10 text-primary" />
+                </div>
+                
+                <h3 className="text-lg font-bold text-foreground mb-2">
+                  ابدأ رحلتك التسويقية الآن!
+                </h3>
+                
+                <p className="text-sm text-muted-foreground mb-1">
+                  لا توجد نشاطات بعد. لكن هذا يعني فرصة عظيمة!
+                </p>
+                
+                <p className="text-xs text-muted-foreground mb-6">
+                  أنشئ روابطك الأولى وابدأ بمشاركتها لرؤية نشاطاتك هنا
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                  <Button 
+                    asChild 
+                    className="gap-2 shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <RouterLink to="/affiliate/product-links">
+                      <Sparkles className="h-4 w-4" />
+                      إنشاء رابط تسويقي
+                    </RouterLink>
+                  </Button>
+                  
+                  <Button 
+                    asChild 
+                    variant="outline" 
+                    className="gap-2"
+                  >
+                    <RouterLink to="/affiliate/landing-pages">
+                      <Share2 className="h-4 w-4" />
+                      صفحات الهبوط
+                    </RouterLink>
+                  </Button>
+                </div>
+                
+                <div className="mt-6 pt-6 border-t border-primary/20">
+                  <p className="text-xs text-muted-foreground">
+                    💡 <strong>نصيحة:</strong> كلما شاركت روابطك أكثر، زادت فرصك في الربح!
+                  </p>
+                </div>
+              </div>
             </div>
           )}
           </div>

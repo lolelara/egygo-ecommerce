@@ -58,14 +58,24 @@ export default function PerformanceInsights({ stats }: PerformanceInsightsProps)
     });
   }
 
-  // Best performing category tip
-  insights.push({
-    icon: Lightbulb,
-    color: "purple",
-    title: "نصيحة ذكية",
-    description: "المنتجات في فئة 'إلكترونيات' تحقق أعلى عمولة بمتوسط 15%",
-    type: "tip"
-  });
+  // Smart tip based on actual performance
+  if (totalClicks > 0 && totalOrders > 0) {
+    insights.push({
+      icon: Lightbulb,
+      color: "purple",
+      title: "نصيحة ذكية",
+      description: `معدل تحويلك الحالي ${conversionRate.toFixed(1)}% - حاول تحسينه للوصول إلى 3-5%`,
+      type: "tip"
+    });
+  } else {
+    insights.push({
+      icon: Lightbulb,
+      color: "purple",
+      title: "نصيحة للبدء",
+      description: "ابدأ بمشاركة روابطك على وسائل التواصل الاجتماعي لجذب أول عملائك",
+      type: "tip"
+    });
+  }
 
   // Goal-based insight
   if (totalEarnings < 1000) {

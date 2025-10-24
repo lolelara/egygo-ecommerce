@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Calculator, TrendingUp, DollarSign } from "lucide-react";
+import { Calculator, TrendingUp, DollarSign, ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function EarningsCalculator() {
@@ -150,6 +150,3 @@ export default function EarningsCalculator() {
     </Card>
   );
 }
-
-// Import missing icon
-import { ShoppingCart } from "lucide-react";

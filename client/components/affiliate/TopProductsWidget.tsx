@@ -35,12 +35,15 @@ export default function TopProductsWidget() {
         [
           Query.equal('isActive', true),
           Query.orderDesc('$createdAt'),
-          Query.limit(5)
+          Query.limit(20) // Get more to have enough approved products
         ]
       );
+      
+      // Filter approved products only
+      const approvedDocs = response.documents.filter((doc: any) => doc.isApproved !== false);
 
       // Load products with their real stats
-      const productsData = await Promise.all(response.documents.map(async (doc: any) => {
+      const productsData = await Promise.all(approvedDocs.map(async (doc: any) => {
         const basePrice = doc.basePrice || doc.price || 0;
         const minCommissionPrice = doc.minCommissionPrice || doc.price || 0;
         const commission = minCommissionPrice - basePrice;
@@ -80,7 +83,8 @@ export default function TopProductsWidget() {
       // Sort by commission (highest first)
       productsData.sort((a, b) => b.commission - a.commission);
 
-      setProducts(productsData);
+      // Take only top 5
+      setProducts(productsData.slice(0, 5));
     } catch (error) {
       console.error('Error loading top products:', error);
     } finally {
