@@ -1279,6 +1279,100 @@ export default function AffiliateLandingPages() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Media Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>الوسائط (صور وفيديو)</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Video */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">فيديو YouTube</h4>
+                    <div className="flex items-center justify-between">
+                      <Label>عرض الفيديو</Label>
+                      <Switch
+                        checked={advancedSettings.showVideo}
+                        onCheckedChange={(checked) =>
+                          setAdvancedSettings({ ...advancedSettings, showVideo: checked })
+                        }
+                      />
+                    </div>
+                    {advancedSettings.showVideo && (
+                      <>
+                        <Input
+                          placeholder="رابط الفيديو (YouTube)"
+                          value={advancedSettings.videoUrl}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, videoUrl: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="عنوان الفيديو"
+                          value={advancedSettings.videoTitle}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, videoTitle: e.target.value })
+                          }
+                        />
+                      </>
+                    )}
+                  </div>
+
+                  {/* Gallery */}
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">معرض الصور</h4>
+                    <div className="flex items-center justify-between">
+                      <Label>عرض المعرض</Label>
+                      <Switch
+                        checked={advancedSettings.showGallery}
+                        onCheckedChange={(checked) =>
+                          setAdvancedSettings({ ...advancedSettings, showGallery: checked })
+                        }
+                      />
+                    </div>
+                    {advancedSettings.showGallery && (
+                      <div className="space-y-2">
+                        {advancedSettings.galleryImages.map((img: string, index: number) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              placeholder="رابط الصورة"
+                              value={img}
+                              onChange={(e) => {
+                                const newImages = [...advancedSettings.galleryImages];
+                                newImages[index] = e.target.value;
+                                setAdvancedSettings({ ...advancedSettings, galleryImages: newImages });
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newImages = advancedSettings.galleryImages.filter((_: string, i: number) => i !== index);
+                                setAdvancedSettings({ ...advancedSettings, galleryImages: newImages });
+                              }}
+                            >
+                              حذف
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            setAdvancedSettings({
+                              ...advancedSettings,
+                              galleryImages: [...advancedSettings.galleryImages, '']
+                            });
+                          }}
+                        >
+                          + إضافة صورة
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
 
