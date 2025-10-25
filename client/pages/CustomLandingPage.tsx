@@ -5,25 +5,45 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { databases, appwriteConfig } from "@/lib/appwrite";
+import { databases, appwriteConfig, ID } from "@/lib/appwrite";
 import { Query } from "appwrite";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Globe, 
   Star, 
   ShoppingCart, 
   CheckCircle,
   Loader2,
-  AlertCircle 
+  AlertCircle,
+  User,
+  Phone,
+  MapPin,
+  Mail
 } from 'lucide-react';
 
 export default function CustomLandingPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [landingPage, setLandingPage] = useState<any>(null);
+  const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [advancedSettings, setAdvancedSettings] = useState<any>(null);
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [orderData, setOrderData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    address: '',
+    city: '',
+    notes: '',
+  });
 
   useEffect(() => {
     loadLandingPage();
@@ -71,6 +91,22 @@ export default function CustomLandingPage() {
         }
       }
 
+      // Load product data
+      const productId = page.productUrl?.split('/').pop()?.split('?')[0] || '';
+      if (productId) {
+        try {
+          const productDoc = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.collections.products,
+            productId
+          );
+          setProduct(productDoc);
+          console.log('✅ Product loaded:', productDoc);
+        } catch (error) {
+          console.error('Error loading product:', error);
+        }
+      }
+
       // Update views count
       try {
         await databases.updateDocument(
@@ -110,12 +146,120 @@ export default function CustomLandingPage() {
       console.error('Error updating clicks:', error);
     }
 
-    // Extract productId from productUrl and redirect with affiliate reference
-    const productId = landingPage.productUrl?.split('/').pop()?.split('?')[0] || '';
-    const affiliateRef = landingPage.affiliateId || '';
+    // Show order form instead of redirecting
+    setShowOrderForm(true);
     
-    if (productId) {
-      window.location.href = `${window.location.origin}/#/product/${productId}?ref=${affiliateRef}`;
+    // Scroll to form
+    setTimeout(() => {
+      document.getElementById('order-form')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  const handleOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!landingPage || !product) return;
+
+    try {
+      setSubmitting(true);
+
+      // Calculate price (use advanced settings price if available, otherwise product price)
+      const price = advancedSettings?.price 
+        ? parseFloat(advancedSettings.price) 
+        : product.price;
+
+      // Create order
+      const orderId = ID.unique();
+      await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.orders,
+        orderId,
+        {
+          userId: 'guest_' + orderId,
+          merchantId: product.merchantId,
+          status: 'pending',
+          totalAmount: price,
+          shippingAddress: `${orderData.address}, ${orderData.city}`,
+          customerName: orderData.name,
+          customerPhone: orderData.phone,
+          customerEmail: orderData.email || '',
+          notes: orderData.notes || '',
+          // Affiliate tracking
+          affiliateId: landingPage.affiliateId,
+          landingPageId: landingPage.$id,
+          source: 'landing_page',
+        }
+      );
+
+      // Create order item
+      await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.orderItems,
+        ID.unique(),
+        {
+          orderId: orderId,
+          productId: product.$id,
+          quantity: 1,
+          price: price,
+        }
+      );
+
+      // Update landing page conversions
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.landing_pages,
+        landingPage.$id,
+        {
+          conversions: (landingPage.conversions || 0) + 1
+        }
+      );
+
+      // Track affiliate commission
+      try {
+        await databases.createDocument(
+          appwriteConfig.databaseId,
+          'affiliate_earnings',
+          ID.unique(),
+          {
+            affiliateId: landingPage.affiliateId,
+            orderId: orderId,
+            productId: product.$id,
+            amount: price * 0.1, // 10% commission
+            status: 'pending',
+            source: 'landing_page',
+          }
+        );
+      } catch (error) {
+        console.error('Error tracking commission:', error);
+      }
+
+      toast({
+        title: '✅ تم تسجيل الطلب بنجاح!',
+        description: 'سيتم التواصل معك قريباً لتأكيد الطلب',
+      });
+
+      // Reset form
+      setOrderData({
+        name: '',
+        phone: '',
+        email: '',
+        address: '',
+        city: '',
+        notes: '',
+      });
+      setShowOrderForm(false);
+
+      // Scroll to success message
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (error: any) {
+      console.error('Error creating order:', error);
+      toast({
+        title: '❌ خطأ',
+        description: error.message || 'فشل في تسجيل الطلب. حاول مرة أخرى',
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -372,25 +516,176 @@ export default function CustomLandingPage() {
           </div>
         )}
 
-        {/* Final CTA */}
-        <div className={`py-16 bg-gradient-to-br ${colors.gradient} text-white text-center`}>
-          <div className="container mx-auto max-w-4xl px-8">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              لا تفوت هذا العرض!
-            </h2>
-            <p className="text-xl md:text-2xl mb-8">
-              احصل على أفضل سعر الآن
-            </p>
-            <Button
-              onClick={handleCTAClick}
-              size="lg"
-              className={`${textSize.cta} px-12 py-8 h-auto bg-white hover:bg-gray-100 shadow-2xl font-bold ${btnRounding}`}
-              style={{ color: customColor }}
-            >
-              {landingPage.ctaText}
-            </Button>
+        {/* Order Form */}
+        {showOrderForm && (
+          <div id="order-form" className="bg-white py-16 border-t-4" style={{ borderTopColor: colors.primary }}>
+            <div className="container mx-auto max-w-2xl px-8">
+              <div className="bg-white rounded-2xl shadow-2xl p-8 border" style={{ borderColor: colors.primary }}>
+                <h2 className="text-3xl font-bold text-center mb-2" style={{ color: colors.primary }}>
+                  تسجيل الطلب
+                </h2>
+                <p className="text-center text-gray-600 mb-8">
+                  املأ البيانات التالية وسنتواصل معك فوراً
+                </p>
+                
+                {product && (
+                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-lg">{product.name}</p>
+                        <p className="text-gray-600">{product.description?.substring(0, 50)}...</p>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-2xl font-bold" style={{ color: colors.primary }}>
+                          {advancedSettings?.price || product.price} ج.م
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <form onSubmit={handleOrderSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name" className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      الاسم الكامل *
+                    </Label>
+                    <Input
+                      id="name"
+                      value={orderData.name}
+                      onChange={(e) => setOrderData({ ...orderData, name: e.target.value })}
+                      required
+                      placeholder="أدخل اسمك الكامل"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone" className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      رقم الهاتف *
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={orderData.phone}
+                      onChange={(e) => setOrderData({ ...orderData, phone: e.target.value })}
+                      required
+                      placeholder="01XXXXXXXXX"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      البريد الإلكتروني (اختياري)
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={orderData.email}
+                      onChange={(e) => setOrderData({ ...orderData, email: e.target.value })}
+                      placeholder="example@email.com"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address" className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      العنوان *
+                    </Label>
+                    <Input
+                      id="address"
+                      value={orderData.address}
+                      onChange={(e) => setOrderData({ ...orderData, address: e.target.value })}
+                      required
+                      placeholder="الشارع، رقم المبنى، الحي"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="city">المدينة *</Label>
+                    <Input
+                      id="city"
+                      value={orderData.city}
+                      onChange={(e) => setOrderData({ ...orderData, city: e.target.value })}
+                      required
+                      placeholder="القاهرة، الإسكندرية، إلخ..."
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="notes">ملاحظات إضافية (اختياري)</Label>
+                    <Textarea
+                      id="notes"
+                      value={orderData.notes}
+                      onChange={(e) => setOrderData({ ...orderData, notes: e.target.value })}
+                      placeholder="أي تفاصيل إضافية..."
+                      className="mt-1"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 py-6 text-lg"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin ml-2" />
+                          جاري التسجيل...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-5 w-5 ml-2" />
+                          تأكيد الطلب
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowOrderForm(false)}
+                      disabled={submitting}
+                      className="px-6"
+                    >
+                      إلغاء
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Final CTA */}
+        {!showOrderForm && (
+          <div className={`py-16 bg-gradient-to-br ${colors.gradient} text-white text-center`}>
+            <div className="container mx-auto max-w-4xl px-8">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6">
+                لا تفوت هذا العرض!
+              </h2>
+              <p className="text-xl md:text-2xl mb-8">
+                احصل على أفضل سعر الآن
+              </p>
+              <Button
+                onClick={handleCTAClick}
+                size="lg"
+                className={`${textSize.cta} px-12 py-8 h-auto bg-white hover:bg-gray-100 shadow-2xl font-bold ${btnRounding}`}
+                style={{ color: customColor }}
+              >
+                {landingPage.ctaText}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -473,12 +768,16 @@ export default function CustomLandingPage() {
               
               <div className="flex items-baseline gap-4">
                 <span className="text-5xl font-bold" style={{ color: colors.primary }}>
-                  299 ج.م
+                  {advancedSettings?.price || product?.price || '299'} ج.م
                 </span>
-                <span className="text-2xl text-gray-400 line-through">599 ج.م</span>
-                <span className="text-xl bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold">
-                  -50%
-                </span>
+                {advancedSettings?.originalPrice && (
+                  <>
+                    <span className="text-2xl text-gray-400 line-through">{advancedSettings.originalPrice} ج.م</span>
+                    <span className="text-xl bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold">
+                      -{Math.round(((advancedSettings.originalPrice - (advancedSettings?.price || product?.price || 0)) / advancedSettings.originalPrice) * 100)}%
+                    </span>
+                  </>
+                )}
               </div>
               
               <p className="text-xl text-gray-600 leading-relaxed">
@@ -507,6 +806,153 @@ export default function CustomLandingPage() {
               </Button>
             </div>
           </div>
+          
+          {/* Order Form */}
+          {showOrderForm && (
+            <div id="order-form" className="p-8">
+              <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-8 border-2" style={{ borderColor: colors.primary }}>
+                <h2 className="text-3xl font-bold text-center mb-2" style={{ color: colors.primary }}>
+                  تسجيل الطلب
+                </h2>
+                <p className="text-center text-gray-600 mb-8">
+                  املأ البيانات التالية وسنتواصل معك فوراً
+                </p>
+
+                {product && (
+                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-lg">{product.name}</p>
+                        <p className="text-gray-600">{product.description?.substring(0, 50)}...</p>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-2xl font-bold" style={{ color: colors.primary }}>
+                          {advancedSettings?.price || product.price} ج.م
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <form onSubmit={handleOrderSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="name2" className="flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      الاسم الكامل *
+                    </Label>
+                    <Input
+                      id="name2"
+                      value={orderData.name}
+                      onChange={(e) => setOrderData({ ...orderData, name: e.target.value })}
+                      required
+                      placeholder="أدخل اسمك الكامل"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone2" className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      رقم الهاتف *
+                    </Label>
+                    <Input
+                      id="phone2"
+                      type="tel"
+                      value={orderData.phone}
+                      onChange={(e) => setOrderData({ ...orderData, phone: e.target.value })}
+                      required
+                      placeholder="01XXXXXXXXX"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email2" className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      البريد الإلكتروني (اختياري)
+                    </Label>
+                    <Input
+                      id="email2"
+                      type="email"
+                      value={orderData.email}
+                      onChange={(e) => setOrderData({ ...orderData, email: e.target.value })}
+                      placeholder="example@email.com"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address2" className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      العنوان *
+                    </Label>
+                    <Input
+                      id="address2"
+                      value={orderData.address}
+                      onChange={(e) => setOrderData({ ...orderData, address: e.target.value })}
+                      required
+                      placeholder="الشارع، رقم المبنى، الحي"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="city2">المدينة *</Label>
+                    <Input
+                      id="city2"
+                      value={orderData.city}
+                      onChange={(e) => setOrderData({ ...orderData, city: e.target.value })}
+                      required
+                      placeholder="القاهرة، الإسكندرية، إلخ..."
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="notes2">ملاحظات إضافية (اختياري)</Label>
+                    <Textarea
+                      id="notes2"
+                      value={orderData.notes}
+                      onChange={(e) => setOrderData({ ...orderData, notes: e.target.value })}
+                      placeholder="أي تفاصيل إضافية..."
+                      className="mt-1"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 py-6 text-lg"
+                      style={{ backgroundColor: colors.primary }}
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin ml-2" />
+                          جاري التسجيل...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-5 w-5 ml-2" />
+                          تأكيد الطلب
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowOrderForm(false)}
+                      disabled={submitting}
+                      className="px-6"
+                    >
+                      إلغاء
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
