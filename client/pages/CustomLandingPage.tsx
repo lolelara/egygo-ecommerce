@@ -381,10 +381,10 @@ export default function CustomLandingPage() {
           style={{ background: advancedSettings?.customColor ? `linear-gradient(to bottom right, ${customColor}, ${customColor}dd)` : undefined }}
         >
           {/* Product/Custom Image */}
-          {(advancedSettings?.imageUrl || product?.imageUrl) && (
+          {(advancedSettings?.imageUrl || (product?.images && product.images.length > 0)) && (
             <div className="container mx-auto max-w-4xl mb-8">
               <img 
-                src={advancedSettings?.imageUrl || product?.imageUrl} 
+                src={advancedSettings?.imageUrl || product?.images?.[0]} 
                 alt={product?.name || landingPage.title} 
                 className="w-full max-w-2xl mx-auto rounded-2xl shadow-2xl" 
                 onError={(e) => {
@@ -537,14 +537,31 @@ export default function CustomLandingPage() {
             </h2>
             <div className="bg-white rounded-2xl p-8 shadow-xl border-2" style={{ borderColor: colors.primary }}>
               <div className="flex gap-2 justify-center mb-4">
-                {[...Array(5)].map((_, i) => (
+                {[...Array(advancedSettings?.testimonialRating || 5)].map((_, i) => (
                   <Star key={i} className="h-8 w-8 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
               <p className="text-xl text-gray-700 mb-4 text-center">
-                "منتج رائع! أنصح به بشدة. تجربة ممتازة وخدمة عملاء رائعة"
+                "{advancedSettings?.testimonialText || 'منتج رائع! أنصح به بشدة. تجربة ممتازة وخدمة عملاء رائعة'}"
               </p>
-              <p className="text-lg text-gray-500 text-center">- عميل سعيد</p>
+              <p className="text-lg text-gray-500 text-center">- {advancedSettings?.testimonialAuthor || 'عميل سعيد'}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Guarantee Section */}
+        {advancedSettings?.showGuarantee && (
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 py-12">
+            <div className="container mx-auto max-w-4xl px-8 text-center">
+              <div className="inline-block p-4 bg-white rounded-full mb-4 shadow-lg">
+                <CheckCircle className="h-16 w-16 text-green-500" />
+              </div>
+              <h3 className="text-3xl font-bold mb-4 text-gray-800">
+                {advancedSettings.guaranteeText}
+              </h3>
+              <p className="text-lg text-gray-600">
+                إذا لم تكن راضياً عن المنتج، سنسترجع أموالك بالكامل
+              </p>
             </div>
           </div>
         )}

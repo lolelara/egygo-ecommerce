@@ -115,6 +115,16 @@ export default function AffiliateLandingPages() {
     originalPrice: '',
     badge: '',
     socialProof: '',
+    // Testimonials customization
+    testimonialText: 'منتج رائع! أنصح به بشدة. تجربة ممتازة وخدمة عملاء رائعة',
+    testimonialAuthor: 'عميل سعيد',
+    testimonialRating: 5,
+    // Additional features
+    showTimer: false,
+    timerEndDate: '',
+    guaranteeText: 'ضمان استرجاع المال خلال 30 يوم',
+    showGuarantee: false,
+    faqItems: [] as Array<{question: string; answer: string}>,
   });
 
   const [generatedUrl, setGeneratedUrl] = useState('');
@@ -774,6 +784,78 @@ export default function AffiliateLandingPages() {
                       }
                     />
                   </div>
+
+                  {formData.testimonials && (
+                    <>
+                      <div>
+                        <Label>نص التقييم</Label>
+                        <Textarea
+                          value={advancedSettings.testimonialText}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, testimonialText: e.target.value })
+                          }
+                          placeholder="منتج رائع! أنصح به بشدة..."
+                          rows={3}
+                        />
+                      </div>
+
+                      <div>
+                        <Label>اسم صاحب التقييم</Label>
+                        <Input
+                          value={advancedSettings.testimonialAuthor}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, testimonialAuthor: e.target.value })
+                          }
+                          placeholder="أحمد محمد"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>عدد النجوم</Label>
+                        <Select
+                          value={advancedSettings.testimonialRating.toString()}
+                          onValueChange={(value) =>
+                            setAdvancedSettings({ ...advancedSettings, testimonialRating: parseInt(value) })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="5">⭐⭐⭐⭐⭐ (5 نجوم)</SelectItem>
+                            <SelectItem value="4">⭐⭐⭐⭐ (4 نجوم)</SelectItem>
+                            <SelectItem value="3">⭐⭐⭐ (3 نجوم)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>عرض الضمان</Label>
+                      <p className="text-sm text-muted-foreground">إضافة قسم الضمان</p>
+                    </div>
+                    <Switch
+                      checked={advancedSettings.showGuarantee}
+                      onCheckedChange={(checked) =>
+                        setAdvancedSettings({ ...advancedSettings, showGuarantee: checked })
+                      }
+                    />
+                  </div>
+
+                  {advancedSettings.showGuarantee && (
+                    <div>
+                      <Label>نص الضمان</Label>
+                      <Input
+                        value={advancedSettings.guaranteeText}
+                        onChange={(e) =>
+                          setAdvancedSettings({ ...advancedSettings, guaranteeText: e.target.value })
+                        }
+                        placeholder="ضمان استرجاع المال خلال 30 يوم"
+                      />
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <div>
