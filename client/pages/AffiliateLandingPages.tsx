@@ -39,6 +39,8 @@ import {
   Image as ImageIcon,
   Edit,
   MessageCircle,
+  Award,
+  TrendingUp,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
@@ -891,6 +893,367 @@ export default function AffiliateLandingPages() {
                         setFormData({ ...formData, countdown: checked })
                       }
                     />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* FAQ Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageCircle className="h-5 w-5" />
+                    الأسئلة الشائعة
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>عرض قسم FAQ</Label>
+                      <p className="text-sm text-muted-foreground">أسئلة وأجوبة شائعة</p>
+                    </div>
+                    <Switch
+                      checked={advancedSettings.showFAQ}
+                      onCheckedChange={(checked) =>
+                        setAdvancedSettings({ ...advancedSettings, showFAQ: checked })
+                      }
+                    />
+                  </div>
+
+                  {advancedSettings.showFAQ && (
+                    <div className="space-y-3">
+                      {advancedSettings.faqItems.map((item: any, index: number) => (
+                        <div key={index} className="p-4 border rounded-lg space-y-2">
+                          <Input
+                            placeholder="السؤال"
+                            value={item.question}
+                            onChange={(e) => {
+                              const newItems = [...advancedSettings.faqItems];
+                              newItems[index].question = e.target.value;
+                              setAdvancedSettings({ ...advancedSettings, faqItems: newItems });
+                            }}
+                          />
+                          <Textarea
+                            placeholder="الإجابة"
+                            value={item.answer}
+                            onChange={(e) => {
+                              const newItems = [...advancedSettings.faqItems];
+                              newItems[index].answer = e.target.value;
+                              setAdvancedSettings({ ...advancedSettings, faqItems: newItems });
+                            }}
+                            rows={2}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newItems = advancedSettings.faqItems.filter((_: any, i: number) => i !== index);
+                              setAdvancedSettings({ ...advancedSettings, faqItems: newItems });
+                            }}
+                          >
+                            حذف
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setAdvancedSettings({
+                            ...advancedSettings,
+                            faqItems: [...advancedSettings.faqItems, { question: '', answer: '' }]
+                          });
+                        }}
+                      >
+                        + إضافة سؤال
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Why Us Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="h-5 w-5" />
+                    لماذا نحن
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>عرض قسم "لماذا نحن"</Label>
+                      <p className="text-sm text-muted-foreground">مميزات تختارنا بسببها</p>
+                    </div>
+                    <Switch
+                      checked={advancedSettings.showWhyUs}
+                      onCheckedChange={(checked) =>
+                        setAdvancedSettings({ ...advancedSettings, showWhyUs: checked })
+                      }
+                    />
+                  </div>
+
+                  {advancedSettings.showWhyUs && (
+                    <div className="space-y-3">
+                      <Input
+                        placeholder="عنوان القسم"
+                        value={advancedSettings.whyUsTitle}
+                        onChange={(e) =>
+                          setAdvancedSettings({ ...advancedSettings, whyUsTitle: e.target.value })
+                        }
+                      />
+                      {advancedSettings.whyUsItems.map((item: any, index: number) => (
+                        <div key={index} className="p-4 border rounded-lg space-y-2">
+                          <Select
+                            value={item.icon}
+                            onValueChange={(value) => {
+                              const newItems = [...advancedSettings.whyUsItems];
+                              newItems[index].icon = value;
+                              setAdvancedSettings({ ...advancedSettings, whyUsItems: newItems });
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="اختر أيقونة" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="shield">🛡️ الأمان</SelectItem>
+                              <SelectItem value="zap">⚡ السرعة</SelectItem>
+                              <SelectItem value="award">🏆 الجودة</SelectItem>
+                              <SelectItem value="trending">📈 النجاح</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Input
+                            placeholder="العنوان"
+                            value={item.title}
+                            onChange={(e) => {
+                              const newItems = [...advancedSettings.whyUsItems];
+                              newItems[index].title = e.target.value;
+                              setAdvancedSettings({ ...advancedSettings, whyUsItems: newItems });
+                            }}
+                          />
+                          <Textarea
+                            placeholder="الوصف"
+                            value={item.description}
+                            onChange={(e) => {
+                              const newItems = [...advancedSettings.whyUsItems];
+                              newItems[index].description = e.target.value;
+                              setAdvancedSettings({ ...advancedSettings, whyUsItems: newItems });
+                            }}
+                            rows={2}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newItems = advancedSettings.whyUsItems.filter((_: any, i: number) => i !== index);
+                              setAdvancedSettings({ ...advancedSettings, whyUsItems: newItems });
+                            }}
+                          >
+                            حذف
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setAdvancedSettings({
+                            ...advancedSettings,
+                            whyUsItems: [...advancedSettings.whyUsItems, { icon: 'shield', title: '', description: '' }]
+                          });
+                        }}
+                      >
+                        + إضافة ميزة
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Stats Section */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    الإحصائيات
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>عرض الإحصائيات</Label>
+                      <p className="text-sm text-muted-foreground">أرقام تثبت نجاحك</p>
+                    </div>
+                    <Switch
+                      checked={advancedSettings.showStats}
+                      onCheckedChange={(checked) =>
+                        setAdvancedSettings({ ...advancedSettings, showStats: checked })
+                      }
+                    />
+                  </div>
+
+                  {advancedSettings.showStats && (
+                    <div className="space-y-3">
+                      {advancedSettings.statsItems.map((item: any, index: number) => (
+                        <div key={index} className="p-4 border rounded-lg space-y-2">
+                          <Input
+                            placeholder="الرقم (مثال: 10,000+)"
+                            value={item.number}
+                            onChange={(e) => {
+                              const newItems = [...advancedSettings.statsItems];
+                              newItems[index].number = e.target.value;
+                              setAdvancedSettings({ ...advancedSettings, statsItems: newItems });
+                            }}
+                          />
+                          <Input
+                            placeholder="النص (مثال: عميل سعيد)"
+                            value={item.label}
+                            onChange={(e) => {
+                              const newItems = [...advancedSettings.statsItems];
+                              newItems[index].label = e.target.value;
+                              setAdvancedSettings({ ...advancedSettings, statsItems: newItems });
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newItems = advancedSettings.statsItems.filter((_: any, i: number) => i !== index);
+                              setAdvancedSettings({ ...advancedSettings, statsItems: newItems });
+                            }}
+                          >
+                            حذف
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setAdvancedSettings({
+                            ...advancedSettings,
+                            statsItems: [...advancedSettings.statsItems, { number: '', label: '' }]
+                          });
+                        }}
+                      >
+                        + إضافة إحصائية
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Header & Footer */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Header & Footer</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Header</h4>
+                    <div className="flex items-center justify-between">
+                      <Label>عرض Header</Label>
+                      <Switch
+                        checked={advancedSettings.showHeader}
+                        onCheckedChange={(checked) =>
+                          setAdvancedSettings({ ...advancedSettings, showHeader: checked })
+                        }
+                      />
+                    </div>
+                    {advancedSettings.showHeader && (
+                      <>
+                        <Input
+                          placeholder="اسم الموقع"
+                          value={advancedSettings.headerSiteName}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, headerSiteName: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="رابط اللوجو"
+                          value={advancedSettings.headerLogo}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, headerLogo: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="رقم الهاتف"
+                          value={advancedSettings.headerPhone}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, headerPhone: e.target.value })
+                          }
+                        />
+                      </>
+                    )}
+                  </div>
+
+                  <div className="space-y-3 p-4 border rounded-lg">
+                    <h4 className="font-semibold">Footer</h4>
+                    <div className="flex items-center justify-between">
+                      <Label>عرض Footer</Label>
+                      <Switch
+                        checked={advancedSettings.showFooter}
+                        onCheckedChange={(checked) =>
+                          setAdvancedSettings({ ...advancedSettings, showFooter: checked })
+                        }
+                      />
+                    </div>
+                    {advancedSettings.showFooter && (
+                      <>
+                        <Input
+                          placeholder="اسم الشركة"
+                          value={advancedSettings.footerCompany}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, footerCompany: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="رقم الهاتف"
+                          value={advancedSettings.footerPhone}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, footerPhone: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="البريد الإلكتروني"
+                          value={advancedSettings.footerEmail}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, footerEmail: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="العنوان"
+                          value={advancedSettings.footerAddress}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, footerAddress: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="رابط Facebook"
+                          value={advancedSettings.footerFacebook}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, footerFacebook: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="رابط Instagram"
+                          value={advancedSettings.footerInstagram}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, footerInstagram: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="رقم WhatsApp"
+                          value={advancedSettings.footerWhatsapp}
+                          onChange={(e) =>
+                            setAdvancedSettings({ ...advancedSettings, footerWhatsapp: e.target.value })
+                          }
+                        />
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
