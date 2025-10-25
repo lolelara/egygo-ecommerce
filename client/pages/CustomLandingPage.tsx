@@ -30,7 +30,11 @@ import {
   Award,
   Shield,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Lock,
+  CreditCard,
+  Truck,
+  HeadphonesIcon
 } from 'lucide-react';
 
 export default function CustomLandingPage() {
@@ -425,6 +429,18 @@ export default function CustomLandingPage() {
   // Modern Template
   if (template === 'modern') {
     return (
+      <>
+        {/* SEO Meta Tags */}
+        <head>
+          <title>{product?.name || landingPage.title} - EgyGo</title>
+          <meta name="description" content={product?.description || landingPage.description} />
+          <meta property="og:title" content={product?.name || landingPage.title} />
+          <meta property="og:description" content={product?.description || landingPage.description} />
+          <meta property="og:image" content={advancedSettings?.imageUrl || product?.images?.[0]} />
+          <meta property="og:type" content="product" />
+          <meta name="twitter:card" content="summary_large_image" />
+        </head>
+        
       <div className={`min-h-screen bg-white ${fontClass}`} dir="rtl">
         {/* Header */}
         {advancedSettings?.showHeader !== false && (
@@ -572,6 +588,34 @@ export default function CustomLandingPage() {
             >
               {landingPage.ctaText}
             </Button>
+          </div>
+        </div>
+
+        {/* Trust Badges */}
+        <div className="bg-white py-8 border-y">
+          <div className="container mx-auto max-w-6xl px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <Lock className="h-10 w-10 mx-auto mb-2" style={{ color: colors.primary }} />
+                <p className="font-semibold text-sm">دفع آمن 100%</p>
+                <p className="text-xs text-gray-500">SSL Encrypted</p>
+              </div>
+              <div className="text-center">
+                <Truck className="h-10 w-10 mx-auto mb-2" style={{ color: colors.primary }} />
+                <p className="font-semibold text-sm">شحن سريع</p>
+                <p className="text-xs text-gray-500">توصيل لباب المنزل</p>
+              </div>
+              <div className="text-center">
+                <Shield className="h-10 w-10 mx-auto mb-2" style={{ color: colors.primary }} />
+                <p className="font-semibold text-sm">ضمان الجودة</p>
+                <p className="text-xs text-gray-500">منتجات أصلية</p>
+              </div>
+              <div className="text-center">
+                <HeadphonesIcon className="h-10 w-10 mx-auto mb-2" style={{ color: colors.primary }} />
+                <p className="font-semibold text-sm">دعم 24/7</p>
+                <p className="text-xs text-gray-500">خدمة العملاء</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1068,6 +1112,7 @@ export default function CustomLandingPage() {
           </div>
         )}
       </div>
+      </>
     );
   }
 
