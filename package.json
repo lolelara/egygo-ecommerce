@@ -53,6 +53,7 @@
     "create-collections": "tsx scripts/create-missing-collections.ts",
     "setup-referrals": "tsx scripts/setup-referral-system.ts",
     "setup-withdrawals": "node scripts/setup-withdrawals-collection.js",
+    "add-advanced-settings": "tsx scripts/add-advanced-settings-field.ts",
     "complete-withdrawals": "node scripts/complete-withdrawals-collection.js",
     "create-commission-collections": "node scripts/create-commission-collections.js",
     "fix-affiliate-commissions": "node scripts/fix-affiliate-commissions.js",
