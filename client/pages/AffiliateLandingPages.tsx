@@ -111,7 +111,6 @@ export default function AffiliateLandingPages() {
     fontFamily: 'cairo', // cairo, tajawal, almarai
     buttonStyle: 'rounded', // rounded, square, pill
     imageUrl: '',
-    videoUrl: '',
     showPrice: false,
     price: '',
     originalPrice: '',
@@ -150,6 +149,13 @@ export default function AffiliateLandingPages() {
     // Stats Section
     showStats: false,
     statsItems: [] as Array<{number: string; label: string}>,
+    // Image Gallery
+    showGallery: false,
+    galleryImages: [] as Array<string>,
+    // Video
+    showVideo: false,
+    videoUrl: '',
+    videoTitle: 'شاهد المنتج',
   });
 
   const [generatedUrl, setGeneratedUrl] = useState('');
@@ -888,12 +894,28 @@ export default function AffiliateLandingPages() {
                       <p className="text-sm text-muted-foreground">لخلق شعور بالإلحاح</p>
                     </div>
                     <Switch
-                      checked={formData.countdown}
+                      checked={advancedSettings.showTimer}
                       onCheckedChange={(checked) =>
-                        setFormData({ ...formData, countdown: checked })
+                        setAdvancedSettings({ ...advancedSettings, showTimer: checked })
                       }
                     />
                   </div>
+
+                  {advancedSettings.showTimer && (
+                    <div>
+                      <Label>تاريخ انتهاء العرض</Label>
+                      <Input
+                        type="datetime-local"
+                        value={advancedSettings.timerEndDate}
+                        onChange={(e) =>
+                          setAdvancedSettings({ ...advancedSettings, timerEndDate: e.target.value })
+                        }
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        اختر التاريخ والوقت الذي سينتهي فيه العرض
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

@@ -46,6 +46,7 @@ export default function CustomLandingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [orderData, setOrderData] = useState({
     name: '',
     phone: '',
@@ -68,6 +69,32 @@ export default function CustomLandingPage() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Countdown Timer
+  useEffect(() => {
+    if (!advancedSettings?.showTimer || !advancedSettings?.timerEndDate) return;
+
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const endDate = new Date(advancedSettings.timerEndDate).getTime();
+      const distance = endDate - now;
+
+      if (distance < 0) {
+        clearInterval(timer);
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      setCountdown({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [advancedSettings]);
 
   useEffect(() => {
     loadLandingPage();
@@ -506,22 +533,32 @@ export default function CustomLandingPage() {
               </div>
             )}
             
-            {landingPage.countdown && (
-              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8 inline-block">
-                <div className="flex gap-6 text-2xl font-bold">
-                  <div className="text-center">
-                    <div className="text-4xl">23</div>
-                    <div className="text-sm opacity-75">ساعة</div>
+            {(landingPage.countdown || advancedSettings?.showTimer) && (
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8 inline-block animate-pulse-slow">
+                <p className="text-xl mb-4 text-center font-semibold">⏰ العرض ينتهي خلال:</p>
+                <div className="flex gap-4 justify-center">
+                  {countdown.days > 0 && (
+                    <>
+                      <div className="text-center bg-white/30 rounded-xl p-3 min-w-[80px]">
+                        <div className="text-4xl md:text-5xl font-bold">{String(countdown.days).padStart(2, '0')}</div>
+                        <div className="text-sm opacity-75 mt-1">يوم</div>
+                      </div>
+                      <div className="text-3xl self-center">:</div>
+                    </>
+                  )}
+                  <div className="text-center bg-white/30 rounded-xl p-3 min-w-[80px]">
+                    <div className="text-4xl md:text-5xl font-bold">{String(countdown.hours).padStart(2, '0')}</div>
+                    <div className="text-sm opacity-75 mt-1">ساعة</div>
                   </div>
-                  <div className="text-3xl">:</div>
-                  <div className="text-center">
-                    <div className="text-4xl">45</div>
-                    <div className="text-sm opacity-75">دقيقة</div>
+                  <div className="text-3xl self-center">:</div>
+                  <div className="text-center bg-white/30 rounded-xl p-3 min-w-[80px]">
+                    <div className="text-4xl md:text-5xl font-bold">{String(countdown.minutes).padStart(2, '0')}</div>
+                    <div className="text-sm opacity-75 mt-1">دقيقة</div>
                   </div>
-                  <div className="text-3xl">:</div>
-                  <div className="text-center">
-                    <div className="text-4xl">12</div>
-                    <div className="text-sm opacity-75">ثانية</div>
+                  <div className="text-3xl self-center">:</div>
+                  <div className="text-center bg-white/30 rounded-xl p-3 min-w-[80px]">
+                    <div className="text-4xl md:text-5xl font-bold">{String(countdown.seconds).padStart(2, '0')}</div>
+                    <div className="text-sm opacity-75 mt-1">ثانية</div>
                   </div>
                 </div>
               </div>
@@ -537,6 +574,53 @@ export default function CustomLandingPage() {
             </Button>
           </div>
         </div>
+
+        {/* Video Section */}
+        {advancedSettings?.showVideo && advancedSettings?.videoUrl && (
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 py-16">
+            <div className="container mx-auto max-w-4xl px-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-8" style={{ color: colors.primary }}>
+                {advancedSettings.videoTitle || 'شاهد المنتج'}
+              </h2>
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={advancedSettings.videoUrl.replace('watch?v=', 'embed/')}
+                  title="Product Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Image Gallery */}
+        {advancedSettings?.showGallery && advancedSettings?.galleryImages?.length > 0 && (
+          <div className="py-16 bg-white">
+            <div className="container mx-auto max-w-6xl px-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12" style={{ color: colors.primary }}>
+                معرض الصور
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {advancedSettings.galleryImages.map((img: string, index: number) => (
+                  <div key={index} className="relative group overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all">
+                    <img
+                      src={img}
+                      alt={`صورة ${index + 1}`}
+                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Description Section */}
         <div className="container mx-auto max-w-4xl p-8 md:p-12">
