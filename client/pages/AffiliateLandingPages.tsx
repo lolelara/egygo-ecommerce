@@ -124,7 +124,30 @@ export default function AffiliateLandingPages() {
     timerEndDate: '',
     guaranteeText: 'ضمان استرجاع المال خلال 30 يوم',
     showGuarantee: false,
+    // FAQ Section
+    showFAQ: false,
     faqItems: [] as Array<{question: string; answer: string}>,
+    // Header
+    showHeader: true,
+    headerLogo: '',
+    headerPhone: '',
+    headerSiteName: 'EgyGo',
+    // Footer
+    showFooter: true,
+    footerCompany: 'EgyGo',
+    footerPhone: '',
+    footerEmail: '',
+    footerAddress: '',
+    footerFacebook: '',
+    footerInstagram: '',
+    footerWhatsapp: '',
+    // Why Us Section
+    showWhyUs: false,
+    whyUsTitle: 'لماذا تختارنا؟',
+    whyUsItems: [] as Array<{icon: string; title: string; description: string}>,
+    // Stats Section
+    showStats: false,
+    statsItems: [] as Array<{number: string; label: string}>,
   });
 
   const [generatedUrl, setGeneratedUrl] = useState('');

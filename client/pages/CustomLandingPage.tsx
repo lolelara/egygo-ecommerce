@@ -22,7 +22,15 @@ import {
   User,
   Phone,
   MapPin,
-  Mail
+  Mail,
+  ChevronDown,
+  Facebook,
+  Instagram,
+  MessageCircle as WhatsAppIcon,
+  Award,
+  Shield,
+  Zap,
+  TrendingUp
 } from 'lucide-react';
 
 export default function CustomLandingPage() {
@@ -36,6 +44,7 @@ export default function CustomLandingPage() {
   const [advancedSettings, setAdvancedSettings] = useState<any>(null);
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [orderData, setOrderData] = useState({
     name: '',
     phone: '',
@@ -375,6 +384,32 @@ export default function CustomLandingPage() {
   if (template === 'modern') {
     return (
       <div className={`min-h-screen bg-white ${fontClass}`} dir="rtl">
+        {/* Header */}
+        {advancedSettings?.showHeader !== false && (
+          <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
+            <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {advancedSettings?.headerLogo ? (
+                  <img src={advancedSettings.headerLogo} alt="Logo" className="h-10 w-auto" />
+                ) : (
+                  <div className="text-2xl font-bold" style={{ color: colors.primary }}>
+                    {advancedSettings?.headerSiteName || 'EgyGo'}
+                  </div>
+                )}
+              </div>
+              {advancedSettings?.headerPhone && (
+                <a 
+                  href={`tel:${advancedSettings.headerPhone}`}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <Phone className="h-5 w-5" style={{ color: colors.primary }} />
+                  <span className="font-semibold">{advancedSettings.headerPhone}</span>
+                </a>
+              )}
+            </div>
+          </header>
+        )}
+
         {/* Hero Section */}
         <div
           className="p-12 md:p-20 text-white"
@@ -566,6 +601,79 @@ export default function CustomLandingPage() {
           </div>
         )}
 
+        {/* Why Us Section */}
+        {advancedSettings?.showWhyUs && advancedSettings.whyUsItems?.length > 0 && (
+          <div className="py-16 bg-white">
+            <div className="container mx-auto max-w-6xl px-8">
+              <h2 className="text-4xl font-bold text-center mb-12" style={{ color: colors.primary }}>
+                {advancedSettings.whyUsTitle || 'لماذا تختارنا؟'}
+              </h2>
+              <div className="grid md:grid-cols-3 gap-8">
+                {advancedSettings.whyUsItems.map((item: any, index: number) => (
+                  <div key={index} className="text-center p-6 rounded-2xl hover:shadow-xl transition-shadow">
+                    <div className="inline-block p-4 rounded-full mb-4" style={{ backgroundColor: `${colors.primary}15` }}>
+                      {item.icon === 'shield' && <Shield className="h-12 w-12" style={{ color: colors.primary }} />}
+                      {item.icon === 'zap' && <Zap className="h-12 w-12" style={{ color: colors.primary }} />}
+                      {item.icon === 'award' && <Award className="h-12 w-12" style={{ color: colors.primary }} />}
+                      {item.icon === 'trending' && <TrendingUp className="h-12 w-12" style={{ color: colors.primary }} />}
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                    <p className="text-gray-600">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Stats Section */}
+        {advancedSettings?.showStats && advancedSettings.statsItems?.length > 0 && (
+          <div className="py-12" style={{ background: `linear-gradient(to bottom right, ${colors.primary}15, ${colors.primary}05)` }}>
+            <div className="container mx-auto max-w-6xl px-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {advancedSettings.statsItems.map((stat: any, index: number) => (
+                  <div key={index} className="text-center">
+                    <div className="text-5xl font-bold mb-2" style={{ color: colors.primary }}>
+                      {stat.number}
+                    </div>
+                    <div className="text-gray-600 text-lg">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FAQ Section */}
+        {advancedSettings?.showFAQ && advancedSettings.faqItems?.length > 0 && (
+          <div className="bg-gray-50 py-16">
+            <div className="container mx-auto max-w-3xl px-8">
+              <h2 className="text-4xl font-bold text-center mb-12">الأسئلة الشائعة</h2>
+              <div className="space-y-4">
+                {advancedSettings.faqItems.map((faq: any, index: number) => (
+                  <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button
+                      onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                      className="w-full px-6 py-4 text-right flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="font-semibold text-lg">{faq.question}</span>
+                      <ChevronDown 
+                        className={`h-5 w-5 transition-transform ${openFAQ === index ? 'rotate-180' : ''}`}
+                        style={{ color: colors.primary }}
+                      />
+                    </button>
+                    {openFAQ === index && (
+                      <div className="px-6 py-4 border-t bg-gray-50">
+                        <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Order Form */}
         {showOrderForm && (
           <div id="order-form" className="bg-white py-16 border-t-4" style={{ borderTopColor: colors.primary }}>
@@ -740,6 +848,87 @@ export default function CustomLandingPage() {
               </Button>
             </div>
           </div>
+        )}
+
+        {/* Footer */}
+        {advancedSettings?.showFooter !== false && (
+          <footer className="bg-gray-900 text-white py-12">
+            <div className="container mx-auto max-w-6xl px-8">
+              <div className="grid md:grid-cols-3 gap-8 mb-8">
+                {/* Company Info */}
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">
+                    {advancedSettings?.footerCompany || 'EgyGo'}
+                  </h3>
+                  {advancedSettings?.footerAddress && (
+                    <p className="text-gray-400 mb-2 flex items-start gap-2">
+                      <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
+                      {advancedSettings.footerAddress}
+                    </p>
+                  )}
+                </div>
+
+                {/* Contact */}
+                <div>
+                  <h4 className="text-lg font-semibold mb-4">تواصل معنا</h4>
+                  {advancedSettings?.footerPhone && (
+                    <a href={`tel:${advancedSettings.footerPhone}`} className="text-gray-400 hover:text-white mb-2 flex items-center gap-2">
+                      <Phone className="h-5 w-5" />
+                      {advancedSettings.footerPhone}
+                    </a>
+                  )}
+                  {advancedSettings?.footerEmail && (
+                    <a href={`mailto:${advancedSettings.footerEmail}`} className="text-gray-400 hover:text-white mb-2 flex items-center gap-2">
+                      <Mail className="h-5 w-5" />
+                      {advancedSettings.footerEmail}
+                    </a>
+                  )}
+                </div>
+
+                {/* Social Media */}
+                <div>
+                  <h4 className="text-lg font-semibold mb-4">تابعنا</h4>
+                  <div className="flex gap-4">
+                    {advancedSettings?.footerFacebook && (
+                      <a 
+                        href={advancedSettings.footerFacebook} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+                      >
+                        <Facebook className="h-5 w-5" />
+                      </a>
+                    )}
+                    {advancedSettings?.footerInstagram && (
+                      <a 
+                        href={advancedSettings.footerInstagram} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors"
+                      >
+                        <Instagram className="h-5 w-5" />
+                      </a>
+                    )}
+                    {advancedSettings?.footerWhatsapp && (
+                      <a 
+                        href={`https://wa.me/${advancedSettings.footerWhatsapp}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
+                      >
+                        <WhatsAppIcon className="h-5 w-5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Copyright */}
+              <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <p>© {new Date().getFullYear()} {advancedSettings?.footerCompany || 'EgyGo'}. جميع الحقوق محفوظة.</p>
+              </div>
+            </div>
+          </footer>
         )}
       </div>
     );
