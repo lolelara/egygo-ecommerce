@@ -3,7 +3,7 @@
  * أداة توليد صفحات الهبوط للمسوقين
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   Globe,
   Eye,
@@ -37,6 +38,7 @@ import {
   Code,
   Image as ImageIcon,
   Edit,
+  MessageCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
@@ -850,11 +852,57 @@ export default function AffiliateLandingPages() {
                   تم الإنشاء!
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div className="p-3 bg-muted rounded-lg break-all text-sm">
                   {generatedUrl}
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                
+                {/* QR Code Section */}
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-lg">
+                  <div className="bg-white p-3 rounded-lg shadow-sm">
+                    <QRCodeSVG
+                      value={generatedUrl}
+                      size={120}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium mb-2">📱 QR Code</p>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      امسح الكود لفتح الصفحة مباشرة
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const svg = document.querySelector('svg');
+                        if (!svg) return;
+                        const svgData = new XMLSerializer().serializeToString(svg);
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const img = document.createElement('img');
+                        img.onload = () => {
+                          canvas.width = img.width;
+                          canvas.height = img.height;
+                          ctx?.drawImage(img, 0, 0);
+                          const pngFile = canvas.toDataURL('image/png');
+                          const downloadLink = document.createElement('a');
+                          downloadLink.download = 'qr-code.png';
+                          downloadLink.href = pngFile;
+                          downloadLink.click();
+                        };
+                        img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+                      }}
+                      className="gap-2"
+                    >
+                      <Download className="h-3 w-3" />
+                      تحميل QR
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2">
                   <Button variant="outline" onClick={copyUrl} className="gap-2">
                     <Copy className="h-4 w-4" />
                     نسخ
@@ -864,6 +912,18 @@ export default function AffiliateLandingPages() {
                       <ExternalLink className="h-4 w-4" />
                       فتح
                     </a>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const message = `🔥 عرض حصري!\n\n${formData.title}\n\n${generatedUrl}`;
+                      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                      window.open(whatsappUrl, '_blank');
+                    }}
+                    className="gap-2 text-green-600 hover:text-green-700 hover:bg-green-50"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp
                   </Button>
                 </div>
               </CardContent>
