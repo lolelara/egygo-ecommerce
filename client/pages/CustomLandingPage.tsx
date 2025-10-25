@@ -93,6 +93,9 @@ export default function CustomLandingPage() {
 
       // Load product data
       const productId = page.productUrl?.split('/').pop()?.split('?')[0] || '';
+      console.log('🔍 Extracting productId from:', page.productUrl);
+      console.log('📦 ProductId:', productId);
+      
       if (productId) {
         try {
           const productDoc = await databases.getDocument(
@@ -102,9 +105,16 @@ export default function CustomLandingPage() {
           );
           setProduct(productDoc);
           console.log('✅ Product loaded:', productDoc);
-        } catch (error) {
-          console.error('Error loading product:', error);
+          console.log('📸 Product image:', productDoc.imageUrl);
+          console.log('💰 Product price:', productDoc.price);
+        } catch (error: any) {
+          console.error('❌ Error loading product:', error);
+          console.error('Product ID that failed:', productId);
+          console.error('Collection:', appwriteConfig.collections.products);
+          // Don't set error, just log it - page can still work without product details
         }
+      } else {
+        console.warn('⚠️ No productId found in productUrl:', page.productUrl);
       }
 
       // Update views count
@@ -370,13 +380,17 @@ export default function CustomLandingPage() {
           className="p-12 md:p-20 text-white"
           style={{ background: advancedSettings?.customColor ? `linear-gradient(to bottom right, ${customColor}, ${customColor}dd)` : undefined }}
         >
-          {/* Custom Image */}
-          {advancedSettings?.imageUrl && (
+          {/* Product/Custom Image */}
+          {(advancedSettings?.imageUrl || product?.imageUrl) && (
             <div className="container mx-auto max-w-4xl mb-8">
               <img 
-                src={advancedSettings.imageUrl} 
-                alt={landingPage.title} 
+                src={advancedSettings?.imageUrl || product?.imageUrl} 
+                alt={product?.name || landingPage.title} 
                 className="w-full max-w-2xl mx-auto rounded-2xl shadow-2xl" 
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
               />
             </div>
           )}
@@ -419,19 +433,26 @@ export default function CustomLandingPage() {
             )}
             
             {/* Price Display */}
-            {advancedSettings?.showPrice && advancedSettings?.price && (
+            {((advancedSettings?.showPrice && advancedSettings?.price) || product?.price) && (
               <div className="mb-8 bg-white/20 backdrop-blur-sm rounded-2xl p-6 inline-block">
                 <div className="flex items-center justify-center gap-4 flex-wrap">
-                  <span className="text-5xl font-bold">{advancedSettings.price} ج.م</span>
+                  <span className="text-5xl font-bold">
+                    {advancedSettings?.price || product?.price} ج.م
+                  </span>
                   {advancedSettings?.originalPrice && (
                     <>
                       <span className="text-2xl line-through opacity-60">{advancedSettings.originalPrice} ج.م</span>
                       <span className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">
-                        -{Math.round(((advancedSettings.originalPrice - advancedSettings.price) / advancedSettings.originalPrice) * 100)}%
+                        -{Math.round(((advancedSettings.originalPrice - (advancedSettings?.price || product?.price || 0)) / advancedSettings.originalPrice) * 100)}%
                       </span>
                     </>
                   )}
                 </div>
+                {product && (
+                  <div className="mt-4 text-sm opacity-90">
+                    <p>{product.name}</p>
+                  </div>
+                )}
               </div>
             )}
             
@@ -469,6 +490,18 @@ export default function CustomLandingPage() {
 
         {/* Description Section */}
         <div className="container mx-auto max-w-4xl p-8 md:p-12">
+          {product && (
+            <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 mb-8 shadow-lg">
+              <h2 className="text-3xl font-bold text-center mb-4" style={{ color: colors.primary }}>
+                {product.name}
+              </h2>
+              {product.description && (
+                <p className="text-lg text-gray-600 text-center">
+                  {product.description}
+                </p>
+              )}
+            </div>
+          )}
           <p className="text-xl md:text-2xl text-gray-700 leading-relaxed text-center mb-12">
             {landingPage.description}
           </p>
