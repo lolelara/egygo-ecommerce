@@ -276,46 +276,65 @@ export default function Register() {
           // If user was referred, create referral record
           if (formData.referralCode && referrerInfo) {
             try {
-              await databases.createDocument(
+              console.log('Creating referral record:', {
+                referrerId: referrerInfo.userId,
+                referredUserId: registeredUser.$id,
+                code: formData.referralCode
+              });
+              
+              const referralDoc = await databases.createDocument(
                 appwriteConfig.databaseId,
-                'referrals',
+                appwriteConfig.collections.referrals,
                 ID.unique(),
                 {
                   referrerId: referrerInfo.userId,
                   referredUserId: registeredUser.$id,
                   referredUserName: formData.name,
                   referredUserEmail: formData.email,
-                  referralCode: formData.referralCode,
                   status: 'pending', // Will be 'completed' after first purchase
                   reward: 0, // Will be updated after first purchase
-                  level: 1, // First level referral
-                  createdAt: new Date().toISOString()
+                  level: 1 // First level referral
                 }
               );
-              console.log('✅ Referral record created with complete data');
+              console.log('✅ Referral record created:', referralDoc.$id);
               
               // Notify the referrer
-              await databases.createDocument(
-                appwriteConfig.databaseId,
-                appwriteConfig.collections.notifications,
-                ID.unique(),
-                {
-                  userId: referrerInfo.userId,
-                  title: '🎉 إحالة جديدة!',
-                  message: `قام ${formData.name} بالتسجيل باستخدام كود الإحالة الخاص بك`,
-                  type: 'affiliate',
-                  read: false,
-                  relatedId: registeredUser.$id,
-                  metadata: JSON.stringify({
-                    referralCode: formData.referralCode,
-                    newUserName: formData.name,
-                    link: '/affiliate/referrals'
-                  })
-                }
-              );
+              try {
+                await databases.createDocument(
+                  appwriteConfig.databaseId,
+                  appwriteConfig.collections.notifications,
+                  ID.unique(),
+                  {
+                    userId: referrerInfo.userId,
+                    title: '🎉 إحالة جديدة!',
+                    message: `قام ${formData.name} بالتسجيل باستخدام كود الإحالة الخاص بك`,
+                    type: 'affiliate',
+                    read: false,
+                    relatedId: registeredUser.$id,
+                    metadata: JSON.stringify({
+                      referralCode: formData.referralCode,
+                      newUserName: formData.name,
+                      link: '/affiliate/referrals'
+                    })
+                  }
+                );
+                console.log('✅ Referrer notification sent');
+              } catch (notifError) {
+                console.error('Error sending referrer notification:', notifError);
+              }
             } catch (refError) {
-              console.error('Error creating referral record:', refError);
+              console.error('❌ Error creating referral record:', refError);
+              console.error('Referral error details:', {
+                message: refError.message,
+                type: refError.type,
+                referrerInfo: referrerInfo
+              });
             }
+          } else {
+            console.log('No referral code or referrer info:', {
+              hasCode: !!formData.referralCode,
+              hasReferrerInfo: !!referrerInfo
+            });
           }
         } catch (prefError) {
           console.error('Error creating user preferences:', prefError);

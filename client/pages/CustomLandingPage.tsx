@@ -23,6 +23,7 @@ export default function CustomLandingPage() {
   const [landingPage, setLandingPage] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [advancedSettings, setAdvancedSettings] = useState<any>(null);
 
   useEffect(() => {
     loadLandingPage();
@@ -57,6 +58,18 @@ export default function CustomLandingPage() {
 
       const page = response.documents[0];
       setLandingPage(page);
+      
+      // Parse advanced settings if exists
+      if (page.advancedSettings) {
+        try {
+          const settings = JSON.parse(page.advancedSettings);
+          setAdvancedSettings(settings);
+          console.log('✅ Advanced settings loaded:', settings);
+        } catch (e) {
+          console.error('Error parsing advanced settings:', e);
+          setAdvancedSettings(null);
+        }
+      }
 
       // Update views count
       try {
@@ -167,25 +180,116 @@ export default function CustomLandingPage() {
     );
   }
 
-  const colors = colorSchemes[landingPage.colorScheme] || colorSchemes.blue;
+  // Apply advanced settings or defaults
+  const customColor = advancedSettings?.customColor || colorSchemes[landingPage.colorScheme]?.primary || '#3B82F6';
+  const colors = advancedSettings?.customColor 
+    ? { primary: customColor, secondary: customColor, gradient: `from-[${customColor}] to-[${customColor}]/80` }
+    : colorSchemes[landingPage.colorScheme] || colorSchemes.blue;
+  
   const template = landingPage.template || 'modern';
   const features = landingPage.features || [];
+  
+  // Advanced styling options
+  const fontFamily = advancedSettings?.fontFamily || 'cairo';
+  const fontSize = advancedSettings?.fontSize || 'medium';
+  const buttonStyle = advancedSettings?.buttonStyle || 'rounded';
+  
+  const fontClasses: Record<string, string> = {
+    cairo: 'font-cairo',
+    tajawal: 'font-[Tajawal]',
+    almarai: 'font-[Almarai]',
+    'ibm-plex-arabic': 'font-[IBM_Plex_Arabic]'
+  };
+  
+  const sizeClasses: Record<string, { text: string; heading: string; cta: string }> = {
+    small: { text: 'text-base', heading: 'text-3xl md:text-4xl', cta: 'text-lg' },
+    medium: { text: 'text-lg', heading: 'text-4xl md:text-5xl', cta: 'text-xl' },
+    large: { text: 'text-xl', heading: 'text-5xl md:text-6xl', cta: 'text-2xl' }
+  };
+  
+  const buttonClasses: Record<string, string> = {
+    rounded: 'rounded-lg',
+    square: 'rounded-none',
+    pill: 'rounded-full'
+  };
+  
+  const textSize = sizeClasses[fontSize] || sizeClasses.medium;
+  const btnRounding = buttonClasses[buttonStyle] || buttonClasses.rounded;
+  const fontClass = fontClasses[fontFamily] || fontClasses.cairo;
 
   // Modern Template
   if (template === 'modern') {
     return (
-      <div className="min-h-screen bg-white" dir="rtl">
+      <div className={`min-h-screen bg-white ${fontClass}`} dir="rtl">
         {/* Hero Section */}
         <div
-          className={`p-12 md:p-20 text-white bg-gradient-to-br ${colors.gradient}`}
+          className="p-12 md:p-20 text-white"
+          style={{ background: advancedSettings?.customColor ? `linear-gradient(to bottom right, ${customColor}, ${customColor}dd)` : undefined }}
         >
+          {/* Custom Image */}
+          {advancedSettings?.imageUrl && (
+            <div className="container mx-auto max-w-4xl mb-8">
+              <img 
+                src={advancedSettings.imageUrl} 
+                alt={landingPage.title} 
+                className="w-full max-w-2xl mx-auto rounded-2xl shadow-2xl" 
+              />
+            </div>
+          )}
+          
+          {/* Custom Video */}
+          {advancedSettings?.videoUrl && (
+            <div className="container mx-auto max-w-4xl mb-8">
+              <iframe 
+                src={advancedSettings.videoUrl.includes('youtube.com') ? advancedSettings.videoUrl.replace('watch?v=', 'embed/') : advancedSettings.videoUrl} 
+                className="w-full aspect-video rounded-2xl shadow-2xl"
+                allowFullScreen
+                title="Video"
+              />
+            </div>
+          )}
+          
           <div className="container mx-auto max-w-4xl text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">
+            {/* Badge */}
+            {advancedSettings?.badge && (
+              <div className="mb-4">
+                <span className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full text-lg font-bold inline-block animate-pulse">
+                  {advancedSettings.badge}
+                </span>
+              </div>
+            )}
+            
+            <h1 className={`${textSize.heading} font-bold mb-4`}>
               {landingPage.title}
             </h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-8">
+            <p className={`${textSize.text} opacity-90 mb-4`}>
               {landingPage.subtitle}
             </p>
+            
+            {/* Social Proof */}
+            {advancedSettings?.socialProof && (
+              <p className="text-lg opacity-90 mb-8 flex items-center justify-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                {advancedSettings.socialProof}
+              </p>
+            )}
+            
+            {/* Price Display */}
+            {advancedSettings?.showPrice && advancedSettings?.price && (
+              <div className="mb-8 bg-white/20 backdrop-blur-sm rounded-2xl p-6 inline-block">
+                <div className="flex items-center justify-center gap-4 flex-wrap">
+                  <span className="text-5xl font-bold">{advancedSettings.price} ج.م</span>
+                  {advancedSettings?.originalPrice && (
+                    <>
+                      <span className="text-2xl line-through opacity-60">{advancedSettings.originalPrice} ج.م</span>
+                      <span className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold">
+                        -{Math.round(((advancedSettings.originalPrice - advancedSettings.price) / advancedSettings.originalPrice) * 100)}%
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
             
             {landingPage.countdown && (
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-8 inline-block">
@@ -211,7 +315,8 @@ export default function CustomLandingPage() {
             <Button
               onClick={handleCTAClick}
               size="lg"
-              className="text-2xl px-12 py-8 h-auto bg-white hover:bg-gray-100 shadow-2xl hover:shadow-3xl transition-all text-primary font-bold"
+              className={`${textSize.cta} px-12 py-8 h-auto bg-white hover:bg-gray-100 shadow-2xl hover:shadow-3xl transition-all font-bold ${btnRounding}`}
+              style={{ color: customColor }}
             >
               {landingPage.ctaText}
             </Button>
@@ -279,7 +384,8 @@ export default function CustomLandingPage() {
             <Button
               onClick={handleCTAClick}
               size="lg"
-              className="text-2xl px-12 py-8 h-auto bg-white hover:bg-gray-100 shadow-2xl text-primary font-bold"
+              className={`${textSize.cta} px-12 py-8 h-auto bg-white hover:bg-gray-100 shadow-2xl font-bold ${btnRounding}`}
+              style={{ color: customColor }}
             >
               {landingPage.ctaText}
             </Button>

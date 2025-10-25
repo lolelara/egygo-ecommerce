@@ -77,11 +77,6 @@ const navigation = [
     icon: Download,
   },
   {
-    name: 'المكافآت',
-    href: '/affiliate/rewards',
-    icon: Gift,
-  },
-  {
     name: 'التقارير',
     href: '/affiliate/reports',
     icon: FileText,
