@@ -45,6 +45,7 @@ export default function CustomLandingPage() {
   const [showOrderForm, setShowOrderForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
+  const [showStickyCTA, setShowStickyCTA] = useState(false);
   const [orderData, setOrderData] = useState({
     name: '',
     phone: '',
@@ -53,6 +54,20 @@ export default function CustomLandingPage() {
     city: '',
     notes: '',
   });
+
+  // Scroll detection for sticky CTA
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 800) {
+        setShowStickyCTA(true);
+      } else {
+        setShowStickyCTA(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     loadLandingPage();
@@ -929,6 +944,44 @@ export default function CustomLandingPage() {
               </div>
             </div>
           </footer>
+        )}
+
+        {/* Sticky Bottom CTA */}
+        {!showOrderForm && showStickyCTA && (
+          <div 
+            className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-2xl border-t-4 animate-slide-up"
+            style={{ borderTopColor: colors.primary }}
+          >
+            <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
+              <div className="flex-1">
+                {product && (
+                  <div className="flex items-center gap-3">
+                    {product.images?.[0] && (
+                      <img 
+                        src={product.images[0]} 
+                        alt={product.name}
+                        className="w-12 h-12 rounded-lg object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="font-bold text-sm">{product.name}</p>
+                      <p className="text-lg font-bold" style={{ color: colors.primary }}>
+                        {advancedSettings?.price || product.price} ج.م
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <Button
+                onClick={handleCTAClick}
+                size="lg"
+                className="px-8 py-6 text-lg font-bold shadow-lg hover:scale-105 transition-transform"
+                style={{ backgroundColor: colors.primary }}
+              >
+                {landingPage.ctaText}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     );
