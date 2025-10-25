@@ -327,7 +327,7 @@ export default function CustomLandingPage() {
   // Apply advanced settings or defaults
   const customColor = advancedSettings?.customColor || colorSchemes[landingPage.colorScheme]?.primary || '#3B82F6';
   const colors = advancedSettings?.customColor 
-    ? { primary: customColor, secondary: customColor, gradient: `from-[${customColor}] to-[${customColor}]/80` }
+    ? { primary: customColor, secondary: customColor, gradient: 'bg-gradient-to-br' }
     : colorSchemes[landingPage.colorScheme] || colorSchemes.blue;
   
   const template = landingPage.template || 'modern';
@@ -667,7 +667,12 @@ export default function CustomLandingPage() {
 
         {/* Final CTA */}
         {!showOrderForm && (
-          <div className={`py-16 bg-gradient-to-br ${colors.gradient} text-white text-center`}>
+          <div 
+            className={`py-16 text-white text-center ${advancedSettings?.customColor ? '' : `bg-gradient-to-br ${colors.gradient}`}`}
+            style={advancedSettings?.customColor ? { 
+              background: `linear-gradient(to bottom right, ${customColor}, ${customColor}cc)` 
+            } : undefined}
+          >
             <div className="container mx-auto max-w-4xl px-8">
               <h2 className="text-3xl md:text-5xl font-bold mb-6">
                 لا تفوت هذا العرض!
