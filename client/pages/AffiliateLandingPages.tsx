@@ -1008,6 +1008,19 @@ export default function AffiliateLandingPages() {
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => {
+                        const message = `🔥 عرض حصري!\n\n${page.title}\n\n${page.affiliateLink}`;
+                        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                        window.open(whatsappUrl, '_blank');
+                      }}
+                      title="مشاركة على WhatsApp"
+                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       asChild
                       title="فتح"
                     >
