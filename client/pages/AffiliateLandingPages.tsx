@@ -208,32 +208,61 @@ export default function AffiliateLandingPages() {
       const pageId = ID.unique();
       
       // Save to database with advanced settings
-      const landingPage = await databases.createDocument(
-        appwriteConfig.databaseId,
-        'landing_pages',
-        pageId,
-        {
-          affiliateId: user.$id,
-          title: formData.title,
-          subtitle: formData.subtitle,
-          description: formData.description,
-          ctaText: formData.ctaText,
-          productUrl: formData.productUrl,
-          affiliateLink: affiliateLink,
-          template: selectedTemplate,
-          colorScheme: selectedColor,
-          features: formData.features,
-          testimonials: formData.testimonials,
-          countdown: formData.countdown,
-          slug: uniqueSlug,
-          views: 0,
-          clicks: 0,
-          conversions: 0,
-          isActive: true,
-          // Advanced settings as JSON string
-          advancedSettings: JSON.stringify(advancedSettings),
+      const docData: any = {
+        affiliateId: user.$id,
+        title: formData.title,
+        subtitle: formData.subtitle,
+        description: formData.description,
+        ctaText: formData.ctaText,
+        productUrl: formData.productUrl,
+        affiliateLink: affiliateLink,
+        template: selectedTemplate,
+        colorScheme: selectedColor,
+        features: formData.features,
+        testimonials: formData.testimonials,
+        countdown: formData.countdown,
+        slug: uniqueSlug,
+        views: 0,
+        clicks: 0,
+        conversions: 0,
+        isActive: true,
+      };
+      
+      // Only add advancedSettings if it exists in the schema
+      // Check if advancedSettings has any custom values
+      if (advancedSettings && Object.keys(advancedSettings).length > 0) {
+        docData.advancedSettings = JSON.stringify(advancedSettings);
+      }
+      
+      let landingPage;
+      try {
+        landingPage = await databases.createDocument(
+          appwriteConfig.databaseId,
+          'landing_pages',
+          pageId,
+          docData
+        );
+      } catch (error: any) {
+        // If advancedSettings field doesn't exist, try without it
+        if (error.message?.includes('advancedSettings')) {
+          console.warn('⚠️ advancedSettings field not found in Appwrite schema. Creating without it...');
+          delete docData.advancedSettings;
+          
+          landingPage = await databases.createDocument(
+            appwriteConfig.databaseId,
+            'landing_pages',
+            pageId,
+            docData
+          );
+          
+          toast({
+            title: '⚠️ ملاحظة',
+            description: 'تم إنشاء الصفحة بدون الإعدادات المتقدمة. يرجى إضافة حقل advancedSettings في Appwrite Console.',
+          });
+        } else {
+          throw error;
         }
-      );
+      }
       
       // Set the new generated URL
       setGeneratedUrl(affiliateLink);
