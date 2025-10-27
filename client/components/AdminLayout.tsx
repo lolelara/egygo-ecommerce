@@ -26,6 +26,7 @@ import {
   CreditCard,
   FileText,
   Image,
+  ArrowRight,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -281,6 +282,11 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // إخفاء زر الرجوع في صفحة الداشبورد الرئيسية
+  const showBackButton = location.pathname !== '/admin' && location.pathname !== '/admin/';
 
   return (
     <div className="min-h-screen bg-background">
@@ -312,7 +318,19 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         {/* Main content */}
         <div className="flex-1 lg:max-w-[calc(100vw-280px)]">
-          <main className="p-4 lg:p-6">{children}</main>
+          <main className="p-4 lg:p-6">
+            {showBackButton && (
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/admin')}
+                className="mb-4"
+              >
+                <ArrowRight className="h-4 w-4 ml-2" />
+                العودة للوحة التحكم
+              </Button>
+            )}
+            {children}
+          </main>
         </div>
       </div>
     </div>

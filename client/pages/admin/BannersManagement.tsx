@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import BackToAdminButton from '@/components/BackToAdminButton';
 import {
   Dialog,
   DialogContent,
@@ -373,6 +374,9 @@ export default function BannersManagement() {
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
+      {/* Back Button */}
+      <BackToAdminButton />
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">إدارة البانرات الإعلانية</h1>
