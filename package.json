@@ -48,6 +48,8 @@
     "setup-appwrite:test": "tsx scripts/setup-appwrite-database.ts with-test-users",
     "setup-collections": "tsx scripts/setup-appwrite-collections.ts",
     "update-permissions": "tsx scripts/update-collection-permissions.ts",
+    "setup-banners": "node scripts/setup-banners.js",
+    "fix-banners": "node scripts/fix-banners-attributes.js",
     "sync-users": "tsx scripts/sync-users-to-collection.ts",
     "test-registration": "tsx scripts/test-user-registration.ts",
     "create-collections": "tsx scripts/create-missing-collections.ts",

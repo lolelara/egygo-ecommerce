@@ -25,6 +25,7 @@ import {
   Wallet,
   CreditCard,
   FileText,
+  Image,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -112,6 +113,12 @@ const adminNavItems = [
     icon: Megaphone,
     roles: ['admin'], // فقط المدير
     badge: true, // سيظهر عدد الإعلانات المعلقة
+  },
+  {
+    title: "إدارة البانرات",
+    href: "/admin/banners",
+    icon: Image,
+    roles: ['admin'], // فقط المدير
   },
   {
     title: "الإعلانات",

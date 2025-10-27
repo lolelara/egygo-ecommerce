@@ -147,6 +147,7 @@ const App = () => (
               <Route path="/affiliate/earnings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateEarningsHistory /></ProtectedRoute>} />
               <Route path="/affiliate/product-links" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateProductLinks /></ProtectedRoute>} />
               <Route path="/affiliate/landing-pages" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLandingPages /></ProtectedRoute>} />
+              <Route path="/affiliate/tools" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateTools /></ProtectedRoute>} />
               <Route path="/affiliate/challenges" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateChallenges /></ProtectedRoute>} />
               <Route path="/affiliate/links" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLinkManager /></ProtectedRoute>} />
               <Route path="/affiliate/analytics" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
@@ -196,6 +197,7 @@ const App = () => (
               <Route path="/admin/deals" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminDealsManager /></ProtectedRoute>} />
               <Route path="/admin/advertisements" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvertisementsManager /></ProtectedRoute>} />
               <Route path="/admin/withdrawals" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminWithdrawals /></ProtectedRoute>} />
+              <Route path="/admin/banners" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.BannersManagement /></ProtectedRoute>} />
               <Route path="/admin/merchant-payments" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminMerchantPaymentsManager /></ProtectedRoute>} />
               <Route path="/admin/reports" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminFinancialReports /></ProtectedRoute>} />
               

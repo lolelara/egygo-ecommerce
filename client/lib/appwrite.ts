@@ -33,7 +33,12 @@ export const appwriteConfig = {
     referral_earnings: 'referral_earnings',
     offers: 'offers',  // Collection for promotional offers/announcements
     landing_pages: 'landing_pages',  // Collection for affiliate landing pages
-    affiliate_links: 'affiliate_links'  // Collection for affiliate product links
+    affiliate_links: 'affiliate_links',  // Collection for affiliate product links
+    banners: 'banners',  // Collection for rotating banners
+    bannerSettings: 'bannerSettings'  // Collection for banner settings
+  },
+  buckets: {
+    banners: 'banners'  // Storage bucket for banner images
   }
 };
 
