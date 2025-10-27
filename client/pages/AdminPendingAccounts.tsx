@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AdminLayout } from "@/components/AdminLayout";
 import { PageSkeleton, StatsCardSkeleton, TableSkeleton } from "@/components/LoadingSkeletons";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { databases, appwriteConfig, account } from "@/lib/appwrite";
@@ -358,25 +359,28 @@ export default function AdminPendingAccounts() {
 
   if (isLoading) {
     return (
-      <PageSkeleton>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {[...Array(3)].map((_, i) => (
-            <StatsCardSkeleton key={i} />
-          ))}
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <tbody>
-              <TableSkeleton rows={8} cols={7} />
-            </tbody>
-          </table>
-        </div>
-      </PageSkeleton>
+      <AdminLayout>
+        <PageSkeleton>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {[...Array(3)].map((_, i) => (
+              <StatsCardSkeleton key={i} />
+            ))}
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <tbody>
+                <TableSkeleton rows={8} cols={7} />
+              </tbody>
+            </table>
+          </div>
+        </PageSkeleton>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <AdminLayout>
+      <div className="space-y-6">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">الحسابات المعلقة</h1>
@@ -730,6 +734,7 @@ export default function AdminPendingAccounts() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

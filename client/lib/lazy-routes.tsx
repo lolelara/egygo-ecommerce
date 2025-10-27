@@ -123,6 +123,7 @@ export const AdminWithdrawals = lazyLoad(() => import('@/pages/AdminWithdrawalsM
 export const AdminMerchantPaymentsManager = lazyLoad(() => import('@/pages/AdminMerchantPaymentsManager'));
 export const AdminFinancialReports = lazyLoad(() => import('@/pages/AdminFinancialReports'));
 export const BannersManagement = lazyLoad(() => import('@/pages/admin/BannersManagement'));
+export const AdminWhatsAppManager = lazyLoad(() => import('@/pages/AdminWhatsAppManager'));
 
 // Advertising Pages
 export const AdPaymentPage = lazyLoad(() => import('@/pages/AdPaymentPage'));

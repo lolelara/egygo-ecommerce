@@ -198,6 +198,7 @@ const App = () => (
               <Route path="/admin/advertisements" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvertisementsManager /></ProtectedRoute>} />
               <Route path="/admin/withdrawals" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminWithdrawals /></ProtectedRoute>} />
               <Route path="/admin/banners" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.BannersManagement /></ProtectedRoute>} />
+              <Route path="/admin/whatsapp" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminWhatsAppManager /></ProtectedRoute>} />
               <Route path="/admin/merchant-payments" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminMerchantPaymentsManager /></ProtectedRoute>} />
               <Route path="/admin/reports" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminFinancialReports /></ProtectedRoute>} />
               

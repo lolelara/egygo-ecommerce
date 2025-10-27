@@ -27,6 +27,10 @@ import {
   FileText,
   Image,
   ArrowRight,
+  Bot,
+  Zap,
+  MessageSquare,
+  Gift,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -179,6 +183,30 @@ const adminNavItems = [
     title: "الإشعارات",
     href: "/admin/notifications",
     icon: Bell,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "لوحة الذكاء الاصطناعي",
+    href: "/admin/ai-dashboard",
+    icon: Bot,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "أدوات الـ AI",
+    href: "/admin/ai-tools",
+    icon: Zap,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "إدارة الواتساب",
+    href: "/admin/whatsapp",
+    icon: MessageSquare,
+    roles: ['admin'], // فقط المدير
+  },
+  {
+    title: "إدارة العروض الخاصة",
+    href: "/admin/offers",
+    icon: Gift,
     roles: ['admin'], // فقط المدير
   },
   {
