@@ -42,6 +42,8 @@ import EnhancedProductCard from "@/components/EnhancedProductCard";
 import { SEOHead } from "@/components/SEOHead";
 import { ProductCardSkeleton } from "@/components/SkeletonLoader";
 import { analytics } from "@/lib/enhanced-analytics";
+import RotatingBanner from "@/components/banners/RotatingBanner";
+import { getBannersByLocation, getBannerSettings } from "@/lib/banners-api";
 
 type SortOption = "featured" | "price_asc" | "price_desc" | "rating" | "newest";
 
@@ -62,6 +64,17 @@ export default function Products() {
   const { data: categoriesData } = useQuery({
     queryKey: queryKeys.categories,
     queryFn: categoriesApi.getAll,
+  });
+
+  // Fetch banners
+  const { data: bannersData } = useQuery({
+    queryKey: ['banners', 'products'],
+    queryFn: () => getBannersByLocation('products'),
+  });
+
+  const { data: bannerSettings } = useQuery({
+    queryKey: ['bannerSettings', 'products'],
+    queryFn: () => getBannerSettings('products'),
   });
 
   // Build filters
@@ -312,6 +325,19 @@ export default function Products() {
           </div>
         </div>
       </div>
+
+      {/* Banners Section */}
+      {bannersData && bannersData.length > 0 && (
+        <div className="container mx-auto px-4 py-4">
+          <RotatingBanner
+            banners={bannersData}
+            autoPlayInterval={bannerSettings?.autoPlayInterval || 5}
+            showControls={bannerSettings?.showControls ?? true}
+            height={bannerSettings?.height || '300px'}
+            location="products"
+          />
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8">
         {/* Search and Controls */}

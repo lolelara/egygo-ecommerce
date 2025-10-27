@@ -8,12 +8,12 @@ import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Banner {
-  id: string;
+  $id?: string;
   title: string;
   imageUrl: string;
   link?: string;
-  isActive: boolean;
-  order: number;
+  isActive?: boolean;
+  order?: number;
 }
 
 interface RotatingBannerProps {
@@ -36,8 +36,8 @@ export default function RotatingBanner({
   const [isHovered, setIsHovered] = useState(false);
 
   const activeBanners = banners
-    .filter(b => b.isActive)
-    .sort((a, b) => a.order - b.order);
+    .filter(b => b.isActive !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   // Auto-play functionality
   useEffect(() => {

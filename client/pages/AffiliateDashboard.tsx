@@ -50,6 +50,9 @@ import { getAffiliateStats, getActiveProducts, getAffiliateActivities } from "@/
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { ProductWithRelations } from "@shared/prisma-types";
+import RotatingBanner from "@/components/banners/RotatingBanner";
+import { getBannersByLocation, getBannerSettings } from "@/lib/banners-api";
+import { useQuery } from "@tanstack/react-query";
 import AffiliateStats from "@/components/charts/AffiliateStats";
 import AffiliateProductLinks from "./AffiliateProductLinks";
 import QuickActionsPanel from "@/components/affiliate/QuickActionsPanel";
@@ -74,6 +77,17 @@ export default function AffiliateDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [showCalculator, setShowCalculator] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Fetch banners
+  const { data: bannersData } = useQuery({
+    queryKey: ['banners', 'affiliate'],
+    queryFn: () => getBannersByLocation('affiliate'),
+  });
+
+  const { data: bannerSettings } = useQuery({
+    queryKey: ['bannerSettings', 'affiliate'],
+    queryFn: () => getBannerSettings('affiliate'),
+  });
 
   useEffect(() => {
     loadData();
@@ -321,6 +335,17 @@ export default function AffiliateDashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Banners Section */}
+          {bannersData && bannersData.length > 0 && (
+            <RotatingBanner
+              banners={bannersData}
+              autoPlayInterval={bannerSettings?.autoPlayInterval || 5}
+              showControls={bannerSettings?.showControls ?? true}
+              height={bannerSettings?.height || '300px'}
+              location="affiliate"
+            />
+          )}
 
           {/* Stats Cards - الأهم أولاً */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

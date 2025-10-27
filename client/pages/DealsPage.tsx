@@ -8,11 +8,24 @@ import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import RotatingBanner from "@/components/banners/RotatingBanner";
+import { getBannersByLocation, getBannerSettings } from "@/lib/banners-api";
 
 export default function DealsPage() {
   const { addItem } = useCart();
   const { toast } = useToast();
   const [loadingProduct, setLoadingProduct] = useState<string | null>(null);
+
+  // Fetch banners
+  const { data: bannersData } = useQuery({
+    queryKey: ['banners', 'offers'],
+    queryFn: () => getBannersByLocation('offers'),
+  });
+
+  const { data: bannerSettings } = useQuery({
+    queryKey: ['bannerSettings', 'offers'],
+    queryFn: () => getBannerSettings('offers'),
+  });
 
   // Fetch featured deals from admin-selected products
   const { data: productsData, isLoading } = useQuery({
@@ -137,6 +150,19 @@ export default function DealsPage() {
           </div>
         </div>
       </div>
+
+      {/* Banners Section */}
+      {bannersData && bannersData.length > 0 && (
+        <div className="container mx-auto px-4 py-4">
+          <RotatingBanner
+            banners={bannersData}
+            autoPlayInterval={bannerSettings?.autoPlayInterval || 5}
+            showControls={bannerSettings?.showControls ?? true}
+            height={bannerSettings?.height || '300px'}
+            location="offers"
+          />
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-12">
 
