@@ -239,10 +239,10 @@ async function setupBanners() {
         false, // fileSecurity
         true,  // enabled
         10485760, // maxFileSize (10MB)
-        ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'], // allowedFileExtensions
-        undefined, // compression
-        undefined, // encryption
-        undefined  // antivirus
+        ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'], // allowedFileExtensions - بدون "image/"
+        sdk.Compression.none, // compression
+        false, // encryption
+        false  // antivirus
       );
       console.log('✅ Banners storage bucket created successfully');
     } catch (error) {

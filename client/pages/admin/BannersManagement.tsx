@@ -141,7 +141,9 @@ export default function BannersManagement() {
         file
       );
       
-      return storage.getFileView(STORAGE_BUCKET_ID, response.$id).href;
+      // getFileView returns URL object
+      const fileUrl = storage.getFileView(STORAGE_BUCKET_ID, response.$id);
+      return fileUrl.toString();
     } catch (error) {
       console.error('Error uploading image:', error);
       throw error;
@@ -152,8 +154,33 @@ export default function BannersManagement() {
     try {
       let imageUrl = formData.imageUrl;
       
+      // إذا كان بانر جديد ولا توجد صورة، اعرض خطأ
+      if (!editingBanner?.$id && !imageFile && !formData.imageUrl) {
+        toast({
+          variant: 'destructive',
+          title: 'خطأ',
+          description: 'يجب اختيار صورة للبانر'
+        });
+        return;
+      }
+      
+      // رفع الصورة إذا تم اختيار صورة جديدة
       if (imageFile) {
+        toast({
+          title: 'جاري الرفع',
+          description: 'جاري رفع الصورة...'
+        });
         imageUrl = await uploadImage(imageFile);
+      }
+
+      // التحقق من وجود imageUrl
+      if (!imageUrl) {
+        toast({
+          variant: 'destructive',
+          title: 'خطأ',
+          description: 'فشل رفع الصورة، يرجى المحاولة مرة أخرى'
+        });
+        return;
       }
 
       const bannerData = {
@@ -196,7 +223,7 @@ export default function BannersManagement() {
       toast({
         variant: 'destructive',
         title: 'خطأ',
-        description: 'فشل حفظ البانر'
+        description: 'فشل حفظ البانر: ' + (error instanceof Error ? error.message : 'خطأ غير معروف')
       });
     }
   };
@@ -590,12 +617,17 @@ export default function BannersManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label>صورة البانر</Label>
+              <Label>
+                صورة البانر {!editingBanner && <span className="text-red-500">*</span>}
+              </Label>
               <Input
                 type="file"
-                accept="image/*"
+                accept="image/png,image/jpg,image/jpeg,image/webp,image/gif,image/svg+xml"
                 onChange={handleImageChange}
               />
+              <p className="text-xs text-muted-foreground">
+                الصيغ المسموحة: PNG, JPG, JPEG, WebP, GIF, SVG (حتى 10MB)
+              </p>
               {imagePreview && (
                 <div className="mt-2">
                   <img 

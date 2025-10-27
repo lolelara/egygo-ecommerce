@@ -50,6 +50,7 @@
     "update-permissions": "tsx scripts/update-collection-permissions.ts",
     "setup-banners": "node scripts/setup-banners.js",
     "fix-banners": "node scripts/fix-banners-attributes.js",
+    "fix-banners-bucket": "node scripts/fix-banners-bucket.js",
     "sync-users": "tsx scripts/sync-users-to-collection.ts",
     "test-registration": "tsx scripts/test-user-registration.ts",
     "create-collections": "tsx scripts/create-missing-collections.ts",
