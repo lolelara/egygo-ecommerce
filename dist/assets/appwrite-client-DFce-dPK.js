@@ -1,1 +1,0 @@
-import{D as s,A as a,C as c}from"./vendor-appwrite-CuqfvTq9.js";const t=new c,e="https://fra.cloud.appwrite.io/v1",n="68d8b9db00134c41e7c8";t.setEndpoint(e).setProject(n);const d=new a(t),A=new s(t),D="68de037e003bd03c4d45";export{D,d as a,A as d};
