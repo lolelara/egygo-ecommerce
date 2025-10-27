@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Appwrite Function - Enhanced Vendoor Products Scraper with Auto-Save",
   "main": "src/main.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "test": "node test.js",
     "build": "echo 'No build needed for serverless'",

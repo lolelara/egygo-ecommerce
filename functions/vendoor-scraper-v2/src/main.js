@@ -1,6 +1,10 @@
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
-import { Client, Databases, Storage, ID } from 'node-appwrite';
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
+const { Client, Databases, Storage, ID } = require('node-appwrite');
+
+// Set chromium flags for serverless environment
+chromium.setGraphicsMode = false;
+chromium.setHeadlessMode = true;
 
 const LOGIN_URL = 'https://aff.ven-door.com/login';
 const PRODUCTS_BASE_URL = 'https://aff.ven-door.com/products';
@@ -9,17 +13,30 @@ const AFFILIATE_ID = '29631';
 /**
  * Appwrite Function Entry Point
  */
-export default async ({ req, res, log, error }) => {
+module.exports = async ({ req, res, log, error }) => {
   try {
+    log('🚀 بدء Vendoor Scraper V2 Function');
+    
     // Parse request body
-    const body = JSON.parse(req.bodyRaw || '{}');
+    let payload = {};
+    if (req.body && req.body.trim() !== '') {
+      try {
+        payload = JSON.parse(req.body);
+      } catch (e) {
+        log('⚠️ خطأ في parse body، استخدام query parameters');
+        payload = req.query || {};
+      }
+    } else {
+      payload = req.query || {};
+    }
+    
     const { 
       email, 
       password, 
       maxPages = 10,
       includeDetails = false,
       operation = 'scrape' // 'scrape' | 'progress' | 'files'
-    } = body;
+    } = payload;
 
     log(`📋 Operation: ${operation}`);
     log(`📧 Email: ${email}`);
@@ -78,12 +95,33 @@ export default async ({ req, res, log, error }) => {
 
     log('🚀 Starting Vendoor scraping...');
 
-    // Launch browser
+    // Launch browser with proper configuration for Appwrite
+    let executablePath;
+    try {
+      executablePath = await chromium.executablePath();
+      log(`✅ Chromium path: ${executablePath}`);
+    } catch (chromiumError) {
+      error('Failed to get Chromium path:', chromiumError);
+      executablePath = '/usr/bin/chromium-browser'; // Fallback
+    }
+
     const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      args: [
+        ...chromium.args,
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--single-process',
+        '--no-zygote',
+        '--disable-extensions'
+      ],
+      defaultViewport: chromium.defaultViewport || { width: 1920, height: 1080 },
+      executablePath,
+      headless: true,
+      ignoreHTTPSErrors: true,
+      timeout: 60000
     });
 
     const page = await browser.newPage();
