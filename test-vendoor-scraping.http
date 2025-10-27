@@ -1,0 +1,62 @@
+### Test Vendoor Enhanced Scraping
+### Make sure server is running on http://localhost:5000
+
+### 1. Start Scraping (Save to JSON)
+POST http://localhost:5000/api/vendoor/scrape-and-save
+Content-Type: application/json
+
+{
+  "email": "your-vendoor-email@example.com",
+  "password": "your-vendoor-password",
+  "maxPages": 2,
+  "format": "json",
+  "includeDetails": false
+}
+
+###
+
+### 2. Check Progress
+GET http://localhost:5000/api/vendoor/enhanced-progress
+
+###
+
+### 3. List Export Files
+GET http://localhost:5000/api/vendoor/files
+
+###
+
+### 4. Download File (replace filename)
+GET http://localhost:5000/api/vendoor/download/vendoor_products_2025-01-27T18-30-45.json
+
+###
+
+### 5. Delete File (replace filename)
+DELETE http://localhost:5000/api/vendoor/files/vendoor_products_2025-01-27T18-30-45.json
+
+###
+
+### Test with CSV format
+POST http://localhost:5000/api/vendoor/scrape-and-save
+Content-Type: application/json
+
+{
+  "email": "your-vendoor-email@example.com",
+  "password": "your-vendoor-password",
+  "maxPages": 1,
+  "format": "csv",
+  "includeDetails": false
+}
+
+###
+
+### Test with full details (slower but complete data)
+POST http://localhost:5000/api/vendoor/scrape-and-save
+Content-Type: application/json
+
+{
+  "email": "your-vendoor-email@example.com",
+  "password": "your-vendoor-password",
+  "maxPages": 1,
+  "format": "json",
+  "includeDetails": true
+}

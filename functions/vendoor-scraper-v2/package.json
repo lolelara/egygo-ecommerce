@@ -1,0 +1,21 @@
+{
+  "name": "vendoor-scraper-v2",
+  "version": "2.0.0",
+  "description": "Appwrite Function - Enhanced Vendoor Products Scraper with Auto-Save",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test.js",
+    "build": "echo 'No build needed for serverless'",
+    "deploy": "appwrite deploy function"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "^131.0.0",
+    "puppeteer-core": "^23.8.0",
+    "node-appwrite": "^13.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

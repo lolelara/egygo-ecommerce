@@ -1,0 +1,25 @@
+{
+  "projectId": "YOUR_PROJECT_ID",
+  "projectName": "EgyGo",
+  "functions": [
+    {
+      "$id": "vendoor-scraper-v2",
+      "name": "Vendoor Scraper V2",
+      "runtime": "node-18.0",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 900,
+      "enabled": true,
+      "logging": true,
+      "entrypoint": "src/main.js",
+      "commands": "npm install",
+      "path": "functions/vendoor-scraper-v2",
+      "vars": {
+        "APPWRITE_ENDPOINT": "https://cloud.appwrite.io/v1",
+        "APPWRITE_API_KEY": "YOUR_API_KEY",
+        "VENDOOR_BUCKET_ID": "vendoor-exports"
+      }
+    }
+  ]
+}

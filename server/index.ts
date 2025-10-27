@@ -54,6 +54,7 @@ import {
   updateVendoorProducts,
   warmupHandler,
 } from "./routes/vendoor-new";
+import * as vendoorEnhanced from "./routes/vendoor-enhanced";
 import { startVendoorSyncCron, runManualSync } from "./cron/vendoor-sync";
 import { scrapeProduct } from "./routes/scrape-product";
 import { 
@@ -206,6 +207,14 @@ export function createServer() {
       res.status(500).json({ success: false, error: error.message });
     }
   });
+
+  // Vendoor Enhanced APIs (NEW - Auto-save to files)
+  app.post("/api/vendoor/scrape-and-save", vendoorEnhanced.scrapeAndSaveProducts);
+  app.get("/api/vendoor/enhanced-progress", vendoorEnhanced.getScrapingProgress);
+  app.get("/api/vendoor/files", vendoorEnhanced.listExportFiles);
+  app.get("/api/vendoor/download/:filename", vendoorEnhanced.downloadExportFile);
+  app.delete("/api/vendoor/files/:filename", vendoorEnhanced.deleteExportFile);
+
   app.put("/api/admin/orders/:id/status", updateOrderStatus);
   app.get("/api/admin/commissions", getCommissions);
   app.put("/api/admin/commissions/:id/status", updateCommissionStatus);
