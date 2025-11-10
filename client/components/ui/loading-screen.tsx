@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { EgyGoLogo2D } from '@/components/enhanced/EgyGoLogo3D';
 import { Loader2 } from 'lucide-react';
 
 interface LoadingScreenProps {
@@ -34,8 +33,13 @@ export function LoadingScreen({
               type: 'spring',
               stiffness: 200
             }}
+            className="flex justify-center mb-4"
           >
-            <EgyGoLogo2D size="large" animated={true} />
+            <img 
+              src="/logo.jpg" 
+              alt="EgyGo" 
+              className="h-24 w-auto"
+            />
           </motion.div>
         )}
 

@@ -13,7 +13,6 @@ import { Header } from "./components/Header";
 import { HelmetProvider } from "react-helmet-async";
 import { ParallaxProvider } from "react-scroll-parallax";
 import { initializeEnhancements } from "./components/enhanced/GlobalEnhancements";
-import EgyGoLogo3D from "./components/enhanced/EgyGoLogo3D";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 import { Footer } from "./components/Footer";

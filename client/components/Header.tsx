@@ -197,7 +197,7 @@ export function Header({ cartItemCount }: HeaderProps) {
 
         {/* Logo */}
         <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center">
-          <img src="/logo.jpg" alt="EgyGo" className="h-8 md:h-10 w-auto" />
+          <img src="/logo.jpg" alt="EgyGo" className="h-10 md:h-12 w-auto transition-all duration-300 hover:scale-105" />
         </Link>
 
         {/* Desktop Navigation - Streamlined */}
