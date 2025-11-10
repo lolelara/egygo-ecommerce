@@ -6,11 +6,11 @@
     <!-- Content Security Policy - Allow reCAPTCHA and other services -->
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://connect.facebook.net https://cloud.appwrite.io;
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://connect.facebook.net https://cloud.appwrite.io https://*.cloud.appwrite.io;
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       font-src 'self' https://fonts.gstatic.com;
       img-src 'self' data: blob: https: http:;
-      connect-src 'self' https://cloud.appwrite.io https://www.google-analytics.com https://www.facebook.com;
+      connect-src 'self' https://cloud.appwrite.io https://*.cloud.appwrite.io https://www.google-analytics.com https://www.facebook.com;
       frame-src 'self' https://www.google.com https://www.facebook.com;
       worker-src 'self' blob:;
     ">
