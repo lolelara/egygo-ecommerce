@@ -28,6 +28,7 @@ import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -41,6 +42,7 @@ export function Header({ cartItemCount }: HeaderProps) {
   const { items, itemCount } = useCart();
   const { favorites } = useFavorites();
   const { t } = useI18n();
+  const { theme } = useTheme();
   const totalItems = cartItemCount ?? itemCount;
   const wishlistCount = favorites.length;
 
@@ -197,7 +199,13 @@ export function Header({ cartItemCount }: HeaderProps) {
 
         {/* Logo */}
         <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center">
-          <img src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" alt="EgyGo" className="h-14 md:h-16 w-auto transition-all duration-300 hover:scale-105" />
+          <img 
+            src={theme === 'dark' 
+              ? "https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo-dark.png/view?project=68d8b9db00134c41e7c8" 
+              : "https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8"} 
+            alt="EgyGo" 
+            className="h-14 md:h-16 w-auto transition-all duration-300 hover:scale-105" 
+          />
         </Link>
 
         {/* Desktop Navigation - Streamlined */}

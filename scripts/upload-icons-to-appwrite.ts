@@ -35,6 +35,7 @@ const iconsToUpload = [
   'android-chrome-512x512.png',
   'og-image.jpg',
   'logo.png',
+  'logo-dark.png',
   'manifest.json'
 ];
 

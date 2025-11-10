@@ -16,6 +16,7 @@ export const appwriteAssets = {
     'android-chrome-512x512.png': 'https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/android-chrome-512x512.png/view?project=68d8b9db00134c41e7c8',
     'og-image.jpg': 'https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/og-image.jpg/view?project=68d8b9db00134c41e7c8',
     'logo.png': 'https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8',
+    'logo-dark.png': 'https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo-dark.png/view?project=68d8b9db00134c41e7c8',
     'manifest.json': 'https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/manifest.json/view?project=68d8b9db00134c41e7c8'
   },
   
