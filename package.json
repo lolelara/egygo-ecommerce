@@ -91,6 +91,8 @@
     "setup:locations": "npx tsx scripts/add-location-fields.ts",
     "seed:activities": "npx tsx scripts/seed-affiliate-activities.ts",
     "warmup-vendoor": "tsx scripts/warmup-vendoor.ts",
+    "generate-icons": "node scripts/generate-icons.js",
+    "upload-icons": "tsx scripts/upload-icons-to-appwrite.ts",
     "db:migrate": "echo 'Using Appwrite instead of Prisma'",
     "db:seed": "echo 'Using Appwrite instead of Prisma'",
     "db:studio": "echo 'Using Appwrite instead of Prisma'",
