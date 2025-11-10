@@ -44,6 +44,7 @@ export default function VendoorProducts() {
   });
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [pagination, setPagination] = useState({
@@ -87,6 +88,28 @@ export default function VendoorProducts() {
     }
   };
 
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  const updateWithRetry = async (collection: string, id: string, data: any, maxRetries = 5) => {
+    let attempt = 0;
+    let delay = 500;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        return await databases.updateDocument(DATABASE_ID, collection, id, data);
+      } catch (e: any) {
+        const code = (e && (e.code || e.response?.status)) || 0;
+        if (code === 429 && attempt < maxRetries) {
+          await sleep(delay);
+          delay = Math.min(delay * 2, 4000);
+          attempt++;
+          continue;
+        }
+        throw e;
+      }
+    }
+  };
+
   // Update settings directly in Appwrite
   const updateSettingsInAppwrite = async () => {
     const list: any = await databases.listDocuments(DATABASE_ID, 'vendoor_settings', [Query.limit(1)]);
@@ -105,56 +128,87 @@ export default function VendoorProducts() {
 
   // Bulk update product status directly in Appwrite
   const bulkUpdateStatusInAppwrite = async (status: string) => {
+    setStatusUpdating(true);
     let updated = 0;
+    let counter = 0;
     for (const id of selectedProducts) {
       try {
-        await databases.updateDocument(DATABASE_ID, 'products', id, { status });
+        await updateWithRetry('products', id, { status });
         updated++;
       } catch (e) {
         // ignore individual failures
+      }
+      counter++;
+      await sleep(500);
+      if (counter % 10 === 0) {
+        await sleep(2000);
       }
     }
     toast.success(`تم تحديث ${updated} منتج`);
     await fetchProductsFromAppwrite();
     setSelectedProducts([]);
+    setStatusUpdating(false);
   };
 
   // Apply profit margin to all Vendoor products in Appwrite
-  const applyProfitMarginInAppwrite = async () => {
+  const applyProfitMarginInAppwrite = async (ids?: string[]) => {
     setApplying(true);
-    const limit = 100;
+    const limit = 50;
     let offset = 0;
     let total = 0;
     let updated = 0;
     try {
       do {
-        const resp: any = await databases.listDocuments(DATABASE_ID, 'products', [
-          Query.equal('source', 'vendoor'),
-          Query.limit(limit),
-          Query.offset(offset)
-        ]);
-        const docs = resp.documents || [];
-        total = resp.total ?? (offset + docs.length);
+        let docs: any[] = [];
+        if (ids && ids.length > 0) {
+          const slice = ids.slice(offset, offset + limit);
+          // Fetch specific documents by ID in small batches
+          for (const docId of slice) {
+            try {
+              const d: any = await databases.getDocument(DATABASE_ID, 'products', docId);
+              docs.push(d);
+              await sleep(200);
+            } catch {}
+          }
+          total = ids.length;
+        } else {
+          const resp: any = await databases.listDocuments(DATABASE_ID, 'products', [
+            Query.equal('source', 'vendoor'),
+            Query.limit(limit),
+            Query.offset(offset)
+          ]);
+          docs = resp.documents || [];
+          total = resp.total ?? (offset + docs.length);
+        }
         for (const doc of docs) {
           const basePrice = Number(doc.originalPrice ?? doc.price ?? 0);
           if (!basePrice || basePrice <= 0) continue;
           const newPrice = settings.profitType === 'percentage'
             ? Math.round(basePrice * (1 + Number(settings.profitValue) / 100))
             : Math.round(basePrice + Number(settings.profitValue));
-          try {
-            await databases.updateDocument(DATABASE_ID, 'products', doc.$id, {
-              price: newPrice,
-              originalPrice: basePrice,
-              profitMargin: Number(settings.profitValue),
-              profitType: settings.profitType
-            });
-            updated++;
-          } catch (e) {
-            // ignore single update failure
+          // Skip if already up-to-date
+          const already = Number(doc.price) === newPrice
+            && Number(doc.originalPrice ?? doc.price) === Number(doc.originalPrice ?? doc.price)
+            && Number(doc.profitMargin ?? -1) === Number(settings.profitValue)
+            && String(doc.profitType ?? '') === String(settings.profitType);
+          if (!already) {
+            try {
+              await updateWithRetry('products', doc.$id, {
+                price: newPrice,
+                originalPrice: basePrice,
+                profitMargin: Number(settings.profitValue),
+                profitType: settings.profitType
+              });
+              updated++;
+            } catch (e) {
+              // ignore single update failure
+            }
           }
+          await sleep(500);
         }
         offset += docs.length;
-      } while (offset < total && offset > 0);
+        await sleep(1500);
+      } while (offset < total);
       toast.success(`تم تحديث الأسعار لـ ${updated} منتج`);
       await fetchProductsFromAppwrite();
     } finally {
@@ -223,7 +277,11 @@ export default function VendoorProducts() {
   
   // Apply profit margin to all products
   const handleApplyProfitMargin = async () => {
-    if (!confirm(`هل أنت متأكد من تطبيق ${settings.profitValue}${settings.profitType === 'percentage' ? '%' : ' جنيه'} على جميع منتجات Vendoor؟`)) {
+    const applyOnSelected = selectedProducts.length > 0;
+    const confirmText = applyOnSelected
+      ? `هل أنت متأكد من تطبيق ${settings.profitValue}${settings.profitType === 'percentage' ? '%' : ' جنيه'} على ${selectedProducts.length} منتج محدد؟`
+      : `هل أنت متأكد من تطبيق ${settings.profitValue}${settings.profitType === 'percentage' ? '%' : ' جنيه'} على جميع منتجات Vendoor؟`;
+    if (!confirm(confirmText)) {
       return;
     }
     
@@ -234,13 +292,14 @@ export default function VendoorProducts() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           profitType: settings.profitType,
-          profitValue: settings.profitValue
+          profitValue: settings.profitValue,
+          productIds: applyOnSelected ? selectedProducts : undefined
         })
       });
       
       if (!response.ok) {
         // Fallback to Appwrite direct updates
-        await applyProfitMarginInAppwrite();
+        await applyProfitMarginInAppwrite(applyOnSelected ? selectedProducts : undefined);
         return;
       }
       const result = await response.json();
@@ -248,11 +307,11 @@ export default function VendoorProducts() {
         toast.success(`تم تحديث ${result.updatedCount} منتج بنجاح!`);
         fetchProducts();
       } else {
-        await applyProfitMarginInAppwrite();
+        await applyProfitMarginInAppwrite(applyOnSelected ? selectedProducts : undefined);
       }
     } catch (error) {
       console.error('Error applying profit margin:', error);
-      await applyProfitMarginInAppwrite();
+      await applyProfitMarginInAppwrite(applyOnSelected ? selectedProducts : undefined);
     } finally {
       // set by applyProfitMarginInAppwrite or above
     }

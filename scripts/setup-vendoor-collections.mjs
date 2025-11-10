@@ -1,4 +1,4 @@
-import { Client, Databases, ID } from 'node-appwrite';
+import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
 import 'dotenv/config';
 
 // Appwrite Configuration
@@ -133,6 +133,41 @@ async function setupCollections() {
           console.error(`     ❌ فشل: ${error.message}`);
         }
       }
+    }
+    
+    // 3. Ensure default settings document exists with public read permissions
+    try {
+      console.log('\n🧩 إنشاء/تحديث مستند الإعدادات الافتراضي (public read)...');
+      const payload = {
+        profitType: 'percentage',
+        profitValue: 5.0,
+        autoApply: false
+      };
+      try {
+        await databases.createDocument(
+          DATABASE_ID,
+          'vendoor_settings',
+          'default',
+          payload,
+          [Permission.read(Role.any())]
+        );
+        console.log('  ✅ تم إنشاء المستند default مع صلاحية القراءة العامة');
+      } catch (e) {
+        if (e.message?.includes('already exists')) {
+          await databases.updateDocument(
+            DATABASE_ID,
+            'vendoor_settings',
+            'default',
+            payload,
+            [Permission.read(Role.any())]
+          );
+          console.log('  ✅ تم تحديث المستند default وتعيين صلاحية القراءة العامة');
+        } else {
+          throw e;
+        }
+      }
+    } catch (e) {
+      console.log('  ⚠️ تعذر إنشاء/تحديث مستند الإعدادات الافتراضي:', e.message);
     }
     
     console.log('\n' + '='.repeat(70));
