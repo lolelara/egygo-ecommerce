@@ -190,15 +190,6 @@ export default function Index() {
         <div className="relative container mx-auto px-4 py-24 lg:py-32 z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
-              {/* Logo Section */}
-              <div className="mb-8 animate-fade-in">
-                <img 
-                  src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" 
-                  alt="EgyGo Logo" 
-                  className="h-20 w-auto drop-shadow-2xl"
-                />
-              </div>
-              
               <div className="space-y-6">
                 <Badge className="bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm text-white border border-white/20 shadow-xl font-bold px-6 py-2 text-base">
                   ✨ منصة التسويق والتجارة الإلكترونية الأولى

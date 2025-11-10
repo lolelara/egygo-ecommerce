@@ -36,7 +36,7 @@ export function LoadingScreen({
             className="flex justify-center mb-4"
           >
             <img 
-              src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.jpg/view?project=68d8b9db00134c41e7c8" 
+              src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" 
               alt="EgyGo" 
               className="h-24 w-auto"
             />

@@ -182,7 +182,7 @@ export default function Login() {
           {/* Mobile Logo */}
           <div className="text-center lg:hidden">
             <Link to="/" className="inline-flex items-center gap-2">
-              <img src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.jpg/view?project=68d8b9db00134c41e7c8" alt="EgyGo" className="h-10 w-auto" />
+              <img src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" alt="EgyGo" className="h-10 w-auto" />
             </Link>
           </div>
           {/* Header */}
