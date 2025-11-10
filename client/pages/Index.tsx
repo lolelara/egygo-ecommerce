@@ -194,7 +194,7 @@ export default function Index() {
               <div className="flex items-center gap-4 animate-fade-in">
                 <div className="bg-white p-4 rounded-2xl shadow-2xl">
                   <img 
-                    src="/logo.jpg" 
+                    src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.jpg/view?project=68d8b9db00134c41e7c8" 
                     alt="EgyGo Logo" 
                     className="h-16 w-auto"
                   />

@@ -13,7 +13,7 @@ export function SEOHead({
   title,
   description,
   keywords = [],
-  image = '/logo.jpg',
+  image = 'https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/og-image.jpg/view?project=68d8b9db00134c41e7c8',
   url = typeof window !== 'undefined' ? window.location.href : '',
   type = 'website',
 }: SEOHeadProps) {
