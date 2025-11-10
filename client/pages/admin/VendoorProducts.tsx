@@ -12,6 +12,8 @@ import {
   Settings,
   Filter
 } from 'lucide-react';
+import { databases, DATABASE_ID } from '@/lib/appwrite-client';
+import { Query } from 'appwrite';
 
 interface VendoorProduct {
   $id: string;
@@ -51,6 +53,115 @@ export default function VendoorProducts() {
     pages: 1
   });
   
+  // Fallback: Fetch products directly from Appwrite when /api is unavailable
+  const fetchProductsFromAppwrite = async () => {
+    const queries = [
+      Query.equal('source', 'vendoor'),
+      Query.limit(pagination.limit),
+      Query.offset((pagination.page - 1) * pagination.limit),
+      Query.orderDesc('$createdAt')
+    ];
+    if (statusFilter !== 'all') {
+      queries.push(Query.equal('status', statusFilter));
+    }
+    const resp: any = await databases.listDocuments(DATABASE_ID, 'products', queries);
+    const total = resp.total ?? (resp.documents?.length || 0);
+    setProducts(resp.documents || []);
+    setPagination(prev => ({
+      ...prev,
+      total,
+      pages: Math.max(1, Math.ceil(total / prev.limit))
+    }));
+  };
+
+  // Fallback: Fetch settings directly from Appwrite
+  const fetchSettingsFromAppwrite = async () => {
+    const resp: any = await databases.listDocuments(DATABASE_ID, 'vendoor_settings', [Query.limit(1)]);
+    if (resp.documents && resp.documents.length > 0) {
+      const s = resp.documents[0];
+      setSettings({
+        profitType: (s.profitType as 'percentage' | 'fixed') ?? 'percentage',
+        profitValue: Number(s.profitValue ?? 5),
+        autoApply: Boolean(s.autoApply ?? false)
+      });
+    }
+  };
+
+  // Update settings directly in Appwrite
+  const updateSettingsInAppwrite = async () => {
+    const list: any = await databases.listDocuments(DATABASE_ID, 'vendoor_settings', [Query.limit(1)]);
+    const payload = {
+      profitType: settings.profitType,
+      profitValue: Number(settings.profitValue),
+      autoApply: Boolean(settings.autoApply)
+    } as any;
+    if (list.documents && list.documents.length > 0) {
+      const id = list.documents[0].$id;
+      await databases.updateDocument(DATABASE_ID, 'vendoor_settings', id, payload);
+    } else {
+      await databases.createDocument(DATABASE_ID, 'vendoor_settings', 'default', payload);
+    }
+  };
+
+  // Bulk update product status directly in Appwrite
+  const bulkUpdateStatusInAppwrite = async (status: string) => {
+    let updated = 0;
+    for (const id of selectedProducts) {
+      try {
+        await databases.updateDocument(DATABASE_ID, 'products', id, { status });
+        updated++;
+      } catch (e) {
+        // ignore individual failures
+      }
+    }
+    toast.success(`تم تحديث ${updated} منتج`);
+    await fetchProductsFromAppwrite();
+    setSelectedProducts([]);
+  };
+
+  // Apply profit margin to all Vendoor products in Appwrite
+  const applyProfitMarginInAppwrite = async () => {
+    setApplying(true);
+    const limit = 100;
+    let offset = 0;
+    let total = 0;
+    let updated = 0;
+    try {
+      do {
+        const resp: any = await databases.listDocuments(DATABASE_ID, 'products', [
+          Query.equal('source', 'vendoor'),
+          Query.limit(limit),
+          Query.offset(offset)
+        ]);
+        const docs = resp.documents || [];
+        total = resp.total ?? (offset + docs.length);
+        for (const doc of docs) {
+          const basePrice = Number(doc.originalPrice ?? doc.price ?? 0);
+          if (!basePrice || basePrice <= 0) continue;
+          const newPrice = settings.profitType === 'percentage'
+            ? Math.round(basePrice * (1 + Number(settings.profitValue) / 100))
+            : Math.round(basePrice + Number(settings.profitValue));
+          try {
+            await databases.updateDocument(DATABASE_ID, 'products', doc.$id, {
+              price: newPrice,
+              originalPrice: basePrice,
+              profitMargin: Number(settings.profitValue),
+              profitType: settings.profitType
+            });
+            updated++;
+          } catch (e) {
+            // ignore single update failure
+          }
+        }
+        offset += docs.length;
+      } while (offset < total && offset > 0);
+      toast.success(`تم تحديث الأسعار لـ ${updated} منتج`);
+      await fetchProductsFromAppwrite();
+    } finally {
+      setApplying(false);
+    }
+  };
+
   // Fetch products
   const fetchProducts = async () => {
     try {
@@ -58,13 +169,26 @@ export default function VendoorProducts() {
       const response = await fetch(
         `/api/vendoor-products?page=${pagination.page}&limit=${pagination.limit}&status=${statusFilter}`
       );
+      if (!response.ok) {
+        // Fallback to Appwrite if API is not available in production
+        await fetchProductsFromAppwrite();
+        return;
+      }
       const data = await response.json();
-      
+      if (!data || !data.products) {
+        await fetchProductsFromAppwrite();
+        return;
+      }
       setProducts(data.products);
       setPagination(data.pagination);
     } catch (error) {
       console.error('Error fetching products:', error);
-      toast.error('فشل تحميل المنتجات');
+      // Fallback quietly to Appwrite on failures
+      try {
+        await fetchProductsFromAppwrite();
+      } catch (e) {
+        toast.error('فشل تحميل المنتجات');
+      }
     } finally {
       setLoading(false);
     }
@@ -74,10 +198,21 @@ export default function VendoorProducts() {
   const fetchSettings = async () => {
     try {
       const response = await fetch('/api/vendoor-settings');
+      if (!response.ok) {
+        await fetchSettingsFromAppwrite();
+        return;
+      }
       const data = await response.json();
+      if (!data) {
+        await fetchSettingsFromAppwrite();
+        return;
+      }
       setSettings(data);
     } catch (error) {
       console.error('Error fetching settings:', error);
+      try {
+        await fetchSettingsFromAppwrite();
+      } catch {}
     }
   };
   
@@ -103,19 +238,23 @@ export default function VendoorProducts() {
         })
       });
       
+      if (!response.ok) {
+        // Fallback to Appwrite direct updates
+        await applyProfitMarginInAppwrite();
+        return;
+      }
       const result = await response.json();
-      
-      if (result.success) {
+      if (result && result.success) {
         toast.success(`تم تحديث ${result.updatedCount} منتج بنجاح!`);
         fetchProducts();
       } else {
-        toast.error('حدث خطأ أثناء التحديث');
+        await applyProfitMarginInAppwrite();
       }
     } catch (error) {
       console.error('Error applying profit margin:', error);
-      toast.error('فشل تطبيق هامش الربح');
+      await applyProfitMarginInAppwrite();
     } finally {
-      setApplying(false);
+      // set by applyProfitMarginInAppwrite or above
     }
   };
   
@@ -130,10 +269,18 @@ export default function VendoorProducts() {
       
       if (response.ok) {
         toast.success('تم حفظ الإعدادات!');
+      } else {
+        await updateSettingsInAppwrite();
+        toast.success('تم حفظ الإعدادات مباشرة في Appwrite');
       }
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('فشل حفظ الإعدادات');
+      try {
+        await updateSettingsInAppwrite();
+        toast.success('تم حفظ الإعدادات مباشرة في Appwrite');
+      } catch {
+        toast.error('فشل حفظ الإعدادات');
+      }
     }
   };
   
@@ -154,16 +301,21 @@ export default function VendoorProducts() {
         })
       });
       
+      if (!response.ok) {
+        await bulkUpdateStatusInAppwrite(status);
+        return;
+      }
       const result = await response.json();
-      
-      if (result.success) {
+      if (result && result.success) {
         toast.success(`تم تحديث ${result.updatedCount} منتج`);
         setSelectedProducts([]);
         fetchProducts();
+      } else {
+        await bulkUpdateStatusInAppwrite(status);
       }
     } catch (error) {
       console.error('Error updating status:', error);
-      toast.error('فشل تحديث الحالة');
+      await bulkUpdateStatusInAppwrite(status);
     }
   };
   
