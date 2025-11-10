@@ -396,7 +396,7 @@ export default function Register() {
 <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
 <div className="absolute inset-0 opacity-10">
 <div className="w-full h-full flex items-center justify-center scale-150">
-<img src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.jpg/view?project=68d8b9db00134c41e7c8" alt="EgyGo" className="max-w-[70%] h-auto object-contain" />
+<img src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" alt="EgyGo" className="max-w-[70%] h-auto object-contain drop-shadow-2xl" />
 </div>
 </div>
 <div className="relative z-10 max-w-md">

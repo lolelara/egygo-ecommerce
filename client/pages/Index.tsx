@@ -191,18 +191,12 @@ export default function Index() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
               {/* Logo Section */}
-              <div className="flex items-center gap-4 animate-fade-in">
-                <div className="bg-white p-4 rounded-2xl shadow-2xl">
-                  <img 
-                    src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.jpg/view?project=68d8b9db00134c41e7c8" 
-                    alt="EgyGo Logo" 
-                    className="h-16 w-auto"
-                  />
-                </div>
-                <div>
-                  <h2 className="text-3xl font-black text-white">إيجي جو</h2>
-                  <p className="text-white/80 text-sm">EgyGo E-commerce</p>
-                </div>
+              <div className="mb-8 animate-fade-in">
+                <img 
+                  src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" 
+                  alt="EgyGo Logo" 
+                  className="h-20 w-auto drop-shadow-2xl"
+                />
               </div>
               
               <div className="space-y-6">
