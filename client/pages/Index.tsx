@@ -190,6 +190,21 @@ export default function Index() {
         <div className="relative container mx-auto px-4 py-24 lg:py-32 z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 hero-content">
+              {/* Logo Section */}
+              <div className="flex items-center gap-4 animate-fade-in">
+                <div className="bg-white p-4 rounded-2xl shadow-2xl">
+                  <img 
+                    src="/logo.jpg" 
+                    alt="EgyGo Logo" 
+                    className="h-16 w-auto"
+                  />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-black text-white">إيجي جو</h2>
+                  <p className="text-white/80 text-sm">EgyGo E-commerce</p>
+                </div>
+              </div>
+              
               <div className="space-y-6">
                 <Badge className="bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm text-white border border-white/20 shadow-xl font-bold px-6 py-2 text-base">
                   ✨ منصة التسويق والتجارة الإلكترونية الأولى

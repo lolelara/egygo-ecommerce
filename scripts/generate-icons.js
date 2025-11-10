@@ -70,7 +70,7 @@ async function generateFavicon() {
   }
 }
 
-// توليد صورة OG مخصصة (1200x630)
+// توليد صورة OG مخصصة (1200x630) - بتصميم محسّن
 async function generateOGImage() {
   const outputPath = path.join(outputDir, 'og-image.jpg');
   const width = 1200;
@@ -80,42 +80,83 @@ async function generateOGImage() {
     // قراء الشعار الأصلي للحصول على أبعاده
     const metadata = await sharp(inputLogo).metadata();
     
-    // حساب حجم الشعار في صورة OG (50% من العرض)
-    const logoWidth = Math.floor(width * 0.5);
+    // حساب حجم الشعار (40% من العرض للتصميم الأفضل)
+    const logoWidth = Math.floor(width * 0.4);
     const logoHeight = Math.floor((logoWidth / metadata.width) * metadata.height);
     
-    // تغيير حجم الشعار أولاً
+    // تغيير حجم الشعار مع خلفية بيضاء
     const resizedLogo = await sharp(inputLogo)
       .resize(logoWidth, logoHeight, {
         fit: 'contain',
-        background: { r: 220, g: 38, b: 38, alpha: 1 }
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
       })
       .toBuffer();
     
-    // حساب موضع الشعار في المنتصف
-    const logoLeft = Math.floor((width - logoWidth) / 2);
+    // النص "إيجي جو - EgyGo" بجانب الشعار
+    const text = `
+      <svg width="${width}" height="${height}">
+        <rect width="${width}" height="${height}" fill="white"/>
+        <text 
+          x="${Math.floor(width * 0.65)}" 
+          y="${Math.floor(height * 0.4)}" 
+          font-family="Arial, sans-serif" 
+          font-size="80" 
+          font-weight="bold" 
+          fill="#dc2626"
+          text-anchor="middle">إيجي جو</text>
+        <text 
+          x="${Math.floor(width * 0.65)}" 
+          y="${Math.floor(height * 0.55)}" 
+          font-family="Arial, sans-serif" 
+          font-size="60" 
+          fill="#000000"
+          text-anchor="middle">EgyGo</text>
+        <text 
+          x="${Math.floor(width * 0.65)}" 
+          y="${Math.floor(height * 0.7)}" 
+          font-family="Arial, sans-serif" 
+          font-size="32" 
+          fill="#666666"
+          text-anchor="middle">منصة التسوق الإلكتروني</text>
+      </svg>
+    `;
+    
+    // حساب موضع الشعار على اليسار
+    const logoLeft = Math.floor(width * 0.08);
     const logoTop = Math.floor((height - logoHeight) / 2);
     
-    // إنشاء صورة OG بخلفية حمراء والشعار في المنتصف
+    // إنشاء صورة OG بخلفية بيضاء
     await sharp({
       create: {
         width: width,
         height: height,
-        channels: 3,
-        background: { r: 220, g: 38, b: 38 } // لون أحمر
+        channels: 4,
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
       }
     })
-    .composite([{
-      input: resizedLogo,
-      top: logoTop,
-      left: logoLeft
-    }])
-    .jpeg({ quality: 90 })
+    .composite([
+      // إضافة الشعار على اليسار
+      {
+        input: resizedLogo,
+        top: logoTop,
+        left: logoLeft
+      }
+    ])
+    .composite([
+      // إضافة النص
+      {
+        input: Buffer.from(text),
+        top: 0,
+        left: 0
+      }
+    ])
+    .jpeg({ quality: 95 })
     .toFile(outputPath);
     
-    console.log(`✅ تم توليد og-image.jpg (${width}x${height})`);
+    console.log(`✅ تم توليد og-image.jpg (${width}x${height}) بتصميم محسّن`);
   } catch (error) {
     console.error('❌ فشل توليد صورة OG:', error.message);
+    console.error('التفاصيل:', error);
   }
 }
 
