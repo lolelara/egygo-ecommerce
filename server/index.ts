@@ -31,6 +31,7 @@ import {
   updateCommissionStatus,
 } from "./routes/admin";
 import { scrapeVendoorProducts } from "./routes/vendoor-scraper";
+import vendoorProductsRouter from "./routes/vendoor-products";
 import { login, register, forgotPassword, getCurrentUser } from "./routes/auth";
 import { getUserOrders, getOrderById } from "./routes/orders";
 import { approveUser } from "./routes/admin-approve-user";
@@ -213,6 +214,9 @@ export function createServer() {
   app.get("/api/vendoor/files", vendoorEnhanced.listExportFiles);
   app.get("/api/vendoor/download/:filename", vendoorEnhanced.downloadExportFile);
   app.delete("/api/vendoor/files/:filename", vendoorEnhanced.deleteExportFile);
+
+  // Vendoor Products Management APIs
+  app.use("/api", vendoorProductsRouter);
 
   app.put("/api/admin/orders/:id/status", updateOrderStatus);
   app.get("/api/admin/commissions", getCommissions);
