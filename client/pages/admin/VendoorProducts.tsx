@@ -126,6 +126,30 @@ export default function VendoorProducts() {
     }
   };
 
+  // Bulk delete products directly in Appwrite
+  const bulkDeleteInAppwrite = async () => {
+    setStatusUpdating(true);
+    let deleted = 0;
+    let counter = 0;
+    for (const id of selectedProducts) {
+      try {
+        await databases.deleteDocument(DATABASE_ID, 'products', id);
+        deleted++;
+      } catch (e) {
+        // ignore individual failures
+      }
+      counter++;
+      await sleep(500);
+      if (counter % 10 === 0) {
+        await sleep(2000);
+      }
+    }
+    toast.success(`تم حذف ${deleted} منتج`);
+    await fetchProductsFromAppwrite();
+    setSelectedProducts([]);
+    setStatusUpdating(false);
+  };
+
   // Bulk update product status directly in Appwrite
   const bulkUpdateStatusInAppwrite = async (status: string) => {
     setStatusUpdating(true);
@@ -378,6 +402,44 @@ export default function VendoorProducts() {
     }
   };
   
+  // Bulk delete
+  const handleBulkDelete = async () => {
+    if (selectedProducts.length === 0) {
+      toast.error('الرجاء اختيار منتجات أولاً');
+      return;
+    }
+    
+    if (!confirm(`هل أنت متأكد من حذف ${selectedProducts.length} منتج؟ لا يمكن التراجع عن هذا الإجراء!`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/vendoor-products/bulk-delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productIds: selectedProducts
+        })
+      });
+      
+      if (!response.ok) {
+        await bulkDeleteInAppwrite();
+        return;
+      }
+      const result = await response.json();
+      if (result && result.success) {
+        toast.success(`تم حذف ${result.deletedCount} منتج`);
+        setSelectedProducts([]);
+        fetchProducts();
+      } else {
+        await bulkDeleteInAppwrite();
+      }
+    } catch (error) {
+      console.error('Error deleting products:', error);
+      await bulkDeleteInAppwrite();
+    }
+  };
+  
   // Toggle product selection
   const toggleProductSelection = (productId: string) => {
     setSelectedProducts(prev => 
@@ -548,6 +610,14 @@ export default function VendoorProducts() {
                   className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm"
                 >
                   إخفاء المحدد
+                </button>
+                <button
+                  onClick={handleBulkDelete}
+                  disabled={statusUpdating}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  حذف المحدد
                 </button>
               </div>
             )}

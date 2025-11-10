@@ -245,7 +245,7 @@ router.post('/vendoor-products/bulk-status', async (req: Request, res: Response)
 });
 
 // Delete Vendoor products (bulk)
-router.post('/vendoor-products/bulk-delete', async (req: Request, res: Response) => {
+router.delete('/vendoor-products/bulk-delete', async (req: Request, res: Response) => {
   try {
     const { productIds } = req.body;
     
