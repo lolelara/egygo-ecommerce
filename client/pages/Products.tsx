@@ -442,7 +442,7 @@ export default function Products() {
                   <div className="flex gap-3 justify-center">
                     <Button
                       size="lg"
-                      className="bg-gradient-to-r from-primary to-purple-600"
+                      variant="gradient"
                       onClick={() => {
                         setSelectedCategories([]);
                         setPriceRange({ min: 0, max: 1000 });
@@ -487,10 +487,9 @@ export default function Products() {
                       return (
                         <Button
                           key={pageNum}
-                          variant={page === pageNum ? "default" : "outline"}
+                          variant={page === pageNum ? "gradient" : "outline"}
                           size="icon"
                           onClick={() => setPage(pageNum)}
-                          className={page === pageNum ? "bg-gradient-to-r from-primary to-purple-600" : ""}
                         >
                           {pageNum}
                         </Button>

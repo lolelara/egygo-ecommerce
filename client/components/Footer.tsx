@@ -10,7 +10,7 @@ export function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
-          <div className="space-y-4">
+          <div className="space-y-4 micro-fade-up">
             <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
               EgyGo
             </Link>
@@ -47,7 +47,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
+          <div className="space-y-4 micro-fade-up">
             <h3 className="font-semibold">روابط سريعة</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -94,7 +94,7 @@ export function Footer() {
           </div>
 
           {/* Affiliate Program */}
-          <div className="space-y-4">
+          <div className="space-y-4 micro-fade-up">
             <h3 className="font-semibold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">برنامج الشراكة</h3>
             <ul className="space-y-2 text-sm">
               <li>
@@ -133,7 +133,7 @@ export function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div className="space-y-4">
+          <div className="space-y-4 micro-fade-up">
             <h3 className="font-semibold">ابق على اطلاع</h3>
             <p className="text-sm text-muted-foreground">
               اشترك للحصول على عروض خاصة وهدايا مجانية وفرص شراكة.
@@ -144,7 +144,7 @@ export function Footer() {
                 type="email"
                 className="flex-1"
               />
-              <Button size="sm" className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900">
+              <Button size="sm" variant="gradient">
                 <Mail className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
                 اشترك
               </Button>

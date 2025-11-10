@@ -200,7 +200,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
     : 0;
 
   return (
-    <Card className="group overflow-hidden h-full border rounded-xl bg-white dark:bg-card/50 shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 relative">
+    <Card className="group overflow-hidden h-full border rounded-xl bg-white dark:bg-card/50 shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 relative micro-fade-up">
       <Link
         to={`/product/${product.id}`}
         className="block absolute inset-0 z-[1]"

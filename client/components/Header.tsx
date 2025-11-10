@@ -28,7 +28,7 @@ import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
-import { EgyGoLogo } from "./EgyGoLogo";
+import { EgyGoLogoCreative } from "./EgyGoLogoCreative";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -196,8 +196,8 @@ export function Header({ cartItemCount }: HeaderProps) {
           </SheetContent>
         </Sheet>
 
-        {/* Logo - New Brand Identity */}
-        <EgyGoLogo size="md" variant="default" showArrow={true} />
+        {/* Logo - New Creative Brand Identity */}
+        <EgyGoLogoCreative size="md" />
 
         {/* Desktop Navigation - Streamlined */}
         <nav className="hidden lg:flex items-center gap-1">
@@ -278,9 +278,9 @@ export function Header({ cartItemCount }: HeaderProps) {
           {/* Dashboard Quick Access */}
           {user && (user.role === 'admin' || user.isAffiliate || user.role === 'merchant' || user.isIntermediary) && (
             <Button 
-              variant="default" 
+              variant="gradient" 
               size="sm"
-              className="hidden md:inline-flex gap-2 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+              className="hidden md:inline-flex gap-2"
               asChild
             >
               <Link to={
