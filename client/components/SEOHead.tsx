@@ -13,7 +13,7 @@ export function SEOHead({
   title,
   description,
   keywords = [],
-  image = '/egygo.png',
+  image = '/logo.jpg',
   url = typeof window !== 'undefined' ? window.location.href : '',
   type = 'website',
 }: SEOHeadProps) {

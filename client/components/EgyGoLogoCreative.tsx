@@ -46,12 +46,6 @@ export function EgyGoLogoCreative({ size = "md", animated = true, className = ""
         <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">Egy</span>
         <span className="text-foreground">Go</span>
         <span className="text-brand-orange">.me</span>
-        <div className="relative mt-1 h-2">
-          <svg viewBox="0 0 120 16" className="absolute left-0 right-0 w-full h-full" fill="none" preserveAspectRatio="none">
-            <path d="M2 12 C 32 18, 88 18, 118 12" stroke="url(#egygoGradient)" strokeWidth="4" strokeLinecap="round" fill="none" style={{ strokeDasharray: 160, strokeDashoffset: animated ? 160 : 0, animation: animated ? "drawArrow 1.5s ease-out forwards 0.1s" : undefined }} />
-            <path d="M118 12 L 110 8 L 110 16 Z" fill="url(#egygoGradient)" />
-          </svg>
-        </div>
       </div>
 
       <style>{`

@@ -28,7 +28,6 @@ import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
-import { EgyGoLogoCreative } from "./EgyGoLogoCreative";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -196,8 +195,10 @@ export function Header({ cartItemCount }: HeaderProps) {
           </SheetContent>
         </Sheet>
 
-        {/* Logo - New Creative Brand Identity */}
-        <EgyGoLogoCreative size="md" />
+        {/* Logo */}
+        <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center">
+          <img src="/logo.jpg" alt="EgyGo" className="h-8 md:h-10 w-auto" />
+        </Link>
 
         {/* Desktop Navigation - Streamlined */}
         <nav className="hidden lg:flex items-center gap-1">

@@ -15,7 +15,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
-import { EgyGoLogoFull } from "@/components/EgyGoLogo";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 import { rateLimiter } from "@/lib/advanced-rate-limiter";
@@ -122,7 +121,7 @@ export default function Login() {
       <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
         <div className="absolute inset-0 opacity-10">
           <div className="w-full h-full flex items-center justify-center scale-150">
-            <EgyGoLogoFull />
+            <img src="/logo.jpg" alt="EgyGo" className="max-w-[70%] h-auto object-contain" />
           </div>
         </div>
         <div className="relative z-10 max-w-md">
@@ -182,9 +181,8 @@ export default function Login() {
         <div className="w-full max-w-md space-y-8">
           {/* Mobile Logo */}
           <div className="text-center lg:hidden">
-            <Link to="/" className="inline-flex items-center gap-2 text-3xl font-bold text-red-600">
-              <Sparkles className="w-8 h-8 text-red-600" />
-              إيجي جو
+            <Link to="/" className="inline-flex items-center gap-2">
+              <img src="/logo.jpg" alt="EgyGo" className="h-10 w-auto" />
             </Link>
           </div>
           {/* Header */}

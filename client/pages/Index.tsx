@@ -25,7 +25,6 @@ import { productsApi, categoriesApi, queryKeys } from "@/lib/api";
 import { EnhancedSEO, pageSEO } from "@/components/EnhancedSEO";
 import { placeholder } from "@/lib/placeholder";
 import { formatPrice, formatDiscount } from "@/lib/currency";
-import { EgyGoLogoFull } from "@/components/EgyGoLogo";
 import SwiperProductSlider from '@/components/enhanced/SwiperProductSlider';
 import { useEffect, useState } from "react";
 import { gsap } from 'gsap';
@@ -756,11 +755,6 @@ export default function Index() {
             </div>
 
             <div className="relative">
-              {/* Logo decoration */}
-              <div className="absolute -top-10 -right-10 opacity-10 pointer-events-none hidden lg:block">
-                <EgyGoLogoFull />
-              </div>
-              
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-6 relative z-10">
                 <CardHeader>
                   <CardTitle className="text-white">

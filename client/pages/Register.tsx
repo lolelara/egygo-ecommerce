@@ -24,7 +24,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
-import { EgyGoLogoFull } from "@/components/EgyGoLogo";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 import { egyptGovernorates, getCitiesByGovernorate } from "@/lib/egypt-locations";
@@ -392,70 +391,42 @@ export default function Register() {
   };
 
   return (
-    <div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
-      {/* Left Side - Branding (appears on right in RTL, left in LTR) */}
-      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
-        <div className="absolute inset-0 opacity-10">
-          <div className="w-full h-full flex items-center justify-center scale-150">
-            <EgyGoLogoFull />
-          </div>
-        </div>
-        <div className="relative z-10 max-w-md">
-          <Link to="/" className="inline-flex items-center gap-2 text-5xl font-bold mb-6">
-            <Sparkles className="w-12 h-12" />
-            إيجي جو
-          </Link>
-          <p className="text-2xl mb-8 opacity-90">
-            انضم إلى عائلة إيجي جو
-          </p>
-
-          <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Check className="h-6 w-6" />
-              </div>
-              <div>حساب واحد لجميع الخدمات</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Star className="h-6 w-6" />
-              </div>
-              <div>عمولات مميزة للتجار والمسوقين</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Shield className="h-6 w-6" />
-              </div>
-              <div>بيانات آمنة ومشفرة</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Truck className="h-6 w-6" />
-              </div>
-              <div>توصيل سريع وآمن</div>
-            </div>
-          </div>
-
-          <Card className="bg-white/10 backdrop-blur border-white/20">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm opacity-90 mb-2">
-                    "تجربة رائعة! التسجيل سهل والمنصة احترافية جداً"
-                  </p>
-                  <p className="text-xs opacity-75">- أحمد محمد، تاجر شريك</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
+<div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
+{/* Left Side - Branding (appears on right in RTL, left in LTR) */}
+<div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
+<div className="absolute inset-0 opacity-10">
+<div className="w-full h-full flex items-center justify-center scale-150">
+<img src="/logo.jpg" alt="EgyGo" className="max-w-[70%] h-auto object-contain" />
+</div>
+</div>
+<div className="relative z-10 max-w-md">
+<Link to="/" className="inline-flex items-center gap-2 text-5xl font-bold mb-6">
+<Sparkles className="w-12 h-12" />
+إيجي جو
+</Link>
+<p className="text-2xl mb-8 opacity-90">انضم إلى عائلة إيجي جو</p>
+<div className="space-y-4 mb-8">
+<div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center"><Check className="h-6 w-6" /></div><div>حساب واحد لجميع الخدمات</div></div>
+<div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center"><Star className="h-6 w-6" /></div><div>عمولات مميزة للتجار والمسوقين</div></div>
+<div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center"><Shield className="h-6 w-6" /></div><div>بيانات آمنة ومشفرة</div></div>
+<div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center"><Truck className="h-6 w-6" /></div><div>توصيل سريع وآمن</div></div>
+</div>
+<Card className="bg-white/10 backdrop-blur border-white/20">
+<CardContent className="p-4">
+<div className="flex items-start gap-3">
+<Star className="h-5 w-5 fill-yellow-400 text-yellow-400 flex-shrink-0 mt-0.5" />
+<div>
+<p className="text-sm opacity-90 mb-2">"تجربة رائعة! التسجيل سهل والمنصة احترافية جداً"</p>
+<p className="text-xs opacity-75">- أحمد محمد، تاجر شريك</p>
+</div>
+</div>
+</CardContent>
+</Card>
+</div>
+</div>
       {/* Right Side - Form (appears on left in RTL, right in LTR) */}
       <div className={`flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
         <div className="w-full max-w-md space-y-6">
-          {/* Header */}
           <div className="text-center">
             <h2 className="text-3xl font-bold">
               إنشاء حساب جديد
