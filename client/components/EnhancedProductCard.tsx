@@ -31,6 +31,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [views, setViews] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   // Check if user is affiliate
   const isAffiliate = user?.isAffiliate;
@@ -199,18 +200,23 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
     : 0;
 
   return (
-    <Card className="card-hover group overflow-hidden h-full border-2 relative">
+    <Card className="group overflow-hidden h-full border rounded-xl bg-white dark:bg-card/50 shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300 relative">
       <Link
         to={`/product/${product.id}`}
         className="block absolute inset-0 z-[1]"
         onClick={handleView}
       />
         {/* Image Container */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden bg-gray-50 dark:bg-gray-900">
+          {!imageLoaded && (
+            <div className="absolute inset-0 animate-pulse bg-gray-200 dark:bg-gray-800" />
+          )}
           <img
             src={getImageUrl(product.images?.[0])}
             alt={product.name}
-            className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+            className={`w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)}
             loading="lazy"
           />
           
@@ -325,7 +331,7 @@ export default function EnhancedProductCard({ product }: EnhancedProductCardProp
               size="sm"
               onClick={handleAddToCart}
               disabled={isAddingToCart}
-              className="btn-hover-lift relative z-[20]"
+              className="egygo-hover-lift relative z-[20]"
               type="button"
             >
               {isAddingToCart ? (

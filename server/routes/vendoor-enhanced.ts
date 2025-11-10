@@ -90,39 +90,73 @@ async function scrapeProductsPage(page: any, pageNum: number) {
   console.log(`📄 جلب صفحة ${pageNum}...`);
   
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  await new Promise(resolve => setTimeout(resolve, 3000)); // زيادة الانتظار
+  
+  // Take screenshot for debugging (optional)
+  try {
+    await page.screenshot({ path: `exports/debug-page-${pageNum}.png`, fullPage: false });
+    console.log(`📸 Screenshot saved: debug-page-${pageNum}.png`);
+  } catch (e) {
+    // Ignore screenshot errors
+  }
   
   const products = await page.evaluate(() => {
     const productsList: any[] = [];
     const rows = document.querySelectorAll('table tbody tr');
     
+    // Debug logging
+    console.log('Total rows found:', rows.length);
+    
     rows.forEach((row: any) => {
       try {
         const cells = row.querySelectorAll('td');
-        if (cells.length < 5) return;
+        if (cells.length < 8) return; // يجب أن يكون 9 خلايا على الأقل
         
-        const imageCell = cells[0];
-        const nameCell = cells[1];
-        const supplierCell = cells[2];
-        const priceCell = cells[3];
-        const commissionCell = cells[4];
-        const stockCell = cells[5];
-        const actionCell = cells[7];
+        // البنية الصحيحة:
+        // cells[0] = checkbox
+        // cells[1] = image
+        // cells[2] = name
+        // cells[3] = supplier
+        // cells[4] = price
+        // cells[5] = commission
+        // cells[6] = stock
+        // cells[7] = catalog
+        // cells[8] = order link
+        
+        const imageCell = cells[1];
+        const nameCell = cells[2];
+        const supplierCell = cells[3];
+        const priceCell = cells[4];
+        const commissionCell = cells[5];
+        const stockCell = cells[6];
+        const actionCell = cells[8];
         
         const img = imageCell?.querySelector('img');
         const image = img ? (img.src || img.getAttribute('data-src')) : '';
-        const title = nameCell?.textContent.trim() || '';
-        const supplier = supplierCell?.textContent.trim() || '';
-        const price = priceCell?.textContent.replace(/[^\d]/g, '') || '';
-        const commission = commissionCell?.textContent.replace(/[^\d]/g, '') || '';
-        const stock = stockCell?.textContent.trim() || '';
         
-        const orderLink = actionCell?.querySelector('a[href*="orders/create"]');
+        const nameLink = nameCell?.querySelector('a');
+        const title = nameLink?.textContent?.trim() || '';
+        
+        const supplierLink = supplierCell?.querySelector('a');
+        const supplier = supplierLink?.textContent?.trim() || '';
+        
+        const priceLink = priceCell?.querySelector('a');
+        const priceText = priceLink?.textContent?.trim() || '';
+        const price = priceText.replace(/[^\d]/g, '') || '0';
+        
+        const commissionLink = commissionCell?.querySelector('a');
+        const commissionText = commissionLink?.textContent?.trim() || '';
+        const commission = commissionText.replace(/[^\d]/g, '') || '0';
+        
+        const stockSpan = stockCell?.querySelector('span.stock-odd');
+        const stock = stockSpan?.textContent?.trim() || '';
+        
+        const orderLink = actionCell?.querySelector('a.link-add-order');
         let productId = '';
         
         if (orderLink) {
           const href = orderLink.href;
-          const match = href.match(/product[=\/](\d+)/);
+          const match = href.match(/product=(\d+)/);
           if (match) productId = match[1];
         }
         

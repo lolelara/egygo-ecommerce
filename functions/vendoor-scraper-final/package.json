@@ -1,0 +1,18 @@
+{
+  "name": "vendoor-scraper-final",
+  "version": "1.0.0",
+  "description": "Vendoor Scraper for Appwrite using chrome-aws-lambda",
+  "main": "src/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "deploy": "appwrite deploy function"
+  },
+  "dependencies": {
+    "chrome-aws-lambda": "^10.1.0",
+    "puppeteer-core": "^10.4.0",
+    "node-appwrite": "^13.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

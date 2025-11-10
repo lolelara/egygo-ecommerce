@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 
 interface EgyGoLogoProps {
   variant?: 'default' | 'white' | 'dark';
@@ -49,15 +50,27 @@ export function EgyGoLogo({
   };
 
   const currentColors = colors[variant];
+  const textRef = useRef<HTMLDivElement>(null);
+  const [textWidth, setTextWidth] = useState(0);
+  useEffect(() => {
+    const measure = () => {
+      if (textRef.current) {
+        setTextWidth(textRef.current.getBoundingClientRect().width);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
   return (
     <Link to="/" className={`flex items-center gap-2 ${className}`}>
-      <div className="relative flex items-center pt-6 pb-1 min-h-[3.5rem]" style={{ overflow: 'visible' }}>
-        {/* Enhanced Arrow - positioned at top of text */}
+      <div className="relative flex items-center pt-1 pb-6 min-h-[3.5rem]" style={{ overflow: 'visible', width: textWidth ? `${textWidth}px` : undefined }}>
+        {/* Enhanced Arrow - positioned at bottom of text (underline style) */}
         {showArrow && (
           <svg 
-            className={`absolute top-0 left-0 right-0 ${arrowSizes[size]} pointer-events-none`}
-            viewBox="0 0 120 30" 
+            className={`absolute bottom-0 left-0 right-0 ${arrowSizes[size]} pointer-events-none`}
+            viewBox="0 0 100 30" 
             fill="none"
             preserveAspectRatio="none"
             style={{ 
@@ -75,9 +88,9 @@ export function EgyGoLogo({
               </linearGradient>
             </defs>
 
-            {/* Smooth arrow - curved arc */}
+            {/* Smooth arrow - curved arc under the text */}
             <path
-              d="M 5 10 C 35 5, 85 5, 115 10"
+              d="M 0 22 C 30 30, 70 30, 100 22"
               stroke="url(#arrowGradient)"
               strokeWidth="4"
               fill="none"
@@ -92,7 +105,7 @@ export function EgyGoLogo({
             
             {/* Arrow head at the END - proper triangle */}
             <path
-              d="M 115 10 L 108 6 L 108 14 Z"
+              d="M 100 22 L 92 18 L 92 26 Z"
               fill={currentColors.arrow}
               style={{
                 filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2))'
@@ -101,7 +114,7 @@ export function EgyGoLogo({
             
             {/* Subtle glow effect */}
             <path
-              d="M 5 10 C 35 5, 85 5, 115 10"
+              d="M 0 22 C 30 30, 70 30, 100 22"
               stroke={currentColors.arrow}
               strokeWidth="2"
               fill="none"
@@ -113,7 +126,7 @@ export function EgyGoLogo({
         )}
         
         {/* Text Logo */}
-        <div className={`font-bold ${textSizes[size]} ${currentColors.text} tracking-tight`}>
+        <div ref={textRef} className={`font-bold ${textSizes[size]} ${currentColors.text} tracking-tight`}>
           <span className="font-extrabold">Egygo</span>
           <span className="text-red-600">.me</span>
         </div>

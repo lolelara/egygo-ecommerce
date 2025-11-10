@@ -158,9 +158,8 @@ export function createServer() {
   // AI Chat API
   app.post("/api/chat", handleChatCompletion);
 
-  // Analytics API
-  const analyticsRouter = require("./routes/analytics").default;
-  app.use("/api", analyticsRouter);
+  // Analytics API - will be added later with proper import
+  // TODO: Add analytics router with ES6 import
 
   // Products API
   app.get("/api/products", getProducts);
@@ -317,4 +316,16 @@ export function createServer() {
   console.log('✅ Vendoor auto-sync cron job initialized');
 
   return app;
+}
+
+// Start the server if this file is executed directly
+if (import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}`) {
+  const app = createServer();
+  const PORT = process.env.PORT || 5000;
+  
+  app.listen(PORT, () => {
+    console.log(`🚀 Express server running on port ${PORT}`);
+    console.log(`📡 API available at: http://localhost:${PORT}/api`);
+    console.log(`🔧 Vendoor Enhanced API: http://localhost:${PORT}/api/vendoor/scrape-and-save`);
+  });
 }

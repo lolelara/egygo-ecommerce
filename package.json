@@ -153,7 +153,7 @@
     "openai": "^6.1.0",
     "particles.js": "^2.0.0",
     "polished": "^4.3.1",
-    "puppeteer": "^24.23.0",
+    "puppeteer": "^24.26.1",
     "puppeteer-core": "^24.24.1",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",

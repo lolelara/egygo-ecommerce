@@ -1,10 +1,19 @@
 import { RequestHandler } from "express";
 import OpenAI from "openai";
 
-// Initialize OpenAI with server-side key
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY,
-});
+// Initialize OpenAI with server-side key (lazy initialization)
+let openai: OpenAI | null = null;
+
+function getOpenAI() {
+  if (!openai) {
+    const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured');
+    }
+    openai = new OpenAI({ apiKey });
+  }
+  return openai;
+}
 
 interface ChatRequest {
   messages: Array<{
@@ -24,7 +33,7 @@ export const handleChatCompletion: RequestHandler = async (req, res) => {
     }
 
     // Call OpenAI API server-side (secure)
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o-mini',
       messages: messages,
       temperature: 0.7,
