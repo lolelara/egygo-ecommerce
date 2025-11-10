@@ -2,6 +2,19 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
+    
+    <!-- Content Security Policy - Allow reCAPTCHA and other services -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://connect.facebook.net https://cloud.appwrite.io;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: blob: https: http:;
+      connect-src 'self' https://cloud.appwrite.io https://www.google-analytics.com https://www.facebook.com;
+      frame-src 'self' https://www.google.com https://www.facebook.com;
+      worker-src 'self' blob:;
+    ">
+    
     <!-- Favicons - Served from Appwrite Storage -->
     <link rel="icon" type="image/png" sizes="16x16" href="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/favicon-16x16.png/view?project=68d8b9db00134c41e7c8" />
     <link rel="icon" type="image/png" sizes="32x32" href="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/favicon-32x32.png/view?project=68d8b9db00134c41e7c8" />
@@ -47,8 +60,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="EgyGo" />
     
-    <!-- Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- Manifest - Served from Appwrite Storage -->
+    <link rel="manifest" href="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/manifest.json/view?project=68d8b9db00134c41e7c8" />
     
     <!-- Performance Optimizations -->
     <!-- DNS Prefetch -->
