@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const inputLogo = path.join(__dirname, '..', 'client', 'public', 'logo.jpg');
+const inputLogo = path.join(__dirname, '..', 'client', 'public', 'logo.png');
 const outputDir = path.join(__dirname, '..', 'client', 'public');
 
 // تأكد من وجود الملف
