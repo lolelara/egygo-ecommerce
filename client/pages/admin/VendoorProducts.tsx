@@ -53,6 +53,7 @@ export default function VendoorProducts() {
     total: 0,
     pages: 1
   });
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   
   // Fallback: Fetch products directly from Appwrite when /api is unavailable
   const fetchProductsFromAppwrite = async () => {
@@ -298,6 +299,15 @@ export default function VendoorProducts() {
     fetchProducts();
     fetchSettings();
   }, [pagination.page, statusFilter]);
+  
+  // Update pagination when itemsPerPage changes
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      page: 1,
+      limit: itemsPerPage === -1 ? 99999 : itemsPerPage
+    }));
+  }, [itemsPerPage]);
   
   // Apply profit margin to all products
   const handleApplyProfitMargin = async () => {
@@ -579,45 +589,88 @@ export default function VendoorProducts() {
         {/* Filters & Bulk Actions */}
         <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
-            {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-600" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg"
+            {/* Left side: Filters */}
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Status Filter */}
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-600" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg"
+                >
+                  <option value="all">جميع المنتجات</option>
+                  <option value="draft">مسودة</option>
+                  <option value="published">منشور</option>
+                </select>
+              </div>
+              
+              {/* Items Per Page */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">عرض:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                >
+                  <option value={10}>10 منتجات</option>
+                  <option value={50}>50 منتج</option>
+                  <option value={100}>100 منتج</option>
+                  <option value={-1}>الكل ({pagination.total})</option>
+                </select>
+              </div>
+              
+              {/* Select All Checkbox */}
+              <button
+                onClick={toggleAllProducts}
+                className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
               >
-                <option value="all">جميع المنتجات</option>
-                <option value="draft">مسودة</option>
-                <option value="published">منشور</option>
-              </select>
+                <input
+                  type="checkbox"
+                  checked={selectedProducts.length === products.length && products.length > 0}
+                  onChange={() => {}}
+                  className="w-4 h-4 pointer-events-none"
+                />
+                <span>تحديد الكل ({products.length})</span>
+              </button>
             </div>
             
-            {/* Bulk Actions */}
+            {/* Right side: Bulk Actions */}
             {selectedProducts.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">
-                  تم اختيار {selectedProducts.length} منتج
+              <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
+                <span className="text-sm font-semibold text-blue-700">
+                  {selectedProducts.length} منتج محدد
                 </span>
                 <button
-                  onClick={() => handleBulkStatus('published')}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm"
+                  onClick={() => setSelectedProducts([])}
+                  className="text-xs text-blue-600 hover:text-blue-800 underline"
                 >
-                  نشر المحدد
+                  إلغاء التحديد
+                </button>
+                <div className="h-4 w-px bg-blue-300"></div>
+                <button
+                  onClick={() => handleBulkStatus('published')}
+                  disabled={statusUpdating}
+                  className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-sm disabled:opacity-50 flex items-center gap-1"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  نشر
                 </button>
                 <button
                   onClick={() => handleBulkStatus('draft')}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm"
+                  disabled={statusUpdating}
+                  className="px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm disabled:opacity-50 flex items-center gap-1"
                 >
-                  إخفاء المحدد
+                  <X className="w-3.5 h-3.5" />
+                  إخفاء
                 </button>
                 <button
                   onClick={handleBulkDelete}
                   disabled={statusUpdating}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm disabled:opacity-50 flex items-center gap-2"
+                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm disabled:opacity-50 flex items-center gap-1"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  حذف المحدد
+                  <Trash2 className="w-3.5 h-3.5" />
+                  حذف
                 </button>
               </div>
             )}
@@ -745,7 +798,7 @@ export default function VendoorProducts() {
           )}
           
           {/* Pagination */}
-          {pagination.pages > 1 && (
+          {itemsPerPage !== -1 && pagination.pages > 1 && (
             <div className="flex items-center justify-between p-4 border-t border-gray-200">
               <div className="text-sm text-gray-600">
                 صفحة {pagination.page} من {pagination.pages} ({pagination.total} منتج)
@@ -765,6 +818,15 @@ export default function VendoorProducts() {
                 >
                   التالي
                 </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Total count when showing all */}
+          {itemsPerPage === -1 && (
+            <div className="flex items-center justify-center p-4 border-t border-gray-200">
+              <div className="text-sm font-semibold text-gray-700">
+                عرض جميع المنتجات ({products.length} منتج)
               </div>
             </div>
           )}
