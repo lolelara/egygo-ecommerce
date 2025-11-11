@@ -4,6 +4,7 @@
 @import './styles/gradients.css';
 @import './styles/shimmer.css';
 @import './styles/color-effects.css';
+@import './styles/dark-mode-fixes.css';
 
 /* Then Tailwind directives */
 @tailwind base;

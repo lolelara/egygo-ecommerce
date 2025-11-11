@@ -1,0 +1,417 @@
+/**
+ * Dark Mode Fixes
+ * إصلاح شامل للـ Dark Theme في جميع الصفحات
+ */
+
+/* ===== BACKGROUND COLORS ===== */
+.dark {
+  /* Base backgrounds */
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  
+  /* Card backgrounds */
+  --card: 222.2 84% 8%;
+  --card-foreground: 210 40% 98%;
+  
+  /* Input backgrounds */
+  --input: 217.2 32.6% 17.5%;
+  
+  /* Muted backgrounds */
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+}
+
+/* Body background في dark mode */
+.dark body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* ===== CARDS ===== */
+.dark .card,
+.dark [class*="card"] {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
+}
+
+/* Cards بخلفية بيضاء */
+.dark .bg-white {
+  background-color: hsl(222.2 84% 8%) !important;
+}
+
+.dark .bg-gray-50 {
+  background-color: hsl(222.2 84% 6%) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: hsl(222.2 84% 10%) !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: hsl(222.2 84% 15%) !important;
+}
+
+/* ===== TEXT COLORS ===== */
+.dark .text-gray-900 {
+  color: hsl(210 40% 98%) !important;
+}
+
+.dark .text-gray-800 {
+  color: hsl(210 40% 95%) !important;
+}
+
+.dark .text-gray-700 {
+  color: hsl(210 40% 90%) !important;
+}
+
+.dark .text-gray-600 {
+  color: hsl(215 20.2% 75%) !important;
+}
+
+.dark .text-gray-500 {
+  color: hsl(215 20.2% 65.1%) !important;
+}
+
+.dark .text-gray-400 {
+  color: hsl(215 20.2% 55%) !important;
+}
+
+.dark .text-black {
+  color: hsl(210 40% 98%) !important;
+}
+
+/* ===== BORDERS ===== */
+.dark .border {
+  border-color: hsl(217.2 32.6% 25%) !important;
+}
+
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: hsl(217.2 32.6% 25%) !important;
+}
+
+.dark .divide-gray-200 > * + * {
+  border-color: hsl(217.2 32.6% 25%) !important;
+}
+
+/* ===== INPUTS ===== */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: hsl(var(--input));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--border));
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: hsl(var(--ring));
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+/* ===== BUTTONS ===== */
+.dark .btn-outline,
+.dark button[variant="outline"] {
+  background-color: transparent;
+  border-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+.dark .btn-outline:hover,
+.dark button[variant="outline"]:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+/* ===== TABLES ===== */
+.dark table {
+  color: hsl(var(--foreground));
+}
+
+.dark thead {
+  background-color: hsl(222.2 84% 10%);
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.dark tbody tr {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.dark tbody tr:hover {
+  background-color: hsl(222.2 84% 8%);
+}
+
+.dark th,
+.dark td {
+  color: hsl(var(--foreground));
+}
+
+/* ===== DROPDOWNS & MENUS ===== */
+.dark [role="menu"],
+.dark [role="listbox"],
+.dark .dropdown-menu {
+  background-color: hsl(var(--card));
+  border-color: hsl(var(--border));
+  color: hsl(var(--card-foreground));
+}
+
+.dark [role="menuitem"]:hover,
+.dark [role="option"]:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+/* ===== BADGES ===== */
+.dark .badge {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+/* ===== ALERTS ===== */
+.dark .alert {
+  background-color: hsl(var(--card));
+  border-color: hsl(var(--border));
+  color: hsl(var(--card-foreground));
+}
+
+/* ===== MODALS ===== */
+.dark .modal,
+.dark [role="dialog"] {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+}
+
+.dark .modal-overlay,
+.dark [role="dialog"] + div {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* ===== SCROLLBARS ===== */
+.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(222.2 84% 6%);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(222.2 84% 15%);
+  border-radius: 5px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(222.2 84% 20%);
+}
+
+/* ===== PRODUCT CARDS ===== */
+.dark .product-card {
+  background-color: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
+.dark .product-card:hover {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== NAVIGATION ===== */
+.dark nav {
+  background-color: hsl(222.2 84% 6%);
+  border-bottom-color: hsl(var(--border));
+}
+
+.dark .nav-link {
+  color: hsl(var(--foreground));
+}
+
+.dark .nav-link:hover {
+  color: hsl(var(--primary));
+  background-color: hsl(var(--accent));
+}
+
+/* ===== SHADOWS ===== */
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+.dark .shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+}
+
+.dark .shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+.dark .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== ADMIN LAYOUT ===== */
+.dark .admin-sidebar {
+  background-color: hsl(222.2 84% 6%);
+  border-right-color: hsl(var(--border));
+}
+
+.dark .admin-content {
+  background-color: hsl(var(--background));
+}
+
+/* ===== DASHBOARD CARDS ===== */
+.dark .stat-card {
+  background: linear-gradient(135deg, hsl(222.2 84% 10%) 0%, hsl(222.2 84% 8%) 100%);
+  border-color: hsl(var(--border));
+}
+
+/* ===== FORMS ===== */
+.dark .form-group {
+  color: hsl(var(--foreground));
+}
+
+.dark label {
+  color: hsl(var(--foreground));
+}
+
+.dark .form-error {
+  color: hsl(var(--destructive));
+}
+
+/* ===== LOADING STATES ===== */
+.dark .skeleton {
+  background: linear-gradient(90deg, hsl(222.2 84% 10%) 0%, hsl(222.2 84% 15%) 50%, hsl(222.2 84% 10%) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== TOASTS & NOTIFICATIONS ===== */
+.dark .toast {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-color: hsl(var(--border));
+}
+
+/* ===== CODE BLOCKS ===== */
+.dark code {
+  background-color: hsl(222.2 84% 10%);
+  color: hsl(210 40% 95%);
+  border-color: hsl(var(--border));
+}
+
+.dark pre {
+  background-color: hsl(222.2 84% 8%);
+  border-color: hsl(var(--border));
+}
+
+/* ===== IMAGES ===== */
+.dark img {
+  opacity: 0.9;
+}
+
+.dark img:hover {
+  opacity: 1;
+}
+
+/* ===== LINKS ===== */
+.dark a {
+  color: hsl(var(--primary));
+}
+
+.dark a:hover {
+  color: hsl(var(--primary));
+  opacity: 0.8;
+}
+
+/* ===== SPECIFIC COMPONENTS ===== */
+
+/* Product Grid */
+.dark .product-grid {
+  background-color: hsl(var(--background));
+}
+
+/* Cart */
+.dark .cart-item {
+  background-color: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
+/* Checkout */
+.dark .checkout-step {
+  background-color: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
+/* Footer */
+.dark footer {
+  background-color: hsl(222.2 84% 4%);
+  border-top-color: hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+/* Header */
+.dark header {
+  background-color: hsl(222.2 84% 6%);
+  border-bottom-color: hsl(var(--border));
+}
+
+/* ===== VENDOR PRODUCTS PAGE ===== */
+.dark .vendor-card {
+  background: linear-gradient(135deg, hsl(222.2 84% 10%) 0%, hsl(222.2 84% 8%) 100%);
+  border-color: hsl(var(--border));
+}
+
+/* ===== FIX FOR GLASS MORPHISM ===== */
+.dark .backdrop-blur-md {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .backdrop-blur-lg {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ===== RESPONSIVE DARK MODE ===== */
+@media (max-width: 768px) {
+  .dark .mobile-menu {
+    background-color: hsl(222.2 84% 6%);
+    border-color: hsl(var(--border));
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+.dark :focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .dark * {
+    background-color: white !important;
+    color: black !important;
+  }
+}

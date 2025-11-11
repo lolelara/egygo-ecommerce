@@ -586,8 +586,20 @@ async function main() {
   }
   
   const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: false, // لمشاهدة العملية
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-blink-features=AutomationControlled',
+      '--disable-web-security',
+      '--disable-features=IsolateOrigins,site-per-process',
+      '--window-size=1920,1080'
+    ],
+    defaultViewport: {
+      width: 1920,
+      height: 1080
+    },
+    protocolTimeout: 300000 // 5 minutes timeout
   });
   
   const page = await browser.newPage();
