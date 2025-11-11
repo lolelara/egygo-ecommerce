@@ -488,21 +488,11 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       // Optional fields - Stock
       stock: data.totalStock,
       totalStock: data.totalStock,
-      stockQuantity: data.totalStock,
       
       // ✅ الحقول الصحيحة - تخزين المقاسات والألوان في مكانها الصحيح
       colors: data.colors,
       sizes: data.sizes,
       colorSizeInventory: JSON.stringify(data.colorSizeInventory),
-      
-      // Optional fields - Defaults
-      isActive: true,
-      inStock: data.totalStock > 0,
-      rating: 0,
-      reviewCount: 0,
-      viewCount: 0,
-      purchaseCount: 0,
-      lastSyncedAt: new Date().toISOString()
     };
     
     console.log('\n💾 Checking if product exists...');

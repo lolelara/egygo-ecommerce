@@ -221,26 +221,17 @@ export default function Index() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex justify-center sm:justify-start">
                 <Button
                   size="lg"
-                  className="bg-white text-red-600 hover:bg-red-50 shadow-2xl hover:shadow-red-500/50 transition-all duration-300 hover:scale-105 font-bold text-lg px-8 py-7 rounded-xl"
+                  className="bg-white text-red-600 hover:bg-red-50 shadow-2xl hover:shadow-red-500/50 transition-all duration-500 hover:scale-110 font-black text-2xl px-12 py-8 rounded-2xl relative overflow-hidden group"
                   asChild
                 >
                   <Link to="/products">
-                    <ShoppingCart className="ml-2 h-6 w-6 rtl:ml-0 rtl:mr-2" />
-                    تسوق الآن
-                    <ArrowRight className="mr-2 h-5 w-5 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-                  </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-red-500 to-red-700 border-2 border-white/20 text-white hover:from-red-600 hover:to-red-800 shadow-xl hover:shadow-white/30 transition-all duration-300 hover:scale-105 font-bold text-lg px-8 py-7 rounded-xl backdrop-blur-sm"
-                  asChild
-                >
-                  <Link to="/register?type=affiliate">
-                    <DollarSign className="ml-2 h-6 w-6 rtl:ml-0 rtl:mr-2 animate-pulse" />
-                    اربح معنا الآن
+                    <span className="absolute inset-0 bg-gradient-to-r from-red-100 to-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+                    <ShoppingCart className="ml-3 h-7 w-7 rtl:ml-0 rtl:mr-3 group-hover:animate-bounce" />
+                    <span className="relative z-10">تسوق الآن</span>
+                    <ArrowRight className="mr-3 h-6 w-6 rtl:mr-0 rtl:ml-3 rtl:rotate-180 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
               </div>
@@ -377,6 +368,125 @@ export default function Index() {
                     </Link>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Scrolling Marquee Banner */}
+      <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 py-4 overflow-hidden relative">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-10"></div>
+        <div className="relative flex whitespace-nowrap animate-marquee">
+          <div className="flex items-center gap-12 px-6">
+            {[...Array(15)].map((_, i) => (
+              <div key={i} className="flex items-center gap-12">
+                <span className="text-white font-black text-2xl flex items-center gap-3">
+                  <Sparkles className="w-6 h-6" />
+                  egygo.me
+                </span>
+                <span className="text-white/80 font-bold text-xl flex items-center gap-3">
+                  <Users className="w-5 h-5" />
+                  PowerFamily
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Affiliate Hero Section - قسم المسوقين */}
+      <section className="relative bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 text-white overflow-hidden min-h-[80vh] flex items-center">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+        
+        {/* Floating Money Icons */}
+        <div className="absolute top-20 left-10 w-64 h-64 bg-green-400/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" style={{animation: 'float 4s ease-in-out infinite'}}></div>
+        
+        <div className="relative container mx-auto px-4 py-20 z-10">
+          <div className="max-w-5xl mx-auto text-center space-y-8">
+            <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-0 shadow-xl font-bold px-8 py-3 text-lg">
+              💰 برنامج المسوقين بالعمولة
+            </Badge>
+            
+            <h2 className="text-5xl lg:text-7xl font-black leading-tight text-white drop-shadow-2xl">
+              <span className="bg-gradient-to-r from-yellow-300 via-white to-yellow-300 bg-clip-text text-transparent">
+                ابدأ الربح من المنزل
+              </span>
+            </h2>
+            
+            <p className="text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium leading-relaxed">
+              انضم لآلاف المسوقين الناجحين واحصل على عمولات مجزية على كل عملية بيع
+            </p>
+
+            {/* Features Grid */}
+            <div className="grid md:grid-cols-3 gap-6 pt-8">
+              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
+                <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-300" />
+                <h3 className="text-2xl font-bold mb-2">عمولات عالية</h3>
+                <p className="text-white/80">احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
+                <BarChart3 className="w-12 h-12 mx-auto mb-4 text-blue-300" />
+                <h3 className="text-2xl font-bold mb-2">تتبع دقيق</h3>
+                <p className="text-white/80">راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم</p>
+              </div>
+              
+              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
+                <Headphones className="w-12 h-12 mx-auto mb-4 text-pink-300" />
+                <h3 className="text-2xl font-bold mb-2">دعم مستمر</h3>
+                <p className="text-white/80">فريق دعم متواجد لمساعدتك على النجاح وزيادة أرباحك</p>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="pt-8">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black hover:from-yellow-500 hover:to-amber-600 shadow-2xl hover:shadow-yellow-500/50 transition-all duration-500 hover:scale-110 font-black text-2xl px-12 py-8 rounded-2xl relative overflow-hidden group"
+                asChild
+              >
+                <Link to="/register?type=affiliate">
+                  <span className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+                  <DollarSign className="ml-3 h-7 w-7 rtl:ml-0 rtl:mr-3 group-hover:animate-pulse" />
+                  <span className="relative z-10">اربح معنا الآن</span>
+                  <TrendingUp className="mr-3 h-6 w-6 rtl:mr-0 rtl:ml-3 group-hover:translate-y-[-4px] transition-transform" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-6 pt-12">
+              <div className="text-center">
+                <AnimatedCounter 
+                  end={25} 
+                  suffix="%" 
+                  className="text-5xl font-black text-yellow-300 mb-2"
+                  duration={2000}
+                />
+                <div className="text-lg text-white/80 font-medium">نسبة العمولة</div>
+              </div>
+              <div className="text-center">
+                <AnimatedCounter 
+                  end={1000} 
+                  prefix="+" 
+                  className="text-5xl font-black text-white mb-2"
+                  duration={2500}
+                />
+                <div className="text-lg text-white/80 font-medium">مسوق نشط</div>
+              </div>
+              <div className="text-center">
+                <AnimatedCounter 
+                  end={50000} 
+                  prefix="+" 
+                  suffix=" ج.م" 
+                  className="text-5xl font-black text-green-300 mb-2"
+                  duration={3000}
+                />
+                <div className="text-lg text-white/80 font-medium">متوسط الدخل الشهري</div>
               </div>
             </div>
           </div>
