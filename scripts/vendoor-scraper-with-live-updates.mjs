@@ -87,13 +87,13 @@ function formatProgressUpdate(current, total, successCount, failCount) {
   const progress = ((current / total) * 100).toFixed(1);
   const progressBar = generateProgressBar(current, total);
   
-  let msg = `⚡ <b>تحديث مباشر</b>\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  msg += `${progressBar}\n`;
-  msg += `📊 التقدم: <b>${current}/${total}</b> (<b>${progress}%</b>)\n\n`;
-  msg += `✅ نجح: <b>${successCount}</b>\n`;
-  msg += `❌ فشل: <b>${failCount}</b>\n`;
-  msg += `⏳ متبقي: <b>${total - current}</b>\n`;
+  let msg = '⚡ <b>تحديث مباشر</b>\n';
+  msg += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  msg += progressBar + '\n';
+  msg += '📊 التقدم: <b>' + current + '/' + total + '</b> (<b>' + progress + '%</b>)\n\n';
+  msg += '✅ نجح: <b>' + successCount + '</b>\n';
+  msg += '❌ فشل: <b>' + failCount + '</b>\n';
+  msg += '⏳ متبقي: <b>' + (total - current) + '</b>\n';
   
   return msg;
 }
@@ -108,41 +108,42 @@ function formatFinalReport(data) {
   const { totalFound, successCount, failCount, duration, results = [] } = data;
   const successRate = totalFound > 0 ? ((successCount / totalFound) * 100).toFixed(1) : 0;
   const date = new Date();
-  const timeStr = date.toLocaleString('ar-EG', { timeZone: 'Africa/Cairo' });
+  const timeStr = date.toISOString().replace('T', ' ').substring(0, 19);
   
-  let msg = `🎉 <b>تقرير نهائي - Vendoor Scraper</b>\n`;
-  msg += `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  msg += `📊 <b>الإحصائيات:</b>\n`;
-  msg += `✅ نجح: <b>${successCount}</b> منتج\n`;
-  msg += `❌ فشل: <b>${failCount}</b> منتج\n`;
-  msg += `📦 إجمالي: <b>${totalFound}</b> منتج\n`;
-  msg += `📈 نسبة النجاح: <b>${successRate}%</b>\n\n`;
+  let msg = '🎉 <b>تقرير نهائي - Vendoor Scraper</b>\n';
+  msg += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  msg += '📊 <b>الإحصائيات:</b>\n';
+  msg += '✅ نجح: <b>' + successCount + '</b> منتج\n';
+  msg += '❌ فشل: <b>' + failCount + '</b> منتج\n';
+  msg += '📦 إجمالي: <b>' + totalFound + '</b> منتج\n';
+  msg += '📈 نسبة النجاح: <b>' + successRate + '%</b>\n\n';
   
   if (duration) {
     const min = Math.floor(duration / 60);
     const sec = duration % 60;
-    msg += `⏱️ المدة: <b>${min}د ${sec}ث</b>\n`;
+    msg += '⏱️ المدة: <b>' + min + 'د ' + sec + 'ث</b>\n';
     const avgTime = totalFound > 0 ? (duration / totalFound).toFixed(1) : 0;
-    msg += `⚡ متوسط الوقت: <b>${avgTime}ث/منتج</b>\n\n`;
+    msg += '⚡ متوسط الوقت: <b>' + avgTime + 'ث/منتج</b>\n\n';
   }
   
-  msg += `🕐 ${timeStr}\n\n`;
+  msg += '🕐 ' + timeStr + '\n\n';
   
   if (results.length > 0) {
-    msg += `🏆 <b>أمثلة من المنتجات المضافة:</b>\n`;
+    msg += '🏆 <b>أمثلة من المنتجات المضافة:</b>\n';
     results.slice(0, 3).forEach((p, i) => {
-      msg += `${i + 1}. ${p.name?.substring(0, 35) || 'منتج'}...\n`;
-      msg += `   💰 السعر: <b>${p.price || 0} ج.م</b>\n`;
+      const productName = (p.name && p.name.substring(0, 35)) || 'منتج';
+      msg += (i + 1) + '. ' + productName + '...\n';
+      msg += '   💰 السعر: <b>' + (p.price || 0) + ' ج.م</b>\n';
       if (p.totalStock > 0) {
-        msg += `   📦 المخزون: ${p.totalStock}\n`;
+        msg += '   📦 المخزون: ' + p.totalStock + '\n';
       }
-      msg += `\n`;
+      msg += '\n';
     });
   }
   
-  msg += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-  msg += `✅ <b>اكتمل بنجاح!</b>\n\n`;
-  msg += `🔗 <a href="https://egygo.me/#/admin/vendoor-products">فتح لوحة التحكم</a>`;
+  msg += '━━━━━━━━━━━━━━━━━━━━━━\n';
+  msg += '✅ <b>اكتمل بنجاح!</b>\n\n';
+  msg += '🔗 <a href="https://egygo.me/#/admin/vendoor-products">فتح لوحة التحكم</a>';
   
   return msg;
 }
@@ -331,10 +332,12 @@ async function scrapeVendoorProducts() {
   console.log(`💰 Profit Margin: +${PROFIT_MARGIN} ج.م على كل منتج\n`);
   
   // إرسال رسالة البداية
-  const startMsg = `🚀 <b>بدء Vendoor Scraper</b>\n\n` +
-                   `⏰ الوقت: ${new Date().toLocaleString('ar-EG')}\n` +
-                   `💰 هامش الربح: <b>+${PROFIT_MARGIN} ج.م</b>\n\n` +
-                   `🔄 جاري الاتصال بـ Vendoor...`;
+  const now = new Date();
+  const timeStr = now.toISOString().replace('T', ' ').substring(0, 19);
+  const startMsg = '🚀 <b>بدء Vendoor Scraper</b>\n\n' +
+                   '⏰ الوقت: ' + timeStr + '\n' +
+                   '💰 هامش الربح: <b>+' + PROFIT_MARGIN + ' ج.م</b>\n\n' +
+                   '🔄 جاري الاتصال بـ Vendoor...';
   await sendTelegram(startMsg);
   
   const categoryId = await getOrCreateVendoorCategory();
@@ -377,7 +380,7 @@ async function scrapeVendoorProducts() {
     ]);
     
     console.log('✅ تم تسجيل الدخول!\n');
-    await sendTelegram('✅ تم تسجيل الدخول بنجاح!\n🔍 جاري استخراج المنتجات...');
+    await sendTelegram('✅ تم تسجيل الدخول بنجاح!' + '\n' + '🔍 جاري استخراج المنتجات...');
     
     await page.goto(VENDOOR_PRODUCTS_URL, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(resolve => setTimeout(resolve, 5000));
@@ -418,9 +421,9 @@ async function scrapeVendoorProducts() {
     console.log(`📊 تم العثور على ${products.length} منتج\n`);
     
     // إرسال إشعار بعدد المنتجات
-    const productsFoundMsg = `📦 <b>تم العثور على ${products.length} منتج</b>\n\n` +
-                              `🔄 جاري معالجة المنتجات...\n` +
-                              `سيتم إرسال تحديثات كل 5 منتجات`;
+    const productsFoundMsg = '📦 <b>تم العثور على ' + products.length + ' منتج</b>\n\n' +
+                              '🔄 جاري معالجة المنتجات...\n' +
+                              'سيتم إرسال تحديثات كل 5 منتجات';
     await sendTelegram(productsFoundMsg);
     
     console.log('='.repeat(60));
@@ -486,9 +489,9 @@ async function scrapeVendoorProducts() {
     
   } catch (error) {
     console.error('\n❌ خطأ:', error.message);
-    const errorMsg = `❌ <b>خطأ في Vendoor Scraper</b>\n\n` +
-                     `<code>${error.message}</code>\n\n` +
-                     `الرجاء التحقق من الـ logs.`;
+    const errorMsg = '❌ <b>خطأ في Vendoor Scraper</b>\n\n' +
+                     '<code>' + error.message + '</code>\n\n' +
+                     'الرجاء التحقق من الـ logs.';
     await sendTelegram(errorMsg);
     if (browser) await browser.close();
     throw error;
