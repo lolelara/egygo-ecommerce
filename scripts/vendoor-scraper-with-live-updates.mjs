@@ -557,9 +557,6 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     // 2. معلومات المنتج
     description += `📦 **معلومات المنتج**\n`;
     description += `SKU: ${sku}\n`;
-    if (details.seller) {
-      description += `البائع: ${details.seller}\n`;
-    }
     description += `المصدر: Vendoor\n`;
     description += `الرابط: ${product.link}\n\n`;
     
