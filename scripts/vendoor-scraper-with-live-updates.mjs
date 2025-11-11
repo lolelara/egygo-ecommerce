@@ -235,7 +235,13 @@ async function scrapeProductDetails(page, productUrl) {
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     const details = await page.evaluate(() => {
-      const data = { productImages: [], variants: [], totalStock: 0 };
+      const data = { productImages: [], variants: [], totalStock: 0, title: '', originalPrice: 0 };
+
+      // عنوان المنتج
+      const titleEl = document.querySelector('h1, h2, h3, .prodect-text, .product-title');
+      if (titleEl && titleEl.textContent) {
+        data.title = titleEl.textContent.trim();
+      }
       
       // استخراج الصور
       const galleryImages = document.querySelectorAll(
@@ -265,6 +271,27 @@ async function scrapeProductDetails(page, productUrl) {
         });
       }
       
+      // محاولة استخراج السعر من الصفحة
+      try {
+        const priceSelectors = ['.price', '.card-body-2.price', '.product-price', '.price-value'];
+        let priceText = '';
+        for (const sel of priceSelectors) {
+          const el = document.querySelector(sel);
+          if (el && el.textContent) { priceText = el.textContent; break; }
+        }
+        if (!priceText) {
+          const candidates = Array.from(document.querySelectorAll('p, span, div'));
+          for (const el of candidates) {
+            const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+            if (/(?:السعر|Price|EGP|جنيه|ج\.م|LE|L\.E)/i.test(txt)) { priceText = txt; break; }
+          }
+        }
+        if (priceText) {
+          const m = priceText.replace(/[,\s]/g, '').match(/(\d+(?:\.\d+)?)/);
+          if (m) data.originalPrice = parseFloat(m[1]);
+        }
+      } catch (e) {}
+
       // استخراج التنويعات والمخزون
       const tables = document.querySelectorAll('table');
       tables.forEach(table => {
@@ -306,22 +333,26 @@ async function scrapeProductDetails(page, productUrl) {
 async function addProductToAppwrite(product, categoryId, page, productIndex) {
   try {
     const ignoreList = ['لوحة التحكم', 'تسجيل الخروج', 'أضف اوردر', 'جميع المنتجات', 'المنتجات الخاصه', 'فيديو'];
-    if (ignoreList.some(term => product.title.includes(term))) {
+    const listTitle = (product.title || '').toString();
+    if (ignoreList.some(term => listTitle.includes(term))) {
       return null;
     }
     
-    const originalPrice = parseFloat(product.price.replace(/[^\d.]/g, '')) || 0;
-    if (originalPrice < 50 || originalPrice > 100000) {
+    // جلب التفاصيل أولاً للحصول على العنوان والسعر والصور بدقة
+    const details = await scrapeProductDetails(page, product.link);
+    if (!details) return null;
+
+    const effectiveTitle = (details.title && details.title.length > 2) ? details.title : product.title;
+    let originalPrice = parseFloat((product.price || '').replace(/[^\d.]/g, '')) || 0;
+    if (!originalPrice || originalPrice < 5) originalPrice = details.originalPrice || 0;
+    if (originalPrice < 5 || originalPrice > 100000) {
       return null;
     }
     
     // حساب السعر النهائي (السعر الأصلي + هامش الربح)
     const finalPrice = originalPrice + PROFIT_MARGIN;
     
-    console.log(`\n📦 ${product.title.substring(0, 40)}...`);
-    
-    const details = await scrapeProductDetails(page, product.link);
-    if (!details) return null;
+    console.log(`\n📦 ${effectiveTitle.substring(0, 40)}...`);
     
     const productImages = details.productImages.length > 0 
       ? details.productImages 
@@ -331,7 +362,7 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     
     console.log(`   📸 ${productImages.length} | 📦 ${details.variants.length} | 💰 ${originalPrice}→${finalPrice} ج`);
     
-    let description = `منتج من Vendoor - ${product.title}\n\n`;
+    let description = `منتج من Vendoor - ${effectiveTitle}\n\n`;
     description += `SKU: ${sku}\nالمصدر: Vendoor\nرابط: ${product.link}\n\n`;
     
     if (details.variants.length > 0) {
@@ -345,7 +376,7 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     }
     
     const productData = {
-      name: product.title,
+      name: effectiveTitle,
       description: description.substring(0, 1500),
       price: finalPrice, // السعر بعد إضافة الهامش
       originalPrice: originalPrice, // السعر الأصلي من Vendoor
@@ -374,6 +405,37 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     console.error(`   ❌ ${error.message}`);
     return null;
   }
+}
+
+// جمع روابط كل المنتجات عبر الصفحات
+async function collectAllProductLinks(page) {
+  const collected = new Map();
+  let currentPage = 1;
+  let lastPage = 1;
+  while (true) {
+    const url = currentPage === 1 ? VENDOOR_PRODUCTS_URL : `${VENDOOR_PRODUCTS_URL}?page=${currentPage}`;
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+    await new Promise(r => setTimeout(r, 1500));
+    const result = await page.evaluate(() => {
+      const anchors = Array.from(document.querySelectorAll('a'));
+      const productAnchors = anchors.filter(a => a.href && (a.href.includes('/product/') || a.href.includes('orders/create')));
+      const links = productAnchors.map(a => ({ link: a.href.trim(), title: (a.textContent || '').trim() }));
+      let lastPage = 1;
+      const pageLinks = Array.from(document.querySelectorAll('a[href*="page="]'));
+      const nums = pageLinks.map(a => {
+        const m = a.href.match(/[?&]page=(\d+)/);
+        return m ? parseInt(m[1], 10) : NaN;
+      }).filter(n => !isNaN(n));
+      if (nums.length) lastPage = Math.max(...nums);
+      return { links, lastPage };
+    });
+    result.links.forEach(it => collected.set(it.link, it));
+    lastPage = Math.max(lastPage, result.lastPage);
+    if (currentPage >= lastPage) break;
+    currentPage++;
+    if (currentPage > 200) break; // أمان
+  }
+  return Array.from(collected.values());
 }
 
 // ========================================
@@ -438,41 +500,8 @@ async function scrapeVendoorProducts() {
     console.log('✅ تم تسجيل الدخول!\n');
     await sendTelegram('✅ تم تسجيل الدخول بنجاح!' + '\n' + '🔍 جاري استخراج المنتجات...');
     
-    await page.goto(VENDOOR_PRODUCTS_URL, { waitUntil: 'networkidle2', timeout: 60000 });
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    
-    const products = await page.evaluate(() => {
-      const productsList = [];
-      const allLinks = Array.from(document.querySelectorAll('a'));
-      const productLinks = allLinks.filter(link => 
-        link.href && link.textContent.trim().length > 10 &&
-        (link.href.includes('/product/') || link.href.includes('orders/create'))
-      );
-      
-      productLinks.forEach((link, index) => {
-        let container = link.closest('tr') || link.closest('.card') || link.parentElement;
-        const product = {
-          id: index + 1,
-          title: link.textContent.trim(),
-          price: '0',
-          image: '',
-          link: link.href
-        };
-        
-        if (container) {
-          const img = container.querySelector('img');
-          if (img) product.image = img.src || '';
-          const priceTexts = container.innerText.match(/\d+\s*جنيه/g);
-          if (priceTexts) product.price = priceTexts[0];
-        }
-        
-        if (product.title.length > 5) {
-          productsList.push(product);
-        }
-      });
-      
-      return productsList;
-    });
+    console.log('🔎 جمع روابط المنتجات من كل الصفحات...');
+    const products = await collectAllProductLinks(page);
     
     console.log(`📊 تم العثور على ${products.length} منتج\n`);
     
