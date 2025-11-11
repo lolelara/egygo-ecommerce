@@ -64,6 +64,12 @@ const adminNavItems = [
     roles: ['admin'], // فقط المدير
   },
   {
+    title: "منتجات مستوردة",
+    href: "/admin/vendoor-orders",
+    icon: Truck,
+    roles: ['admin'], // فقط المدير
+  },
+  {
     title: "حالة المنتجات",
     href: "/merchant/products-status",
     icon: CheckCircle,

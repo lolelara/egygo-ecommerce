@@ -44,6 +44,8 @@ import {
   Package,
   TrendingUp,
   TrendingDown,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { ImageUploader } from "@/components/ImageUploader";
 import VideoUploader from "@/components/VideoUploader";
@@ -463,6 +465,8 @@ export default function AdminProducts() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [bulkUpdating, setBulkUpdating] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -564,6 +568,134 @@ export default function AdminProducts() {
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("فشل في حذف المنتج: " + (error as any).message);
+    }
+  };
+  
+  // Bulk delete products
+  const handleBulkDelete = async () => {
+    if (selectedProducts.length === 0) {
+      alert("الرجاء اختيار منتجات أولاً");
+      return;
+    }
+    
+    if (!confirm(`هل أنت متأكد من حذف ${selectedProducts.length} منتج؟ لا يمكن التراجع عن هذا الإجراء!`)) {
+      return;
+    }
+    
+    setBulkUpdating(true);
+    let deletedCount = 0;
+    
+    try {
+      for (const productId of selectedProducts) {
+        try {
+          await adminProductsApi.delete(productId);
+          deletedCount++;
+        } catch (error) {
+          console.error(`Error deleting product ${productId}:`, error);
+        }
+      }
+      
+      setProducts((prev) => prev.filter((p) => !selectedProducts.includes(p.id)));
+      setSelectedProducts([]);
+      alert(`تم حذف ${deletedCount} منتج بنجاح`);
+    } catch (error) {
+      console.error("Error bulk deleting:", error);
+      alert("حدث خطأ أثناء الحذف");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+  
+  // Bulk update product status
+  const handleBulkStatusUpdate = async (inStock: boolean) => {
+    if (selectedProducts.length === 0) {
+      alert("الرجاء اختيار منتجات أولاً");
+      return;
+    }
+    
+    setBulkUpdating(true);
+    let updatedCount = 0;
+    
+    try {
+      for (const productId of selectedProducts) {
+        try {
+          const product = products.find(p => p.id === productId);
+          if (product) {
+            await adminProductsApi.update({
+              id: productId,
+              inStock,
+            } as AdminProductUpdate);
+            updatedCount++;
+          }
+        } catch (error) {
+          console.error(`Error updating product ${productId}:`, error);
+        }
+      }
+      
+      setProducts((prev) => prev.map((p) => 
+        selectedProducts.includes(p.id) ? { ...p, inStock } : p
+      ));
+      setSelectedProducts([]);
+      alert(`تم تحديث ${updatedCount} منتج بنجاح`);
+    } catch (error) {
+      console.error("Error bulk updating:", error);
+      alert("حدث خطأ أثناء التحديث");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+  
+  // Bulk update category
+  const handleBulkCategoryUpdate = async (categoryId: string) => {
+    if (selectedProducts.length === 0) {
+      alert("الرجاء اختيار منتجات أولاً");
+      return;
+    }
+    
+    setBulkUpdating(true);
+    let updatedCount = 0;
+    
+    try {
+      for (const productId of selectedProducts) {
+        try {
+          await adminProductsApi.update({
+            id: productId,
+            categoryId,
+          } as AdminProductUpdate);
+          updatedCount++;
+        } catch (error) {
+          console.error(`Error updating product ${productId}:`, error);
+        }
+      }
+      
+      setProducts((prev) => prev.map((p) => 
+        selectedProducts.includes(p.id) ? { ...p, category: categoryId } : p
+      ));
+      setSelectedProducts([]);
+      alert(`تم تحديث ${updatedCount} منتج بنجاح`);
+    } catch (error) {
+      console.error("Error bulk updating category:", error);
+      alert("حدث خطأ أثناء التحديث");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+  
+  // Toggle product selection
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProducts((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+  
+  // Toggle all products
+  const toggleAllProducts = () => {
+    if (selectedProducts.length === filteredProducts.length) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(filteredProducts.map((p) => p.id));
     }
   };
   
@@ -698,6 +830,70 @@ export default function AdminProducts() {
           </Card>
         </div>
 
+        {/* Bulk Actions Bar */}
+        {selectedProducts.length > 0 && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    تم اختيار {selectedProducts.length} منتج
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedProducts([])}
+                  >
+                    إلغاء التحديد
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkStatusUpdate(true)}
+                    disabled={bulkUpdating}
+                  >
+                    تعيين كمتاح
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkStatusUpdate(false)}
+                    disabled={bulkUpdating}
+                  >
+                    تعيين كغير متاح
+                  </Button>
+                  <Select
+                    onValueChange={handleBulkCategoryUpdate}
+                    disabled={bulkUpdating}
+                  >
+                    <SelectTrigger className="w-[180px] h-9">
+                      <SelectValue placeholder="تغيير الفئة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBulkDelete}
+                    disabled={bulkUpdating}
+                  >
+                    <Trash2 className="h-4 w-4 ml-2" />
+                    حذف المحدد
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Filters */}
         <div className="flex gap-4">
           <div className="flex-1">
@@ -736,6 +932,20 @@ export default function AdminProducts() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleAllProducts}
+                      className="h-8 w-8 p-0"
+                    >
+                      {selectedProducts.length === filteredProducts.length && filteredProducts.length > 0 ? (
+                        <CheckSquare className="h-4 w-4" />
+                      ) : (
+                        <Square className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableHead>
                   <TableHead>المنتج</TableHead>
                   <TableHead>الفئة</TableHead>
                   <TableHead>السعر</TableHead>
@@ -750,8 +960,23 @@ export default function AdminProducts() {
                   const category = categories.find(
                     (c) => c.id === product.category,
                   );
+                  const isSelected = selectedProducts.includes(product.id);
                   return (
-                    <TableRow key={product.id}>
+                    <TableRow key={product.id} className={isSelected ? "bg-blue-50" : ""}>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleProductSelection(product.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          {isSelected ? (
+                            <CheckSquare className="h-4 w-4 text-blue-600" />
+                          ) : (
+                            <Square className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <img
