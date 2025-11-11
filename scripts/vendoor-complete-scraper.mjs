@@ -21,6 +21,9 @@ const TEST_MODE = false;  // وضع الإنتاج الكامل
 const TEST_VENDORS_LIMIT = 2;  // عدد الموردين للاختبار (ignored when TEST_MODE = false)
 const TEST_PRODUCTS_PER_VENDOR = 3;  // عدد المنتجات لكل مورد (ignored when TEST_MODE = false)
 
+// Profit Margin - زيادة على سعر المنتج
+const PROFIT_MARGIN = 10;  // 10 جنيه زيادة على كل منتج
+
 const client = new Client()
   .setEndpoint(APPWRITE_ENDPOINT)
   .setProject(APPWRITE_PROJECT_ID)
@@ -471,18 +474,22 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
     // Filter images again to ensure no logos are saved
     const filteredImages = (data.images || []).filter((u) => u && !/logo2?\.png|favicon/i.test(String(u)));
 
+    // حساب السعر النهائي (السعر الأصلي + هامش الربح)
+    const originalPrice = data.price;
+    const finalPrice = originalPrice + PROFIT_MARGIN;
+    
     const productData = {
       // Required fields
       name: data.title || `Vendoor Product ${index + 1}`,
       description: description.substring(0, 1500),
-      price: data.price,
+      price: finalPrice, // السعر بعد إضافة الهامش
       categoryId: categoryId,
       
       // Optional fields - Basic info
       images: filteredImages.length > 0 ? filteredImages : ['https://via.placeholder.com/400'],
       source: 'vendoor',
       status: 'approved', // ✅ منشور مباشرة
-      originalPrice: data.price,
+      originalPrice: originalPrice, // السعر الأصلي من Vendoor
       sourceUrl: productUrl, // ✅ لتتبع المنتج
       
       // Optional fields - Stock

@@ -11,6 +11,9 @@ const APPWRITE_PROJECT_ID = '68d8b9db00134c41e7c8';
 const APPWRITE_API_KEY = 'standard_4cd223829de1f0735515eed5940137b7108cdcbd46e8da2514e45aee7c53eee86f6ff92fd801152e4fa919dca1f8382503562b56b30cd1b6d222dd5bca897d9fd1bbb98ac787b019c50b689bdff9613f0cd3f289d369c2c42f58aa9cceec97773dcd1f77d5389c2695fba800e3a644e7c3bd9f1e8479e8a2e89a4ffb79c14bc5';
 const APPWRITE_DATABASE_ID = '68de037e003bd03c4d45';
 
+// Profit Margin - زيادة على سعر المنتج
+const PROFIT_MARGIN = 10;  // 10 جنيه زيادة على كل منتج
+
 // Product URL to scrape
 const PRODUCT_URL = process.argv[2] || 'https://aff.ven-door.com/product/3178';
 
@@ -247,10 +250,15 @@ async function saveToAppwrite(data, url) {
     
     const filteredImages = (data.images || []).filter((u) => u && !/logo2?\.png|favicon/i.test(String(u)));
     
+    // حساب السعر النهائي (السعر الأصلي + هامش الربح)
+    const originalPrice = data.price || 0;
+    const finalPrice = originalPrice + PROFIT_MARGIN;
+    
     const productData = {
       name: data.title || 'Unnamed Product',
       description: description || 'No description',
-      price: data.price || 0,
+      price: finalPrice, // السعر بعد إضافة الهامش
+      originalPrice: originalPrice, // السعر الأصلي من Vendoor
       images: filteredImages.length > 0 ? filteredImages : ['https://via.placeholder.com/400'],
       colors: data.colors || [],
       sizes: data.sizes || [],
