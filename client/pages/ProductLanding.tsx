@@ -500,6 +500,62 @@ export default function ProductLanding() {
           </Card>
         </div>
 
+        {/* Inventory Table */}
+        {inventory.length > 0 && (
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold">المخزون المتاح</h2>
+              <Badge variant="outline" className="text-lg px-4 py-2">
+                إجمالي المخزون: {totalStock} قطعة
+              </Badge>
+            </div>
+            <Card className="overflow-hidden shadow-lg">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
+                    <tr>
+                      <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
+                        المقاس
+                      </th>
+                      <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
+                        اللون
+                      </th>
+                      <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
+                        الكمية المتاحة
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {inventory.map((item, index) => (
+                      <tr 
+                        key={index} 
+                        className={`hover:bg-gray-50 transition-colors ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                        }`}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
+                          {item.size}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-700">
+                          {item.color}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge 
+                            variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
+                            className="text-sm font-semibold px-3 py-1"
+                          >
+                            {item.quantity} قطعة
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+        )}
+
         {/* Reviews Section */}
         {product.reviewCount > 0 && (
           <div className="mt-12">

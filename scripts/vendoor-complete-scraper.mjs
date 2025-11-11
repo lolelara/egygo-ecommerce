@@ -310,6 +310,18 @@ async function scrapeProduct(page, productUrl, index) {
         });
       }
       
+      // Fallback: إذا الوصف فارغ، جرب من أي p tag في body
+      if (!result.description || result.description.length < 10) {
+        const allPs = Array.from(document.querySelectorAll('.component-What p, .card-body-2 p, section p'));
+        for (const p of allPs) {
+          const text = p.textContent.trim();
+          if (text.length > 20 && !text.includes('السعر') && !text.includes('البائع')) {
+            result.description = text;
+            break;
+          }
+        }
+      }
+      
       // ✅ الصور - الصورة الرئيسية من .abut-img img
       const mainImg = document.querySelector('.abut-img img');
       if (mainImg && mainImg.src) {
@@ -362,7 +374,9 @@ async function scrapeProduct(page, productUrl, index) {
         const rows = Array.from(table.querySelectorAll('tbody tr, tr'));
         
         rows.forEach((row, idx) => {
-          if (idx === 0 && headers.length > 0) return; // skip header
+          // Skip row only if it's the first AND contains th elements (actual header)
+          const isHeaderRow = row.querySelectorAll('th').length > 0;
+          if (isHeaderRow) return;
           
           const cells = Array.from(row.querySelectorAll('td'));
           if (cells.length === 0) return;
@@ -417,6 +431,7 @@ async function scrapeProduct(page, productUrl, index) {
     console.log('   Title:', data.title || '(No title)');
     console.log('   Seller:', data.seller || '(No seller)');
     console.log('   Price:', data.price, 'EGP');
+    console.log('   Description length:', (data.description || '').length, 'chars');
     console.log('   Images:', data.images.length);
     if (data.mediaLinks.length > 0) {
       console.log('   Media Links:', data.mediaLinks.length);
