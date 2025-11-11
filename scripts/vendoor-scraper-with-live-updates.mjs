@@ -21,6 +21,9 @@ const APPWRITE_CATEGORIES_COLLECTION_ID = 'categories';
 const TELEGRAM_BOT_TOKEN = '8592879332:AAHYh6RSnKOj0eXz0p6gN1mm4xDB-z4GDvo';
 const TELEGRAM_CHAT_ID = '664193835';
 
+// Google Sheets Configuration
+const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzHzU-1GF4Q1H1OSe9d6BQy_MgTkNds6oEmeNk5oeP64k-mKela-Hcg78VJDFPC6Aqy/exec';
+
 // Profit Margin
 const PROFIT_MARGIN = 10; // 10 جنيه زيادة على كل منتج
 
@@ -75,6 +78,59 @@ async function sendTelegram(message) {
     
     req.on('error', (error) => {
       console.error('❌ خطأ في الاتصال:', error.message);
+      resolve(false);
+    });
+    
+    req.write(data);
+    req.end();
+  });
+}
+
+async function sendToGoogleSheets(reportData) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify(reportData);
+    
+    const url = new URL(GOOGLE_APPS_SCRIPT_URL);
+    
+    const options = {
+      hostname: url.hostname,
+      port: 443,
+      path: url.pathname + url.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length
+      }
+    };
+    
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => { body += chunk; });
+      res.on('end', () => {
+        try {
+          const response = JSON.parse(body);
+          if (response.success) {
+            console.log('✅ تم حفظ التقرير في Google Sheets');
+            console.log('   الصفوف المضافة:', response.rowsAdded || 0);
+          } else {
+            console.error('❌ فشل حفظ التقرير:', response.error);
+          }
+          resolve(response.success);
+        } catch (error) {
+          console.error('❌ خطأ في تحليل استجابة Google Sheets');
+          resolve(false);
+        }
+      });
+    });
+    
+    req.on('error', (error) => {
+      console.error('❌ خطأ في الاتصال بـ Google Sheets:', error.message);
+      resolve(false);
+    });
+    
+    req.setTimeout(30000, () => {
+      req.destroy();
+      console.error('❌ انتهت مهلة الاتصال بـ Google Sheets');
       resolve(false);
     });
     
@@ -456,7 +512,8 @@ async function scrapeVendoorProducts() {
     const endTime = Date.now();
     const duration = Math.floor((endTime - startTime) / 1000);
     
-    const outputData = {
+    // بيانات التقرير الكاملة
+    const fullOutputData = {
       scrapedAt: new Date().toISOString(),
       databaseId: APPWRITE_DATABASE_ID,
       categoryId,
@@ -465,7 +522,13 @@ async function scrapeVendoorProducts() {
       failCount,
       duration,
       profitMargin: PROFIT_MARGIN,
-      results: results.slice(0, 5)
+      results: results // كل المنتجات للشيت
+    };
+    
+    // بيانات ملخصة لـ Telegram فقط
+    const outputData = {
+      ...fullOutputData,
+      results: results.slice(0, 5) // أول 5 منتجات فقط للتليجرام
     };
     
     // حفظ النتائج في ملف JSON
@@ -483,6 +546,17 @@ async function scrapeVendoorProducts() {
     const finalReport = formatFinalReport(outputData);
     await sendTelegram(finalReport);
     console.log('\n📱 تم إرسال التقرير النهائي على Telegram!');
+    
+    // إرسال التقرير إلى Google Sheets (البيانات الكاملة)
+    console.log('\n📊 جاري حفظ التقرير في Google Sheets...');
+    const sheetsSaved = await sendToGoogleSheets(fullOutputData);
+    
+    if (sheetsSaved) {
+      console.log('✅ تم حفظ التقرير في Google Sheets بنجاح!');
+      await sendTelegram('✅ <b>تم حفظ التقرير في Google Sheets</b>\n\n🔗 <a href="https://docs.google.com/spreadsheets/">فتح Google Sheets</a>');
+    } else {
+      console.log('⚠️ فشل حفظ التقرير في Google Sheets');
+    }
     
     await browser.close();
     return outputData;
