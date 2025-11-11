@@ -34,6 +34,12 @@ const client = new Client()
 
 const databases = new Databases(client);
 
+// Debug flag (enable with: DEBUG_SCRAPER=1)
+const DEBUG = process.env.DEBUG_SCRAPER === '1';
+function dlog(...args) {
+  if (DEBUG) console.log('[DEBUG]', ...args);
+}
+
 // ========================================
 // Telegram Functions
 // ========================================
@@ -248,7 +254,7 @@ async function getOrCreateVendoorCategory() {
 async function scrapeProductDetails(page, productUrl) {
   try {
     await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 2500));
     
     const details = await page.evaluate(() => {
       const data = { productImages: [], variants: [], totalStock: 0, title: '', originalPrice: 0 };
@@ -289,24 +295,69 @@ async function scrapeProductDetails(page, productUrl) {
       
       // محاولة استخراج السعر من الصفحة
       try {
-        const priceSelectors = ['.price', '.card-body-2.price', '.product-price', '.price-value'];
         let priceText = '';
-        for (const sel of priceSelectors) {
-          const el = document.querySelector(sel);
-          if (el && el.textContent) { priceText = el.textContent; break; }
-        }
-        if (!priceText) {
-          const candidates = Array.from(document.querySelectorAll('p, span, div'));
-          for (const el of candidates) {
-            const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
-            if (/(?:السعر|Price|EGP|جنيه|ج\.م|LE|L\.E)/i.test(txt)) { priceText = txt; break; }
+        let foundSelector = '';
+        
+        // محاولة 1: البحث عن "السعر :" أو "Price :" بالضبط
+        const priceElements = Array.from(document.querySelectorAll('div, p, span, td, h1, h2, h3, h4, h5'));
+        for (const el of priceElements) {
+          const txt = (el.textContent || '').trim();
+          // بحث عن نمط "السعر : 399 جنيه" أو "Price: 399"
+          if (/(?:السعر|Price)\s*[:：]\s*\d+/i.test(txt)) {
+            priceText = txt;
+            foundSelector = el.tagName + (el.className ? '.' + el.className.split(' ')[0] : '');
+            break;
           }
         }
+        
+        // محاولة 2: البحث في عناصر محددة عن أرقام مع كلمات دلالية
+        if (!priceText) {
+          for (const el of priceElements) {
+            const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+            if (/(?:جنيه|ج\.م|EGP|LE|L\.E|£|E£)\s*\d+|\d+\s*(?:جنيه|ج\.م|EGP|LE|L\.E)/i.test(txt)) {
+              // تأكد أنه ليس "العمولة" أو "البائع"
+              if (!/(?:عمولة|commission|بائع|seller|stock|مخزون)/i.test(txt)) {
+                priceText = txt;
+                foundSelector = el.tagName + (el.className ? '.' + el.className.split(' ')[0] : '');
+                break;
+              }
+            }
+          }
+        }
+        
+        // محاولة 3: أرقام كبيرة معقولة (50-50000) باستثناء المخزون
+        if (!priceText) {
+          const allNums = [];
+          for (const el of priceElements) {
+            const txt = (el.textContent || '').trim();
+            const match = txt.match(/\b(\d{2,5})\b/);
+            if (match && !/stock|مخزون|عدد|quantity/i.test(txt)) {
+              const num = parseInt(match[1]);
+              if (num >= 50 && num <= 50000) {
+                allNums.push({ num, txt, el });
+              }
+            }
+          }
+          // اختر أصغر رقم معقول (غالباً السعر أصغر من المخزون)
+          if (allNums.length > 0) {
+            allNums.sort((a, b) => a.num - b.num);
+            priceText = allNums[0].txt;
+            foundSelector = 'fallback-reasonable-number';
+          }
+        }
+        
         if (priceText) {
           const m = priceText.replace(/[,\s]/g, '').match(/(\d+(?:\.\d+)?)/);
-          if (m) data.originalPrice = parseFloat(m[1]);
+          if (m) {
+            data.originalPrice = parseFloat(m[1]);
+            data._priceDebug = { raw: priceText.substring(0, 100), selector: foundSelector, parsed: data.originalPrice };
+          }
+        } else {
+          data._priceDebug = { raw: 'not found', selector: 'none' };
         }
-      } catch (e) {}
+      } catch (e) {
+        data._priceDebug = { error: e.toString() };
+      }
 
       // استخراج التنويعات والمخزون
       const tables = document.querySelectorAll('table');
@@ -341,7 +392,8 @@ async function scrapeProductDetails(page, productUrl) {
     
     return details;
   } catch (error) {
-    console.error('   ⚠️ فشل استخراج التفاصيل');
+    console.error('   ⚠️ فشل استخراج التفاصيل للمنتج:', productUrl);
+    console.error('      السبب:', error && error.message ? error.message : error);
     return null;
   }
 }
@@ -351,18 +403,35 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     const ignoreList = ['لوحة التحكم', 'تسجيل الخروج', 'أضف اوردر', 'جميع المنتجات', 'المنتجات الخاصه', 'فيديو'];
     const listTitle = (product.title || '').toString();
     if (ignoreList.some(term => listTitle.includes(term))) {
+      console.log('   ⚠️ تم تجاهل المنتج بسبب العنوان (قائمة التجاهل):', listTitle.substring(0, 40));
       return null;
     }
     
     // جلب التفاصيل أولاً للحصول على العنوان والسعر والصور بدقة
     const details = await scrapeProductDetails(page, product.link);
-    if (!details) return null;
+    if (!details) {
+      if (DEBUG) {
+        try { await page.screenshot({ path: `debug_fail_details_${productIndex}.png`, fullPage: true }); } catch (e) {}
+      }
+      return null;
+    }
 
     const effectiveTitle = (details.title && details.title.length > 2) ? details.title : product.title;
     let originalPrice = parseFloat((product.price || '').replace(/[^\d.]/g, '')) || 0;
     if (!originalPrice || originalPrice < 5) originalPrice = details.originalPrice || 0;
     if (originalPrice < 5 || originalPrice > 100000) {
+      console.log('   ⚠️ سعر غير صالح، سيتم تجاهل المنتج. السعر:', originalPrice, '| الرابط:', product.link);
+      if (DEBUG && details._priceDebug) {
+        console.log('      [DEBUG] استخراج السعر:', JSON.stringify(details._priceDebug));
+      }
+      if (DEBUG) {
+        try { await page.screenshot({ path: `debug_invalid_price_${productIndex}.png`, fullPage: true }); } catch (e) {}
+      }
       return null;
+    }
+    
+    if (DEBUG && details._priceDebug) {
+      dlog('تم استخراج السعر بنجاح:', details._priceDebug);
     }
     
     // حساب السعر النهائي (السعر الأصلي + هامش الربح)
@@ -377,6 +446,8 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     const sku = generateVendoorSKU(productIndex);
     
     console.log(`   📸 ${productImages.length} | 📦 ${details.variants.length} | 💰 ${originalPrice}→${finalPrice} ج`);
+    if (details.productImages.length === 0) dlog('لا توجد صور مستخرجة من صفحة المنتج:', product.link);
+    if (!details.title) dlog('لم يتم استخراج عنوان للمنتج من الصفحة، سيتم استخدام عنوان القائمة');
     
     let description = `منتج من Vendoor - ${effectiveTitle}\n\n`;
     description += `SKU: ${sku}\nالمصدر: Vendoor\nرابط: ${product.link}\n\n`;
@@ -418,7 +489,13 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     return { ...document, variants: details.variants };
     
   } catch (error) {
-    console.error(`   ❌ ${error.message}`);
+    console.error(`   ❌ خطأ أثناء إنشاء المنتج في Appwrite: ${error && error.message ? error.message : error}`);
+    if (error && error.response) {
+      try { console.error('      Appwrite response:', JSON.stringify(error.response)); } catch (e) { console.error('      Appwrite response (raw):', error.response); }
+    }
+    if (DEBUG) {
+      try { await page.screenshot({ path: `debug_appwrite_error_${productIndex}.png`, fullPage: true }); } catch (e) {}
+    }
     return null;
   }
 }
@@ -434,7 +511,10 @@ async function collectAllProductLinks(page) {
     await new Promise(r => setTimeout(r, 1500));
     const result = await page.evaluate(() => {
       const anchors = Array.from(document.querySelectorAll('a'));
-      const productAnchors = anchors.filter(a => a.href && (a.href.includes('/product/') || a.href.includes('orders/create')));
+      const productAnchors = anchors.filter(a => {
+        const href = a.href || '';
+        return href.includes('/product/') && !href.includes('/logout') && !href.includes('/login');
+      });
       const links = productAnchors.map(a => ({ link: a.href.trim(), title: (a.textContent || '').trim() }));
       let lastPage = 1;
       const pageLinks = Array.from(document.querySelectorAll('a[href*="page="]'));
@@ -447,6 +527,7 @@ async function collectAllProductLinks(page) {
     });
     result.links.forEach(it => collected.set(it.link, it));
     lastPage = Math.max(lastPage, result.lastPage);
+    console.log(`📄 صفحة ${currentPage}/${lastPage} - روابط المنتجات المكتشفة: ${result.links.length}`);
     if (currentPage >= lastPage) break;
     currentPage++;
     if (currentPage > 200) break; // أمان
@@ -500,6 +581,10 @@ async function scrapeVendoorProducts() {
     
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    if (DEBUG) {
+      page.on('console', msg => console.log('[PAGE]', msg.type(), msg.text()));
+      page.on('requestfailed', req => console.log('[REQ-FAILED]', req.url(), req.failure() && req.failure().errorText));
+    }
     
     console.log('📄 تسجيل دخول...');
     await page.goto(VENDOOR_LOGIN_URL, { waitUntil: 'networkidle2', timeout: 60000 });
