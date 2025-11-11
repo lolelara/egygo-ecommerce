@@ -89,53 +89,69 @@ async function sendTelegram(message) {
 async function sendToGoogleSheets(reportData) {
   return new Promise((resolve) => {
     const data = JSON.stringify(reportData);
-    
-    const url = new URL(GOOGLE_APPS_SCRIPT_URL);
-    
-    const options = {
-      hostname: url.hostname,
-      port: 443,
-      path: url.pathname + url.search,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(data)
+    const makeRequest = (targetUrl, redirectsLeft = 3) => {
+      let urlObj;
+      try {
+        urlObj = new URL(targetUrl);
+      } catch (e) {
+        console.error('❌ خطأ في عنوان Google Apps Script');
+        resolve(false);
+        return;
       }
-    };
-    
-    const req = https.request(options, (res) => {
-      let body = '';
-      res.on('data', (chunk) => { body += chunk; });
-      res.on('end', () => {
-        try {
-          const response = JSON.parse(body);
-          if (response.success) {
-            console.log('✅ تم حفظ التقرير في Google Sheets');
-            console.log('   الصفوف المضافة:', response.rowsAdded || 0);
-          } else {
-            console.error('❌ فشل حفظ التقرير:', response.error);
-          }
-          resolve(response.success);
-        } catch (error) {
-          console.error('❌ خطأ في تحليل استجابة Google Sheets');
-          resolve(false);
+      const options = {
+        hostname: urlObj.hostname,
+        port: 443,
+        path: urlObj.pathname + urlObj.search,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(data),
+          'Accept': 'application/json'
         }
+      };
+      const req = https.request(options, (res) => {
+        let body = '';
+        res.on('data', (chunk) => { body += chunk; });
+        res.on('end', () => {
+          const status = res.statusCode || 0;
+          if ((status === 301 || status === 302 || status === 303 || status === 307 || status === 308) && res.headers && res.headers.location && redirectsLeft > 0) {
+            let nextUrl;
+            try {
+              nextUrl = new URL(res.headers.location, urlObj.origin).href;
+            } catch (e) {
+              nextUrl = res.headers.location;
+            }
+            console.log('↪️ إعادة توجيه إلى:', nextUrl);
+            makeRequest(nextUrl, redirectsLeft - 1);
+            return;
+          }
+          try {
+            const response = JSON.parse(body);
+            if (response.success) {
+              console.log('✅ تم حفظ التقرير في Google Sheets');
+              console.log('   الصفوف المضافة:', response.rowsAdded || 0);
+              resolve(true);
+            } else {
+              console.error('⚠️ فشل حفظ التقرير في Google Sheets:', response.error || 'غير معروف');
+              resolve(false);
+            }
+          } catch (error) {
+            console.error('❌ خطأ في تحليل استجابة Google Sheets');
+            if (status) console.error('   HTTP', status);
+            const preview = (body || '').toString().slice(0, 200).replace(/\n/g, ' ');
+            if (preview) console.error('   Body:', preview);
+            resolve(false);
+          }
+        });
       });
-    });
-    
-    req.on('error', (error) => {
-      console.error('❌ خطأ في الاتصال بـ Google Sheets:', error.message);
-      resolve(false);
-    });
-    
-    req.setTimeout(30000, () => {
-      req.destroy();
-      console.error('❌ انتهت مهلة الاتصال بـ Google Sheets');
-      resolve(false);
-    });
-    
-    req.write(data);
-    req.end();
+      req.on('error', (error) => {
+        console.error('❌ خطأ في الاتصال بـ Google Sheets:', error.message);
+        resolve(false);
+      });
+      req.write(data);
+      req.end();
+    };
+    makeRequest(GOOGLE_APPS_SCRIPT_URL, 3);
   });
 }
 
