@@ -37,20 +37,7 @@ import { PageLoader } from "@/components/ui/loading-screen";
 import { EnhancedProductGallery } from "@/components/product/EnhancedProductGallery";
 import { SEOHead } from "@/components/SEOHead";
 import { analytics } from "@/lib/enhanced-analytics";
-
-// Color mappings (للترجمة والعرض) - خارج الـ component لمنع re-creation
-const COLOR_MAPPINGS: Record<string, {name: string, hex: string, border?: boolean}> = {
-  'black': { name: "أسود", hex: "#000000" },
-  'white': { name: "أبيض", hex: "#FFFFFF", border: true },
-  'blue': { name: "أزرق", hex: "#3B82F6" },
-  'red': { name: "أحمر", hex: "#EF4444" },
-  'green': { name: "أخضر", hex: "#10B981" },
-  'yellow': { name: "أصفر", hex: "#FBBF24" },
-  'purple': { name: "بنفسجي", hex: "#A855F7" },
-  'pink': { name: "وردي", hex: "#EC4899" },
-  'gray': { name: "رمادي", hex: "#6B7280" },
-  'brown': { name: "بني", hex: "#92400E" },
-};
+import { getColorInfo } from "@/lib/colorUtils";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -173,15 +160,19 @@ export default function ProductDetail() {
     
     const uniqueColors = [...new Set(inventory
       .filter(item => item.quantity > 0 && item.color)
-      .map(item => item.color.toLowerCase())
+      .map(item => item.color)
     )];
     
-    return uniqueColors.map(color => ({
-      name: COLOR_MAPPINGS[color]?.name || color,
-      value: color,
-      hex: COLOR_MAPPINGS[color]?.hex || '#999999',
-      border: COLOR_MAPPINGS[color]?.border,
-    }));
+    return uniqueColors.map(color => {
+      const colorInfo = getColorInfo(color);
+      return {
+        name: colorInfo.name,
+        value: color.toLowerCase(),
+        hex: colorInfo.hex,
+        border: colorInfo.border,
+        textColor: colorInfo.textColor,
+      };
+    });
   })();
 
   // استخراج المقاسات المتاحة من الـ inventory - direct calculation
@@ -436,7 +427,7 @@ export default function ProductDetail() {
                     <button
                       key={color.value}
                       onClick={() => setSelectedColor(color.value)}
-                      className={`relative w-12 h-12 rounded-full transition-all ${
+                      className={`relative group w-14 h-14 rounded-full transition-all shadow-md ${
                         selectedColor === color.value
                           ? "ring-2 ring-primary ring-offset-2 scale-110"
                           : "hover:scale-105"
@@ -445,12 +436,13 @@ export default function ProductDetail() {
                       title={color.name}
                     >
                       {selectedColor === color.value && (
-                        <Check className="h-6 w-6 absolute inset-0 m-auto text-white drop-shadow-lg" 
-                          style={{ 
-                            color: color.value === "white" ? "#000000" : "#ffffff" 
-                          }}
+                        <Check className="h-6 w-6 absolute inset-0 m-auto drop-shadow-lg" 
+                          style={{ color: color.textColor }}
                         />
                       )}
+                      <span className="absolute -bottom-7 left-1/2 transform -translate-x-1/2 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white px-2 py-1 rounded z-10">
+                        {color.name}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -655,8 +647,15 @@ export default function ProductDetail() {
                         <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
                           {item.size}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-700">
-                          {item.color}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
+                              style={{ backgroundColor: getColorInfo(item.color).hex }}
+                              title={item.color}
+                            />
+                            <span className="text-base text-gray-700">{item.color}</span>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge 

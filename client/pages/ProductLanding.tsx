@@ -6,6 +6,7 @@ import { databases } from "@/lib/appwrite";
 import { Query, ID } from "appwrite";
 import { useCart } from "@/contexts/CartContext";
 import { getImageUrl, getImageUrls } from "@/lib/storage";
+import { getColorsInfo } from "@/lib/colorUtils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -406,24 +407,37 @@ export default function ProductLanding() {
             {/* Colors Selection */}
             {availableColors.length > 0 && (
               <div className="space-y-3">
-                <Label className="text-base font-semibold">اختر اللون:</Label>
-                <div className="flex flex-wrap gap-2">
-                  {availableColors.map((color: string, index: number) => (
-                    <Button
+                <Label className="text-base font-semibold">
+                  اختر اللون: {selectedColor && <span className="text-primary">{selectedColor}</span>}
+                </Label>
+                <div className="flex flex-wrap gap-3">
+                  {getColorsInfo(availableColors).map((colorInfo, index) => (
+                    <button
                       key={index}
-                      variant={selectedColor === color ? "default" : "outline"}
-                      className="min-w-[80px]"
-                      onClick={() => setSelectedColor(color)}
+                      onClick={() => setSelectedColor(colorInfo.name)}
+                      className={`relative group transition-all ${
+                        selectedColor === colorInfo.name
+                          ? "ring-2 ring-primary ring-offset-2 scale-110"
+                          : "hover:scale-105"
+                      }`}
+                      title={colorInfo.name}
                     >
-                      {color}
-                    </Button>
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md ${
+                          colorInfo.border ? "border-2 border-gray-300" : ""
+                        }`}
+                        style={{ backgroundColor: colorInfo.hex }}
+                      >
+                        {selectedColor === colorInfo.name && (
+                          <Check className="h-6 w-6 drop-shadow-lg" style={{ color: colorInfo.textColor }} />
+                        )}
+                      </div>
+                      <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white px-2 py-1 rounded">
+                        {colorInfo.name}
+                      </span>
+                    </button>
                   ))}
                 </div>
-                {selectedColor && (
-                  <p className="text-sm text-muted-foreground">
-                    تم اختيار: <span className="font-semibold">{selectedColor}</span>
-                  </p>
-                )}
               </div>
             )}
 
@@ -536,8 +550,15 @@ export default function ProductLanding() {
                         <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
                           {item.size}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-700">
-                          {item.color}
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
+                              style={{ backgroundColor: getColorsInfo([item.color])[0]?.hex || '#9CA3AF' }}
+                              title={item.color}
+                            />
+                            <span className="text-base text-gray-700">{item.color}</span>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge 
