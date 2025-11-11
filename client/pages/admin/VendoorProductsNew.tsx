@@ -35,6 +35,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface VendoorProduct {
   $id: string;
@@ -63,6 +64,7 @@ export default function VendoorProductsNew() {
   const [priceAdjustment, setPriceAdjustment] = useState(10);
   const [adjustmentType, setAdjustmentType] = useState<'add' | 'set'>('add');
   const [updating, setUpdating] = useState(false);
+  const [applyToAll, setApplyToAll] = useState(true);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 12,
@@ -116,7 +118,7 @@ export default function VendoorProductsNew() {
   };
 
   const handleBulkPriceUpdate = async () => {
-    if (!confirm(`هل أنت متأكد من ${adjustmentType === 'add' ? `إضافة ${priceAdjustment} جنيه` : `تعيين السعر إلى ${priceAdjustment} جنيه`} لجميع المنتجات؟`)) {
+    if (!confirm(`هل أنت متأكد من ${adjustmentType === 'add' ? `إضافة ${priceAdjustment} جنيه` : `تعيين السعر إلى ${priceAdjustment} جنيه`} ${applyToAll ? 'لكل منتجات Vendoor (حسب الفلتر الحالي)' : 'للمنتجات الظاهرة في هذه الصفحة فقط'}؟`)) {
       return;
     }
 
@@ -125,31 +127,64 @@ export default function VendoorProductsNew() {
       let updated = 0;
       let failed = 0;
 
-      // تحديث جميع المنتجات
-      for (const product of products) {
+      const updateWithRetry = async (id: string, newPrice: number, attempts = 3) => {
         try {
-          const newPrice = adjustmentType === 'add' 
-            ? product.price + priceAdjustment 
-            : priceAdjustment;
-
           await databases.updateDocument(
             DATABASE_ID,
             'products',
-            product.$id,
+            id,
             { price: newPrice }
           );
           updated++;
-        } catch (error) {
-          console.error(`Failed to update product ${product.$id}:`, error);
-          failed++;
+        } catch (err) {
+          if (attempts > 1) {
+            const backoff = (4 - attempts) * 400 + Math.floor(Math.random() * 200);
+            await new Promise(r => setTimeout(r, backoff));
+            return updateWithRetry(id, newPrice, attempts - 1);
+          } else {
+            console.error(`Failed to update product ${id}:`, err);
+            failed++;
+          }
         }
-        // تأخير صغير لتجنب Rate limiting
-        await new Promise(resolve => setTimeout(resolve, 200));
+      };
+
+      if (applyToAll) {
+        // تحديث كل منتجات Vendoor عبر صفحات
+        const pageSize = 100;
+        let offset = 0;
+        while (true) {
+          const q = [
+            Query.equal('source', 'vendoor'),
+            Query.limit(pageSize),
+            Query.offset(offset),
+            Query.orderDesc('$createdAt')
+          ];
+          if (statusFilter !== 'all') q.push(Query.equal('status', statusFilter));
+          const resp: any = await databases.listDocuments(DATABASE_ID, 'products', q);
+          const docs: VendoorProduct[] = resp.documents || [];
+          if (docs.length === 0) break;
+
+          for (const p of docs) {
+            const newPrice = adjustmentType === 'add' ? p.price + priceAdjustment : priceAdjustment;
+            await updateWithRetry(p.$id, newPrice);
+            await new Promise(r => setTimeout(r, 150));
+          }
+
+          offset += docs.length;
+          if (docs.length < pageSize) break;
+        }
+      } else {
+        // تحديث المنتجات المعروضة في الصفحة الحالية فقط
+        for (const product of products) {
+          const newPrice = adjustmentType === 'add' ? product.price + priceAdjustment : priceAdjustment;
+          await updateWithRetry(product.$id, newPrice);
+          await new Promise(r => setTimeout(r, 150));
+        }
       }
 
       toast.success(`تم تحديث ${updated} منتج بنجاح${failed > 0 ? ` (فشل ${failed})` : ''}`);
       setShowPriceDialog(false);
-      fetchProducts(); // إعادة تحميل المنتجات
+      fetchProducts();
     } catch (error) {
       console.error('Bulk update error:', error);
       toast.error('حدث خطأ أثناء تحديث الأسعار');
@@ -496,6 +531,22 @@ export default function VendoorProductsNew() {
                   ? `سيتم إضافة ${priceAdjustment} جنيه على سعر كل منتج`
                   : `سيتم تعيين سعر جميع المنتجات إلى ${priceAdjustment} جنيه`
                 }
+              </p>
+            </div>
+
+            {/* Scope: Apply to all */}
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">نطاق التطبيق</Label>
+              <div className="flex items-center gap-3 p-3 border rounded-lg">
+                <Checkbox id="applyAll" checked={applyToAll} onCheckedChange={(v) => setApplyToAll(!!v)} />
+                <Label htmlFor="applyAll" className="cursor-pointer">
+                  تطبيق على جميع منتجات Vendoor
+                </Label>
+              </div>
+              <p className="text-sm text-gray-500">
+                {applyToAll
+                  ? 'سيتم تطبيق التعديل على كل منتجات Vendoor المطابقة للفلتر الحالي (قد يستغرق بعض الوقت)'
+                  : 'سيتم تطبيق التعديل على المنتجات الظاهرة في الصفحة الحالية فقط'}
               </p>
             </div>
 
