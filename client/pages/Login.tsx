@@ -18,7 +18,7 @@ import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
 import { rateLimiter } from "@/lib/advanced-rate-limiter";
-import { TextLogo } from "@/components/TextLogo";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -187,7 +187,7 @@ export default function Login() {
           {/* Mobile Logo */}
           <div className="text-center lg:hidden">
             <Link to="/" className="inline-flex items-center gap-2">
-              <TextLogo size="xl" />
+              <BrandLogo size="xl" />
             </Link>
           </div>
           {/* Header */}

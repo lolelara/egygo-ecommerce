@@ -29,7 +29,7 @@ import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
 import { useTheme } from "@/contexts/ThemeContext";
-import { TextLogoWithBg } from "./TextLogo";
+import { BrandLogo } from "./BrandLogo";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -207,7 +207,7 @@ export function Header({ cartItemCount }: HeaderProps) {
 
         {/* Logo */}
         <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center transition-all duration-300 hover:scale-105">
-          <TextLogoWithBg size="lg" />
+          <BrandLogo size="lg" />
         </Link>
 
         {/* Desktop Navigation - Streamlined */}

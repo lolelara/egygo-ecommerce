@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import { TextLogo } from '../TextLogo';
+import { BrandLogo } from '../BrandLogo';
 
 interface LoadingScreenProps {
   message?: string;
@@ -36,7 +36,7 @@ export function LoadingScreen({
             }}
             className="flex justify-center mb-4"
           >
-            <TextLogo size="xl" />
+            <BrandLogo size="xl" />
           </motion.div>
         )}
 
