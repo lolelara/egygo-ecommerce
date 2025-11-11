@@ -30,6 +30,7 @@ import {
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { adminDashboardApi, type AdminStats } from "@/lib/admin-api";
+import VendoorProductsCard from "@/components/VendoorProductsCard";
 
 const StatCard = ({
   title,
@@ -195,6 +196,11 @@ export default function AdminDashboard() {
             description={`${stats.thisMonthOrders} طلب`}
             icon={TrendingUp}
           />
+        </div>
+
+        {/* Vendoor Products Card */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <VendoorProductsCard />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

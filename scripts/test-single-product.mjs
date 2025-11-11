@@ -6,7 +6,7 @@ const VENDOOR_PASSWORD = 'hema2004';
 const VENDOOR_LOGIN_URL = 'https://aff.ven-door.com/login';
 
 // Test with one product
-const TEST_PRODUCT_URL = 'https://aff.ven-door.com/product/4374'; // بوت كود H66
+const TEST_PRODUCT_URL = 'https://aff.ven-door.com/product/3178';
 
 async function login(page) {
   try {

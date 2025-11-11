@@ -58,12 +58,6 @@ const adminNavItems = [
     roles: ['admin', 'merchant'], // المدير والتاجر
   },
   {
-    title: "منتجات Vendoor",
-    href: "/admin/vendoor-products",
-    icon: Package,
-    roles: ['admin'], // فقط المدير
-  },
-  {
     title: "حالة المنتجات",
     href: "/merchant/products-status",
     icon: CheckCircle,
