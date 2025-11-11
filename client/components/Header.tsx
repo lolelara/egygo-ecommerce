@@ -112,7 +112,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     لوحة تحكم الإدارة
                   </Link>
                   <Link
-                    to="/admin/vendoor-orders"
+                    to="/orders"
                     className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-blue-100 to-cyan-50 dark:from-blue-900 dark:to-cyan-800 text-blue-600 dark:text-blue-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Truck className="h-5 w-5" />
@@ -322,7 +322,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                   className="hidden md:inline-flex gap-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
                   asChild
                 >
-                  <Link to="/admin/vendoor-orders">
+                  <Link to="/orders">
                     <Truck className="h-4 w-4" />
                     <span className="hidden xl:inline">أوردرات</span>
                   </Link>
@@ -356,7 +356,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/admin/vendoor-orders" className="flex items-center gap-2 cursor-pointer text-blue-600">
+                      <Link to="/orders" className="flex items-center gap-2 cursor-pointer text-blue-600">
                         <Truck className="h-4 w-4" />
                         أوردرات
                       </Link>
@@ -525,7 +525,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/admin/vendoor-orders" className="text-blue-600 font-semibold">
+                        <Link to="/orders" className="text-blue-600 font-semibold">
                           <Truck className="ml-2 h-4 w-4" />
                           أوردرات
                         </Link>

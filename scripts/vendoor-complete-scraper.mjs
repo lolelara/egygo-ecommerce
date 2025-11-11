@@ -193,18 +193,17 @@ async function getProductsFromVendor(page, vendor, vendorIndex) {
 // Step 3: Scrape Individual Product
 // ========================================
 
-async function scrapeProduct(page, productUrl, globalIndex) {
+async function scrapeProduct(page, productUrl, index) {
   try {
     console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`📦 Product #${globalIndex + 1}`);
+    console.log(`📦 Product #${index + 1}`);
     console.log(`🔗 ${productUrl}`);
-    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
     
     await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(r => setTimeout(r, 2000));
     
-    await page.screenshot({ path: `product-${globalIndex + 1}.png` });
-    
+    // استخراج البيانات
     const data = await page.evaluate(() => {
       const result = {
         title: '',
@@ -214,24 +213,39 @@ async function scrapeProduct(page, productUrl, globalIndex) {
         colors: [],
         sizes: [],
         colorSizeInventory: [],
-        totalStock: 0
+        totalStock: 0,
+        seller: '',
+        mediaLinks: []
       };
       
-      // Title
-      const titleEl = document.querySelector('h1, .product-title, .product-name, [class*="title"]');
-      result.title = titleEl ? titleEl.textContent.trim() : 'No Title';
+      // ✅ العنوان من h6.prodect-text
+      const titleEl = document.querySelector('h6.prodect-text');
+      if (titleEl) {
+        result.title = titleEl.textContent.trim();
+      }
       
-      // Price - بحث شامل
-      const priceSelectors = [
-        '.price',
-        '.product-price',
-        '[class*="price"]',
-        '[class*="Price"]',
-        'strong',
-        'span',
-        'div'
-      ];
+      // ✅ البائع من .card-body-2.price
+      const sellerDiv = Array.from(document.querySelectorAll('.card-body-2.price')).find(
+        div => div.textContent.includes('البائع')
+      );
+      if (sellerDiv) {
+        const sellerSpan = sellerDiv.querySelector('span');
+        if (sellerSpan) result.seller = sellerSpan.textContent.trim();
+      }
       
+      // ✅ السعر من .card-body-2.price
+      const priceDiv = Array.from(document.querySelectorAll('.card-body-2.price')).find(
+        div => div.textContent.includes('السعر')
+      );
+      if (priceDiv) {
+        const priceMatch = priceDiv.textContent.match(/(\d+)\s*جنيه/);
+        if (priceMatch) {
+          result.price = parseInt(priceMatch[1]);
+        }
+      }
+      
+      // إذا لم نجد سعر، ابحث بطريقة أخرى
+      const priceSelectors = ['.price', '.product-price', '[class*="price"]'];
       for (const selector of priceSelectors) {
         const elements = document.querySelectorAll(selector);
         for (const el of elements) {
@@ -264,25 +278,55 @@ async function scrapeProduct(page, productUrl, globalIndex) {
         }
       }
       
-      // Description
-      const descEl = document.querySelector('.description, .product-description, [class*="description"], p');
-      result.description = descEl ? descEl.textContent.trim().substring(0, 500) : '';
+      // ✅ الوصف من p.prodcut-titles
+      const descEl = document.querySelector('p.prodcut-titles');
+      if (descEl) {
+        // إزالة لينكات وأخذ النص فقط
+        const clonedDesc = descEl.cloneNode(true);
+        // إزالة جميع الـ links
+        const links = clonedDesc.querySelectorAll('a');
+        links.forEach(link => link.remove());
+        result.description = clonedDesc.textContent.trim();
+        
+        // استخراج لينكات الميديا
+        const mediaLinks = descEl.querySelectorAll('a[href*="drive.google.com"]');
+        mediaLinks.forEach(link => {
+          const href = link.href;
+          if (href && !result.mediaLinks.includes(href)) {
+            result.mediaLinks.push(href);
+          }
+        });
+      }
       
-      // Images
+      // ✅ الصور - الصورة الرئيسية من .abut-img img
+      const mainImg = document.querySelector('.abut-img img');
+      if (mainImg && mainImg.src) {
+        result.images.push(mainImg.src);
+      }
+      
+      // الصور الإضافية
       const addImage = (url) => {
         if (url && url.startsWith('http') && !result.images.includes(url)) {
           result.images.push(url);
         }
       };
       
-      const imgs = Array.from(document.querySelectorAll('img'));
+      // صورة og:image
+      const ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) {
+        const content = ogImage.getAttribute('content');
+        if (content) addImage(content);
+      }
+      
+      // الصور الأخرى
+      const imgs = Array.from(document.querySelectorAll('.product-images img, .gallery img'));
       imgs.forEach(img => {
         const src = img.src || img.getAttribute('data-src') || '';
         if (src) addImage(src);
       });
       
-      // Variants from tables
-      const tables = Array.from(document.querySelectorAll('table'));
+      // ✅ Variants from table.table-product
+      const tables = Array.from(document.querySelectorAll('table.table-product, table'));
       
       tables.forEach(table => {
         const headers = Array.from(table.querySelectorAll('th, thead td'))
@@ -290,11 +334,12 @@ async function scrapeProduct(page, productUrl, globalIndex) {
         
         if (headers.length === 0) return;
         
+        // البحث عن أعمدة Size, Color, stock
         const findCol = (patterns) => headers.findIndex(h => patterns.some(p => p.test(h)));
         
-        const colorIdx = findCol([/لون/, /color/i]);
-        const sizeIdx = findCol([/مقاس/, /size/i]);
-        const qtyIdx = findCol([/كمية/, /qty/i, /stock/i, /عدد/]);
+        const sizeIdx = findCol([/size/i, /مقاس/]);
+        const colorIdx = findCol([/color/i, /لون/]);
+        const qtyIdx = findCol([/stock/i, /كمية/, /qty/i, /quantity/i, /عدد/]);
         
         if (colorIdx === -1 && sizeIdx === -1 && qtyIdx === -1) return;
         
@@ -306,8 +351,18 @@ async function scrapeProduct(page, productUrl, globalIndex) {
           const cells = Array.from(row.querySelectorAll('td'));
           if (cells.length === 0) return;
           
-          const color = colorIdx >= 0 && cells[colorIdx] ? cells[colorIdx].textContent.trim() : '';
-          const size = sizeIdx >= 0 && cells[sizeIdx] ? cells[sizeIdx].textContent.trim() : '';
+          // ✅ استخراج البيانات من الأعمدة
+          let size = sizeIdx >= 0 && cells[sizeIdx] ? cells[sizeIdx].textContent.trim() : '';
+          let color = colorIdx >= 0 && cells[colorIdx] ? cells[colorIdx].textContent.trim() : '';
+          
+          // إذا كان Size يحتوي على اللون + المقاس (مثل "اسود 41")
+          // وColor يحتوي على اللون فقط (مثل "اسود")
+          // نستخدم Color للون و نستخرج المقاس من Size
+          if (size && color && size.includes(color)) {
+            // نزيل اللون من Size لنحصل على المقاس فقط
+            const sizeOnly = size.replace(color, '').trim();
+            size = sizeOnly || size; // إذا لم نجد مقاس، نبقي size كما هو
+          }
           
           let qtyText = qtyIdx >= 0 && cells[qtyIdx] ? cells[qtyIdx].textContent : '';
           if (!qtyText) {
@@ -325,7 +380,9 @@ async function scrapeProduct(page, productUrl, globalIndex) {
             });
             
             if (color && !result.colors.includes(color)) result.colors.push(color);
-            if (size && !result.sizes.includes(size)) result.sizes.push(size);
+            // حفظ المقاس الكامل (لون + مقاس) في sizes
+            const fullSize = sizeIdx >= 0 && cells[sizeIdx] ? cells[sizeIdx].textContent.trim() : size;
+            if (fullSize && !result.sizes.includes(fullSize)) result.sizes.push(fullSize);
             result.totalStock += qty;
           }
         });
@@ -335,11 +392,15 @@ async function scrapeProduct(page, productUrl, globalIndex) {
     });
     
     console.log('\n📊 Scraped:');
-    console.log('   Title:', data.title);
+    console.log('   Title:', data.title || '(No title)');
+    console.log('   Seller:', data.seller || '(No seller)');
     console.log('   Price:', data.price, 'EGP');
     console.log('   Images:', data.images.length);
+    if (data.mediaLinks.length > 0) {
+      console.log('   Media Links:', data.mediaLinks.length);
+    }
     console.log('   Colors:', data.colors);
-    console.log('   Sizes:', data.sizes);
+    console.log('   Sizes:', data.sizes.slice(0, 10), data.sizes.length > 10 ? `...and ${data.sizes.length - 10} more` : '');
     console.log('   Variants:', data.colorSizeInventory.length);
     console.log('   Total Stock:', data.totalStock);
     

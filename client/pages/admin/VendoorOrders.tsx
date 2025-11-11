@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AdminLayout } from "@/components/AdminLayout";
+import { OrdersLayout } from "@/components/OrdersLayout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -203,7 +203,7 @@ export default function VendoorOrders() {
   ];
 
   return (
-    <AdminLayout>
+    <OrdersLayout>
       <div className="flex gap-6">
         {/* Sidebar */}
         <div className="w-64 shrink-0 space-y-2">
@@ -629,6 +629,6 @@ export default function VendoorOrders() {
       </Dialog>
         </div>
       </div>
-    </AdminLayout>
+    </OrdersLayout>
   );
 }

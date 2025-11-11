@@ -175,8 +175,11 @@ const App = () => (
               <Route path="/admin/products" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminProducts /></ProtectedRoute>} />
               <Route path="/admin/products-advanced" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminProductsAdvanced /></ProtectedRoute>} />
               <Route path="/admin/vendoor-products" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.VendoorProducts /></ProtectedRoute>} />
-              <Route path="/admin/vendoor-orders" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.VendoorOrders /></ProtectedRoute>} />
               <Route path="/admin/product-approval" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminProductApproval /></ProtectedRoute>} />
+              
+              {/* Orders System - Separate from Admin */}
+              <Route path="/orders" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.VendoorOrders /></ProtectedRoute>} />
+              <Route path="/orders/vendoor" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.VendoorOrders /></ProtectedRoute>} />
               <Route path="/admin/categories" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminCategories /></ProtectedRoute>} />
               <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUsers /></ProtectedRoute>} />
               <Route path="/admin/user-management" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminUserManagement /></ProtectedRoute>} />
