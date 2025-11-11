@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase, ChevronDown, Grid3x3 } from "lucide-react";
+import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase, ChevronDown, Grid3x3, Truck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { UniversalSearch } from "./UniversalSearch";
@@ -110,6 +110,13 @@ export function Header({ cartItemCount }: HeaderProps) {
                   >
                     <Shield className="h-5 w-5" />
                     لوحة تحكم الإدارة
+                  </Link>
+                  <Link
+                    to="/admin/vendoor-orders"
+                    className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-blue-100 to-cyan-50 dark:from-blue-900 dark:to-cyan-800 text-blue-600 dark:text-blue-300 rounded-lg font-semibold hover:shadow-md transition-all"
+                  >
+                    <Truck className="h-5 w-5" />
+                    منتجات مستوردة
                   </Link>
                 </div>
               )}
@@ -286,25 +293,42 @@ export function Header({ cartItemCount }: HeaderProps) {
 
           {/* Dashboard Quick Access */}
           {user && (user.role === 'admin' || user.isAffiliate || user.role === 'merchant' || user.isIntermediary) && (
-            <Button 
-              variant="gradient" 
-              size="sm"
-              className="hidden md:inline-flex gap-2"
-              asChild
-            >
-              <Link to={
-                user.role === 'admin' ? '/admin' :
-                user.role === 'merchant' ? '/merchant/dashboard' :
-                user.isIntermediary ? '/intermediary/dashboard' :
-                '/affiliate/dashboard'
-              }>
-                {user.role === 'admin' && <Shield className="h-4 w-4" />}
-                {user.role === 'merchant' && <Briefcase className="h-4 w-4" />}
-                {user.isIntermediary && <Users className="h-4 w-4" />}
-                {user.isAffiliate && user.role !== 'admin' && user.role !== 'merchant' && user.role !== 'intermediary' && <TrendingUp className="h-4 w-4" />}
-                <span className="hidden xl:inline">لوحة التحكم</span>
-              </Link>
-            </Button>
+            <>
+              <Button 
+                variant="gradient" 
+                size="sm"
+                className="hidden md:inline-flex gap-2"
+                asChild
+              >
+                <Link to={
+                  user.role === 'admin' ? '/admin' :
+                  user.role === 'merchant' ? '/merchant/dashboard' :
+                  user.isIntermediary ? '/intermediary/dashboard' :
+                  '/affiliate/dashboard'
+                }>
+                  {user.role === 'admin' && <Shield className="h-4 w-4" />}
+                  {user.role === 'merchant' && <Briefcase className="h-4 w-4" />}
+                  {user.isIntermediary && <Users className="h-4 w-4" />}
+                  {user.isAffiliate && user.role !== 'admin' && user.role !== 'merchant' && user.role !== 'intermediary' && <TrendingUp className="h-4 w-4" />}
+                  <span className="hidden xl:inline">لوحة التحكم</span>
+                </Link>
+              </Button>
+              
+              {/* Vendoor Orders Quick Access - Admin Only */}
+              {user.role === 'admin' && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="hidden md:inline-flex gap-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+                  asChild
+                >
+                  <Link to="/admin/vendoor-orders">
+                    <Truck className="h-4 w-4" />
+                    <span className="hidden xl:inline">منتجات مستوردة</span>
+                  </Link>
+                </Button>
+              )}
+            </>
           )}
 
           {/* Dashboard Dropdown - Mobile Replacement */}
@@ -331,6 +355,13 @@ export function Header({ cartItemCount }: HeaderProps) {
                         لوحة الإدارة
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/vendoor-orders" className="flex items-center gap-2 cursor-pointer text-blue-600">
+                        <Truck className="h-4 w-4" />
+                        منتجات مستوردة
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/admin/products" className="flex items-center gap-2 cursor-pointer">
                         إدارة المنتجات
@@ -491,6 +522,12 @@ export function Header({ cartItemCount }: HeaderProps) {
                         <Link to="/admin" className="text-primary font-semibold">
                           <Shield className="ml-2 h-4 w-4" />
                           لوحة تحكم الإدارة
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/vendoor-orders" className="text-blue-600 font-semibold">
+                          <Truck className="ml-2 h-4 w-4" />
+                          منتجات مستوردة
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
