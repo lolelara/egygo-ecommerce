@@ -26,6 +26,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { GSAPAnimation } from "@/components/enhanced/GSAPAnimations";
 import { RecaptchaBadge } from "@/components/RecaptchaBadge";
 import { validateRecaptcha, RecaptchaActions } from "@/lib/recaptcha-service";
+import { TextLogo } from "@/components/TextLogo";
 import { egyptGovernorates, getCitiesByGovernorate } from "@/lib/egypt-locations";
 import { rateLimiter } from "@/lib/advanced-rate-limiter";
 import { validateInput, schemas } from "@/lib/advanced-validation";
@@ -394,9 +395,13 @@ export default function Register() {
 <div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
 {/* Left Side - Branding (appears on right in RTL, left in LTR) */}
 <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
-<div className="absolute inset-0 opacity-10">
-<div className="w-full h-full flex items-center justify-center scale-150">
-<img src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" alt="EgyGo" className="max-w-[70%] h-auto object-contain drop-shadow-2xl" />
+<div className="absolute inset-0 opacity-20">
+<div className="w-full h-full flex items-center justify-center">
+<div className="text-9xl font-black tracking-tight">
+<span className="text-red-300">egy</span>
+<span className="text-white">go</span>
+<span className="text-red-100">.me</span>
+</div>
 </div>
 </div>
 <div className="relative z-10 max-w-md">

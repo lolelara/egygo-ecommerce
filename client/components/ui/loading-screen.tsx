@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import { TextLogo } from '../TextLogo';
 
 interface LoadingScreenProps {
   message?: string;
@@ -35,11 +36,7 @@ export function LoadingScreen({
             }}
             className="flex justify-center mb-4"
           >
-            <img 
-              src="https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8" 
-              alt="EgyGo" 
-              className="h-24 w-auto"
-            />
+            <TextLogo size="xl" />
           </motion.div>
         )}
 

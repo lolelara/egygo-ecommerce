@@ -29,6 +29,7 @@ import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
 import { useTheme } from "@/contexts/ThemeContext";
+import { TextLogoWithBg } from "./TextLogo";
 import type { CategoryWithCount } from "@shared/prisma-types";
 
 interface HeaderProps {
@@ -205,14 +206,8 @@ export function Header({ cartItemCount }: HeaderProps) {
         </Sheet>
 
         {/* Logo */}
-        <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center">
-          <img 
-            src={theme === 'dark' 
-              ? "https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo-dark.png/view?project=68d8b9db00134c41e7c8" 
-              : "https://cloud.appwrite.io/v1/storage/buckets/public-assets/files/logo.png/view?project=68d8b9db00134c41e7c8"} 
-            alt="EgyGo" 
-            className="h-14 md:h-16 w-auto transition-all duration-300 hover:scale-105" 
-          />
+        <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center transition-all duration-300 hover:scale-105">
+          <TextLogoWithBg size="lg" />
         </Link>
 
         {/* Desktop Navigation - Streamlined */}
