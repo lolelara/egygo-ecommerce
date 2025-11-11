@@ -42,6 +42,7 @@ import {
   RefreshCw,
   Filter,
   Download,
+  Truck,
 } from "lucide-react";
 import { PageLoader } from "@/components/ui/loading-screen";
 import { getImageUrl } from "@/lib/storage";
@@ -73,7 +74,7 @@ export default function VendoorOrders() {
   const [filteredProducts, setFilteredProducts] = useState<VendoorProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSource, setSelectedSource] = useState<string>("all");
+  const [selectedSource, setSelectedSource] = useState<string>("vendoor");
   const [selectedProduct, setSelectedProduct] = useState<VendoorProduct | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [stats, setStats] = useState<OrderStats>({
@@ -194,28 +195,89 @@ export default function VendoorOrders() {
     return <PageLoader />;
   }
 
+  const sourcesList = [
+    { id: 'vendoor', name: 'Vendoor', icon: '🛒', color: 'blue' },
+    { id: 'jumia', name: 'Jumia', icon: '🛍️', color: 'orange', disabled: true },
+    { id: 'amazon', name: 'Amazon', icon: '📦', color: 'yellow', disabled: true },
+    { id: 'noon', name: 'Noon', icon: '🌙', color: 'purple', disabled: true },
+  ];
+
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">منتجات Vendoor والمصادر الأخرى</h1>
-            <p className="text-muted-foreground mt-1">
-              إدارة ومتابعة المنتجات المستوردة من مواقع أخرى
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={fetchProducts} variant="outline">
-              <RefreshCw className="h-4 w-4 ml-2" />
-              تحديث
-            </Button>
-            <Button onClick={exportToCSV} variant="outline">
-              <Download className="h-4 w-4 ml-2" />
-              تصدير CSV
-            </Button>
-          </div>
+      <div className="flex gap-6">
+        {/* Sidebar */}
+        <div className="w-64 shrink-0 space-y-2">
+          <Card className="p-4">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              مصادر الأوردرات
+            </h3>
+            <div className="space-y-2">
+              {sourcesList.map((source) => (
+                <Button
+                  key={source.id}
+                  variant={selectedSource === source.id ? "default" : "outline"}
+                  className={`w-full justify-start ${
+                    selectedSource === source.id 
+                      ? `bg-${source.color}-500 hover:bg-${source.color}-600` 
+                      : ''
+                  }`}
+                  onClick={() => !source.disabled && setSelectedSource(source.id)}
+                  disabled={source.disabled}
+                >
+                  <span className="text-lg mr-2">{source.icon}</span>
+                  <span className="flex-1">{source.name}</span>
+                  {source.disabled && (
+                    <Badge variant="secondary" className="text-xs">قريباً</Badge>
+                  )}
+                </Button>
+              ))}
+            </div>
+            
+            {/* Stats Card */}
+            <div className="mt-6 p-3 bg-muted rounded-lg">
+              <p className="text-sm text-muted-foreground mb-2">إحصائيات سريعة</p>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span>المنتجات:</span>
+                  <span className="font-bold">{stats.vendoor}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>متوفر:</span>
+                  <span className="font-bold text-green-600">{stats.inStock}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>نفذ:</span>
+                  <span className="font-bold text-red-600">{stats.outOfStock}</span>
+                </div>
+              </div>
+            </div>
+          </Card>
         </div>
+
+        {/* Main Content */}
+        <div className="flex-1 space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">
+                أوردرات {sourcesList.find(s => s.id === selectedSource)?.name}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                إدارة ومتابعة المنتجات المستوردة
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={fetchProducts} variant="outline">
+                <RefreshCw className="h-4 w-4 ml-2" />
+                تحديث
+              </Button>
+              <Button onClick={exportToCSV} variant="outline">
+                <Download className="h-4 w-4 ml-2" />
+                تصدير CSV
+              </Button>
+            </div>
+          </div>
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
@@ -405,10 +467,9 @@ export default function VendoorOrders() {
             </Table>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Product Details Dialog */}
-      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        {/* Product Details Dialog */}
+        <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>تفاصيل المنتج</DialogTitle>
@@ -566,6 +627,8 @@ export default function VendoorOrders() {
           )}
         </DialogContent>
       </Dialog>
+        </div>
+      </div>
     </AdminLayout>
   );
 }

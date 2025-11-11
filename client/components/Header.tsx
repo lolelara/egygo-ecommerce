@@ -116,7 +116,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-blue-100 to-cyan-50 dark:from-blue-900 dark:to-cyan-800 text-blue-600 dark:text-blue-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Truck className="h-5 w-5" />
-                    منتجات مستوردة
+                    أوردرات
                   </Link>
                 </div>
               )}
@@ -324,7 +324,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 >
                   <Link to="/admin/vendoor-orders">
                     <Truck className="h-4 w-4" />
-                    <span className="hidden xl:inline">منتجات مستوردة</span>
+                    <span className="hidden xl:inline">أوردرات</span>
                   </Link>
                 </Button>
               )}
@@ -358,7 +358,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <DropdownMenuItem asChild>
                       <Link to="/admin/vendoor-orders" className="flex items-center gap-2 cursor-pointer text-blue-600">
                         <Truck className="h-4 w-4" />
-                        منتجات مستوردة
+                        أوردرات
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -527,7 +527,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                       <DropdownMenuItem asChild>
                         <Link to="/admin/vendoor-orders" className="text-blue-600 font-semibold">
                           <Truck className="ml-2 h-4 w-4" />
-                          منتجات مستوردة
+                          أوردرات
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
