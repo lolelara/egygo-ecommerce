@@ -257,12 +257,69 @@ async function scrapeProductDetails(page, productUrl) {
     await new Promise(resolve => setTimeout(resolve, 2500));
     
     const details = await page.evaluate(() => {
-      const data = { productImages: [], variants: [], totalStock: 0, title: '', originalPrice: 0 };
+      const data = { 
+        productImages: [], 
+        variants: [], 
+        totalStock: 0, 
+        title: '', 
+        originalPrice: 0,
+        productDescription: '',
+        mediaLinks: [],
+        seller: ''
+      };
 
       // عنوان المنتج
       const titleEl = document.querySelector('h1, h2, h3, .prodect-text, .product-title');
       if (titleEl && titleEl.textContent) {
         data.title = titleEl.textContent.trim();
+      }
+      
+      // استخراج الوصف من p.prodcut-titles (typo in Vendoor site)
+      const descEl = document.querySelector('p.prodcut-titles, .prodcut-titles, .product-titles');
+      if (descEl) {
+        // استخراج Google Drive links أولاً
+        const links = descEl.querySelectorAll('a[href*="drive.google.com"]');
+        links.forEach(link => {
+          const href = link.href;
+          if (href && !data.mediaLinks.includes(href)) {
+            data.mediaLinks.push(href);
+          }
+        });
+        
+        // استخراج النص مع إزالة HTML tags
+        let descText = descEl.innerHTML || '';
+        // إزالة script/style tags
+        descText = descText.replace(/<script[^>]*>.*?<\/script>/gi, '');
+        descText = descText.replace(/<style[^>]*>.*?<\/style>/gi, '');
+        // إزالة HTML tags لكن حفاظاً على النقاط والتنسيق
+        descText = descText.replace(/<br\s*\/?>/gi, '\n');
+        descText = descText.replace(/<\/p>/gi, '\n\n');
+        descText = descText.replace(/<\/div>/gi, '\n');
+        descText = descText.replace(/<\/h[1-6]>/gi, '\n\n');
+        descText = descText.replace(/<[^>]+>/g, '');
+        // تنظيف المسافات والأحرف الخاصة
+        descText = descText.replace(/&nbsp;/g, ' ');
+        descText = descText.replace(/&lt;/g, '<');
+        descText = descText.replace(/&gt;/g, '>');
+        descText = descText.replace(/&amp;/g, '&');
+        descText = descText.replace(/￼/g, '');
+        // إزالة الأسطر الفارغة الزائدة
+        descText = descText.split('\n').map(line => line.trim()).filter(line => line.length > 0).join('\n');
+        
+        data.productDescription = descText.trim();
+      }
+      
+      // استخراج اسم البائع
+      const sellerElements = Array.from(document.querySelectorAll('.card-body-2.price div'));
+      for (const el of sellerElements) {
+        const text = el.textContent || '';
+        if (text.includes('البائع') || text.includes('seller')) {
+          const sellerName = text.replace(/البائع\s*[:：]?\s*/i, '').replace(/seller\s*[:：]?\s*/i, '').trim();
+          if (sellerName && sellerName.length > 0 && sellerName.length < 100) {
+            data.seller = sellerName;
+            break;
+          }
+        }
       }
       
       // استخراج الصور
@@ -488,26 +545,55 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     if (details.productImages.length === 0) dlog('لا توجد صور مستخرجة من صفحة المنتج:', product.link);
     if (!details.title) dlog('لم يتم استخراج عنوان للمنتج من الصفحة، سيتم استخدام عنوان القائمة');
     
-    let description = `منتج من Vendoor - ${effectiveTitle}\n\n`;
-    description += `SKU: ${sku}\nالمصدر: Vendoor\nرابط: ${product.link}\n\n`;
+    // بناء وصف شامل
+    let description = '';
     
-    // إضافة التنويعات للوصف
+    // 1. الوصف الأصلي من Vendoor (إن وجد)
+    if (details.productDescription && details.productDescription.length > 20) {
+      description += details.productDescription + '\n\n';
+      description += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
+    }
+    
+    // 2. معلومات المنتج
+    description += `📦 **معلومات المنتج**\n`;
+    description += `SKU: ${sku}\n`;
+    if (details.seller) {
+      description += `البائع: ${details.seller}\n`;
+    }
+    description += `المصدر: Vendoor\n`;
+    description += `الرابط: ${product.link}\n\n`;
+    
+    // 3. روابط الميديا (Google Drive)
+    if (details.mediaLinks && details.mediaLinks.length > 0) {
+      description += `📂 **روابط الميديا**\n`;
+      details.mediaLinks.forEach((link, i) => {
+        description += `${i + 1}. ${link}\n`;
+      });
+      description += '\n';
+    }
+    
+    // 4. التنويعات
     if (details.colorSizeInventory && details.colorSizeInventory.length > 0) {
-      description += 'التنويعات:\n';
-      details.colorSizeInventory.forEach((v, i) => {
+      description += `🎨 **التنويعات المتاحة** (${details.colorSizeInventory.length} تنويع)\n`;
+      details.colorSizeInventory.slice(0, 30).forEach((v, i) => {
         description += `${i + 1}. ${v.color || '-'} / ${v.size || '-'}`;
-        if (v.quantity > 0) description += ` (${v.quantity} قطعة)`;
+        if (v.quantity > 0) description += ` - ${v.quantity} قطعة`;
         description += `\n`;
       });
-      description += `\nإجمالي: ${details.totalStock} قطعة\n`;
+      
+      if (details.colorSizeInventory.length > 30) {
+        description += `... و ${details.colorSizeInventory.length - 30} تنويعات أخرى\n`;
+      }
+      
+      description += `\n📊 إجمالي المخزون: ${details.totalStock} قطعة\n\n`;
     }
     
-    // إضافة الألوان والمقاسات
+    // 5. ملخص الألوان والمقاسات
     if (details.colors && details.colors.length > 0) {
-      description += `\nالألوان: ${details.colors.join(', ')}\n`;
+      description += `🎨 الألوان: ${details.colors.join(', ')}\n`;
     }
     if (details.sizes && details.sizes.length > 0) {
-      description += `المقاسات: ${details.sizes.join(', ')}\n`;
+      description += `📏 المقاسات: ${details.sizes.join(', ')}\n`;
     }
     
     const productData = {
