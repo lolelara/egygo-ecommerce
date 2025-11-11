@@ -359,33 +359,69 @@ async function scrapeProductDetails(page, productUrl) {
         data._priceDebug = { error: e.toString() };
       }
 
-      // استخراج التنويعات والمخزون
+      // استخراج التنويعات والمخزون من الجدول
+      data.colors = [];
+      data.sizes = [];
+      data.colorSizeInventory = [];
+      
       const tables = document.querySelectorAll('table');
       tables.forEach(table => {
+        // البحث عن الـ headers
+        const headerRow = table.querySelector('thead tr');
+        let sizeIdx = -1, colorIdx = -1, qtyIdx = -1;
+        
+        if (headerRow) {
+          const headers = Array.from(headerRow.querySelectorAll('th'));
+          headers.forEach((th, idx) => {
+            const txt = th.textContent.trim().toLowerCase();
+            if (txt.includes('size') || txt.includes('مقاس')) sizeIdx = idx;
+            if (txt.includes('color') || txt.includes('لون')) colorIdx = idx;
+            if (txt.includes('stock') || txt.includes('كمية') || txt.includes('qty') || txt.includes('quantity')) qtyIdx = idx;
+          });
+        }
+        
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
+          const isHeaderRow = row.querySelectorAll('th').length > 0;
+          if (isHeaderRow) return;
+          
           const cells = Array.from(row.querySelectorAll('td'));
-          if (cells.length >= 2) {
-            const variant = { color: '', size: '', stock: 0 };
-            
-            cells.forEach((cell, idx) => {
-              const text = cell.textContent.trim();
-              if (idx === 0 && text.length < 30) variant.color = text;
-              if (idx === 1 && text.length < 20) variant.size = text;
-              
-              const stockMatch = text.match(/\d+/);
-              if (stockMatch && parseInt(stockMatch[0]) > 0) {
-                variant.stock = parseInt(stockMatch[0]);
-                data.totalStock += variant.stock;
-              }
+          if (cells.length === 0) return;
+          
+          let size = sizeIdx >= 0 && cells[sizeIdx] ? cells[sizeIdx].textContent.trim() : '';
+          let color = colorIdx >= 0 && cells[colorIdx] ? cells[colorIdx].textContent.trim() : '';
+          
+          // معالجة "اسود 41" → لون: اسود، مقاس: 41
+          if (size && color && size.includes(color)) {
+            const sizeOnly = size.replace(color, '').trim();
+            size = sizeOnly || size;
+          }
+          
+          let qtyText = qtyIdx >= 0 && cells[qtyIdx] ? cells[qtyIdx].textContent : '';
+          if (!qtyText) {
+            const numCell = cells.find(c => /\d/.test(c.textContent || ''));
+            qtyText = numCell ? numCell.textContent : '0';
+          }
+          
+          const qty = parseInt(qtyText.replace(/\D/g, '')) || 0;
+          
+          if (color || size || qty > 0) {
+            data.colorSizeInventory.push({
+              color: color || 'Default',
+              size: size || 'Default',
+              quantity: qty
             });
             
-            if (variant.color || variant.size || variant.stock > 0) {
-              data.variants.push(variant);
-            }
+            if (color && !data.colors.includes(color)) data.colors.push(color);
+            if (size && !data.sizes.includes(size)) data.sizes.push(size);
+            data.totalStock += qty;
           }
         });
       });
+      
+      // Unique arrays
+      data.colors = Array.from(new Set(data.colors));
+      data.sizes = Array.from(new Set(data.sizes.map(s => String(s))));
       
       return data;
     });
@@ -445,21 +481,31 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     
     const sku = generateVendoorSKU(productIndex);
     
-    console.log(`   📸 ${productImages.length} | 📦 ${details.variants.length} | 💰 ${originalPrice}→${finalPrice} ج`);
+    const variantsCount = (details.colorSizeInventory || []).length;
+    console.log(`   📸 ${productImages.length} | 📦 ${variantsCount} تنويعات | 💰 ${originalPrice}→${finalPrice} ج`);
     if (details.productImages.length === 0) dlog('لا توجد صور مستخرجة من صفحة المنتج:', product.link);
     if (!details.title) dlog('لم يتم استخراج عنوان للمنتج من الصفحة، سيتم استخدام عنوان القائمة');
     
     let description = `منتج من Vendoor - ${effectiveTitle}\n\n`;
     description += `SKU: ${sku}\nالمصدر: Vendoor\nرابط: ${product.link}\n\n`;
     
-    if (details.variants.length > 0) {
+    // إضافة التنويعات للوصف
+    if (details.colorSizeInventory && details.colorSizeInventory.length > 0) {
       description += 'التنويعات:\n';
-      details.variants.forEach((v, i) => {
+      details.colorSizeInventory.forEach((v, i) => {
         description += `${i + 1}. ${v.color || '-'} / ${v.size || '-'}`;
-        if (v.stock > 0) description += ` (${v.stock} قطعة)`;
+        if (v.quantity > 0) description += ` (${v.quantity} قطعة)`;
         description += `\n`;
       });
       description += `\nإجمالي: ${details.totalStock} قطعة\n`;
+    }
+    
+    // إضافة الألوان والمقاسات
+    if (details.colors && details.colors.length > 0) {
+      description += `\nالألوان: ${details.colors.join(', ')}\n`;
+    }
+    if (details.sizes && details.sizes.length > 0) {
+      description += `المقاسات: ${details.sizes.join(', ')}\n`;
     }
     
     const productData = {
@@ -474,7 +520,11 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
       sourceUrl: product.link,
       status: 'approved',
       totalStock: details.totalStock,
-      stock: details.totalStock
+      stock: details.totalStock,
+      // الحقول الجديدة - التنويعات
+      colors: details.colors || [],
+      sizes: details.sizes || [],
+      colorSizeInventory: JSON.stringify(details.colorSizeInventory || [])
     };
     
     const document = await databases.createDocument(
@@ -486,7 +536,10 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     );
     
     console.log(`   ✅ ${document.$id.substring(0, 10)}`);
-    return { ...document, variants: details.variants };
+    if (DEBUG && details.colorSizeInventory && details.colorSizeInventory.length > 0) {
+      dlog('تم حفظ التنويعات:', details.colorSizeInventory.length, 'تنويعة');
+    }
+    return { ...document, colorSizeInventory: details.colorSizeInventory, colors: details.colors, sizes: details.sizes };
     
   } catch (error) {
     console.error(`   ❌ خطأ أثناء إنشاء المنتج في Appwrite: ${error && error.message ? error.message : error}`);
