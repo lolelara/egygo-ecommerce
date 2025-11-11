@@ -298,25 +298,31 @@ async function scrapeProductDetails(page, productUrl) {
         let priceText = '';
         let foundSelector = '';
         
-        // محاولة 1: البحث عن "السعر :" أو "Price :" بالضبط
-        const priceElements = Array.from(document.querySelectorAll('div, p, span, td, h1, h2, h3, h4, h5'));
-        for (const el of priceElements) {
+        // محاولة 1: البحث عن "السعر :" في innerHTML لعناصر صغيرة فقط
+        const smallElements = Array.from(document.querySelectorAll('div, p, span, td, h3, h4, h5, strong, b')).filter(el => {
           const txt = (el.textContent || '').trim();
-          // بحث عن نمط "السعر : 399 جنيه" أو "Price: 399"
-          if (/(?:السعر|Price)\s*[:：]\s*\d+/i.test(txt)) {
+          // تجنب العناصر الكبيرة (container, body, navigation)
+          return txt.length < 300 && !el.classList.contains('container') && !el.classList.contains('navbar') && el.tagName !== 'BODY' && el.tagName !== 'HTML';
+        });
+        
+        for (const el of smallElements) {
+          const txt = (el.textContent || '').trim();
+          // بحث دقيق عن نمط "السعر : رقم جنيه"
+          if (/السعر\s*[:：]\s*\d+\s*جنيه/i.test(txt)) {
             priceText = txt;
             foundSelector = el.tagName + (el.className ? '.' + el.className.split(' ')[0] : '');
             break;
           }
         }
         
-        // محاولة 2: البحث في عناصر محددة عن أرقام مع كلمات دلالية
+        // محاولة 2: البحث عن "رقم جنيه" فقط في عناصر صغيرة
         if (!priceText) {
-          for (const el of priceElements) {
+          for (const el of smallElements) {
             const txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
-            if (/(?:جنيه|ج\.م|EGP|LE|L\.E|£|E£)\s*\d+|\d+\s*(?:جنيه|ج\.م|EGP|LE|L\.E)/i.test(txt)) {
-              // تأكد أنه ليس "العمولة" أو "البائع"
-              if (!/(?:عمولة|commission|بائع|seller|stock|مخزون)/i.test(txt)) {
+            // رقم متبوع بـ "جنيه" أو سابق له
+            if (/\d+\s*(?:جنيه|ج\.م|EGP|LE)/i.test(txt)) {
+              // استبعاد العمولة، البائع، المخزون
+              if (!/(?:عمولة|commission|بائع|seller|stock|مخزون|quantity|في المخزن|in stock)/i.test(txt)) {
                 priceText = txt;
                 foundSelector = el.tagName + (el.className ? '.' + el.className.split(' ')[0] : '');
                 break;
@@ -325,28 +331,24 @@ async function scrapeProductDetails(page, productUrl) {
           }
         }
         
-        // محاولة 3: أرقام كبيرة معقولة (50-50000) باستثناء المخزون
+        // محاولة 3: البحث في class="price" بالتحديد
         if (!priceText) {
-          const allNums = [];
-          for (const el of priceElements) {
+          const priceEls = Array.from(document.querySelectorAll('.price, [class*="price"], [class*="Price"]'));
+          for (const el of priceEls) {
             const txt = (el.textContent || '').trim();
-            const match = txt.match(/\b(\d{2,5})\b/);
-            if (match && !/stock|مخزون|عدد|quantity/i.test(txt)) {
-              const num = parseInt(match[1]);
-              if (num >= 50 && num <= 50000) {
-                allNums.push({ num, txt, el });
+            if (txt.length < 200 && /\d/.test(txt)) {
+              // ابحث عن "السعر :" في هذا العنصر أو أبناءه
+              if (/السعر/i.test(txt)) {
+                priceText = txt;
+                foundSelector = el.tagName + '.' + (el.className || 'price');
+                break;
               }
             }
-          }
-          // اختر أصغر رقم معقول (غالباً السعر أصغر من المخزون)
-          if (allNums.length > 0) {
-            allNums.sort((a, b) => a.num - b.num);
-            priceText = allNums[0].txt;
-            foundSelector = 'fallback-reasonable-number';
           }
         }
         
         if (priceText) {
+          // استخراج الرقم من النص
           const m = priceText.replace(/[,\s]/g, '').match(/(\d+(?:\.\d+)?)/);
           if (m) {
             data.originalPrice = parseFloat(m[1]);
