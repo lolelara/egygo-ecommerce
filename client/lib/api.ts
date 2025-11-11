@@ -88,8 +88,10 @@ export const productsApi = {
         price: doc.price,
         originalPrice: doc.originalPrice,
         sku: doc.sku || `SKU-${doc.$id.slice(0, 8)}`,
-        inStock: doc.inStock,
-        stockQuantity: doc.stockQuantity || 0,
+        // Compute stock fields consistently
+        stock: doc.stock ?? doc.totalStock ?? 0,
+        stockQuantity: (doc.stockQuantity ?? doc.totalStock ?? doc.stock ?? 0),
+        inStock: doc.inStock ?? ((doc.stockQuantity ?? doc.totalStock ?? doc.stock ?? 0) > 0),
         rating: doc.rating || 0,
         reviewCount: doc.reviewCount || 0,
         affiliateCommission: doc.affiliateCommission || 0,
@@ -101,6 +103,9 @@ export const productsApi = {
               return img;
             })
           : [],
+        colors: doc.colors || [],
+        sizes: doc.sizes || [],
+        colorSizeInventory: doc.colorSizeInventory,
         tags: doc.tags || [],
         reviews: doc.reviews || [],
         categoryId: doc.categoryId,
@@ -160,8 +165,10 @@ export const productsApi = {
         price: doc.price,
         originalPrice: doc.originalPrice,
         sku: doc.sku || `SKU-${doc.$id.slice(0, 8)}`,
-        inStock: doc.inStock,
-        stockQuantity: doc.stockQuantity || 0,
+        // Compute stock fields consistently
+        stock: doc.stock ?? doc.totalStock ?? 0,
+        stockQuantity: (doc.stockQuantity ?? doc.totalStock ?? doc.stock ?? 0),
+        inStock: doc.inStock ?? ((doc.stockQuantity ?? doc.totalStock ?? doc.stock ?? 0) > 0),
         rating: doc.rating || 0,
         reviewCount: doc.reviewCount || 0,
         affiliateCommission: doc.affiliateCommission || 0,
@@ -174,6 +181,9 @@ export const productsApi = {
               return img; // Already an object with url
             })
           : [],
+        colors: doc.colors || [],
+        sizes: doc.sizes || [],
+        colorSizeInventory: doc.colorSizeInventory,
         tags: doc.tags || [],
         reviews: doc.reviews || [],
         categoryId: doc.categoryId,

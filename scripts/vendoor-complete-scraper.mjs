@@ -218,6 +218,18 @@ async function scrapeProduct(page, productUrl, index) {
         mediaLinks: []
       };
       
+      // Helpers: Arabic normalization and size normalization
+      const normalizeArabic = (s) => (s || '')
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ى/g, 'ي')
+        .replace(/[ًٌٍَُِّْ]/g, '')
+        .trim();
+      const normalizeSize = (s) => {
+        const str = (s || '').trim();
+        const m = str.match(/\d+(?:\.\d+)?/);
+        return m ? m[0] : str; // keep non-numeric sizes like S/M/L
+      };
+      
       // ✅ العنوان من h6.prodect-text
       const titleEl = document.querySelector('h6.prodect-text');
       if (titleEl) {
@@ -304,9 +316,13 @@ async function scrapeProduct(page, productUrl, index) {
         result.images.push(mainImg.src);
       }
       
-      // الصور الإضافية
+      // الصور الإضافية - مع استبعاد اللوجوهات
       const addImage = (url) => {
-        if (url && url.startsWith('http') && !result.images.includes(url)) {
+        if (!url) return;
+        const lower = String(url).toLowerCase();
+        // استبعاد لوجو وفافيكون
+        if (lower.includes('/file/logo') || lower.includes('logo.png') || lower.includes('logo2.png') || lower.includes('favicon')) return;
+        if (url.startsWith('http') && !result.images.includes(url)) {
           result.images.push(url);
         }
       };
@@ -363,6 +379,9 @@ async function scrapeProduct(page, productUrl, index) {
             const sizeOnly = size.replace(color, '').trim();
             size = sizeOnly || size; // إذا لم نجد مقاس، نبقي size كما هو
           }
+          // طبّق التطبيع
+          color = normalizeArabic(color);
+          size = normalizeSize(size);
           
           let qtyText = qtyIdx >= 0 && cells[qtyIdx] ? cells[qtyIdx].textContent : '';
           if (!qtyText) {
@@ -380,13 +399,16 @@ async function scrapeProduct(page, productUrl, index) {
             });
             
             if (color && !result.colors.includes(color)) result.colors.push(color);
-            // حفظ المقاس الكامل (لون + مقاس) في sizes
-            const fullSize = sizeIdx >= 0 && cells[sizeIdx] ? cells[sizeIdx].textContent.trim() : size;
-            if (fullSize && !result.sizes.includes(fullSize)) result.sizes.push(fullSize);
+            // حفظ المقاس (بدون اللون)
+            if (size && !result.sizes.includes(size)) result.sizes.push(size);
             result.totalStock += qty;
           }
         });
       });
+
+      // Unique arrays
+      result.colors = Array.from(new Set(result.colors));
+      result.sizes = Array.from(new Set(result.sizes.map(s => String(s))));
       
       return result;
     });
@@ -422,40 +444,18 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       return null;
     }
     
-    // Generate description with details
-    let description = `منتج عالي الجودة من Vendoor\n\n`;
-    description += `💰 السعر: ${data.price} جنيه\n\n`;
-    
-    if (data.colors && data.colors.length > 0) {
-      description += `🎨 الألوان المتاحة: ${data.colors.join(', ')}\n\n`;
-    }
-    
-    if (data.sizes && data.sizes.length > 0) {
-      const uniqueSizes = [...new Set(data.sizes.map(s => {
-        const match = s.match(/\d+/);
-        return match ? match[0] : s;
-      }))];
-      description += `📏 المقاسات المتاحة: ${uniqueSizes.join(', ')}\n\n`;
-    }
-    
-    if (data.totalStock) {
-      description += `📦 المخزون: ${data.totalStock} قطعة متاحة\n\n`;
-    }
-    
-    if (data.colorSizeInventory && data.colorSizeInventory.length > 0) {
-      description += `📊 التفاصيل:\n`;
-      const samplesToShow = data.colorSizeInventory.slice(0, 5);
-      samplesToShow.forEach(item => {
-        if (item.quantity > 0) {
-          description += `   • ${item.color} - مقاس ${item.size}: ${item.quantity} قطعة\n`;
-        }
-      });
-      if (data.colorSizeInventory.length > 5) {
-        description += `   ... و ${data.colorSizeInventory.length - 5} variant أخرى\n`;
-      }
+    // ✅ Use clean page description only (no inventory lines here)
+    let description = (data.description || '').trim();
+    // Optionally append media links if present
+    if (data.mediaLinks && data.mediaLinks.length > 0) {
+      const linksText = data.mediaLinks.map((l) => `- ${l}`).join('\n');
+      description = `${description}\n\n📎 روابط الميديا:\n${linksText}`.trim();
     }
     
     // ✅ استخدام الحقول الموجودة فعلياً في products collection
+    // Filter images again to ensure no logos are saved
+    const filteredImages = (data.images || []).filter((u) => u && !/logo2?\.png|favicon/i.test(String(u)));
+
     const productData = {
       // Required fields
       name: data.title || `Vendoor Product ${index + 1}`,
@@ -464,7 +464,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       categoryId: categoryId,
       
       // Optional fields - Basic info
-      images: data.images.length > 0 ? data.images : ['https://via.placeholder.com/400'],
+      images: filteredImages.length > 0 ? filteredImages : ['https://via.placeholder.com/400'],
       source: 'vendoor',
       status: 'approved', // ✅ منشور مباشرة
       originalPrice: data.price,
@@ -473,6 +473,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       // Optional fields - Stock
       stock: data.totalStock,
       totalStock: data.totalStock,
+      stockQuantity: data.totalStock,
       
       // ✅ الحقول الصحيحة - تخزين المقاسات والألوان في مكانها الصحيح
       colors: data.colors,
@@ -481,6 +482,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       
       // Optional fields - Defaults
       isActive: true,
+      inStock: data.totalStock > 0,
       rating: 0,
       reviewCount: 0,
       viewCount: 0,
