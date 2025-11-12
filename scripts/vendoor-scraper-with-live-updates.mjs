@@ -255,6 +255,10 @@ async function scrapeProductDetails(page, productUrl) {
   try {
     await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(resolve => setTimeout(resolve, 2500));
+    // انتظر ظهور عناصر الوصف لأن الصفحة تستخدم Livewire أحياناً
+    try {
+      await page.waitForSelector('p.prodcut-titles, .prodcut-titles, section.component-What', { timeout: 5000 });
+    } catch (_) {}
     
     const details = await page.evaluate(() => {
       const data = { 
@@ -274,39 +278,131 @@ async function scrapeProductDetails(page, productUrl) {
         data.title = titleEl.textContent.trim();
       }
       
-      // استخراج الوصف من p.prodcut-titles (typo in Vendoor site)
+      // استخراج الوصف من p.prodcut-titles (typo في Vendoor)
       const descEl = document.querySelector('p.prodcut-titles, .prodcut-titles, .product-titles');
+      const extractTextFromHtml = (html) => {
+        let t = html || '';
+        t = t.replace(/<script[^>]*>.*?<\/script>/gi, '');
+        t = t.replace(/<style[^>]*>.*?<\/style>/gi, '');
+        t = t.replace(/<br\s*\/?>/gi, '\n');
+        t = t.replace(/<\/p>/gi, '\n\n');
+        t = t.replace(/<\/div>/gi, '\n');
+        t = t.replace(/<\/h[1-6]>/gi, '\n\n');
+        t = t.replace(/<[^>]+>/g, '');
+        t = t.replace(/&nbsp;/g, ' ');
+        t = t.replace(/&lt;/g, '<');
+        t = t.replace(/&gt;/g, '>');
+        t = t.replace(/&amp;/g, '&');
+        t = t.replace(/￼/g, '');
+        const lines = t.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+        // إزالة أسطر رابط الميديا والضوضاء (سعر/عمولة/مخزون/بائع/أزرار)
+        const cleaned = lines.filter(s => {
+          if (/^لينك\s*الميديا$/i.test(s)) return false;
+          if (/^ميديا\s*إضافية$/i.test(s)) return false;
+          if (/^media$/i.test(s)) return false;
+          if (/^(السعر|العمولة|In\s*Stock|Product\s*URL)\b/i.test(s)) return false;
+          if (/^(أضف\s*اوردر|تحميل\s*الكاتلوج)/i.test(s)) return false;
+          if (/^(البائع)\s*[:：]?/i.test(s)) return false;
+          if (/^(Size|Color|stock)\b/i.test(s)) return false;
+          return true;
+        });
+        return cleaned.join('\n').trim();
+      };
       if (descEl) {
-        // استخراج Google Drive links أولاً
-        const links = descEl.querySelectorAll('a[href*="drive.google.com"]');
-        links.forEach(link => {
-          const href = link.href;
-          if (href && !data.mediaLinks.includes(href)) {
-            data.mediaLinks.push(href);
-          }
+        // استخراج روابط Google Drive أولاً
+        const allLinks = descEl.querySelectorAll('a[href*="drive.google.com"]');
+        allLinks.forEach(a => {
+          const href = a.href;
+          if (href && !data.mediaLinks.includes(href)) data.mediaLinks.push(href);
         });
         
-        // استخراج النص مع إزالة HTML tags
-        let descText = descEl.innerHTML || '';
-        // إزالة script/style tags
-        descText = descText.replace(/<script[^>]*>.*?<\/script>/gi, '');
-        descText = descText.replace(/<style[^>]*>.*?<\/style>/gi, '');
-        // إزالة HTML tags لكن حفاظاً على النقاط والتنسيق
-        descText = descText.replace(/<br\s*\/?>/gi, '\n');
-        descText = descText.replace(/<\/p>/gi, '\n\n');
-        descText = descText.replace(/<\/div>/gi, '\n');
-        descText = descText.replace(/<\/h[1-6]>/gi, '\n\n');
-        descText = descText.replace(/<[^>]+>/g, '');
-        // تنظيف المسافات والأحرف الخاصة
-        descText = descText.replace(/&nbsp;/g, ' ');
-        descText = descText.replace(/&lt;/g, '<');
-        descText = descText.replace(/&gt;/g, '>');
-        descText = descText.replace(/&amp;/g, '&');
-        descText = descText.replace(/￼/g, '');
-        // إزالة الأسطر الفارغة الزائدة
-        descText = descText.split('\n').map(line => line.trim()).filter(line => line.length > 0).join('\n');
+        // استخراج الوصف من العناصر الفرعية (div و p) داخل p.prodcut-titles
+        // Vendoor يستخدم HTML غير صالح مع عناصر متداخلة
+        let descText = '';
         
-        data.productDescription = descText.trim();
+        // Method 1: استخراج من div و p المتداخلة
+        const innerElements = descEl.querySelectorAll('div, p');
+        if (innerElements.length > 0) {
+          const texts = [];
+          innerElements.forEach(elem => {
+            // تجاهل العناصر التي تحتوي على روابط فقط
+            if (elem.querySelector('a') && elem.textContent.trim().length < 50) return;
+            
+            // استخراج النص المباشر فقط (تجنب التكرار من العناصر الفرعية)
+            const directText = Array.from(elem.childNodes)
+              .filter(node => node.nodeType === 3 || node.nodeName === 'BR') // text nodes or BR
+              .map(node => node.nodeType === 3 ? node.textContent.trim() : '\n')
+              .join('')
+              .trim();
+            
+            if (directText && directText.length > 2) {
+              texts.push(directText);
+            }
+          });
+          
+          if (texts.length > 0) {
+            descText = texts.join('\n');
+          }
+        }
+        
+        // Method 2: إذا فشل الأول، استخرج كل المحتوى وأنظفه
+        if (!descText || descText.length < 20) {
+          descText = extractTextFromHtml(descEl.innerHTML || '');
+        }
+        
+        // تنظيف النص النهائي
+        if (descText) {
+          const lines = descText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+          descText = lines.filter(s => {
+            // إزالة أسطر الروابط والعناوين غير المرغوبة
+            if (/^لينك\s*الميديا/i.test(s)) return false;
+            if (/^ميديا\s*إضافية/i.test(s)) return false;
+            if (/^media$/i.test(s)) return false;
+            if (s.length < 3) return false; // إزالة الأسطر القصيرة جداً
+            return true;
+          }).join('\n');
+        }
+        
+        if (descText && descText.length >= 5) {
+          data.productDescription = descText.trim();
+        }
+      }
+      //Fallback: من القسم الأساسي عند غياب/قصر الوصف
+      if (!data.productDescription || data.productDescription.length < 5) {
+        const section = document.querySelector('section.component-What');
+        if (section) {
+          const clone = section.cloneNode(true);
+          // إزالة عناصر غير الوصف
+          clone.querySelectorAll('nav, header, footer, .navbar, .component-header, .navbar-button, .prodect-text, .card-body-2, .price, table, .table-product, a.btn, .btn, a[href*="orders/create"]').forEach(el => el.remove());
+          // التقاط روابط Google Drive من الصفحة كلها
+          document.querySelectorAll('a[href*="drive.google.com"]').forEach(a => {
+            const href = a.href;
+            if (href && !data.mediaLinks.includes(href)) data.mediaLinks.push(href);
+          });
+          // إزالة روابط تحميل الكاتلوج والأزرار داخل القسم المنسوخ
+          clone.querySelectorAll('a[download], a.btn, .btn, a[href*="orders/create"], a[href*="affiliates/"]').forEach(el => el.remove());
+          const extracted2 = extractTextFromHtml(clone.innerHTML || '');
+          if (extracted2 && extracted2.length >= 5) data.productDescription = extracted2;
+        }
+      }
+
+      // Fallback أخير: من عنصر <article> كاملاً بعد تنظيف العناصر غير الوصفية
+      if (!data.productDescription || data.productDescription.length < 5) {
+        const article = document.querySelector('article');
+        if (article) {
+          const clone = article.cloneNode(true);
+          clone.querySelectorAll('nav, header, footer, aside, .navbar, .component-header, .navbar-button, .prodect-text, .card-body-2, .price, table, .table-product, a.btn, .btn, a[download], a[href*="orders/create"], a[href*="affiliates/"]').forEach(el => el.remove());
+          const extracted3 = extractTextFromHtml(clone.innerHTML || '');
+          if (extracted3 && extracted3.length >= 5) data.productDescription = extracted3;
+        }
+      }
+
+      // في حال لم تُلتقط روابط Google Drive من العناصر السابقة، التقط من الصفحة بالكامل كخطة أخيرة
+      if (!data.mediaLinks || data.mediaLinks.length === 0) {
+        document.querySelectorAll('a[href*="drive.google.com"]').forEach(a => {
+          const href = a.href;
+          if (href && !data.mediaLinks.includes(href)) data.mediaLinks.push(href);
+        });
       }
       
       // استخراج اسم البائع
@@ -320,6 +416,16 @@ async function scrapeProductDetails(page, productUrl) {
             break;
           }
         }
+      }
+      // لمساعدة التصحيح: معاينة قصيرة للوصف
+      if (data.productDescription) {
+        data._descPreview = data.productDescription.substring(0, 200);
+        console.log('[DEBUG] وصف مستخرج:', data._descPreview + (data.productDescription.length > 200 ? '...' : ''));
+      } else {
+        console.log('[DEBUG] لم يتم استخراج وصف');
+      }
+      if (data.mediaLinks && data.mediaLinks.length > 0) {
+        console.log('[DEBUG] روابط الميديا:', data.mediaLinks);
       }
       
       // استخراج الصور
