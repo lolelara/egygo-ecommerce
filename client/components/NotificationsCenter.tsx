@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bell, CheckCheck, Filter, X, Package, TrendingUp, AlertTriangle, Gift, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface Notification {
   id: string;
@@ -25,62 +26,72 @@ interface NotificationsCenterProps {
 
 export function NotificationsCenter({ userId, userRole }: NotificationsCenterProps) {
   const [filter, setFilter] = useState<"all" | "unread" | "important">("all");
-  
-  // Mock notifications data - replace with real API call
-  const mockNotifications: Notification[] = [
-    {
-      id: "1",
-      type: "order",
-      priority: "high",
-      title: "طلب جديد #4521",
-      message: "تم تأكيد طلبك وجاري التجهيز للشحن",
-      timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 mins ago
-      read: false,
-      actionUrl: "/orders/4521"
-    },
-    {
-      id: "2",
-      type: "affiliate",
-      priority: "medium",
-      title: "عمولة جديدة",
-      message: "حصلت على عمولة 45 جنيه من عملية بيع",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      read: false,
-      actionUrl: "/affiliate/earnings"
-    },
-    {
-      id: "3",
-      type: "inventory",
-      priority: "high",
-      title: "تنبيه مخزون منخفض",
-      message: "منتج 'حذاء رياضي' أوشك على النفاد (5 قطع متبقية)",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
-      read: true,
-      actionUrl: "/products/12345"
-    },
-    {
-      id: "4",
-      type: "promotion",
-      priority: "medium",
-      title: "عرض حصري",
-      message: "خصم 20% على جميع المنتجات - صالح لمدة 24 ساعة",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6), // 6 hours ago
-      read: true,
-      actionUrl: "/promotions"
-    },
-    {
-      id: "5",
-      type: "message",
-      priority: "low",
-      title: "رسالة جديدة من الدعم",
-      message: "تم الرد على استفسارك رقم #782",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      read: true,
-      actionUrl: "/support/782"
-    }
-  ];
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const loadNotifications = async () => {
+    if (!userId) return;
+    try {
+      setIsLoading(true);
+      const res = await fetch(`/api/notifications?userId=${encodeURIComponent(userId)}&limit=20`);
+      if (!res.ok) {
+        throw new Error("فشل في تحميل الإشعارات");
+      }
+
+      const json = await res.json();
+      const docs = (json.notifications || []) as any[];
+
+      const mapped: Notification[] = docs.map((doc: any) => {
+        let metadata: any = {};
+        if (doc.metadata) {
+          try {
+            metadata = typeof doc.metadata === "string" ? JSON.parse(doc.metadata) : doc.metadata;
+          } catch {
+            metadata = {};
+          }
+        }
+
+        const category = (metadata?.category as Notification["type"]) || "message";
+        const priority: Notification["priority"] =
+          doc.type === "error" || doc.type === "important"
+            ? "high"
+            : doc.type === "warning"
+            ? "medium"
+            : "low";
+
+        const rawTimestamp = doc.createdAt || doc.$createdAt;
+        const timestamp = rawTimestamp ? new Date(rawTimestamp) : new Date();
+
+        return {
+          id: doc.$id || doc.id,
+          type: category,
+          priority,
+          title: doc.title,
+          message: doc.message,
+          timestamp,
+          read: !!doc.isRead,
+          actionUrl: doc.actionUrl,
+        };
+      });
+
+      setNotifications(mapped);
+    } catch (error: any) {
+      console.error("Failed to load notifications:", error);
+      toast({
+        title: "خطأ",
+        description: error?.message || "فشل في تحميل الإشعارات",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   const filteredNotifications = notifications.filter(notif => {
     if (filter === "unread") return !notif.read;
@@ -90,18 +101,45 @@ export function NotificationsCenter({ userId, userRole }: NotificationsCenterPro
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(n => (n.id === id ? { ...n, read: true } : n))
-    );
+  const markAsRead = async (id: string) => {
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
+    try {
+      await fetch("/api/notifications/mark-read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notificationId: id, userId }),
+      });
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    try {
+      await fetch("/api/notifications/mark-all-read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
   };
 
-  const deleteNotification = (id: string) => {
+  const deleteNotification = async (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
+    try {
+      await fetch(`/api/notifications/${id}?userId=${encodeURIComponent(userId)}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    }
   };
 
   const getNotificationIcon = (type: Notification["type"]) => {
@@ -201,7 +239,12 @@ export function NotificationsCenter({ userId, userRole }: NotificationsCenterPro
 
           {/* Notifications List */}
           <ScrollArea className="flex-1">
-            {filteredNotifications.length === 0 ? (
+            {isLoading && notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                <Bell className="h-12 w-12 text-muted-foreground mb-3 opacity-50 animate-spin" />
+                <p className="text-sm text-muted-foreground font-medium">جاري تحميل الإشعارات...</p>
+              </div>
+            ) : filteredNotifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                 <Bell className="h-12 w-12 text-muted-foreground mb-3 opacity-50" />
                 <p className="text-sm text-muted-foreground font-medium">لا توجد إشعارات</p>

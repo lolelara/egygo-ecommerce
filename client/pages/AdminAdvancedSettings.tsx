@@ -29,6 +29,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { AdminOpenAIKey, openAIKeysApi } from "@/lib/admin-api";
+import env from "@/lib/env";
 
 interface SiteSettings {
   // Branding
@@ -153,6 +154,7 @@ export default function AdminAdvancedSettings() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [settingsId, setSettingsId] = useState<string | null>(null);
   const { toast } = useToast();
   const [openAIKeys, setOpenAIKeys] = useState<AdminOpenAIKey[]>([]);
   const [keysLoading, setKeysLoading] = useState(false);
@@ -172,15 +174,47 @@ export default function AdminAdvancedSettings() {
 
   const loadSettings = async () => {
     try {
-      // Mock data - replace with actual API call
       setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch('/api/admin/site-settings', {
+        headers: {
+          'x-api-key': env.ADMIN_API_KEY || '',
+        },
+      });
+      if (!res.ok) {
+        throw new Error('فشل في تحميل الإعدادات');
+      }
+
+      const data = await res.json();
+      const apiSettings = data.settings as Partial<SiteSettings>;
+
+      setSettings((prev) => ({
+        ...prev,
+        ...apiSettings,
+        features: {
+          ...prev.features,
+          ...(apiSettings.features || {}),
+        },
+        security: {
+          ...prev.security,
+          ...(apiSettings.security || {}),
+        },
+        notifications: {
+          ...prev.notifications,
+          ...(apiSettings.notifications || {}),
+        },
+        seo: {
+          ...prev.seo,
+          ...(apiSettings.seo || {}),
+        },
+      }));
+
+      setSettingsId(data.id || null);
+      setHasChanges(false);
       setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في تحميل الإعدادات",
+        description: error?.message || "فشل في تحميل الإعدادات",
         variant: "destructive"
       });
       setIsLoading(false);
@@ -306,8 +340,27 @@ export default function AdminAdvancedSettings() {
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const res = await fetch('/api/admin/site-settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': env.ADMIN_API_KEY || '',
+        },
+        body: JSON.stringify({
+          id: settingsId,
+          settings,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'فشل في حفظ الإعدادات');
+      }
+
+      const data = await res.json();
+      if (data?.id) {
+        setSettingsId(data.id);
+      }
       
       setHasChanges(false);
       toast({
@@ -315,10 +368,10 @@ export default function AdminAdvancedSettings() {
         description: "تم حفظ الإعدادات بنجاح"
       });
       setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في حفظ الإعدادات",
+        description: error?.message || "فشل في حفظ الإعدادات",
         variant: "destructive"
       });
       setIsLoading(false);

@@ -10,6 +10,7 @@ interface EnvVars {
   VITE_APPWRITE_STORAGE_ID?: string;
   VITE_APPWRITE_API_KEY?: string;
   VITE_VENDOOR_FUNCTION_URL?: string;
+  VITE_ADMIN_API_KEY?: string;
 }
 
 function getEnvVar(key: keyof EnvVars): string {
@@ -30,6 +31,7 @@ export const env = {
   APPWRITE_STORAGE_ID: getEnvVar('VITE_APPWRITE_STORAGE_ID'),
   APPWRITE_API_KEY: getEnvVar('VITE_APPWRITE_API_KEY'),
   VENDOOR_FUNCTION_URL: getEnvVar('VITE_VENDOOR_FUNCTION_URL'),
+  ADMIN_API_KEY: getEnvVar('VITE_ADMIN_API_KEY'),
 };
 
 export default env;

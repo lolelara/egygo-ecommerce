@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { withOpenAIClient } from "../lib/openai-key-manager";
+import { logAIUsage } from "../lib/ai-usage";
 
 /**
  * Advanced Product Scraper with Puppeteer
@@ -97,6 +98,23 @@ export const aiEnhanceProductDescription: RequestHandler = async (req, res) => {
 
     const parsed = JSON.parse(jsonMatch[0]);
 
+    // Log AI usage
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'product_enhance',
+        route: '/api/ai/product/enhance',
+        model: (completion as any).model || 'gpt-4',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: { productName: product.name },
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for product enhance:', e);
+    }
+
     res.json({
       original: product.description || '',
       enhanced: parsed.enhanced || description,
@@ -180,6 +198,22 @@ export const aiMarketingSuggestions: RequestHandler = async (req, res) => {
     }
 
     const suggestions = JSON.parse(jsonMatch[0]);
+
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'marketing_suggestions',
+        route: '/api/ai/product/marketing-suggestions',
+        model: (completion as any).model || 'gpt-4',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: { productName: product.name },
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for marketing suggestions:', e);
+    }
     res.json(suggestions);
   } catch (error: any) {
     console.error('AI marketing suggestions error:', error);
@@ -228,6 +262,22 @@ export const aiGenerateProductTags: RequestHandler = async (req, res) => {
     }
 
     const tags = JSON.parse(jsonMatch[0]);
+
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'product_tags',
+        route: '/api/ai/product/tags',
+        model: (completion as any).model || 'gpt-3.5-turbo',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: { productName: product.name },
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for product tags:', e);
+    }
     res.json(tags);
   } catch (error: any) {
     console.error('AI generate tags error:', error);
@@ -297,6 +347,22 @@ export const priceAnalysis: RequestHandler = async (req, res) => {
     }
 
     const result = JSON.parse(jsonMatch[0]);
+
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'price_analysis',
+        route: '/api/ai/price-analysis',
+        model: (completion as any).model || 'gpt-4',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: { productName },
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for price analysis:', e);
+    }
     res.json(result);
   } catch (error: any) {
     console.error('AI price analysis error:', error);
@@ -356,6 +422,22 @@ export const competitorAnalysis: RequestHandler = async (req, res) => {
     }
 
     const insights = JSON.parse(jsonMatch[0]);
+
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'competitor_analysis',
+        route: '/api/ai/competitor-analysis',
+        model: (completion as any).model || 'gpt-4',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: { productName },
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for competitor analysis:', e);
+    }
     res.json(insights);
   } catch (error: any) {
     console.error('AI competitor analysis error:', error);
@@ -392,6 +474,21 @@ export const generateProductImage: RequestHandler = async (req, res) => {
     }
 
     res.json({ imageUrl });
+
+    try {
+      await logAIUsage({
+        feature: 'image_generation',
+        route: '/api/ai/generate-image',
+        model: 'dall-e-3',
+        tokensPrompt: null,
+        tokensCompletion: null,
+        tokensTotal: null,
+        userId: null,
+        metadata: { productName },
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for image generation:', e);
+    }
   } catch (error: any) {
     console.error('AI image generation error:', error);
     res.status(500).json({
@@ -463,6 +560,22 @@ export const enhanceDescription: RequestHandler = async (req, res) => {
       seoKeywords: parsed.seoKeywords || [],
       highlights: parsed.highlights || [],
     });
+
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'legacy_enhance_description',
+        route: '/api/enhance-description',
+        model: (completion as any).model || 'gpt-4',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: null,
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for legacy enhance description:', e);
+    }
   } catch (error: any) {
     console.error('Enhancement error:', error);
     res.status(500).json({ 
@@ -514,6 +627,22 @@ ${text}
     };
 
     res.json(translated);
+
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'translate_product',
+        route: '/api/translate-product',
+        model: (completion as any).model || 'gpt-3.5-turbo',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: null,
+      });
+    } catch (e) {
+      console.error('Failed to log AI usage for translate product:', e);
+    }
   } catch (error: any) {
     console.error('Translation error:', error);
     res.status(500).json({ 

@@ -3,7 +3,7 @@
  * Central hub for all AI features and analytics
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +29,15 @@ import {
   Activity
 } from 'lucide-react';
 
+const FEATURE_LABELS: Record<string, string> = {
+  product_enhance: 'تحسين الوصف',
+  image_generation: 'توليد الصور',
+  competitor_analysis: 'تحليل المنافسة',
+  chat: 'محادثات AI',
+};
+
+const FEATURE_KEYS = ['product_enhance', 'image_generation', 'competitor_analysis', 'chat'] as const;
+
 interface AIMetric {
   label: string;
   value: number;
@@ -51,27 +60,42 @@ export function AIDashboard() {
   >(null);
   const [statusError, setStatusError] = useState<string>('');
   const [metrics, setMetrics] = useState<AIMetric[]>([
-    { label: 'وصف محسّن', value: 142, change: 12, icon: FileText },
-    { label: 'صور مولّدة', value: 67, change: -5, icon: Image },
-    { label: 'تحليلات منافسة', value: 34, change: 8, icon: Target },
-    { label: 'محادثات AI', value: 289, change: 23, icon: MessageCircle },
+    { label: 'وصف محسّن', value: 0, change: 0, icon: FileText },
+    { label: 'صور مولّدة', value: 0, change: 0, icon: Image },
+    { label: 'تحليلات منافسة', value: 0, change: 0, icon: Target },
+    { label: 'محادثات AI', value: 0, change: 0, icon: MessageCircle },
   ]);
 
   const [usage, setUsage] = useState<AIUsage[]>([
-    { feature: 'تحسين الوصف', count: 142, limit: 500, cost: 4.26 },
-    { feature: 'توليد الصور', count: 67, limit: 100, cost: 2.68 },
-    { feature: 'تحليل المنافسة', count: 34, limit: 200, cost: 1.70 },
-    { feature: 'محادثات AI', count: 289, limit: 1000, cost: 2.89 },
+    { feature: 'تحسين الوصف', count: 0, limit: 500, cost: 0 },
+    { feature: 'توليد الصور', count: 0, limit: 100, cost: 0 },
+    { feature: 'تحليل المنافسة', count: 0, limit: 200, cost: 0 },
+    { feature: 'محادثات AI', count: 0, limit: 1000, cost: 0 },
   ]);
+
+  const [usageSummary, setUsageSummary] = useState<{
+    day: Array<{ feature: string; count: number; tokensTotal: number }>;
+    week: Array<{ feature: string; count: number; tokensTotal: number }>;
+    month: Array<{ feature: string; count: number; tokensTotal: number }>;
+  }>({
+    day: [],
+    week: [],
+    month: [],
+  });
 
   const totalCost = usage.reduce((sum, u) => sum + u.cost, 0);
   const apiKeyConfigured = aiStatus ? (aiStatus.status !== 'error') : false;
 
+  const fetchDataRef = useRef<null | (() => Promise<void>)>(null);
+
   useEffect(() => {
     let isMounted = true;
-    const fetchStatus = async () => {
+
+    const fetchData = async () => {
       setLoading(true);
       setStatusError('');
+
+      // 1) حالة مفاتيح OpenAI
       try {
         const res = await fetch('/api/ai/status');
         if (!res.ok) {
@@ -79,18 +103,96 @@ export function AIDashboard() {
           throw new Error(text || `HTTP ${res.status}`);
         }
         const data = await res.json();
-        if (!isMounted) return;
-        setAiStatus(data);
+        if (isMounted) {
+          setAiStatus(data);
+        }
       } catch (err: any) {
         console.error('Failed to load AI status', err);
+        if (isMounted) {
+          setStatusError(err.message || 'فشل في جلب حالة AI');
+        }
+      }
+
+      // 2) ملخص استخدام AI من الباك إند (يوم/أسبوع/شهر)
+      try {
+        const [resDay, resWeek, resMonth] = await Promise.all([
+          fetch('/api/ai/usage-summary?period=day'),
+          fetch('/api/ai/usage-summary?period=week'),
+          fetch('/api/ai/usage-summary?period=month'),
+        ]);
+
         if (!isMounted) return;
-        setStatusError(err.message || 'فشل في جلب حالة AI');
+
+        const [dataDay, dataWeek, dataMonth] = await Promise.all([
+          resDay.ok ? resDay.json() : Promise.resolve({ items: [] }),
+          resWeek.ok ? resWeek.json() : Promise.resolve({ items: [] }),
+          resMonth.ok ? resMonth.json() : Promise.resolve({ items: [] }),
+        ]);
+
+        const normalize = (data: any) =>
+          (data.items || []) as Array<{ feature: string; count: number; tokensTotal: number }>;
+
+        const itemsDay = normalize(dataDay);
+        const itemsWeek = normalize(dataWeek);
+        const itemsMonth = normalize(dataMonth);
+
+        setUsageSummary({
+          day: itemsDay,
+          week: itemsWeek,
+          month: itemsMonth,
+        });
+
+        const items = itemsMonth;
+
+        const getCount = (featureKey: string) => {
+          const item = items.find((i) => i.feature === featureKey);
+          return item ? item.count || 0 : 0;
+        };
+
+        const enhancedCount = getCount('product_enhance');
+        const imageCount = getCount('image_generation');
+        const competitorCount = getCount('competitor_analysis');
+        const chatCount = getCount('chat');
+
+        setMetrics([
+          { label: 'وصف محسّن', value: enhancedCount, change: 0, icon: FileText },
+          { label: 'صور مولّدة', value: imageCount, change: 0, icon: Image },
+          { label: 'تحليلات منافسة', value: competitorCount, change: 0, icon: Target },
+          { label: 'محادثات AI', value: chatCount, change: 0, icon: MessageCircle },
+        ]);
+
+        const mappedUsage: AIUsage[] = [];
+
+        FEATURE_KEYS.forEach((key) => {
+          const item = items.find((i) => i.feature === key);
+          if (!item) return;
+          const tokensTotal = item.tokensTotal || 0;
+          // تقدير بسيط للتكلفة (يمكن تعديله لاحقاً وفقاً لأسعار OpenAI الفعلية)
+          const estimatedCost = (tokensTotal / 1000) * 0.002;
+
+          mappedUsage.push({
+            feature: FEATURE_LABELS[key] || key,
+            count: item.count || 0,
+            limit: 1000,
+            cost: estimatedCost,
+          });
+        });
+
+        if (mappedUsage.length > 0) {
+          setUsage(mappedUsage);
+        }
+      } catch (err) {
+        console.error('Failed to load AI usage summary', err);
       } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchStatus();
+    fetchDataRef.current = fetchData;
+    fetchData();
+
     return () => {
       isMounted = false;
     };
@@ -129,8 +231,10 @@ export function AIDashboard() {
           <Button
             className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             onClick={() => {
-              // إعادة تحميل الحالة فقط
-              window.location.reload();
+              const fn = fetchDataRef.current;
+              if (fn) {
+                fn();
+              }
             }}
             disabled={loading}
           >
@@ -336,34 +440,26 @@ export function AIDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y">
-                      <tr>
-                        <td className="p-3 font-medium">تحسين الوصف</td>
-                        <td className="p-3 text-center">23</td>
-                        <td className="p-3 text-center">142</td>
-                        <td className="p-3 text-center">487</td>
-                        <td className="p-3 text-center text-green-600">$14.61</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-medium">توليد الصور</td>
-                        <td className="p-3 text-center">8</td>
-                        <td className="p-3 text-center">67</td>
-                        <td className="p-3 text-center">234</td>
-                        <td className="p-3 text-center text-green-600">$9.36</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-medium">تحليل المنافسة</td>
-                        <td className="p-3 text-center">5</td>
-                        <td className="p-3 text-center">34</td>
-                        <td className="p-3 text-center">98</td>
-                        <td className="p-3 text-center text-green-600">$4.90</td>
-                      </tr>
-                      <tr>
-                        <td className="p-3 font-medium">محادثات AI</td>
-                        <td className="p-3 text-center">45</td>
-                        <td className="p-3 text-center">289</td>
-                        <td className="p-3 text-center">1023</td>
-                        <td className="p-3 text-center text-green-600">$10.23</td>
-                      </tr>
+                      {FEATURE_KEYS.map((key) => {
+                        const label = FEATURE_LABELS[key] || key;
+                        const dayItem = usageSummary.day.find((i) => i.feature === key);
+                        const weekItem = usageSummary.week.find((i) => i.feature === key);
+                        const monthItem = usageSummary.month.find((i) => i.feature === key);
+                        const tokensMonth = monthItem?.tokensTotal || 0;
+                        const estimatedCost = (tokensMonth / 1000) * 0.002;
+
+                        return (
+                          <tr key={key}>
+                            <td className="p-3 font-medium">{label}</td>
+                            <td className="p-3 text-center">{dayItem?.count ?? 0}</td>
+                            <td className="p-3 text-center">{weekItem?.count ?? 0}</td>
+                            <td className="p-3 text-center">{monthItem?.count ?? 0}</td>
+                            <td className="p-3 text-center text-green-600">
+                              ${estimatedCost.toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>

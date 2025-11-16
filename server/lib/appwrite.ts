@@ -27,7 +27,9 @@ export const COLLECTIONS = {
   CHAT_MESSAGES: 'chat_messages',
   BUNDLES: 'bundles',
   ANALYTICS: 'analytics',
-  OPENAI_KEYS: 'openai_keys'
+  OPENAI_KEYS: 'openai_keys',
+  AI_USAGE: 'ai_usage',
+  SITE_SETTINGS: 'site_settings',
 };
 
 // Export config for easier access

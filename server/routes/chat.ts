@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { withOpenAIClient } from "../lib/openai-key-manager";
+import { logAIUsage } from "../lib/ai-usage";
 
 interface ChatRequest {
   messages: Array<{
@@ -30,6 +31,24 @@ export const handleChatCompletion: RequestHandler = async (req, res) => {
       message: completion.choices[0]?.message?.content || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏',
       usage: completion.usage,
     };
+
+    // Log AI usage (best-effort)
+    try {
+      const usage = completion.usage as any;
+      await logAIUsage({
+        feature: 'chat',
+        route: '/api/chat',
+        model: (completion as any).model || 'gpt-4o-mini',
+        tokensPrompt: usage?.prompt_tokens,
+        tokensCompletion: usage?.completion_tokens,
+        tokensTotal: usage?.total_tokens,
+        userId: null,
+        metadata: null,
+      });
+    } catch (e) {
+      // لا نمنع الرد على المستخدم بسبب خطأ في تسجيل الاستخدام
+      console.error('Failed to log AI usage for /api/chat:', e);
+    }
 
     res.json(response);
   } catch (error: any) {

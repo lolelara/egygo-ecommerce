@@ -49,8 +49,8 @@ export function AIAssistant() {
     }
   }, [isOpen, user]);
 
-  const loadUserContext = async () => {
-    if (!user) return;
+  const loadUserContext = async (): Promise<string | null> => {
+    if (!user) return null;
     
     setIsLoadingContext(true);
     try {
@@ -66,8 +66,10 @@ export function AIAssistant() {
       
       setUserContextData(context);
       console.log('✅ Context loaded:', context.substring(0, 100) + '...');
+      return context;
     } catch (error) {
       console.error('Error loading context:', error);
+      return null;
     } finally {
       setIsLoadingContext(false);
     }
@@ -166,11 +168,8 @@ export function AIAssistant() {
 
   const handleQuickAction = (value: string) => {
     setInputValue(value);
-    // Auto-send
-    setTimeout(() => {
-      const button = document.querySelector<HTMLButtonElement>('[data-send-button]');
-      button?.click();
-    }, 100);
+    // أرسل الرسالة مباشرة باستخدام القيمة المحددة
+    handleSendMessage(value);
   };
 
   // Generate AI tips based on user role and stats
@@ -313,15 +312,21 @@ export function AIAssistant() {
   }, [isOpen, user]);
 
   // Handle send message with server-side OpenAI API
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (overrideText?: string) => {
     console.log('📤 handleSendMessage called');
     
-    if (!inputValue.trim()) {
+    if (!isModelReady) {
+      console.log('⚠️ Model not ready yet, aborting');
+      return;
+    }
+
+    const rawInput = overrideText ?? inputValue;
+    if (!rawInput.trim()) {
       console.log('⚠️ Empty input, aborting');
       return;
     }
 
-    const currentInput = inputValue;
+    const currentInput = rawInput;
     console.log('📝 User input:', currentInput);
 
     // Add user message
@@ -345,13 +350,13 @@ export function AIAssistant() {
       
       // Add user message to chat history
       let messageToSend = currentInput;
-      if (needsContext && userContextData) {
-        messageToSend = `${currentInput}\n\n[بيانات المستخدم]:\n${userContextData}`;
-      } else if (needsContext && !userContextData) {
-        // Load context if not loaded yet
-        await loadUserContext();
-        if (userContextData) {
-          messageToSend = `${currentInput}\n\n[بيانات المستخدم]:\n${userContextData}`;
+      if (needsContext) {
+        let context = userContextData;
+        if (!context) {
+          context = await loadUserContext();
+        }
+        if (context) {
+          messageToSend = `${currentInput}\n\n[بيانات المستخدم]:\n${context}`;
         }
       }
       
@@ -359,6 +364,11 @@ export function AIAssistant() {
         role: 'user',
         content: messageToSend
       });
+
+      // Limit chat history to آخر 30 رسالة تقريبًا لتقليل الحجم
+      if (chatRef.current.length > 30) {
+        chatRef.current = chatRef.current.slice(chatRef.current.length - 30);
+      }
 
       // Call backend chat API
       console.log('📡 Sending request to /api/chat...');
@@ -577,9 +587,9 @@ export function AIAssistant() {
                 className="flex-1"
               />
               <Button 
-                onClick={handleSendMessage} 
+                onClick={() => handleSendMessage()} 
                 size="icon"
-                disabled={isTyping || !inputValue.trim()}
+                disabled={isTyping || !inputValue.trim() || !isModelReady}
                 data-send-button
               >
                 <Send className="h-4 w-4" />

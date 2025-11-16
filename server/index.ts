@@ -135,6 +135,8 @@ import {
   broadcastNotification,
 } from "./routes/notifications";
 import openaiKeysRouter from "./routes/openai-keys";
+import aiUsageRouter from "./routes/ai-usage";
+import siteSettingsRouter from "./routes/site-settings";
 
 // Wishlist imports commented out for static deployment
 // import {
@@ -330,6 +332,12 @@ export function createServer() {
 
   // OpenAI Keys Admin API (Appwrite-based)
   app.use("/api", openaiKeysRouter);
+
+  // AI usage analytics API
+  app.use("/api", aiUsageRouter);
+
+  // Site settings admin API
+  app.use("/api", siteSettingsRouter);
 
   // Start Vendoor Sync Cron Job
   startVendoorSyncCron();
