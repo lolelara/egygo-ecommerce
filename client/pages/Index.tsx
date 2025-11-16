@@ -163,11 +163,11 @@ export default function Index() {
   }
 
   return (
-    <div className="space-y-16 pb-16 egygo-body">
+    <div className="space-y-16 pb-16">
       <EnhancedSEO {...pageSEO.home()} />
       
       {/* Hero Section - Enhanced Professional Design */}
-      <section className="relative text-white overflow-hidden min-h-[90vh] flex items-center egygo-gradient-sunset egygo-pattern-pharaonic">
+      <section className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-900 text-white overflow-hidden min-h-[90vh] flex items-center">
         {/* Animated Background Patterns */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
@@ -194,7 +194,7 @@ export default function Index() {
                 <Badge className="bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm text-white border border-white/20 shadow-xl font-bold px-6 py-2 text-base">
                   ✨ منصة التسويق والتجارة الإلكترونية الأولى
                 </Badge>
-                <h1 className="egygo-heading text-5xl lg:text-7xl font-black leading-tight text-white min-h-[140px] drop-shadow-2xl">
+                <h1 className="text-5xl lg:text-7xl font-black leading-tight text-white min-h-[140px] drop-shadow-2xl">
                   <span className="bg-gradient-to-r from-white via-red-50 to-white bg-clip-text text-transparent">
                     {displayedText}
                   </span>
@@ -238,7 +238,7 @@ export default function Index() {
 
               {/* Enhanced Stats with Animated Counters */}
               <div className="grid grid-cols-3 gap-6 pt-8">
-                <div className="egygo-hover-lift bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
+                <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
                   <Users className="w-8 h-8 mx-auto mb-3 text-green-300 animate-bounce" style={{animationDuration: '3s'}} />
                   <AnimatedCounter 
                     end={10000} 
