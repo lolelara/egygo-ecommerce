@@ -152,11 +152,12 @@ export const simulatePrice: RequestHandler = async (req, res) => {
 // GET /api/inventory/alerts - تنبيهات المخزون
 export const getInventoryAlerts: RequestHandler = async (req, res) => {
   try {
-    const { severity } = req.query;
+    const { severity, merchantId } = req.query;
     
     // جلب من Appwrite database
     const queries: any[] = [];
     if (severity) queries.push(Query.equal('severity', String(severity)));
+    if (merchantId) queries.push(Query.equal('merchantId', String(merchantId)));
     const result = await listDocuments('inventory_alerts', queries);
     res.json(result.documents);
   } catch (error) {

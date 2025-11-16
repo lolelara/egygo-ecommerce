@@ -43,61 +43,50 @@ export function InventoryAlerts({ merchantId }: InventoryAlertsProps) {
     new Set(JSON.parse(localStorage.getItem("dismissedInventoryAlerts") || "[]"))
   );
 
-  // Fetch inventory alerts - replace with real API
-  const { data: alerts = [], isLoading } = useQuery({
+  const { data: alerts = [], isLoading, isError } = useQuery<InventoryAlert[]>({
     queryKey: ["inventory-alerts", merchantId],
     queryFn: async () => {
-      // Mock data - replace with actual API call
-      const mockAlerts: InventoryAlert[] = [
-        {
-          id: "alert_1",
-          productId: "prod_123",
-          productName: "حذاء رياضي نايك - أسود",
-          productImage: "/products/nike-shoe.jpg",
-          currentStock: 5,
-          threshold: 20,
-          averageDailySales: 3,
-          predictedStockoutDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2), // 2 days
-          severity: "critical",
-          status: "active",
-          recommendedReorderQuantity: 50,
-          recommendedReorderDate: new Date(Date.now()),
-          supplierLeadTime: 7,
-        },
-        {
-          id: "alert_2",
-          productId: "prod_456",
-          productName: "تيشرت قطن - أبيض",
-          productImage: "/products/tshirt.jpg",
-          currentStock: 15,
-          threshold: 30,
-          averageDailySales: 2,
-          predictedStockoutDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
-          severity: "warning",
-          status: "active",
-          recommendedReorderQuantity: 60,
-          recommendedReorderDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 2), // in 2 days
-          supplierLeadTime: 5,
-        },
-        {
-          id: "alert_3",
-          productId: "prod_789",
-          productName: "حقيبة ظهر - أزرق",
-          productImage: "/products/backpack.jpg",
-          currentStock: 25,
-          threshold: 40,
-          averageDailySales: 1.5,
-          predictedStockoutDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 16), // 16 days
-          severity: "info",
-          status: "active",
-          recommendedReorderQuantity: 40,
-          recommendedReorderDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 9), // in 9 days
-          supplierLeadTime: 7,
-        },
-      ];
-      return mockAlerts;
+      const params = new URLSearchParams();
+      if (merchantId) {
+        params.set("merchantId", merchantId);
+      }
+
+      const url = `/api/inventory/alerts${params.toString() ? `?${params.toString()}` : ""}`;
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        throw new Error("فشل في تحميل تنبيهات المخزون");
+      }
+
+      const json = await res.json();
+      const docs = Array.isArray(json) ? json : json.documents || [];
+
+      return docs.map((doc: any): InventoryAlert => {
+        const predictedStockoutDate = doc.predictedStockoutDate
+          ? new Date(doc.predictedStockoutDate)
+          : new Date();
+        const recommendedReorderDate = doc.recommendedReorderDate
+          ? new Date(doc.recommendedReorderDate)
+          : new Date();
+
+        return {
+          id: doc.$id || doc.id,
+          productId: doc.productId,
+          productName: doc.productName,
+          productImage: doc.productImage,
+          currentStock: doc.currentStock ?? 0,
+          threshold: doc.threshold ?? 0,
+          averageDailySales: doc.averageDailySales ?? 0,
+          predictedStockoutDate,
+          severity: (doc.severity as InventoryAlert["severity"]) || "info",
+          status: (doc.status as InventoryAlert["status"]) || "active",
+          recommendedReorderQuantity: doc.recommendedReorderQuantity ?? 0,
+          recommendedReorderDate,
+          supplierLeadTime: doc.supplierLeadTime ?? 0,
+        };
+      });
     },
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 60000,
   });
 
   const activeAlerts = alerts.filter(
@@ -165,6 +154,17 @@ export function InventoryAlerts({ merchantId }: InventoryAlertsProps) {
       <Card>
         <CardContent className="flex items-center justify-center py-12">
           <RefreshCcw className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 space-y-3">
+          <AlertTriangle className="h-10 w-10 text-red-500" />
+          <p className="text-sm text-muted-foreground">حدث خطأ أثناء تحميل تنبيهات المخزون</p>
         </CardContent>
       </Card>
     );

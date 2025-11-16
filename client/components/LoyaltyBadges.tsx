@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { databases, DATABASE_ID } from "@/lib/appwrite-client";
+import { Query } from "appwrite";
 import { Award, Star, Crown, Gift, TrendingUp, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -169,10 +171,66 @@ interface LoyaltyDashboardProps {
 
 export function LoyaltyDashboard({ userId }: LoyaltyDashboardProps) {
   // Fetch loyalty data - replace with real API
-  const { data: loyaltyData, isLoading } = useQuery({
+  const { data: loyaltyData, isLoading } = useQuery<LoyaltyData>({
     queryKey: ["loyalty", userId],
     queryFn: async (): Promise<LoyaltyData> => {
-      // Mock data - replace with actual API call
+      if (!userId) {
+        // Mock data - replace with actual API call
+        return {
+          tier: "gold",
+          points: 2350,
+          lifetimeValue: 18500,
+          nextTier: "platinum",
+          pointsToNextTier: 2650,
+          tierSince: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90), // 90 days ago
+        };
+      }
+
+      try {
+        const response = await databases.listDocuments(
+          DATABASE_ID,
+          "loyalty_points",
+          [Query.equal("userId", userId), Query.limit(1)]
+        );
+
+        if (response.documents.length > 0) {
+          const doc: any = response.documents[0];
+          const points: number = doc.points ?? 0;
+
+          let tier: LoyaltyTier = "silver";
+          if (points >= 5000) tier = "platinum";
+          else if (points >= 1000) tier = "gold";
+
+          let nextTier: LoyaltyTier | undefined;
+          let pointsToNextTier: number | undefined;
+          if (tier === "silver") {
+            nextTier = "gold";
+            pointsToNextTier = Math.max(0, 1000 - points);
+          } else if (tier === "gold") {
+            nextTier = "platinum";
+            pointsToNextTier = Math.max(0, 5000 - points);
+          }
+
+          const tierSince = doc.tierSince
+            ? new Date(doc.tierSince)
+            : new Date(doc.$createdAt || Date.now());
+
+          const lifetimeValue: number = doc.lifetimeValue ?? 0;
+
+          return {
+            tier,
+            points,
+            lifetimeValue,
+            nextTier,
+            pointsToNextTier,
+            tierSince,
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching loyalty data:", error);
+      }
+
+      // Mock data - replace with actual API call (fallback if no document exists)
       return {
         tier: "gold",
         points: 2350,
