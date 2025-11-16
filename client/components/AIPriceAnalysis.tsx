@@ -18,7 +18,6 @@ import {
   Users
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { env } from '@/lib/env';
 
 interface PriceRecommendation {
   currentPrice?: number;
@@ -53,80 +52,27 @@ export function AIPriceAnalysis({
   const analyzePricing = async () => {
     setLoading(true);
     try {
-      const apiKey = env.OPENAI_API_KEY;
-      if (!apiKey) {
-        throw new Error('OpenAI API key not configured');
-      }
-
-      const prompt = `أنت خبير تسعير منتجات في السوق المصري.
-
-المنتج:
-- الاسم: ${productName}
-- السعر الحالي: ${currentPrice ? `${currentPrice} جنيه` : 'غير محدد'}
-- الفئة: ${productCategory || 'غير محدد'}
-- التكلفة: ${productCost ? `${productCost} جنيه` : 'غير معروف'}
-
-قم بتحليل السعر واقترح:
-1. السعر المثالي
-2. نطاق السعر (الحد الأدنى والأقصى)
-3. متوسط أسعار المنافسين
-4. هامش الربح المقترح
-5. موقع السعر في السوق (منخفض/متوسط/مرتفع)
-6. الطلب المتوقع (منخفض/متوسط/مرتفع)
-7. التبرير والتوصيات
-
-أرجع النتيجة بصيغة JSON:
-{
-  "suggestedPrice": رقم,
-  "minPrice": رقم,
-  "maxPrice": رقم,
-  "optimalPrice": رقم,
-  "reasoning": "نص",
-  "marketPosition": "low|medium|high",
-  "expectedDemand": "low|medium|high",
-  "competitorAverage": رقم,
-  "profitMargin": رقم (نسبة مئوية)
-}`;
-
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('/api/ai/price-analysis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system',
-              content: 'أنت خبير تسعير منتجات في السوق المصري والعربي.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000
-        })
+          productName,
+          currentPrice,
+          productCategory,
+          productCost,
+        }),
       });
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-      
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Invalid AI response format');
-      }
-
-      const result = JSON.parse(jsonMatch[0]);
+      const result = await response.json();
       setRecommendation({
         ...result,
-        currentPrice
+        currentPrice,
       });
 
       toast({

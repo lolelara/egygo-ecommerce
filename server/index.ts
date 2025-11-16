@@ -63,7 +63,13 @@ import {
   enhanceDescription,
   translateProduct,
   optimizeImages,
-  reviewProduct
+  reviewProduct,
+  aiEnhanceProductDescription,
+  aiMarketingSuggestions,
+  aiGenerateProductTags,
+  priceAnalysis,
+  competitorAnalysis,
+  generateProductImage
 } from "./routes/advanced-scraper";
 
 // ===== NEW ADVANCED APIS =====
@@ -128,6 +134,7 @@ import {
   deleteNotification,
   broadcastNotification,
 } from "./routes/notifications";
+import openaiKeysRouter from "./routes/openai-keys";
 
 // Wishlist imports commented out for static deployment
 // import {
@@ -256,6 +263,12 @@ export function createServer() {
   app.post("/api/translate-product", translateProduct);
   app.post("/api/optimize-images", optimizeImages);
   app.post("/api/review-product", reviewProduct);
+  app.post("/api/ai/product/enhance", aiEnhanceProductDescription);
+  app.post("/api/ai/product/marketing-suggestions", aiMarketingSuggestions);
+  app.post("/api/ai/product/tags", aiGenerateProductTags);
+  app.post("/api/ai/price-analysis", priceAnalysis);
+  app.post("/api/ai/competitor-analysis", competitorAnalysis);
+  app.post("/api/ai/generate-image", generateProductImage);
 
   // ===== ADVANCED APIS =====
   
@@ -314,6 +327,9 @@ export function createServer() {
   app.post("/api/notifications/mark-all-read", markAllAsRead);
   app.delete("/api/notifications/:id", deleteNotification);
   app.post("/api/notifications/broadcast", broadcastNotification);
+
+  // OpenAI Keys Admin API (Appwrite-based)
+  app.use("/api", openaiKeysRouter);
 
   // Start Vendoor Sync Cron Job
   startVendoorSyncCron();

@@ -11,27 +11,19 @@
 
 // ===== OPENAI API =====
 
-import OpenAI from 'openai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || ''
-});
+import { withOpenAIClient } from './openai-key-manager';
 
 /**
  * AI Shopping Assistant - Chat with GPT-4
  */
 export async function aiChat(message: string, context?: any): Promise<string> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OPENAI_API_KEY is not configured');
-    }
-
     const systemPrompt = `أنت مساعد تسوق ذكي لمنصة إيجي جو.
 مهمتك: مساعدة المستخدمين في اختيار المنتجات المناسبة.
 الأسلوب: ودود، محترف، بالعربية.
 تجنب: الإجابات الطويلة جداً.`;
 
-    const response = await openai.chat.completions.create({
+    const response = await withOpenAIClient((client) => client.chat.completions.create({
       model: 'gpt-4',
       messages: [
         { role: 'system', content: systemPrompt },
@@ -39,7 +31,7 @@ export async function aiChat(message: string, context?: any): Promise<string> {
       ],
       temperature: 0.7,
       max_tokens: 500
-    });
+    }));
 
     return response.choices[0]?.message?.content || 'عذراً، لم أستطع فهم طلبك.';
   } catch (error) {
@@ -56,23 +48,16 @@ export async function getProductRecommendations(
   products: any[]
 ): Promise<any[]> {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      // Fallback: simple keyword matching
-      return products.filter(p => 
-        p.name.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 3);
-    }
-
     const prompt = `بناءً على الطلب: "${query}"
 المنتجات المتاحة: ${JSON.stringify(products.map(p => ({ id: p.id, name: p.name, category: p.category })))}
 
 اختر أفضل 3 منتجات مناسبة. أرجع فقط IDs كـ JSON array: ["id1", "id2", "id3"]`;
 
-    const response = await openai.chat.completions.create({
+    const response = await withOpenAIClient((client) => client.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3
-    });
+    }));
 
     const content = response.choices[0]?.message?.content || '[]';
     const recommendedIds = JSON.parse(content);

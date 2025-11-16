@@ -4,7 +4,6 @@
  */
 
 interface EnvVars {
-  VITE_OPENAI_API_KEY?: string;
   VITE_APPWRITE_ENDPOINT?: string;
   VITE_APPWRITE_PROJECT_ID?: string;
   VITE_APPWRITE_DATABASE_ID?: string;
@@ -25,7 +24,6 @@ function getEnvVar(key: keyof EnvVars): string {
 }
 
 export const env = {
-  OPENAI_API_KEY: getEnvVar('VITE_OPENAI_API_KEY'),
   APPWRITE_ENDPOINT: getEnvVar('VITE_APPWRITE_ENDPOINT'),
   APPWRITE_PROJECT_ID: getEnvVar('VITE_APPWRITE_PROJECT_ID'),
   APPWRITE_DATABASE_ID: getEnvVar('VITE_APPWRITE_DATABASE_ID'),

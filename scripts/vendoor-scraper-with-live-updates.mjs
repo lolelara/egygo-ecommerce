@@ -255,177 +255,14 @@ async function scrapeProductDetails(page, productUrl) {
   try {
     await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(resolve => setTimeout(resolve, 2500));
-    // انتظر ظهور عناصر الوصف لأن الصفحة تستخدم Livewire أحياناً
-    try {
-      await page.waitForSelector('p.prodcut-titles, .prodcut-titles, section.component-What', { timeout: 5000 });
-    } catch (_) {}
     
     const details = await page.evaluate(() => {
-      const data = { 
-        productImages: [], 
-        variants: [], 
-        totalStock: 0, 
-        title: '', 
-        originalPrice: 0,
-        productDescription: '',
-        mediaLinks: [],
-        seller: ''
-      };
+      const data = { productImages: [], variants: [], totalStock: 0, title: '', originalPrice: 0 };
 
       // عنوان المنتج
       const titleEl = document.querySelector('h1, h2, h3, .prodect-text, .product-title');
       if (titleEl && titleEl.textContent) {
         data.title = titleEl.textContent.trim();
-      }
-      
-      // استخراج الوصف من p.prodcut-titles (typo في Vendoor)
-      const descEl = document.querySelector('p.prodcut-titles, .prodcut-titles, .product-titles');
-      const extractTextFromHtml = (html) => {
-        let t = html || '';
-        t = t.replace(/<script[^>]*>.*?<\/script>/gi, '');
-        t = t.replace(/<style[^>]*>.*?<\/style>/gi, '');
-        t = t.replace(/<br\s*\/?>/gi, '\n');
-        t = t.replace(/<\/p>/gi, '\n\n');
-        t = t.replace(/<\/div>/gi, '\n');
-        t = t.replace(/<\/h[1-6]>/gi, '\n\n');
-        t = t.replace(/<[^>]+>/g, '');
-        t = t.replace(/&nbsp;/g, ' ');
-        t = t.replace(/&lt;/g, '<');
-        t = t.replace(/&gt;/g, '>');
-        t = t.replace(/&amp;/g, '&');
-        t = t.replace(/￼/g, '');
-        const lines = t.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-        // إزالة أسطر رابط الميديا والضوضاء (سعر/عمولة/مخزون/بائع/أزرار)
-        const cleaned = lines.filter(s => {
-          if (/^لينك\s*الميديا$/i.test(s)) return false;
-          if (/^ميديا\s*إضافية$/i.test(s)) return false;
-          if (/^media$/i.test(s)) return false;
-          if (/^(السعر|العمولة|In\s*Stock|Product\s*URL)\b/i.test(s)) return false;
-          if (/^(أضف\s*اوردر|تحميل\s*الكاتلوج)/i.test(s)) return false;
-          if (/^(البائع)\s*[:：]?/i.test(s)) return false;
-          if (/^(Size|Color|stock)\b/i.test(s)) return false;
-          return true;
-        });
-        return cleaned.join('\n').trim();
-      };
-      if (descEl) {
-        // استخراج روابط Google Drive أولاً
-        const allLinks = descEl.querySelectorAll('a[href*="drive.google.com"]');
-        allLinks.forEach(a => {
-          const href = a.href;
-          if (href && !data.mediaLinks.includes(href)) data.mediaLinks.push(href);
-        });
-        
-        // استخراج الوصف من العناصر الفرعية (div و p) داخل p.prodcut-titles
-        // Vendoor يستخدم HTML غير صالح مع عناصر متداخلة
-        let descText = '';
-        
-        // Method 1: استخراج من div و p المتداخلة
-        const innerElements = descEl.querySelectorAll('div, p');
-        if (innerElements.length > 0) {
-          const texts = [];
-          innerElements.forEach(elem => {
-            // تجاهل العناصر التي تحتوي على روابط فقط
-            if (elem.querySelector('a') && elem.textContent.trim().length < 50) return;
-            
-            // استخراج النص المباشر فقط (تجنب التكرار من العناصر الفرعية)
-            const directText = Array.from(elem.childNodes)
-              .filter(node => node.nodeType === 3 || node.nodeName === 'BR') // text nodes or BR
-              .map(node => node.nodeType === 3 ? node.textContent.trim() : '\n')
-              .join('')
-              .trim();
-            
-            if (directText && directText.length > 2) {
-              texts.push(directText);
-            }
-          });
-          
-          if (texts.length > 0) {
-            descText = texts.join('\n');
-          }
-        }
-        
-        // Method 2: إذا فشل الأول، استخرج كل المحتوى وأنظفه
-        if (!descText || descText.length < 20) {
-          descText = extractTextFromHtml(descEl.innerHTML || '');
-        }
-        
-        // تنظيف النص النهائي
-        if (descText) {
-          const lines = descText.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-          descText = lines.filter(s => {
-            // إزالة أسطر الروابط والعناوين غير المرغوبة
-            if (/^لينك\s*الميديا/i.test(s)) return false;
-            if (/^ميديا\s*إضافية/i.test(s)) return false;
-            if (/^media$/i.test(s)) return false;
-            if (s.length < 3) return false; // إزالة الأسطر القصيرة جداً
-            return true;
-          }).join('\n');
-        }
-        
-        if (descText && descText.length >= 5) {
-          data.productDescription = descText.trim();
-        }
-      }
-      //Fallback: من القسم الأساسي عند غياب/قصر الوصف
-      if (!data.productDescription || data.productDescription.length < 5) {
-        const section = document.querySelector('section.component-What');
-        if (section) {
-          const clone = section.cloneNode(true);
-          // إزالة عناصر غير الوصف
-          clone.querySelectorAll('nav, header, footer, .navbar, .component-header, .navbar-button, .prodect-text, .card-body-2, .price, table, .table-product, a.btn, .btn, a[href*="orders/create"]').forEach(el => el.remove());
-          // التقاط روابط Google Drive من الصفحة كلها
-          document.querySelectorAll('a[href*="drive.google.com"]').forEach(a => {
-            const href = a.href;
-            if (href && !data.mediaLinks.includes(href)) data.mediaLinks.push(href);
-          });
-          // إزالة روابط تحميل الكاتلوج والأزرار داخل القسم المنسوخ
-          clone.querySelectorAll('a[download], a.btn, .btn, a[href*="orders/create"], a[href*="affiliates/"]').forEach(el => el.remove());
-          const extracted2 = extractTextFromHtml(clone.innerHTML || '');
-          if (extracted2 && extracted2.length >= 5) data.productDescription = extracted2;
-        }
-      }
-
-      // Fallback أخير: من عنصر <article> كاملاً بعد تنظيف العناصر غير الوصفية
-      if (!data.productDescription || data.productDescription.length < 5) {
-        const article = document.querySelector('article');
-        if (article) {
-          const clone = article.cloneNode(true);
-          clone.querySelectorAll('nav, header, footer, aside, .navbar, .component-header, .navbar-button, .prodect-text, .card-body-2, .price, table, .table-product, a.btn, .btn, a[download], a[href*="orders/create"], a[href*="affiliates/"]').forEach(el => el.remove());
-          const extracted3 = extractTextFromHtml(clone.innerHTML || '');
-          if (extracted3 && extracted3.length >= 5) data.productDescription = extracted3;
-        }
-      }
-
-      // في حال لم تُلتقط روابط Google Drive من العناصر السابقة، التقط من الصفحة بالكامل كخطة أخيرة
-      if (!data.mediaLinks || data.mediaLinks.length === 0) {
-        document.querySelectorAll('a[href*="drive.google.com"]').forEach(a => {
-          const href = a.href;
-          if (href && !data.mediaLinks.includes(href)) data.mediaLinks.push(href);
-        });
-      }
-      
-      // استخراج اسم البائع
-      const sellerElements = Array.from(document.querySelectorAll('.card-body-2.price div'));
-      for (const el of sellerElements) {
-        const text = el.textContent || '';
-        if (text.includes('البائع') || text.includes('seller')) {
-          const sellerName = text.replace(/البائع\s*[:：]?\s*/i, '').replace(/seller\s*[:：]?\s*/i, '').trim();
-          if (sellerName && sellerName.length > 0 && sellerName.length < 100) {
-            data.seller = sellerName;
-            break;
-          }
-        }
-      }
-      // لمساعدة التصحيح: معاينة قصيرة للوصف
-      if (data.productDescription) {
-        data._descPreview = data.productDescription.substring(0, 200);
-        console.log('[DEBUG] وصف مستخرج:', data._descPreview + (data.productDescription.length > 200 ? '...' : ''));
-      } else {
-        console.log('[DEBUG] لم يتم استخراج وصف');
-      }
-      if (data.mediaLinks && data.mediaLinks.length > 0) {
-        console.log('[DEBUG] روابط الميديا:', data.mediaLinks);
       }
       
       // استخراج الصور
@@ -651,52 +488,26 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     if (details.productImages.length === 0) dlog('لا توجد صور مستخرجة من صفحة المنتج:', product.link);
     if (!details.title) dlog('لم يتم استخراج عنوان للمنتج من الصفحة، سيتم استخدام عنوان القائمة');
     
-    // بناء وصف شامل
-    let description = '';
+    let description = `منتج من Vendoor - ${effectiveTitle}\n\n`;
+    description += `SKU: ${sku}\nالمصدر: Vendoor\nرابط: ${product.link}\n\n`;
     
-    // 1. الوصف الأصلي من Vendoor (إن وجد)
-    if (details.productDescription && details.productDescription.length > 20) {
-      description += details.productDescription + '\n\n';
-      description += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
-    }
-    
-    // 2. معلومات المنتج
-    description += `📦 **معلومات المنتج**\n`;
-    description += `SKU: ${sku}\n`;
-    description += `المصدر: Vendoor\n`;
-    description += `الرابط: ${product.link}\n\n`;
-    
-    // 3. روابط الميديا (Google Drive)
-    if (details.mediaLinks && details.mediaLinks.length > 0) {
-      description += `📂 **روابط الميديا**\n`;
-      details.mediaLinks.forEach((link, i) => {
-        description += `${i + 1}. ${link}\n`;
-      });
-      description += '\n';
-    }
-    
-    // 4. التنويعات
+    // إضافة التنويعات للوصف
     if (details.colorSizeInventory && details.colorSizeInventory.length > 0) {
-      description += `🎨 **التنويعات المتاحة** (${details.colorSizeInventory.length} تنويع)\n`;
-      details.colorSizeInventory.slice(0, 30).forEach((v, i) => {
+      description += 'التنويعات:\n';
+      details.colorSizeInventory.forEach((v, i) => {
         description += `${i + 1}. ${v.color || '-'} / ${v.size || '-'}`;
-        if (v.quantity > 0) description += ` - ${v.quantity} قطعة`;
+        if (v.quantity > 0) description += ` (${v.quantity} قطعة)`;
         description += `\n`;
       });
-      
-      if (details.colorSizeInventory.length > 30) {
-        description += `... و ${details.colorSizeInventory.length - 30} تنويعات أخرى\n`;
-      }
-      
-      description += `\n📊 إجمالي المخزون: ${details.totalStock} قطعة\n\n`;
+      description += `\nإجمالي: ${details.totalStock} قطعة\n`;
     }
     
-    // 5. ملخص الألوان والمقاسات
+    // إضافة الألوان والمقاسات
     if (details.colors && details.colors.length > 0) {
-      description += `🎨 الألوان: ${details.colors.join(', ')}\n`;
+      description += `\nالألوان: ${details.colors.join(', ')}\n`;
     }
     if (details.sizes && details.sizes.length > 0) {
-      description += `📏 المقاسات: ${details.sizes.join(', ')}\n`;
+      description += `المقاسات: ${details.sizes.join(', ')}\n`;
     }
     
     const productData = {
@@ -751,8 +562,8 @@ async function collectAllProductLinks(page) {
   let lastPage = 1;
   while (true) {
     const url = currentPage === 1 ? VENDOOR_PRODUCTS_URL : `${VENDOOR_PRODUCTS_URL}?page=${currentPage}`;
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-    await new Promise(r => setTimeout(r, 1500));
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await new Promise(r => setTimeout(r, 500));
     const result = await page.evaluate(() => {
       const anchors = Array.from(document.querySelectorAll('a'));
       const productAnchors = anchors.filter(a => {

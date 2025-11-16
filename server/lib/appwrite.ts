@@ -26,7 +26,8 @@ export const COLLECTIONS = {
   AR_MODELS: 'ar_models',
   CHAT_MESSAGES: 'chat_messages',
   BUNDLES: 'bundles',
-  ANALYTICS: 'analytics'
+  ANALYTICS: 'analytics',
+  OPENAI_KEYS: 'openai_keys'
 };
 
 // Export config for easier access

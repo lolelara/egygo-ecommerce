@@ -18,7 +18,6 @@ import {
   Zap
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { env } from '@/lib/env';
 
 interface CompetitorInsight {
   category: string;
@@ -46,67 +45,23 @@ export function AICompetitorAnalysis({
   const analyzeCompetitors = async () => {
     setLoading(true);
     try {
-      const apiKey = env.OPENAI_API_KEY;
-      if (!apiKey) {
-        throw new Error('OpenAI API key not configured');
-      }
-
-      const prompt = `أنت محلل منافسة خبير في السوق المصري.
-
-المنتج:
-- الاسم: ${productName}
-- السعر: ${productPrice ? `${productPrice} جنيه` : 'غير محدد'}
-- الفئة: ${productCategory || 'غير محدد'}
-
-قم بتحليل SWOT (نقاط القوة، الضعف، الفرص، التهديدات) للمنتج في السوق المصري.
-
-أرجع النتيجة بصيغة JSON array:
-[
-  {
-    "category": "strength|weakness|opportunity|threat",
-    "title": "عنوان قصير",
-    "content": "شرح تفصيلي"
-  }
-]
-
-قدم 3-4 نقاط لكل فئة.`;
-
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('/api/ai/competitor-analysis', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4',
-          messages: [
-            {
-              role: 'system',
-              content: 'أنت محلل منافسة خبير في السوق المصري والعربي.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 1500
-        })
+          productName,
+          productPrice,
+          productCategory,
+        }),
       });
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
 
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-      
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) {
-        throw new Error('Invalid AI response format');
-      }
-
-      const parsedInsights = JSON.parse(jsonMatch[0]);
+      const parsedInsights = await response.json();
       setInsights(parsedInsights.map((insight: any) => ({
         ...insight,
         type: insight.category as 'strength' | 'weakness' | 'opportunity' | 'threat',

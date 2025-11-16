@@ -1,18 +1,21 @@
 /**
  * OpenAI Client
  * Direct integration with OpenAI API for AI-powered features
+ *
+ * تم تحديث هذا العميل ليستخدم راوت الباك إند /api/chat
+ * الذي يدير مفاتيح OpenAI من خلال Appwrite (openai-key-manager)
  */
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+const CHAT_API_URL = '/api/chat';
 
 interface OpenAIMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-interface OpenAIResponse {
-  choices: Array<{
+interface ChatApiResponse {
+  message?: string;
+  choices?: Array<{
     message: {
       content: string;
     };
@@ -20,34 +23,27 @@ interface OpenAIResponse {
 }
 
 /**
- * استدعاء OpenAI API
+ * استدعاء API الشات في الباك إند
  */
 async function callOpenAI(messages: OpenAIMessage[], model: string = 'gpt-4'): Promise<string> {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not configured');
-  }
-
-  const response = await fetch(OPENAI_API_URL, {
+  const response = await fetch(CHAT_API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${OPENAI_API_KEY}`
     },
     body: JSON.stringify({
       model,
       messages,
-      temperature: 0.7,
-      max_tokens: 2000
-    })
+    }),
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`OpenAI API error: ${response.status} - ${error}`);
+    const errorText = await response.text().catch(() => '');
+    throw new Error(`Chat API error: ${response.status} - ${errorText}`);
   }
 
-  const data: OpenAIResponse = await response.json();
-  return data.choices[0]?.message?.content || '';
+  const data: ChatApiResponse = await response.json();
+  return data.message || data.choices?.[0]?.message?.content || '';
 }
 
 /**

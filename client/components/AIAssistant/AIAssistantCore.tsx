@@ -38,13 +38,11 @@ export interface AnalyticsData {
 
 // AI Service Class
 export class AIService {
-  private apiKey: string;
   private model: string;
   private userRole: UserRole;
   private analytics: AnalyticsData;
 
   constructor(userRole: UserRole = 'guest', analytics: AnalyticsData = {}) {
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     this.model = 'gpt-4-turbo-preview';
     this.userRole = userRole;
     this.analytics = analytics;
@@ -163,12 +161,11 @@ export class AIService {
     const systemPrompt = this.getRoleBasedPrompt();
 
     try {
-      // Call OpenAI API
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      // Call backend chat API
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
           model: this.model,

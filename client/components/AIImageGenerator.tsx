@@ -24,7 +24,6 @@ import {
   Wand2
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { env } from '@/lib/env';
 
 interface AIImageGeneratorProps {
   productName: string;
@@ -61,29 +60,23 @@ export function AIImageGenerator({
   const generateImage = async () => {
     setLoading(true);
     try {
-      const apiKey = env.OPENAI_API_KEY;
-      if (!apiKey) {
-        throw new Error('OpenAI API key not configured');
-      }
-
       const selectedStyle = imageStyles.find(s => s.value === style);
       const basePrompt = `${productName}${productDescription ? `, ${productDescription}` : ''}`;
       const stylePrompt = selectedStyle?.prompt || '';
       const finalPrompt = customPrompt || `${basePrompt}, ${stylePrompt}`;
 
-      const response = await fetch('https://api.openai.com/v1/images/generations', {
+      const response = await fetch('/api/ai/generate-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'dall-e-3',
-          prompt: finalPrompt,
-          n: 1,
-          size: size,
-          quality: 'standard',
-        })
+          productName,
+          productDescription,
+          stylePrompt,
+          size,
+          customPrompt,
+        }),
       });
 
       if (!response.ok) {
@@ -91,7 +84,7 @@ export function AIImageGenerator({
       }
 
       const data = await response.json();
-      const imageUrl = data.data[0].url;
+      const imageUrl = data.imageUrl;
       
       setGeneratedImage(imageUrl);
       if (onImageGenerated) {

@@ -12,6 +12,93 @@ const COLLECTIONS = {
   NOTIFICATIONS: "notifications",
 };
 
+export interface AdminOpenAIKey {
+  id: string;
+  label: string;
+  maskedKey: string;
+  status: "active" | "inactive" | "error";
+  priority: number;
+  isDefault: boolean;
+  lastTestedAt?: string;
+  lastError?: string;
+}
+
+export const openAIKeysApi = {
+  list: async (): Promise<AdminOpenAIKey[]> => {
+    const res = await fetch("/api/admin/openai-keys");
+    if (!res.ok) {
+      throw new Error("فشل في تحميل مفاتيح OpenAI");
+    }
+    return res.json();
+  },
+
+  create: async (payload: {
+    label: string;
+    apiKey: string;
+    priority?: number;
+    isDefault?: boolean;
+  }): Promise<AdminOpenAIKey> => {
+    const res = await fetch("/api/admin/openai-keys", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      throw new Error("فشل في إنشاء مفتاح OpenAI جديد");
+    }
+    return res.json();
+  },
+
+  update: async (
+    id: string,
+    payload: Partial<{
+      label: string;
+      priority: number;
+      status: "active" | "inactive" | "error";
+      isDefault: boolean;
+    }>,
+  ): Promise<AdminOpenAIKey> => {
+    const res = await fetch(`/api/admin/openai-keys/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      throw new Error("فشل في تحديث مفتاح OpenAI");
+    }
+    return res.json();
+  },
+
+  remove: async (id: string): Promise<void> => {
+    const res = await fetch(`/api/admin/openai-keys/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      throw new Error("فشل في حذف مفتاح OpenAI");
+    }
+  },
+
+  test: async (id: string): Promise<{ ok: boolean; error?: string }> => {
+    const res = await fetch(`/api/admin/openai-keys/${id}/test`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      throw new Error("فشل في اختبار مفتاح OpenAI");
+    }
+    return res.json();
+  },
+
+  activate: async (id: string): Promise<AdminOpenAIKey> => {
+    const res = await fetch(`/api/admin/openai-keys/${id}/activate`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      throw new Error("فشل في تفعيل مفتاح OpenAI");
+    }
+    return res.json();
+  },
+};
+
 // Admin Stats
 export interface AdminStats {
   totalRevenue: number;

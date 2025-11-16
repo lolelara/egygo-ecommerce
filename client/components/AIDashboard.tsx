@@ -28,7 +28,6 @@ import {
   Clock,
   Activity
 } from 'lucide-react';
-import { env } from '@/lib/env';
 
 interface AIMetric {
   label: string;
@@ -46,6 +45,11 @@ interface AIUsage {
 
 export function AIDashboard() {
   const [loading, setLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState<
+    | { status: 'ok' | 'warning' | 'error'; totalKeys: number; activeKeys: number; errorKeys: number; inactiveKeys: number; hasEnvFallback: boolean }
+    | null
+  >(null);
+  const [statusError, setStatusError] = useState<string>('');
   const [metrics, setMetrics] = useState<AIMetric[]>([
     { label: 'وصف محسّن', value: 142, change: 12, icon: FileText },
     { label: 'صور مولّدة', value: 67, change: -5, icon: Image },
@@ -61,7 +65,36 @@ export function AIDashboard() {
   ]);
 
   const totalCost = usage.reduce((sum, u) => sum + u.cost, 0);
-  const apiKeyConfigured = !!env.OPENAI_API_KEY;
+  const apiKeyConfigured = aiStatus ? (aiStatus.status !== 'error') : false;
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStatus = async () => {
+      setLoading(true);
+      setStatusError('');
+      try {
+        const res = await fetch('/api/ai/status');
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          throw new Error(text || `HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        if (!isMounted) return;
+        setAiStatus(data);
+      } catch (err: any) {
+        console.error('Failed to load AI status', err);
+        if (!isMounted) return;
+        setStatusError(err.message || 'فشل في جلب حالة AI');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchStatus();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -77,9 +110,15 @@ export function AIDashboard() {
         </div>
         <div className="flex items-center gap-3">
           {apiKeyConfigured ? (
-            <Badge className="bg-green-100 text-green-800 border-green-200">
+            <Badge className={
+              aiStatus?.status === 'warning'
+                ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                : 'bg-green-100 text-green-800 border-green-200'
+            }>
               <CheckCircle className="h-3 w-3 mr-1" />
-              API متصل
+              {aiStatus?.status === 'warning'
+                ? 'متصل مع بعض المفاتيح المعطّلة'
+                : 'API متصل'}
             </Badge>
           ) : (
             <Badge variant="destructive">
@@ -87,12 +126,47 @@ export function AIDashboard() {
               API غير مُعد
             </Badge>
           )}
-          <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
+          <Button
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            onClick={() => {
+              // إعادة تحميل الحالة فقط
+              window.location.reload();
+            }}
+            disabled={loading}
+          >
             <Sparkles className="h-4 w-4 mr-2" />
-            تحديث البيانات
+            {loading ? '...جاري التحديث' : 'تحديث البيانات'}
           </Button>
         </div>
       </div>
+
+      {statusError && (
+        <div className="mb-2 text-xs text-red-600 flex items-center gap-1">
+          <AlertCircle className="h-3 w-3" />
+          {statusError}
+        </div>
+      )}
+
+      {aiStatus && !statusError && (
+        <div className="mb-4 text-xs text-muted-foreground flex flex-wrap gap-4">
+          <div>
+            <span className="font-semibold">المفاتيح الفعّالة:</span>{' '}
+            <span className="text-green-700">{aiStatus.activeKeys}</span>
+          </div>
+          <div>
+            <span className="font-semibold">المفاتيح المعطّلة:</span>{' '}
+            <span className="text-red-700">{aiStatus.errorKeys}</span>
+          </div>
+          <div>
+            <span className="font-semibold">المفاتيح غير المجرَّبة/غير النشطة:</span>{' '}
+            <span className="text-gray-700">{aiStatus.inactiveKeys}</span>
+          </div>
+          <div>
+            <span className="font-semibold">إجمالي المفاتيح:</span>{' '}
+            <span>{aiStatus.totalKeys}</span>
+          </div>
+        </div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

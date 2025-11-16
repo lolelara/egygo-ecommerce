@@ -323,12 +323,7 @@ export class SmartChatbot {
         break;
         
       default:
-        // استخدام OpenAI API إذا كان متاح
-        if (import.meta.env.VITE_OPENAI_API_KEY) {
-          response = await this.callOpenAI(userMessage);
-        } else {
-          response = this.generateFallbackResponse(userMessage);
-        }
+        response = await this.callOpenAI(userMessage);
         suggestions = ['كيف يمكنني المساعدة؟', 'عرض المنتجات', 'حالة طلبي'];
     }
     
@@ -351,27 +346,27 @@ export class SmartChatbot {
     try {
       const context = this.buildContextPrompt();
       
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'gpt-4',
           messages: [
             { role: 'system', content: context },
             { role: 'user', content: userMessage }
           ],
-          max_tokens: 150,
-          temperature: 0.7
         })
       });
       
+      if (!response.ok) {
+        throw new Error(`Chat API error: ${response.status}`);
+      }
+
       const data = await response.json();
-      return data.choices[0].message.content;
+      return data.message || data.choices?.[0]?.message?.content || this.generateFallbackResponse(userMessage);
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      console.error('Chat API error:', error);
       return this.generateFallbackResponse(userMessage);
     }
   }

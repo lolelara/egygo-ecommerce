@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { AdminOpenAIKey, openAIKeysApi } from "@/lib/admin-api";
 
 interface SiteSettings {
   // Branding
@@ -153,9 +154,20 @@ export default function AdminAdvancedSettings() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
+  const [openAIKeys, setOpenAIKeys] = useState<AdminOpenAIKey[]>([]);
+  const [keysLoading, setKeysLoading] = useState(false);
+  const [isCreatingKey, setIsCreatingKey] = useState(false);
+  const [testKeyId, setTestKeyId] = useState<string | null>(null);
+  const [activateKeyId, setActivateKeyId] = useState<string | null>(null);
+  const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null);
+  const [newKeyLabel, setNewKeyLabel] = useState("");
+  const [newKeyValue, setNewKeyValue] = useState("");
+  const [newKeyPriority, setNewKeyPriority] = useState<number>(100);
+  const [newKeyIsDefault, setNewKeyIsDefault] = useState(false);
 
   useEffect(() => {
     loadSettings();
+    loadOpenAIKeys();
   }, []);
 
   const loadSettings = async () => {
@@ -172,6 +184,122 @@ export default function AdminAdvancedSettings() {
         variant: "destructive"
       });
       setIsLoading(false);
+    }
+  };
+
+  const loadOpenAIKeys = async () => {
+    try {
+      setKeysLoading(true);
+      const keys = await openAIKeysApi.list();
+      setOpenAIKeys(keys);
+      setKeysLoading(false);
+    } catch (error: any) {
+      setKeysLoading(false);
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في تحميل مفاتيح OpenAI",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateKey = async () => {
+    if (!newKeyLabel || !newKeyValue) {
+      toast({
+        title: "تنبيه",
+        description: "الاسم والمفتاح مطلوبان",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      setIsCreatingKey(true);
+      const created = await openAIKeysApi.create({
+        label: newKeyLabel,
+        apiKey: newKeyValue,
+        priority: newKeyPriority,
+        isDefault: newKeyIsDefault,
+      });
+      setOpenAIKeys((prev) => [created, ...prev]);
+      setNewKeyLabel("");
+      setNewKeyValue("");
+      setNewKeyPriority(100);
+      setNewKeyIsDefault(false);
+      setIsCreatingKey(false);
+      toast({
+        title: "تم الحفظ",
+        description: "تم إضافة مفتاح OpenAI بنجاح",
+      });
+    } catch (error: any) {
+      setIsCreatingKey(false);
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في إضافة المفتاح",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTestKey = async (id: string) => {
+    try {
+      setTestKeyId(id);
+      const result = await openAIKeysApi.test(id);
+      setTestKeyId(null);
+      toast({
+        title: result.ok ? "ناجح" : "فشل الاختبار",
+        description: result.ok ? "المفتاح يعمل بشكل سليم" : result.error || "حدث خطأ أثناء الاختبار",
+        variant: result.ok ? "default" : "destructive",
+      });
+      loadOpenAIKeys();
+    } catch (error: any) {
+      setTestKeyId(null);
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في اختبار المفتاح",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleActivateKey = async (id: string) => {
+    try {
+      setActivateKeyId(id);
+      const activated = await openAIKeysApi.activate(id);
+      setActivateKeyId(null);
+      setOpenAIKeys((prev) =>
+        prev.map((k) => (k.id === activated.id ? activated : { ...k, isDefault: false })),
+      );
+      toast({
+        title: "تم التفعيل",
+        description: "تم تعيين المفتاح كمفتاح افتراضي",
+      });
+    } catch (error: any) {
+      setActivateKeyId(null);
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في تفعيل المفتاح",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteKey = async (id: string) => {
+    try {
+      setDeleteKeyId(id);
+      await openAIKeysApi.remove(id);
+      setDeleteKeyId(null);
+      setOpenAIKeys((prev) => prev.filter((k) => k.id !== id));
+      toast({
+        title: "تم الحذف",
+        description: "تم حذف المفتاح بنجاح",
+      });
+    } catch (error: any) {
+      setDeleteKeyId(null);
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في حذف المفتاح",
+        variant: "destructive",
+      });
     }
   };
 
@@ -250,30 +378,34 @@ export default function AdminAdvancedSettings() {
       )}
 
       <Tabs defaultValue="branding" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="branding" className="flex items-center space-x-2">
             <Palette className="w-4 h-4" />
             <span>الهوية البصرية</span>
           </TabsTrigger>
           <TabsTrigger value="business" className="flex items-center space-x-2">
             <CreditCard className="w-4 h-4" />
-            <span>الأعمال</span>
+            <span>إعدادات الأعمال</span>
           </TabsTrigger>
           <TabsTrigger value="features" className="flex items-center space-x-2">
             <Zap className="w-4 h-4" />
-            <span>الميزات</span>
+            <span>تفعيل الميزات</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center space-x-2">
             <Shield className="w-4 h-4" />
-            <span>الأمان</span>
+            <span>إعدادات الأمان</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center space-x-2">
             <Bell className="w-4 h-4" />
-            <span>الإشعارات</span>
+            <span>إعدادات الإشعارات</span>
           </TabsTrigger>
           <TabsTrigger value="seo" className="flex items-center space-x-2">
             <Globe className="w-4 h-4" />
-            <span>SEO</span>
+            <span>إعدادات SEO</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center space-x-2">
+            <Zap className="w-4 h-4" />
+            <span>مفاتيح OpenAI</span>
           </TabsTrigger>
         </TabsList>
 
@@ -673,6 +805,150 @@ export default function AdminAdvancedSettings() {
                     onCheckedChange={(checked) => updateNestedSettings('seo.enableSitemap', checked)}
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Zap className="w-5 h-5" />
+                <span>مفاتيح OpenAI API</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="openai-label">اسم المفتاح</Label>
+                  <Input
+                    id="openai-label"
+                    value={newKeyLabel}
+                    onChange={(e) => setNewKeyLabel(e.target.value)}
+                  />
+                  <Label htmlFor="openai-key">OpenAI API Key</Label>
+                  <Input
+                    id="openai-key"
+                    type="password"
+                    value={newKeyValue}
+                    onChange={(e) => setNewKeyValue(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="openai-priority">الأولوية</Label>
+                  <Input
+                    id="openai-priority"
+                    type="number"
+                    value={newKeyPriority}
+                    onChange={(e) => setNewKeyPriority(parseInt(e.target.value) || 0)}
+                  />
+                  <div className="flex items-center justify-between mt-2">
+                    <Label htmlFor="openai-default">تعيين كمفتاح افتراضي</Label>
+                    <Switch
+                      id="openai-default"
+                      checked={newKeyIsDefault}
+                      onCheckedChange={(checked) => setNewKeyIsDefault(checked)}
+                    />
+                  </div>
+                  <Button
+                    className="mt-4"
+                    onClick={handleCreateKey}
+                    disabled={isCreatingKey}
+                  >
+                    {isCreatingKey ? "جاري الحفظ..." : "إضافة مفتاح"}
+                  </Button>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">المفاتيح المسجلة</h3>
+                  {keysLoading && (
+                    <span className="text-sm text-muted-foreground">جاري التحميل...</span>
+                  )}
+                </div>
+                {openAIKeys.length === 0 && !keysLoading && (
+                  <div className="text-sm text-muted-foreground">
+                    لا توجد مفاتيح محفوظة حالياً.
+                  </div>
+                )}
+                {openAIKeys.length > 0 && (
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="p-3 text-right">الاسم</th>
+                          <th className="p-3 text-right">المفتاح</th>
+                          <th className="p-3 text-center">الحالة</th>
+                          <th className="p-3 text-center">الأولوية</th>
+                          <th className="p-3 text-center">افتراضي</th>
+                          <th className="p-3 text-center">إجراءات</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {openAIKeys.map((key) => (
+                          <tr key={key.id}>
+                            <td className="p-3">{key.label}</td>
+                            <td className="p-3 font-mono text-xs">{key.maskedKey}</td>
+                            <td className="p-3 text-center">
+                              <Badge
+                                className={cn(
+                                  "text-xs",
+                                  key.status === "active" && "bg-green-100 text-green-800",
+                                  key.status === "inactive" && "bg-gray-100 text-gray-800",
+                                  key.status === "error" && "bg-red-100 text-red-800",
+                                )}
+                              >
+                                {key.status === "active" && "نشط"}
+                                {key.status === "inactive" && "متوقف"}
+                                {key.status === "error" && "خطأ"}
+                              </Badge>
+                            </td>
+                            <td className="p-3 text-center">{key.priority}</td>
+                            <td className="p-3 text-center">
+                              {key.isDefault && (
+                                <Badge className="bg-purple-100 text-purple-800 text-xs">
+                                  افتراضي
+                                </Badge>
+                              )}
+                            </td>
+                            <td className="p-3 text-center">
+                              <div className="flex items-center justify-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleTestKey(key.id)}
+                                  disabled={testKeyId === key.id}
+                                >
+                                  {testKeyId === key.id ? "جاري الاختبار..." : "اختبار"}
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleActivateKey(key.id)}
+                                  disabled={activateKeyId === key.id || key.isDefault}
+                                >
+                                  {activateKeyId === key.id ? "جاري التفعيل..." : "تعيين افتراضي"}
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleDeleteKey(key.id)}
+                                  disabled={deleteKeyId === key.id}
+                                >
+                                  {deleteKeyId === key.id ? "جاري الحذف..." : "حذف"}
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
