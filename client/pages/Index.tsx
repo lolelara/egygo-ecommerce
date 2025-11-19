@@ -595,10 +595,20 @@ export default function Index() {
             title="المنتجات المميزة"
             subtitle="منتجات مختارة بعناية خصيصًا لك"
             onProductClick={(p) => navigate(`/product/${p.id}`)}
-            onAddToCart={(p) => console.log('Add to cart:', p)}
-            onQuickView={(p) => console.log('Quick view:', p)}
+            onAddToCart={(p) => {
+              // Navigate to product page to add to cart
+              navigate(`/product/${p.id}`);
+            }}
+            onQuickView={(p) => {
+              // Navigate to product page for quick view
+              navigate(`/product/${p.id}`);
+            }}
             wishlistedIds={[]}
-            onToggleWishlist={(id) => console.log('Toggle wishlist:', id)}
+            onToggleWishlist={(id) => {
+              // Navigate to product page to add to wishlist
+              const product = featuredProducts.find(fp => fp.id === id);
+              if (product) navigate(`/product/${id}`);
+            }}
           />
         )}
       </section>
