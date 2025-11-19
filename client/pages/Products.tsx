@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   Search,
@@ -65,6 +65,7 @@ export default function Products() {
   const { addItem } = useCart();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const { openQuickView } = useQuickView();
+  const navigate = useNavigate();
 
   // Fetch categories
   const { data: categoriesData } = useQuery({
@@ -490,16 +491,35 @@ export default function Products() {
               ) : (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredProducts.map((product) => (
-                      <ProductCardPremium
-                        key={product.id}
-                        product={product}
-                        onAddToCart={() => handleAddToCart(product)}
-                        onQuickView={() => openQuickView(product)}
-                        onToggleWishlist={() => handleToggleWishlist(product.id)}
-                        isWishlisted={isFavorite(product.id)}
-                      />
-                    ))}
+                    {filteredProducts.map((product) => {
+                      const mappedProduct = {
+                        id: product.id,
+                        name: product.name,
+                        nameAr: product.name,
+                        price: product.price,
+                        originalPrice: product.originalPrice,
+                        image: getImageUrl(product.images?.[0]),
+                        rating: product.rating || 4.5,
+                        reviewCount: product.reviewCount || 0,
+                        discount: product.originalPrice && product.originalPrice > product.price
+                          ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+                          : undefined,
+                        isNew: false,
+                        isTrending: product.reviewCount > 100,
+                      };
+
+                      return (
+                        <ProductCardPremium
+                          key={product.id}
+                          product={mappedProduct}
+                          onProductClick={() => navigate(`/product/${product.id}`)}
+                          onAddToCart={() => handleAddToCart(product)}
+                          onQuickView={() => openQuickView(product)}
+                          onToggleWishlist={() => handleToggleWishlist(product.id)}
+                          isWishlisted={isFavorite(product.id)}
+                        />
+                      );
+                    })}
                   </div>
 
                   {/* Pagination */}

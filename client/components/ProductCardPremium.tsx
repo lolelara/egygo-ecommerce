@@ -19,6 +19,7 @@ interface Product {
 
 interface ProductCardPremiumProps {
     product: Product;
+    onProductClick?: (product: Product) => void;
     onAddToCart?: (product: Product) => void;
     onQuickView?: (product: Product) => void;
     onToggleWishlist?: (productId: string) => void;
@@ -28,6 +29,7 @@ interface ProductCardPremiumProps {
 
 export function ProductCardPremium({
     product,
+    onProductClick,
     onAddToCart,
     onQuickView,
     onToggleWishlist,
@@ -57,6 +59,7 @@ export function ProductCardPremium({
             layout
             onHoverStart={() => setIsHovered(true)}
             onHoverEnd={() => setIsHovered(false)}
+            onClick={() => onProductClick?.(product)}
             className="card-modern relative group cursor-pointer bg-white"
             whileHover={{ y: -8 }}
             transition={{ duration: 0.3 }}
