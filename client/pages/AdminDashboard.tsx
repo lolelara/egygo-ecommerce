@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -85,6 +86,7 @@ const OrderStatusBadge = ({ status }: { status: string }) => {
 };
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -202,7 +204,7 @@ export default function AdminDashboard() {
         {/* Vendoor Products Card */}
         <div className="grid gap-4 md:grid-cols-3">
           <VendoorProductsCard />
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/admin/hero-products'}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/admin/hero-products')}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">منتجات الهيرو</CardTitle>
               <Sparkles className="h-4 w-4 text-muted-foreground" />
