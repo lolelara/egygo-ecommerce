@@ -120,7 +120,6 @@ export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 // CMS & Notifications
 export const AdminPages = lazyLoad(() => import('@/pages/AdminPages'));
 export const AdminPageEditor = lazyLoad(() => import('@/pages/AdminPageEditor'));
-export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
 export const PageViewer = lazyLoad(() => import('@/pages/PageViewer'));
 
 // New Admin Pages - Deals, Advertising, Financial
