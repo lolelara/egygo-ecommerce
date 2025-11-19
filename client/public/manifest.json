@@ -2,7 +2,8 @@
   "name": "إيجي جو - EgyGo",
   "short_name": "إيجي جو",
   "description": "منصة التسوق الإلكتروني الأولى في مصر - EgyGo E-commerce Platform",
-  "start_url": "/",
+  "start_url": ".",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#dc2626",
@@ -44,7 +45,10 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["shopping", "business"],
+  "categories": [
+    "shopping",
+    "business"
+  ],
   "screenshots": [],
   "shortcuts": [
     {

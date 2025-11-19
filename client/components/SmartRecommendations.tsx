@@ -67,7 +67,7 @@ export function SmartRecommendations({
       $id: `${type}-${i}`,
       name: `منتج ${type} ${i + 1}`,
       price: Math.random() * 1000 + 100,
-      image: '/placeholder.svg',
+      image: '/placeholder.png',
       rating: Math.random() * 2 + 3,
       soldCount: Math.floor(Math.random() * 1000),
     }));

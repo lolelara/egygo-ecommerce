@@ -117,6 +117,12 @@ export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'
 export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
 export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 
+// CMS & Notifications
+export const AdminPages = lazyLoad(() => import('@/pages/AdminPages'));
+export const AdminPageEditor = lazyLoad(() => import('@/pages/AdminPageEditor'));
+export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
+export const PageViewer = lazyLoad(() => import('@/pages/PageViewer'));
+
 // New Admin Pages - Deals, Advertising, Financial
 export const AdminDealsManager = lazyLoad(() => import('@/pages/AdminDealsManager'));
 export const AdminAdvertisementsManager = lazyLoad(() => import('@/pages/AdminAdvertisementsManager'));
@@ -137,19 +143,6 @@ export const FAQPage = lazyLoad(() => import('@/pages/FAQPage'));
 export const PrivacyPolicy = lazyLoad(() => import('@/pages/PrivacyPolicy'));
 export const TermsOfService = lazyLoad(() => import('@/pages/TermsOfService'));
 export const ReturnPolicy = lazyLoad(() => import('@/pages/ReturnPolicy'));
-export const ShippingPage = lazyLoad(() => import('@/pages/ShippingPage'));
-
-// ============================================
-// SPECIAL PAGES (Lazy)
-// ============================================
-export const Categories = lazyLoad(() => import('@/pages/Categories'));
-export const CategoryPage = lazyLoad(() => import('@/pages/CategoryPage'));
-export const DealsPage = lazyLoad(() => import('@/pages/DealsPage'));
-export const ProductLanding = lazyLoad(() => import('@/pages/ProductLanding'));
-
-// ============================================
-// UTILITY PAGES (Lazy)
-// ============================================
 export const ForgotPassword = lazyLoad(() => import('@/pages/ForgotPassword'));
 export const SettingsPage = lazyLoad(() => import('@/pages/SettingsPage'));
 export const UpdateAffiliatePrefs = lazyLoad(() => import('@/pages/UpdateAffiliatePrefs'));

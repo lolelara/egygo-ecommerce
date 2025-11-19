@@ -31,6 +31,7 @@ import {
   Zap,
   MessageSquare,
   Gift,
+  Ticket,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -119,6 +120,45 @@ const adminNavItems = [
     href: "/admin/pending-accounts",
     icon: UserCheck,
     roles: ['admin'],
+  },
+
+  // 📢 Marketing & Promotions
+  {
+    title: "إدارة التسويق",
+    href: "/admin/marketing",
+    icon: Megaphone,
+    roles: ['admin'],
+    separator: true,
+  },
+  {
+    title: "كوبونات الخصم",
+    href: "/admin/coupons",
+    icon: Ticket,
+    roles: ['admin'],
+  },
+
+  // 📝 Content & Engagement
+  {
+    title: "إدارة المحتوى",
+    href: "/admin/pages",
+    icon: FileText,
+    roles: ['admin'],
+    separator: true,
+  },
+  {
+    title: "مركز الإشعارات",
+    href: "/admin/notifications",
+    icon: Bell,
+    roles: ['admin'],
+  },
+
+  // 💬 Communication
+  {
+    title: "الرسائل والدعم",
+    href: "/admin/messages",
+    icon: MessageSquare,
+    roles: ['admin'],
+    separator: true,
   },
 
   // 🛒 Orders & Sales
@@ -304,8 +344,8 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
                 to={item.href}
                 onClick={onLinkClick}
                 className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors hover:bg-accent ${isActive
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "bg-accent text-accent-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
               >
                 <Icon className="h-4 w-4" />

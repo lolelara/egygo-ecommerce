@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Header } from "./components/Header";
 import { HelmetProvider } from "react-helmet-async";
 import { ParallaxProvider } from "react-scroll-parallax";
@@ -20,7 +20,6 @@ import { ScrollToTopButton } from "./components/ScrollToTopButton";
 import { AuthProvider } from "./contexts/AppwriteAuthContext";
 import { CartProvider, useCart } from "./contexts/CartContext";
 import { FavoritesProvider, useFavorites } from "./contexts/FavoritesContext";
-import { ErrorBoundary } from "./components/ErrorBoundary";
 import { EnhancedErrorBoundary } from "./components/EnhancedErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { I18nProvider } from "./lib/i18n";
@@ -122,18 +121,14 @@ const App = () => (
                           <HashRouter>
                             <Layout>
                               <Routes>
-                                {/* Critical routes - not lazy loaded */}
                                 <Route path="/" element={<Index />} />
-                                <Route path="/products" element={<LazyRoutes.Products />} />
-                                <Route path="/product/:id" element={<LazyRoutes.ProductDetail />} />
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/logout" element={<Logout />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
-                                {/* Special pages - Lazy */}
-                                <Route path="/categories" element={<LazyRoutes.Categories />} />
-                                <Route path="/category" element={<LazyRoutes.Categories />} />
+                                {/* <Route path="/categories" element={<LazyRoutes.Categories />} /> */}
+                                {/* <Route path="/category" element={<LazyRoutes.Categories />} /> */}
                                 <Route path="/category/:slug" element={<LazyRoutes.Products />} />
 
                                 {/* Affiliate public pages */}
@@ -141,7 +136,7 @@ const App = () => (
                                 <Route path="/merchant" element={<LazyRoutes.Merchant />} />
 
                                 {/* Customer pages - Lazy */}
-                                <Route path="/deals" element={<LazyRoutes.DealsPage />} />
+                                {/* <Route path="/deals" element={<LazyRoutes.DealsPage />} /> */}
                                 <Route path="/cart" element={<LazyRoutes.Cart />} />
                                 <Route path="/checkout" element={<LazyRoutes.Checkout />} />
                                 <Route path="/wishlist" element={<LazyRoutes.Wishlist />} />
@@ -152,7 +147,7 @@ const App = () => (
                                 <Route path="/orders/:orderId/track" element={<LazyRoutes.OrderTracking />} />
 
                                 {/* Affiliate Routes - Protected & Lazy */}
-                                <Route path="/l/:linkCode" element={<LazyRoutes.ProductLanding />} />
+                                {/* <Route path="/l/:linkCode" element={<LazyRoutes.ProductLanding />} /> */}
                                 <Route path="/landing/:slug" element={<LazyRoutes.CustomLandingPage />} />
                                 <Route path="/affiliate/dashboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateDashboard /></ProtectedRoute>} />
                                 <Route path="/affiliate/earnings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateEarningsHistory /></ProtectedRoute>} />
@@ -190,6 +185,15 @@ const App = () => (
                                 <Route path="/admin/product-approval" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminProductApproval /></ProtectedRoute>} />
                                 <Route path="/admin/hero-products" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminHeroProducts /></ProtectedRoute>} />
 
+                                {/* CMS & Notifications Admin Routes */}
+                                <Route path="/admin/pages" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminPages /></ProtectedRoute>} />
+                                <Route path="/admin/pages/new" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminPageEditor /></ProtectedRoute>} />
+                                <Route path="/admin/pages/edit/:id" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminPageEditor /></ProtectedRoute>} />
+                                <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminNotifications /></ProtectedRoute>} />
+
+                                {/* Public CMS Pages */}
+                                <Route path="/pages/:slug" element={<LazyRoutes.PageViewer />} />
+
                                 {/* Orders System - Separate from Admin */}
                                 <Route path="/orders" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.VendoorOrders /></ProtectedRoute>} />
                                 <Route path="/orders/vendoor" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.VendoorOrders /></ProtectedRoute>} />
@@ -205,7 +209,6 @@ const App = () => (
                                 <Route path="/admin/offers" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminOffersManager /></ProtectedRoute>} />
                                 <Route path="/admin/shipping" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminShipping /></ProtectedRoute>} />
                                 <Route path="/admin/advanced-settings" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvancedSettings /></ProtectedRoute>} />
-                                <Route path="/admin/notifications" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminNotifications /></ProtectedRoute>} />
                                 <Route path="/admin/ai-dashboard" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAIDashboard /></ProtectedRoute>} />
                                 <Route path="/admin/ai-tools" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.ProductAIDemo /></ProtectedRoute>} />
                                 <Route path="/test-ai" element={<LazyRoutes.TestAI />} />
