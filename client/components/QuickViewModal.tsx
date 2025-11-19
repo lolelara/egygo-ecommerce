@@ -14,7 +14,8 @@ interface Product {
     nameAr: string;
     price: number;
     originalPrice?: number;
-    images: string[];
+    images?: string[] | any[];  // Support both string array and object array
+    image?: string;              // Support single image
     rating: number;
     reviewCount: number;
     description: string;
@@ -60,6 +61,31 @@ export function QuickViewModal({
     const discount = product.originalPrice
         ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
         : 0;
+
+    // Safely process images - handle both single image and images array
+    const processedImages: string[] = (() => {
+        // If images array exists
+        if (product.images && Array.isArray(product.images)) {
+            return product.images.map((img: any) => {
+                // If image is an object with url property
+                if (typeof img === 'object' && img !== null && 'url' in img) {
+                    return img.url;
+                }
+                // If image is already a string
+                if (typeof img === 'string') {
+                    return img;
+                }
+                // Fallback
+                return '/placeholder.png';
+            });
+        }
+        // If single image field exists
+        if (product.image) {
+            return [product.image];
+        }
+        // Fallback
+        return ['/placeholder.png'];
+    })();
 
     return (
         <AnimatePresence>
@@ -109,7 +135,7 @@ export function QuickViewModal({
                                                 navigation
                                                 className="h-full"
                                             >
-                                                {product.images.map((image, index) => (
+                                                {processedImages.map((image, index) => (
                                                     <SwiperSlide key={index}>
                                                         <img
                                                             src={image}
@@ -131,7 +157,7 @@ export function QuickViewModal({
                                             watchSlidesProgress
                                             className="!py-2"
                                         >
-                                            {product.images.map((image, index) => (
+                                            {processedImages.map((image, index) => (
                                                 <SwiperSlide key={index}>
                                                     <div className="aspect-square rounded-lg overflow-hidden cursor-pointer 
                                           border-2 border-transparent hover:border-purple-500 
@@ -160,8 +186,8 @@ export function QuickViewModal({
                                                         <Star
                                                             key={i}
                                                             className={`w-5 h-5 ${i < Math.floor(product.rating)
-                                                                    ? 'fill-yellow-400 text-yellow-400'
-                                                                    : 'text-gray-300'
+                                                                ? 'fill-yellow-400 text-yellow-400'
+                                                                : 'text-gray-300'
                                                                 }`}
                                                         />
                                                     ))}
@@ -222,8 +248,8 @@ export function QuickViewModal({
                                                             key={color.name}
                                                             onClick={() => setSelectedColor(color.name)}
                                                             className={`w-10 h-10 rounded-full border-2 transition-all ${selectedColor === color.name
-                                                                    ? 'border-purple-600 scale-110'
-                                                                    : 'border-gray-300'
+                                                                ? 'border-purple-600 scale-110'
+                                                                : 'border-gray-300'
                                                                 }`}
                                                             style={{ backgroundColor: color.value }}
                                                             title={color.name}
@@ -243,8 +269,8 @@ export function QuickViewModal({
                                                             key={size}
                                                             onClick={() => setSelectedSize(size)}
                                                             className={`px-4 py-2 rounded-xl border-2 font-semibold transition-all ${selectedSize === size
-                                                                    ? 'border-purple-600 bg-purple-50 text-purple-600'
-                                                                    : 'border-gray-300 hover:border-gray-400'
+                                                                ? 'border-purple-600 bg-purple-50 text-purple-600'
+                                                                : 'border-gray-300 hover:border-gray-400'
                                                                 }`}
                                                         >
                                                             {size}
@@ -313,8 +339,8 @@ export function QuickViewModal({
                                             >
                                                 <Heart
                                                     className={`w-6 h-6 transition-all ${isWishlisted
-                                                            ? 'fill-purple-600 text-purple-600'
-                                                            : 'text-purple-600'
+                                                        ? 'fill-purple-600 text-purple-600'
+                                                        : 'text-purple-600'
                                                         }`}
                                                 />
                                             </motion.button>
