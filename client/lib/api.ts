@@ -8,6 +8,13 @@ import {
   ProductFilters,
   PaginationParams,
 } from "@shared/prisma-types";
+
+// Extend ProductFilters interface locally since we can't easily modify the shared types file
+declare module "@shared/prisma-types" {
+  interface ProductFilters {
+    isFeaturedInHero?: boolean;
+  }
+}
 // تمت إزالة بيانات mock - يجب توفر Appwrite
 import { getImageUrl } from "./storage";
 
@@ -37,15 +44,15 @@ export const productsApi = {
     filters?: ProductFilters & PaginationParams,
   ): Promise<ProductListResponse> => {
     try {
-          if (!isAppwriteConfigured()) {
-            throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
-          }
+      if (!isAppwriteConfigured()) {
+        throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+      }
 
       const queries = [];
-      
+
       // Only show approved products (not pending)
       queries.push(Query.equal("status", "approved"));
-      
+
       // Add filters
       if (filters?.categoryId) {
         queries.push(Query.equal("categoryId", filters.categoryId));
@@ -61,6 +68,9 @@ export const productsApi = {
       }
       if (filters?.searchQuery) {
         queries.push(Query.search("name", filters.searchQuery));
+      }
+      if (filters?.isFeaturedInHero) {
+        queries.push(Query.equal("isFeaturedInHero", true));
       }
 
       // Add pagination
@@ -97,11 +107,11 @@ export const productsApi = {
         affiliateCommission: doc.affiliateCommission || 0,
         images: Array.isArray(doc.images)
           ? doc.images.map((img: any) => {
-              if (typeof img === 'string') {
-                return { url: getImageUrl(img) };
-              }
-              return img;
-            })
+            if (typeof img === 'string') {
+              return { url: getImageUrl(img) };
+            }
+            return img;
+          })
           : [],
         colors: doc.colors || [],
         sizes: doc.sizes || [],
@@ -122,15 +132,15 @@ export const productsApi = {
       };
     } catch (error) {
       console.error("Error fetching products from Appwrite:", error);
-  // تم حذف بيانات mock نهائياً
+      // تم حذف بيانات mock نهائياً
     }
   },
 
   getById: async (id: string): Promise<ProductWithRelations | null> => {
     try {
-        if (!isAppwriteConfigured()) {
-          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
-        }
+      if (!isAppwriteConfigured()) {
+        throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+      }
 
       const doc = await databases.getDocument(
         DATABASE_ID,
@@ -172,14 +182,14 @@ export const productsApi = {
         rating: doc.rating || 0,
         reviewCount: doc.reviewCount || 0,
         affiliateCommission: doc.affiliateCommission || 0,
-        images: Array.isArray(doc.images) 
+        images: Array.isArray(doc.images)
           ? doc.images.map((img: any) => {
-              if (typeof img === 'string') {
-                // Convert file ID to URL
-                return { url: getImageUrl(img) };
-              }
-              return img; // Already an object with url
-            })
+            if (typeof img === 'string') {
+              // Convert file ID to URL
+              return { url: getImageUrl(img) };
+            }
+            return img; // Already an object with url
+          })
           : [],
         colors: doc.colors || [],
         sizes: doc.sizes || [],
@@ -193,7 +203,7 @@ export const productsApi = {
       };
     } catch (error) {
       console.error("Error fetching product from Appwrite:", error);
-  // تم حذف بيانات mock نهائياً
+      // تم حذف بيانات mock نهائياً
     }
   },
 
@@ -202,9 +212,9 @@ export const productsApi = {
     filters?: ProductFilters & PaginationParams,
   ): Promise<ProductListResponse> => {
     try {
-        if (!isAppwriteConfigured()) {
-          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
-        }
+      if (!isAppwriteConfigured()) {
+        throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+      }
 
       // First, find the category by slug
       const categoryResponse = await databases.listDocuments(
@@ -218,7 +228,7 @@ export const productsApi = {
       }
 
       const categoryDoc = categoryResponse.documents[0];
-      
+
       // Now get products for this category
       return productsApi.getAll({
         ...filters,
@@ -226,7 +236,7 @@ export const productsApi = {
       });
     } catch (error) {
       console.error("Error fetching products by category from Appwrite:", error);
-  // تم حذف بيانات mock نهائياً
+      // تم حذف بيانات mock نهائياً
     }
   },
 };
@@ -235,9 +245,9 @@ export const productsApi = {
 export const categoriesApi = {
   getAll: async (): Promise<CategoryListResponse> => {
     try {
-          if (!isAppwriteConfigured()) {
-            throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
-          }
+      if (!isAppwriteConfigured()) {
+        throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+      }
 
       const response = await databases.listDocuments(
         DATABASE_ID,
@@ -262,15 +272,15 @@ export const categoriesApi = {
       };
     } catch (error) {
       console.error("Error fetching categories from Appwrite:", error);
-  // تم حذف بيانات mock نهائياً
+      // تم حذف بيانات mock نهائياً
     }
   },
 
   getBySlug: async (slug: string): Promise<CategoryWithCount | null> => {
     try {
-        if (!isAppwriteConfigured()) {
-          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
-        }
+      if (!isAppwriteConfigured()) {
+        throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+      }
 
       const response = await databases.listDocuments(
         DATABASE_ID,
@@ -295,7 +305,7 @@ export const categoriesApi = {
       };
     } catch (error) {
       console.error("Error fetching category from Appwrite:", error);
-  // تم حذف بيانات mock نهائياً
+      // تم حذف بيانات mock نهائياً
     }
   },
 
@@ -304,9 +314,9 @@ export const categoriesApi = {
     filters?: ProductFilters & PaginationParams,
   ): Promise<ProductListResponse> => {
     try {
-        if (!isAppwriteConfigured()) {
-          throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
-        }
+      if (!isAppwriteConfigured()) {
+        throw new Error("خدمة Appwrite غير مفعلة. لا تتوفر بيانات افتراضية في الإنتاج.");
+      }
 
       // First get category by slug
       const categoryResponse = await databases.listDocuments(

@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
 import { ShoppingBag, ArrowLeft, Sparkles, TrendingUp, Package, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ProductWithRelations } from '@shared/prisma-types';
 
 interface HeroSectionEnhancedProps {
   onShopNow?: () => void;
   onExploreDeals?: () => void;
+  featuredProducts?: ProductWithRelations[];
 }
 
-export function HeroSectionEnhanced({ onShopNow, onExploreDeals }: HeroSectionEnhancedProps) {
+export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProducts = [] }: HeroSectionEnhancedProps) {
   const stats = [
     { icon: Package, value: '10,000+', label: 'منتج متاح' },
     { icon: TrendingUp, value: '50K+', label: 'عميل سعيد' },
@@ -157,67 +159,101 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals }: HeroSectionEn
             transition={{ duration: 0.8, delay: 0.4 }}
             className="hidden lg:block relative h-[500px]"
           >
-            {/* Decorative Elements */}
-            <motion.div
-              animate={{
-                y: [0, -20, 0],
-                rotate: [0, 5, 0],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              className="absolute top-10 right-10 w-64 h-80 bg-white/10 backdrop-blur-lg 
+            {featuredProducts.length > 0 ? (
+              <div className="relative w-full h-full flex items-center justify-center">
+                {featuredProducts.slice(0, 3).map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      rotate: index === 0 ? -5 : index === 1 ? 5 : 0,
+                      scale: index === 2 ? 1.1 : 0.9,
+                      zIndex: index === 2 ? 10 : 1
+                    }}
+                    transition={{ delay: 0.5 + index * 0.2 }}
+                    className={`absolute w-64 bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white
+                                ${index === 0 ? 'left-0 top-10' : index === 1 ? 'right-0 bottom-10' : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}
+                  >
+                    <div className="aspect-square relative">
+                      <img
+                        src={product.images?.[0]?.url || '/placeholder.png'}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4 bg-white">
+                      <h3 className="font-bold text-gray-900 truncate">{product.name}</h3>
+                      <p className="text-red-600 font-bold">{product.price} ج.م</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <>
+                {/* Decorative Elements */}
+                <motion.div
+                  animate={{
+                    y: [0, -20, 0],
+                    rotate: [0, 5, 0],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="absolute top-10 right-10 w-64 h-80 bg-white/10 backdrop-blur-lg 
                          rounded-2xl border border-white/20 p-6 shadow-2xl"
-            >
-              <div className="w-full h-48 bg-white/20 rounded-xl mb-4" />
-              <div className="h-4 bg-white/30 rounded mb-2" />
-              <div className="h-4 bg-white/20 rounded w-2/3" />
-            </motion.div>
+                >
+                  <div className="w-full h-48 bg-white/20 rounded-xl mb-4" />
+                  <div className="h-4 bg-white/30 rounded mb-2" />
+                  <div className="h-4 bg-white/20 rounded w-2/3" />
+                </motion.div>
 
-            <motion.div
-              animate={{
-                y: [0, 20, 0],
-                rotate: [0, -5, 0],
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: 1,
-              }}
-              className="absolute bottom-10 left-10 w-56 h-72 bg-white/10 backdrop-blur-lg 
+                <motion.div
+                  animate={{
+                    y: [0, 20, 0],
+                    rotate: [0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 5,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="absolute bottom-10 left-10 w-56 h-72 bg-white/10 backdrop-blur-lg 
                          rounded-2xl border border-white/20 p-6 shadow-2xl"
-            >
-              <div className="w-full h-40 bg-white/20 rounded-xl mb-4" />
-              <div className="h-4 bg-white/30 rounded mb-2" />
-              <div className="h-4 bg-white/20 rounded w-3/4" />
-            </motion.div>
+                >
+                  <div className="w-full h-40 bg-white/20 rounded-xl mb-4" />
+                  <div className="h-4 bg-white/30 rounded mb-2" />
+                  <div className="h-4 bg-white/20 rounded w-3/4" />
+                </motion.div>
 
-            {/* Center spotlight card */}
-            <motion.div
-              animate={{
-                scale: [1, 1.05, 1],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
+                {/* Center spotlight card */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.05, 1],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
                          w-60 h-76 bg-gradient-to-br from-white/30 to-white/10 
                          backdrop-blur-xl rounded-2xl border-2 border-white/40 p-6 
                          shadow-2xl z-10"
-            >
-              <div className="w-full h-44 bg-white rounded-xl mb-4 shadow-lg" />
-              <div className="h-5 bg-white rounded mb-2" />
-              <div className="h-5 bg-white/70 rounded w-2/3 mb-3" />
-              <div className="h-10 bg-gradient-to-r from-red-500 to-red-700 
+                >
+                  <div className="w-full h-44 bg-white rounded-xl mb-4 shadow-lg" />
+                  <div className="h-5 bg-white rounded mb-2" />
+                  <div className="h-5 bg-white/70 rounded w-2/3 mb-3" />
+                  <div className="h-10 bg-gradient-to-r from-red-500 to-red-700 
                               rounded-lg flex items-center justify-center text-white font-bold">
-                اشترِ الآن
-              </div>
-            </motion.div>
+                    اشترِ الآن
+                  </div>
+                </motion.div>
+              </>
+            )}
           </motion.div>
         </div>
       </div>

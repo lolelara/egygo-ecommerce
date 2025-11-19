@@ -22,7 +22,7 @@ export function lazyLoad<T extends ComponentType<any>>(
   fallback: React.ReactNode = <LoadingFallback />
 ) {
   const LazyComponent = lazy(importFunc);
-  
+
   return (props: any) => (
     <Suspense fallback={fallback}>
       <LazyComponent {...props} />
@@ -92,29 +92,28 @@ export const MerchantFinancialHistory = lazyLoad(() => import('@/pages/MerchantF
 // ADMIN PAGES (Lazy)
 // ============================================
 export const AdminDashboard = lazyLoad(() => import('@/pages/AdminDashboard'));
-export const EnhancedAdminDashboard = lazyLoad(() => import('@/pages/EnhancedAdminDashboard'));
-export const AdminUsers = lazyLoad(() => import('@/pages/AdminUsers'));
-export const AdminCouponsManager = lazyLoad(() => import('@/pages/AdminCouponsManager'));
-export const AdminOffersManager = lazyLoad(() => import('@/pages/AdminOffersManager'));
-export const AdminProductApproval = lazyLoad(() => import('@/pages/AdminProductApproval'));
-export const AdminProducts = lazyLoad(() => import('@/pages/AdminProducts'));
-export const AdminOrders = lazyLoad(() => import('@/pages/AdminOrders'));
-export const AdminAnalytics = lazyLoad(() => import('@/pages/AdminAnalytics'));
-export const AdminCategories = lazyLoad(() => import('@/pages/AdminCategories'));
-export const AdminCommissions = lazyLoad(() => import('@/pages/AdminCommissions'));
 export const AdminPendingAccounts = lazyLoad(() => import('@/pages/AdminPendingAccounts'));
+export const AdminAnalytics = lazyLoad(() => import('@/pages/AdminAnalytics'));
+export const AdminProducts = lazyLoad(() => import('@/pages/AdminProducts'));
+export const AdminProductsAdvanced = lazyLoad(() => import('@/pages/AdminProductsAdvanced'));
+export const VendoorProducts = lazyLoad(() => import('@/pages/admin/VendoorProducts'));
+export const AdminProductApproval = lazyLoad(() => import('@/pages/AdminProductApproval'));
+export const AdminHeroProducts = lazyLoad(() => import('@/pages/AdminHeroProducts'));
+export const VendoorOrders = lazyLoad(() => import('@/pages/admin/VendoorOrders'));
+export const AdminCategories = lazyLoad(() => import('@/pages/AdminCategories'));
+export const AdminUsers = lazyLoad(() => import('@/pages/AdminUsers'));
 export const AdminUserManagement = lazyLoad(() => import('@/pages/AdminUserManagement'));
 export const AdminUserManagementFixed = lazyLoad(() => import('@/pages/AdminUserManagementFixed'));
-export const AdminProductsAdvanced = lazyLoad(() => import('@/pages/AdminProductsAdvanced'));
-export const VendoorProducts = lazyLoad(() => import('@/pages/admin/VendoorProductsNew'));
-export const VendoorOrders = lazyLoad(() => import('@/pages/admin/VendoorOrders'));
+export const AdminOrders = lazyLoad(() => import('@/pages/AdminOrders'));
+export const AdminCommissions = lazyLoad(() => import('@/pages/AdminCommissions'));
+export const AdminFinancialDashboard = lazyLoad(() => import('@/pages/AdminFinancialDashboard'));
 export const AdminSettingsPage = lazyLoad(() => import('@/pages/AdminSettingsPage'));
+export const AdminCouponsManager = lazyLoad(() => import('@/pages/AdminCouponsManager'));
+export const AdminOffersManager = lazyLoad(() => import('@/pages/AdminOffersManager'));
 export const AdminShipping = lazyLoad(() => import('@/pages/AdminShipping'));
 export const AdminAdvancedSettings = lazyLoad(() => import('@/pages/AdminAdvancedSettings'));
 export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
-export const AdminCoupons = lazyLoad(() => import('@/pages/AdminCoupons'));
 export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'));
-export const AdminFinancialDashboard = lazyLoad(() => import('@/pages/AdminFinancialDashboard'));
 export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
 export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 
@@ -214,7 +213,7 @@ export function preloadRoleBasedRoutes(role: string) {
   };
 
   const routes = roleRoutes[role] || [];
-  
+
   if ('requestIdleCallback' in window) {
     routes.forEach(route => {
       requestIdleCallback(() => route());

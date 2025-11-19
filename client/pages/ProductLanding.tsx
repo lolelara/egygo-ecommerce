@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { ProductGridSkeleton } from "@/components/LoadingSkeletons";
+import { SkeletonProductGrid } from "@/components/LoadingStates";
 import { ErrorDisplay } from "@/components/ErrorBoundary";
 import SEO from "@/components/SEO";
 import {
@@ -40,10 +40,10 @@ export default function ProductLanding() {
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [availableColors, setAvailableColors] = useState<string[]>([]);
   const [availableSizes, setAvailableSizes] = useState<string[]>([]);
-  const [inventory, setInventory] = useState<Array<{color: string, size: string, quantity: number}>>([]);
+  const [inventory, setInventory] = useState<Array<{ color: string, size: string, quantity: number }>>([]);
   const [totalStock, setTotalStock] = useState<number>(0);
   const queryClient = useQueryClient();
-  
+
   // Get quantity for selected color/size combo
   const getAvailableQuantity = () => {
     if (!selectedColor || !selectedSize || inventory.length === 0) {
@@ -58,7 +58,7 @@ export default function ProductLanding() {
     queryKey: ["affiliate-link", linkCode],
     queryFn: async () => {
       if (!linkCode) throw new Error("Link code is required");
-      
+
       const response = await databases.listDocuments(
         DATABASE_ID,
         "affiliate_links",
@@ -106,52 +106,52 @@ export default function ProductLanding() {
     if (affiliateLink && !clickTracked) {
       trackClick.mutate();
       setClickTracked(true);
-      
+
       // Save affiliate ID for order tracking
       sessionStorage.setItem("referralAffiliateId", affiliateLink.affiliateId);
       sessionStorage.setItem("referralLinkCode", linkCode || "");
     }
   }, [affiliateLink, clickTracked]);
-  
+
   // Process inventory data and filter available colors/sizes
   useEffect(() => {
     if (!product) return;
-    
+
     console.log('🔍 Product data:', product);
     console.log('📦 colorSizeInventory:', (product as any).colorSizeInventory);
     console.log('🎨 colors:', (product as any).colors);
     console.log('📏 sizes:', (product as any).sizes);
-    
+
     try {
       const inventoryData = (product as any).colorSizeInventory;
-      
+
       // Check if inventory data exists and is not empty
       if (inventoryData && inventoryData !== '[]' && inventoryData !== '') {
-        const parsed: Array<{color: string, size: string, quantity: number}> = JSON.parse(inventoryData);
+        const parsed: Array<{ color: string, size: string, quantity: number }> = JSON.parse(inventoryData);
         console.log('✅ Parsed inventory:', parsed);
-        
+
         if (parsed.length > 0) {
           setInventory(parsed);
-          
+
           // Calculate total stock
           const total = parsed.reduce((sum, item) => sum + (item.quantity || 0), 0);
           setTotalStock(total);
           console.log('📊 Total stock:', total);
-          
+
           // Get unique colors and sizes that have quantity > 0
           const availColorsSet = new Set<string>();
           const availSizesSet = new Set<string>();
-          
+
           parsed.forEach(item => {
             if (item.quantity > 0) {
               availColorsSet.add(item.color);
               availSizesSet.add(item.size);
             }
           });
-          
+
           setAvailableColors(Array.from(availColorsSet));
           setAvailableSizes(Array.from(availSizesSet));
-          
+
           // Auto-select first available options
           if (availColorsSet.size > 0 && !selectedColor) {
             setSelectedColor(Array.from(availColorsSet)[0]);
@@ -159,18 +159,18 @@ export default function ProductLanding() {
           if (availSizesSet.size > 0 && !selectedSize) {
             setSelectedSize(Array.from(availSizesSet)[0]);
           }
-          
+
           return; // Exit early if inventory system is active
         }
       }
-      
+
       // Fallback: No inventory system or empty inventory
       console.log('⚠️ No inventory data, using fallback');
       const colors = (product as any).colors || [];
       const sizes = (product as any).sizes || [];
       setAvailableColors(colors);
       setAvailableSizes(sizes);
-      
+
       // If product has colors/sizes, assume it's available
       if (colors.length > 0 || sizes.length > 0) {
         setTotalStock(999);
@@ -181,7 +181,7 @@ export default function ProductLanding() {
         setTotalStock(oldStock > 0 ? oldStock : 999);
         console.log('📦 Using old stock:', oldStock || 999);
       }
-      
+
     } catch (error) {
       console.error('❌ Error parsing inventory:', error);
       // Fallback on error
@@ -197,8 +197,8 @@ export default function ProductLanding() {
     if (!product) return;
 
     const imageUrl = getImageUrl(product.images?.[0]);
-    const availableStock = inventory.length > 0 && selectedColor && selectedSize 
-      ? getAvailableQuantity() 
+    const availableStock = inventory.length > 0 && selectedColor && selectedSize
+      ? getAvailableQuantity()
       : totalStock;
 
     addItem({
@@ -221,8 +221,8 @@ export default function ProductLanding() {
     if (!product) return;
 
     const imageUrl = getImageUrl(product.images?.[0]);
-    const availableStock = inventory.length > 0 && selectedColor && selectedSize 
-      ? getAvailableQuantity() 
+    const availableStock = inventory.length > 0 && selectedColor && selectedSize
+      ? getAvailableQuantity()
       : totalStock;
 
     addItem({
@@ -239,21 +239,6 @@ export default function ProductLanding() {
 
     // Navigate directly to checkout
     navigate("/checkout");
-  };
-
-  // Loading state
-  if (linkLoading || productLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-primary/5 to-white">
-        <div className="container mx-auto px-4 py-8">
-          <ProductGridSkeleton count={1} />
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (linkError || !product) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full px-4">
@@ -336,11 +321,10 @@ export default function ProductLanding() {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-5 w-5 ${
-                        i < Math.round(product.rating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
-                      }`}
+                      className={`h-5 w-5 ${i < Math.round(product.rating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
+                        }`}
                     />
                   ))}
                 </div>
@@ -415,17 +399,15 @@ export default function ProductLanding() {
                     <button
                       key={index}
                       onClick={() => setSelectedColor(colorInfo.name)}
-                      className={`relative group transition-all ${
-                        selectedColor === colorInfo.name
-                          ? "ring-2 ring-primary ring-offset-2 scale-110"
-                          : "hover:scale-105"
-                      }`}
+                      className={`relative group transition-all ${selectedColor === colorInfo.name
+                        ? "ring-2 ring-primary ring-offset-2 scale-110"
+                        : "hover:scale-105"
+                        }`}
                       title={colorInfo.name}
                     >
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md ${
-                          colorInfo.border ? "border-2 border-gray-300" : ""
-                        }`}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-md ${colorInfo.border ? "border-2 border-gray-300" : ""
+                          }`}
                         style={{ backgroundColor: colorInfo.hex }}
                       >
                         {selectedColor === colorInfo.name && (
@@ -541,18 +523,17 @@ export default function ProductLanding() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {inventory.map((item, index) => (
-                      <tr 
-                        key={index} 
-                        className={`hover:bg-gray-50 transition-colors ${
-                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                        }`}
+                      <tr
+                        key={index}
+                        className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                          }`}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
                           {item.size}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                            <div 
+                            <div
                               className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
                               style={{ backgroundColor: getColorsInfo([item.color])[0]?.hex || '#9CA3AF' }}
                               title={item.color}
@@ -561,7 +542,7 @@ export default function ProductLanding() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <Badge 
+                          <Badge
                             variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
                             className="text-sm font-semibold px-3 py-1"
                           >

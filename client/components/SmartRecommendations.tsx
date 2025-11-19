@@ -5,10 +5,8 @@
 
 import { useState, useEffect } from 'react';
 import { Sparkles, TrendingUp, Heart, Eye } from 'lucide-react';
-import { EnhancedCard, EnhancedCardContent } from '@/components/ui/enhanced-card';
-import { Badge } from '@/components/ui/badge';
+import { ProductCardPremium } from '@/components/ProductCardPremium';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
 
 interface Product {
   $id: string;
@@ -51,7 +49,7 @@ export function SmartRecommendations({
 
   const loadRecommendations = async () => {
     setLoading(true);
-    
+
     // Simulate AI recommendations (replace with actual API call)
     setTimeout(() => {
       setRecommendations({
@@ -75,44 +73,32 @@ export function SmartRecommendations({
     }));
   };
 
-  const renderProductCard = (product: Product, badge?: string) => (
-    <EnhancedCard
-      key={product.$id}
-      variant="interactive"
-      onClick={() => onProductClick(product.$id)}
-      className="cursor-pointer"
-    >
-      <EnhancedCardContent className="p-4">
-        {badge && (
-          <Badge className="mb-2" variant="secondary">
-            {badge}
-          </Badge>
-        )}
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-32 object-cover rounded-md mb-3"
+  const renderProductCard = (product: Product, badge?: string) => {
+    // Map local product to ProductCardPremium expected format
+    const mappedProduct = {
+      id: product.$id,
+      name: product.name,
+      nameAr: product.name, // Fallback
+      price: product.price,
+      images: [product.image],
+      image: product.image, // Required by type
+      rating: product.rating || 0,
+      reviews: 0,
+      inStock: true,
+      isNew: badge === 'جديد',
+      description: '',
+      category: { name: 'عام', slug: 'general' }
+    };
+
+    return (
+      <div key={product.$id} onClick={() => onProductClick(product.$id)}>
+        <ProductCardPremium
+          product={mappedProduct}
+          hideActions={true} // Optional: hide add to cart etc if just for recommendation
         />
-        <h4 className="font-semibold text-sm mb-2 line-clamp-2">{product.name}</h4>
-        <div className="flex items-center justify-between">
-          <div className="text-lg font-bold text-primary">
-            <AnimatedCounter value={product.price} suffix=" EGP" />
-          </div>
-          {product.rating && (
-            <div className="flex items-center gap-1 text-xs">
-              <span className="font-medium">{product.rating.toFixed(1)}</span>
-              <span className="text-yellow-500">★</span>
-            </div>
-          )}
-        </div>
-        {product.soldCount && (
-          <div className="text-xs text-muted-foreground mt-1">
-            تم بيع {product.soldCount}+
-          </div>
-        )}
-      </EnhancedCardContent>
-    </EnhancedCard>
-  );
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -155,7 +141,7 @@ export function SmartRecommendations({
             بناءً على تفضيلاتك وعمليات الشراء السابقة
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {recommendations.personalized.map(product => 
+            {recommendations.personalized.map(product =>
               renderProductCard(product, 'مخصص لك')
             )}
           </div>
@@ -166,7 +152,7 @@ export function SmartRecommendations({
             منتجات مشابهة للمنتج الحالي
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {recommendations.similar.map(product => 
+            {recommendations.similar.map(product =>
               renderProductCard(product, 'مشابه')
             )}
           </div>
@@ -177,7 +163,7 @@ export function SmartRecommendations({
             الأكثر طلباً هذا الأسبوع
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {recommendations.trending.map(product => 
+            {recommendations.trending.map(product =>
               renderProductCard(product, '🔥 رائج')
             )}
           </div>
@@ -188,7 +174,7 @@ export function SmartRecommendations({
             العملاء اشتروا معاً
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {recommendations.frequentlyBought.map(product => 
+            {recommendations.frequentlyBought.map(product =>
               renderProductCard(product, 'مع بعض')
             )}
           </div>

@@ -1,8 +1,9 @@
-import { Link } from "react-router-dom";
-import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase, ChevronDown, Grid3x3, Truck } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, TrendingUp, Briefcase, ChevronDown, Grid3x3, Truck, Sparkles } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { UniversalSearch } from "./UniversalSearch";
+import { SearchBarEnhanced } from "./SearchBarEnhanced";
+import { MegaMenuModern } from "./MegaMenuModern";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +25,6 @@ import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { useI18n } from "@/lib/i18n";
-import SearchBar from "./SearchBar";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageToggle } from "./LanguageToggle";
@@ -44,6 +44,7 @@ export function Header({ cartItemCount }: HeaderProps) {
   const { favorites } = useFavorites();
   const { t } = useI18n();
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const totalItems = cartItemCount ?? itemCount;
   const wishlistCount = favorites.length;
 
@@ -66,6 +67,29 @@ export function Header({ cartItemCount }: HeaderProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Map categories for Mega Menu
+  const megaMenuCategories = categories.slice(0, 6).map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    nameAr: cat.name,
+    icon: "🛍️", // Placeholder icon
+    subcategories: [
+      { id: `${cat.id}-1`, name: "الأكثر مبيعاً", nameAr: "الأكثر مبيعاً", link: `/category/${cat.slug}?sort=best_selling` },
+      { id: `${cat.id}-2`, name: "وصل حديثاً", nameAr: "وصل حديثاً", link: `/category/${cat.slug}?sort=newest` },
+      { id: `${cat.id}-3`, name: "عروض خاصة", nameAr: "عروض خاصة", link: `/category/${cat.slug}?sort=deals` },
+    ],
+    featured: [
+      {
+        id: "feat-1",
+        name: "منتج مميز 1",
+        nameAr: "منتج مميز 1",
+        price: 1299,
+        image: "/placeholder.png",
+        link: `/category/${cat.slug}`
+      }
+    ]
+  }));
+
   return (
     <header className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 ${isScrolled ? 'shadow-xl' : 'shadow-lg'} transition-all duration-300`}>
       {/* Top Bar - Compact */}
@@ -83,7 +107,7 @@ export function Header({ cartItemCount }: HeaderProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Main Header */}
       <div className={`container mx-auto flex items-center justify-between gap-4 px-4 ${isScrolled ? 'h-14' : 'h-16'} transition-all duration-300`}>
         {/* Mobile menu */}
@@ -121,7 +145,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                   </Link>
                 </div>
               )}
-              
+
               {/* Affiliate Panel */}
               {user?.isAffiliate && (
                 <div className="space-y-2 mb-4">
@@ -134,7 +158,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                   </Link>
                 </div>
               )}
-              
+
               {/* Merchant Panel */}
               {user?.isMerchant && (
                 <div className="space-y-2 mb-4">
@@ -147,7 +171,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                   </Link>
                 </div>
               )}
-              
+
               {/* Intermediary Panel */}
               {user?.isIntermediary && (
                 <div className="space-y-2 mb-4">
@@ -212,44 +236,6 @@ export function Header({ cartItemCount }: HeaderProps) {
 
         {/* Desktop Navigation - Streamlined */}
         <nav className="hidden lg:flex items-center gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="gap-1 font-medium">
-                <Grid3x3 className="h-4 w-4" />
-                <span>الفئات</span>
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="start">
-              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
-                تصفح حسب الفئة
-              </div>
-              <DropdownMenuSeparator />
-              {categories.filter(cat => cat.slug).map((category) => (
-                <DropdownMenuItem key={category.id} asChild>
-                  <Link
-                    to={`/category/${category.slug}`}
-                    className="flex items-center justify-between w-full cursor-pointer"
-                  >
-                    <span>{category.name}</span>
-                    <Badge variant="secondary" className="ml-2 text-xs">
-                      {category.productCount}
-                    </Badge>
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link
-                  to="/categories"
-                  className="flex items-center justify-center w-full font-semibold text-primary cursor-pointer"
-                >
-                  عرض جميع الفئات
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <Button variant="ghost" size="sm" asChild>
             <Link to="/deals" className="gap-1">
               <TrendingUp className="h-4 w-4" />
@@ -267,7 +253,7 @@ export function Header({ cartItemCount }: HeaderProps) {
 
         {/* Search Bar - Full Width on Desktop */}
         <div className="hidden lg:flex items-center flex-1 max-w-xl">
-          <UniversalSearch />
+          <SearchBarEnhanced onSearch={(q) => navigate(`/search?q=${q}`)} />
         </div>
 
         {/* Actions - Organized */}
@@ -281,7 +267,7 @@ export function Header({ cartItemCount }: HeaderProps) {
             </SheetTrigger>
             <SheetContent side="top" className="h-auto">
               <div className="p-4">
-                <UniversalSearch />
+                <SearchBarEnhanced onSearch={(q) => navigate(`/search?q=${q}`)} />
               </div>
             </SheetContent>
           </Sheet>
@@ -289,17 +275,17 @@ export function Header({ cartItemCount }: HeaderProps) {
           {/* Dashboard Quick Access */}
           {user && (user.role === 'admin' || user.isAffiliate || user.role === 'merchant' || user.isIntermediary) && (
             <>
-              <Button 
-                variant="gradient" 
+              <Button
+                variant="gradient"
                 size="sm"
                 className="hidden md:inline-flex gap-2"
                 asChild
               >
                 <Link to={
                   user.role === 'admin' ? '/admin' :
-                  user.role === 'merchant' ? '/merchant/dashboard' :
-                  user.isIntermediary ? '/intermediary/dashboard' :
-                  '/affiliate/dashboard'
+                    user.role === 'merchant' ? '/merchant/dashboard' :
+                      user.isIntermediary ? '/intermediary/dashboard' :
+                        '/affiliate/dashboard'
                 }>
                   {user.role === 'admin' && <Shield className="h-4 w-4" />}
                   {user.role === 'merchant' && <Briefcase className="h-4 w-4" />}
@@ -308,11 +294,11 @@ export function Header({ cartItemCount }: HeaderProps) {
                   <span className="hidden xl:inline">لوحة التحكم</span>
                 </Link>
               </Button>
-              
+
               {/* Vendoor Orders Quick Access - Admin Only */}
               {user.role === 'admin' && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="hidden md:inline-flex gap-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
                   asChild
@@ -330,8 +316,8 @@ export function Header({ cartItemCount }: HeaderProps) {
           {user && (user.role === 'admin' || user.isAffiliate || user.role === 'merchant' || user.isIntermediary) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   size="icon"
                   className="md:hidden"
                 >
@@ -463,10 +449,10 @@ export function Header({ cartItemCount }: HeaderProps) {
           </Button>
 
           {/* Cart - Enhanced Badge with Live Count */}
-          <Button 
-            variant="default" 
-            size="icon" 
-            className="relative bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all" 
+          <Button
+            variant="default"
+            size="icon"
+            className="relative bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 transition-all"
             asChild
           >
             <Link to="/cart">
@@ -591,6 +577,11 @@ export function Header({ cartItemCount }: HeaderProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+      </div>
+
+      {/* Mega Menu - Modern Navigation */}
+      <div className="hidden lg:block border-t border-border/40 bg-background/95 backdrop-blur-lg">
+        <MegaMenuModern categories={megaMenuCategories} />
       </div>
     </header>
   );

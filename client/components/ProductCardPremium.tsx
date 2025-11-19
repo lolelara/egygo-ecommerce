@@ -23,6 +23,7 @@ interface ProductCardPremiumProps {
     onQuickView?: (product: Product) => void;
     onToggleWishlist?: (productId: string) => void;
     isWishlisted?: boolean;
+    hideActions?: boolean;
 }
 
 export function ProductCardPremium({
@@ -31,6 +32,7 @@ export function ProductCardPremium({
     onQuickView,
     onToggleWishlist,
     isWishlisted = false,
+    hideActions = false,
 }: ProductCardPremiumProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [imageLoaded, setImageLoaded] = useState(false);
@@ -109,24 +111,26 @@ export function ProductCardPremium({
             </div>
 
             {/* Wishlist Button */}
-            <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleWishlist?.(product.id);
-                }}
-                className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full 
-                   bg-white shadow-lg flex items-center justify-center
-                   hover:bg-red-50 transition-colors border border-gray-100"
-            >
-                <Heart
-                    className={`w-5 h-5 transition-all duration-300 ${isWishlisted
+            {!hideActions && (
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleWishlist?.(product.id);
+                    }}
+                    className="absolute top-4 left-4 z-10 w-10 h-10 rounded-full 
+                       bg-white shadow-lg flex items-center justify-center
+                       hover:bg-red-50 transition-colors border border-gray-100"
+                >
+                    <Heart
+                        className={`w-5 h-5 transition-all duration-300 ${isWishlisted
                             ? 'fill-red-500 text-red-500 scale-110'
                             : 'text-gray-400 hover:text-red-400'
-                        }`}
-                />
-            </motion.button>
+                            }`}
+                    />
+                </motion.button>
+            )}
 
             {/* Image Container */}
             <div className="relative overflow-hidden rounded-t-xl aspect-square bg-gray-100">
@@ -149,7 +153,7 @@ export function ProductCardPremium({
 
                 {/* Quick View Overlay */}
                 <AnimatePresence>
-                    {isHovered && (
+                    {isHovered && !hideActions && (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -186,10 +190,10 @@ export function ProductCardPremium({
                             <Star
                                 key={i}
                                 className={`w-4 h-4 ${i < Math.floor(product.rating)
-                                        ? 'fill-yellow-400 text-yellow-400'
-                                        : i < product.rating
-                                            ? 'fill-yellow-200 text-yellow-400'
-                                            : 'text-gray-300'
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : i < product.rating
+                                        ? 'fill-yellow-200 text-yellow-400'
+                                        : 'text-gray-300'
                                     }`}
                             />
                         ))}
@@ -218,32 +222,34 @@ export function ProductCardPremium({
                 </div>
 
                 {/* Add to Cart Button */}
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart}
-                    className={`w-full btn-modern btn-gradient-purple py-3 rounded-xl
-                     flex items-center justify-center gap-2 text-white font-semibold
-                     transition-all duration-300 ${isAddingToCart ? 'opacity-75 cursor-not-allowed' : ''
-                        }`}
-                >
-                    {isAddingToCart ? (
-                        <>
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                            />
-                            جاري الإضافة...
-                        </>
-                    ) : (
-                        <>
-                            <ShoppingCart className="w-5 h-5" />
-                            أضف إلى السلة
-                        </>
-                    )}
-                </motion.button>
+                {!hideActions && (
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleAddToCart}
+                        disabled={isAddingToCart}
+                        className={`w-full btn-modern btn-gradient-purple py-3 rounded-xl
+                         flex items-center justify-center gap-2 text-white font-semibold
+                         transition-all duration-300 ${isAddingToCart ? 'opacity-75 cursor-not-allowed' : ''
+                            }`}
+                    >
+                        {isAddingToCart ? (
+                            <>
+                                <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                                />
+                                جاري الإضافة...
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingCart className="w-5 h-5" />
+                                أضف إلى السلة
+                            </>
+                        )}
+                    </motion.button>
+                )}
             </div>
 
             {/* Hover Gradient Border Effect */}

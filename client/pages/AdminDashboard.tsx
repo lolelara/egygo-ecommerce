@@ -26,6 +26,7 @@ import {
   BarChart3,
   PieChart,
   Activity,
+  Sparkles,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
@@ -201,6 +202,16 @@ export default function AdminDashboard() {
         {/* Vendoor Products Card */}
         <div className="grid gap-4 md:grid-cols-3">
           <VendoorProductsCard />
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/admin/hero-products'}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">منتجات الهيرو</CardTitle>
+              <Sparkles className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">إدارة العروض</div>
+              <p className="text-xs text-muted-foreground mt-1">التحكم في المنتجات المميزة في الصفحة الرئيسية</p>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

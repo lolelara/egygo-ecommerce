@@ -154,6 +154,12 @@ export default function Index() {
     queryFn: () => productsApi.getAll({ sortBy: "rating", limit: 4 }),
   });
 
+  // Fetch hero featured products
+  const { data: heroFeaturedData, isLoading: heroFeaturedLoading } = useQuery({
+    queryKey: [...queryKeys.products, "hero-featured"],
+    queryFn: () => productsApi.getAll({ isFeaturedInHero: true, limit: 3 }),
+  });
+
   const categories = categoriesData?.categories || [];
   const featuredProducts = featuredData?.products || [];
   const bestSellers =
@@ -175,6 +181,7 @@ export default function Index() {
       <HeroSectionEnhanced
         onShopNow={() => navigate('/products')}
         onExploreDeals={() => navigate('/deals')}
+        featuredProducts={heroFeaturedData?.products || []}
       />
 
       {/* Scrolling Marquee Banner */}
