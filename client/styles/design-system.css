@@ -6,25 +6,44 @@
  */
 
 :root {
-  /* ===== PRIMARY BRAND COLORS ===== */
-  --egygo-primary: #1E40AF;        /* Deep Blue - Trust & Professionalism */
-  --egygo-primary-light: #3B82F6;  /* Light Blue */
-  --egygo-primary-dark: #1E3A8A;   /* Dark Blue */
-  
-  --egygo-secondary: #F59E0B;      /* Amber Gold - Egyptian Heritage */
-  --egygo-secondary-light: #FCD34D;
-  --egygo-secondary-dark: #D97706;
-  
-  --egygo-accent: #10B981;         /* Emerald - Success & Growth */
-  --egygo-accent-light: #34D399;
-  --egygo-accent-dark: #059669;
-  
+  /* ===== PRIMARY BRAND COLORS - 2025 VIBRANT EDITION ===== */
+  --egygo-primary: #9333EA;
+  /* Vibrant Purple - Modern & Bold */
+  --egygo-primary-light: #A855F7;
+  /* Light Purple */
+  --egygo-primary-dark: #7E22CE;
+  /* Dark Purple */
+  --egygo-primary-50: #FAF5FF;
+  --egygo-primary-100: #F3E8FF;
+  --egygo-primary-500: #A855F7;
+  --egygo-primary-600: #9333EA;
+  --egygo-primary-700: #7E22CE;
+
+  --egygo-secondary: #F97316;
+  /* Bold Orange - Energy & Warmth */
+  --egygo-secondary-light: #FB923C;
+  --egygo-secondary-dark: #EA580C;
+  --egygo-secondary-50: #FFF7ED;
+  --egygo-secondary-100: #FFEDD5;
+  --egygo-secondary-500: #F97316;
+  --egygo-secondary-600: #EA580C;
+  --egygo-secondary-700: #C2410C;
+
+  --egygo-accent: #14B8A6;
+  /* Fresh Teal - Innovation */
+  --egygo-accent-light: #2DD4BF;
+  --egygo-accent-dark: #0D9488;
+  --egygo-accent-cyan: #06B6D4;
+  /* Cyan accent */
+  --egygo-accent-pink: #EC4899;
+  /* Pink accent */
+
   /* ===== SEMANTIC COLORS ===== */
   --egygo-success: #10B981;
   --egygo-warning: #F59E0B;
   --egygo-error: #EF4444;
   --egygo-info: #3B82F6;
-  
+
   /* ===== NEUTRAL COLORS ===== */
   --egygo-gray-50: #F9FAFB;
   --egygo-gray-100: #F3F4F6;
@@ -36,14 +55,18 @@
   --egygo-gray-700: #374151;
   --egygo-gray-800: #1F2937;
   --egygo-gray-900: #111827;
-  
-  /* ===== GRADIENTS ===== */
-  --egygo-gradient-primary: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-  --egygo-gradient-secondary: linear-gradient(135deg, #F59E0B 0%, #FCD34D 100%);
-  --egygo-gradient-accent: linear-gradient(135deg, #10B981 0%, #34D399 100%);
-  --egygo-gradient-sunset: linear-gradient(135deg, #F59E0B 0%, #EF4444 50%, #EC4899 100%);
-  --egygo-gradient-ocean: linear-gradient(135deg, #1E40AF 0%, #10B981 100%);
-  
+
+  /* ===== PREMIUM GRADIENTS - 2025 COLLECTION ===== */
+  --egygo-gradient-primary: linear-gradient(135deg, #9333EA 0%, #A855F7 100%);
+  --egygo-gradient-secondary: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+  --egygo-gradient-accent: linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%);
+  --egygo-gradient-sunset: linear-gradient(135deg, #F97316 0%, #EF4444 50%, #EC4899 100%);
+  --egygo-gradient-ocean: linear-gradient(135deg, #9333EA 0%, #14B8A6 100%);
+  --egygo-gradient-hero: linear-gradient(135deg, #9333EA 0%, #A855F7 50%, #F97316 100%);
+  --egygo-gradient-card: linear-gradient(135deg, #A855F7 0%, #14B8A6 100%);
+  --egygo-gradient-purple-pink: linear-gradient(135deg, #9333EA 0%, #EC4899 100%);
+  --egygo-gradient-orange-yellow: linear-gradient(135deg, #F97316 0%, #FBBF24 100%);
+
   /* ===== SHADOWS ===== */
   --egygo-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --egygo-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -51,43 +74,64 @@
   --egygo-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
   --egygo-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --egygo-shadow-glow: 0 0 20px rgb(30 64 175 / 0.3);
-  
+
   /* ===== SPACING ===== */
-  --egygo-space-xs: 0.25rem;    /* 4px */
-  --egygo-space-sm: 0.5rem;     /* 8px */
-  --egygo-space-md: 1rem;       /* 16px */
-  --egygo-space-lg: 1.5rem;     /* 24px */
-  --egygo-space-xl: 2rem;       /* 32px */
-  --egygo-space-2xl: 3rem;      /* 48px */
-  --egygo-space-3xl: 4rem;      /* 64px */
-  
+  --egygo-space-xs: 0.25rem;
+  /* 4px */
+  --egygo-space-sm: 0.5rem;
+  /* 8px */
+  --egygo-space-md: 1rem;
+  /* 16px */
+  --egygo-space-lg: 1.5rem;
+  /* 24px */
+  --egygo-space-xl: 2rem;
+  /* 32px */
+  --egygo-space-2xl: 3rem;
+  /* 48px */
+  --egygo-space-3xl: 4rem;
+  /* 64px */
+
   /* ===== TYPOGRAPHY ===== */
   --egygo-font-sans: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
   --egygo-font-display: 'Tajawal', 'Poppins', sans-serif;
-  
-  --egygo-text-xs: 0.75rem;     /* 12px */
-  --egygo-text-sm: 0.875rem;    /* 14px */
-  --egygo-text-base: 1rem;      /* 16px */
-  --egygo-text-lg: 1.125rem;    /* 18px */
-  --egygo-text-xl: 1.25rem;     /* 20px */
-  --egygo-text-2xl: 1.5rem;     /* 24px */
-  --egygo-text-3xl: 1.875rem;   /* 30px */
-  --egygo-text-4xl: 2.25rem;    /* 36px */
-  --egygo-text-5xl: 3rem;       /* 48px */
-  
+
+  --egygo-text-xs: 0.75rem;
+  /* 12px */
+  --egygo-text-sm: 0.875rem;
+  /* 14px */
+  --egygo-text-base: 1rem;
+  /* 16px */
+  --egygo-text-lg: 1.125rem;
+  /* 18px */
+  --egygo-text-xl: 1.25rem;
+  /* 20px */
+  --egygo-text-2xl: 1.5rem;
+  /* 24px */
+  --egygo-text-3xl: 1.875rem;
+  /* 30px */
+  --egygo-text-4xl: 2.25rem;
+  /* 36px */
+  --egygo-text-5xl: 3rem;
+  /* 48px */
+
   /* ===== BORDER RADIUS ===== */
-  --egygo-radius-sm: 0.375rem;  /* 6px */
-  --egygo-radius-md: 0.5rem;    /* 8px */
-  --egygo-radius-lg: 0.75rem;   /* 12px */
-  --egygo-radius-xl: 1rem;      /* 16px */
-  --egygo-radius-2xl: 1.5rem;   /* 24px */
+  --egygo-radius-sm: 0.375rem;
+  /* 6px */
+  --egygo-radius-md: 0.5rem;
+  /* 8px */
+  --egygo-radius-lg: 0.75rem;
+  /* 12px */
+  --egygo-radius-xl: 1rem;
+  /* 16px */
+  --egygo-radius-2xl: 1.5rem;
+  /* 24px */
   --egygo-radius-full: 9999px;
-  
+
   /* ===== TRANSITIONS ===== */
   --egygo-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --egygo-transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --egygo-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   /* ===== Z-INDEX ===== */
   --egygo-z-dropdown: 1000;
   --egygo-z-sticky: 1020;
@@ -103,7 +147,7 @@
   --egygo-primary: #3B82F6;
   --egygo-primary-light: #60A5FA;
   --egygo-primary-dark: #2563EB;
-  
+
   --egygo-gray-50: #111827;
   --egygo-gray-100: #1F2937;
   --egygo-gray-200: #374151;
@@ -199,6 +243,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -210,6 +255,7 @@
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -217,18 +263,24 @@
 }
 
 @keyframes egygo-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
 }
 
 @keyframes egygo-bounce {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -359,13 +411,13 @@
 
 /* Egyptian Pattern Backgrounds */
 .egygo-pattern-pharaonic {
-  background-image: 
+  background-image:
     repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(30, 64, 175, 0.03) 10px, rgba(30, 64, 175, 0.03) 20px),
     repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(245, 158, 11, 0.03) 10px, rgba(245, 158, 11, 0.03) 20px);
 }
 
 .egygo-pattern-nile {
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 50%, rgba(30, 64, 175, 0.05) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
 }

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Users,
@@ -12,6 +12,8 @@ import {
   Lightbulb,
   CheckCircle,
   Star,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +23,11 @@ import { useState, useEffect } from "react";
 import { databases, appwriteConfig } from "@/lib/appwrite";
 import { Query } from "appwrite";
 import { getImageUrl } from "@/lib/storage";
+import { motion } from "framer-motion";
+import { ProductCarouselModern } from "@/components/ProductCarouselModern";
 
 export default function Affiliate() {
+  const navigate = useNavigate();
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,7 +48,7 @@ export default function Affiliate() {
           Query.limit(8)
         ]
       );
-      
+
       setFeaturedProducts(response.documents);
     } catch (error) {
       console.error('Error loading products:', error);
@@ -152,19 +157,19 @@ export default function Affiliate() {
 
   return (
     <div className="space-y-16 pb-16">
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-brand-orange via-brand-purple to-primary text-white overflow-hidden">
+      {/* Hero Section - Modern Enhanced Red Theme */}
+      <section className="relative bg-gradient-to-br from-red-600 via-red-500 to-red-700 text-white overflow-hidden min-h-[85vh] flex items-center">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4 py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
-                <Badge variant="secondary" className="text-primary bg-white/90">
-                  💎 برنامج الشراكة الأعلى دفعًا
+                <Badge variant="secondary" className="text-red-600 bg-white/90">
+                  💰 برنامج الشراكة الأعلى دفعًا
                 </Badge>
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
                   حول جمهورك إلى
-                  <span className="text-brand-yellow"> دخل</span>
+                  <span className="text-yellow-300"> دخل</span>
                 </h1>
                 <p className="text-xl text-white/90 max-w-lg">
                   انضم إلى أكثر من 1000 شريك ناجح يكسبون عمولة تصل إلى 25%
@@ -276,7 +281,7 @@ export default function Affiliate() {
             >
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <benefit.icon className="h-8 w-8 text-brand-orange" />
+                  <benefit.icon className="h-8 w-8 text-red-500" />
                   <Badge
                     variant="secondary"
                     className="text-brand-orange bg-brand-orange/10"
@@ -306,10 +311,10 @@ export default function Affiliate() {
           {steps.map((step, index) => (
             <div key={index} className="text-center relative">
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-brand-orange to-brand-purple transform translate-x-8"></div>
+                <div className="hidden lg:block absolute top-8 left-1/2 w-full h-0.5 bg-gradient-to-r from-red-400 to-red-600 transform translate-x-8"></div>
               )}
               <div className="relative">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-brand-orange to-brand-purple rounded-full flex items-center justify-center text-white font-bold text-xl relative z-10">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center text-white font-bold text-xl relative z-10">
                   {step.step}
                 </div>
                 <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
@@ -322,7 +327,7 @@ export default function Affiliate() {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Featured Products - Modern Carousel */}
       <section className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
@@ -342,47 +347,28 @@ export default function Affiliate() {
             <p className="text-muted-foreground">لا توجد منتجات متاحة حالياً</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product: any) => (
-              <Card
-                key={product.$id}
-                className="group overflow-hidden hover:shadow-lg transition-all duration-300"
-              >
-                <div className="relative">
-                  <img
-                    src={getImageUrl(product.images?.[0])}
-                    alt={product.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.affiliateCommission && (
-                    <div className="absolute top-2 right-2 bg-brand-orange text-white text-xs px-2 py-1 rounded font-bold">
-                      {product.affiliateCommission}% عمولة
-                    </div>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold mb-2 line-clamp-2">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold">{product.price?.toFixed(2) || 0} ج.م</span>
-                    {product.affiliateCommission && (
-                      <div className="text-right">
-                        <div className="text-sm font-semibold text-brand-orange">
-                          {(
-                            (product.price || 0) *
-                            (product.affiliateCommission / 100)
-                          ).toFixed(2)}{" "}
-                          ج.م
-                        </div>
-                        <div className="text-xs text-muted-foreground">عمولة لكل بيعة</div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <ProductCarouselModern
+            products={featuredProducts.map((product: any) => ({
+              id: product.$id,
+              name: product.name,
+              nameAr: product.name,
+              price: product.price || 0,
+              originalPrice: product.originalPrice,
+              image: getImageUrl(product.images?.[0]),
+              rating: 4.5,
+              reviewCount: 0,
+              discount: product.affiliateCommission,
+              isNew: false,
+              isTrending: (product.affiliateCommission || 0) >= 20,
+            }))}
+            title=""
+            subtitle=""
+            onProductClick={(p) => navigate(`/product/${p.id}`)}
+            onAddToCart={(p) => console.log('Add to cart:', p)}
+            onQuickView={(p) => console.log('Quick view:', p)}
+            wishlistedIds={[]}
+            onToggleWishlist={(id) => console.log('Toggle wishlist:', id)}
+          />
         )}
       </section>
 
@@ -505,8 +491,8 @@ export default function Affiliate() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="bg-gradient-to-r from-brand-orange to-brand-purple text-white">
+      {/* Final CTA - Red Theme */}
+      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white">
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="max-w-3xl mx-auto space-y-6">
             <h2 className="text-3xl lg:text-4xl font-bold">

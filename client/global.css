@@ -5,6 +5,7 @@
 @import './styles/shimmer.css';
 @import './styles/color-effects.css';
 @import './styles/dark-mode-fixes.css';
+@import './styles/modern-components.css';
 
 /* Then Tailwind directives */
 @tailwind base;
@@ -15,6 +16,7 @@
   body {
     font-family: 'Cairo', 'Inter', sans-serif;
   }
+
   /**
    * Tailwind CSS theme
    * tailwind.config.ts expects the following color variables to be expressed as HSL values.
@@ -217,19 +219,33 @@
     scroll-behavior: smooth;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     letter-spacing: -0.02em;
   }
-  h1 { line-height: 1.1; }
-  h2 { line-height: 1.15; }
-  h3 { line-height: 1.2; }
+
+  h1 {
+    line-height: 1.1;
+  }
+
+  h2 {
+    line-height: 1.15;
+  }
+
+  h3 {
+    line-height: 1.2;
+  }
 
   /* RTL Support */
   html[dir="rtl"] {
     direction: rtl;
   }
 
-  html[dir="rtl"] .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+  html[dir="rtl"] .rtl\:space-x-reverse> :not([hidden])~ :not([hidden]) {
     --tw-space-x-reverse: 1;
   }
 
@@ -240,6 +256,7 @@
 }
 
 @layer components {
+
   /* Button Hover Effects */
   .btn-hover-lift {
     @apply transition-all duration-200;
@@ -247,56 +264,56 @@
     @apply hover:shadow-lg hover:shadow-primary/50;
     @apply active:scale-95;
   }
-  
+
   .btn-gradient {
     @apply bg-gradient-to-r from-purple-600 to-pink-600;
     @apply hover:from-purple-700 hover:to-pink-700;
     @apply text-white font-semibold;
     @apply transition-all duration-300;
   }
-  
+
   .btn-gradient-alt {
     @apply bg-gradient-to-r from-blue-600 to-cyan-600;
     @apply hover:from-blue-700 hover:to-cyan-700;
     @apply text-white font-semibold;
   }
-  
+
   /* Typography Utilities */
   .heading-hero {
     @apply text-5xl md:text-6xl lg:text-7xl font-black tracking-tight;
     @apply bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent;
   }
-  
+
   .heading-xl {
     @apply text-3xl md:text-4xl font-bold tracking-tight;
   }
-  
+
   .heading-lg {
     @apply text-2xl md:text-3xl font-semibold;
   }
-  
+
   .heading-md {
     @apply text-xl md:text-2xl font-semibold;
   }
-  
+
   .text-gradient {
     @apply bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600;
     @apply bg-clip-text text-transparent;
   }
-  
+
   /* Card Enhancements */
   .card-hover {
     @apply transition-all duration-300;
     @apply hover:shadow-2xl hover:-translate-y-2;
     @apply hover:border-primary;
   }
-  
+
   /* Glass Morphism */
   .glass {
     @apply bg-white/10 backdrop-blur-lg;
     @apply border border-white/20;
   }
-  
+
   .glass-dark {
     @apply bg-black/20 backdrop-blur-lg;
     @apply border border-white/10;
@@ -308,17 +325,21 @@
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--primary)) hsl(var(--muted));
 }
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
+
 ::-webkit-scrollbar-track {
   background: hsl(var(--muted));
 }
+
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--primary));
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.85);
 }
@@ -331,6 +352,13 @@
 }
 
 @keyframes micro-fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

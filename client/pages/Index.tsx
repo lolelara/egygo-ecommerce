@@ -32,6 +32,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { analytics } from "@/lib/enhanced-analytics";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { HeroSectionEnhanced } from "@/components/HeroSectionEnhanced";
+import { ProductCarouselModern } from "@/components/ProductCarouselModern";
+import { CategoryGridAnimated } from "@/components/CategoryGridAnimated";
+import { Smartphone, Shirt, Home as HomeIcon, Gamepad2, Watch, Gift } from "lucide-react";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -39,17 +43,18 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
+
   // Typewriter effect state
   const [displayedText, setDisplayedText] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const words = ["متفوتش الفرصة", "اعمل دخل بسهولة", "حافظ على فلوسك", "اكسب أكتر"];
-  
+
   // Typewriter effect
   useEffect(() => {
     const currentWord = words[currentWordIndex];
     let currentIndex = 0;
-    
+
     const typingInterval = setInterval(() => {
       if (currentIndex <= currentWord.length) {
         setDisplayedText(currentWord.substring(0, currentIndex));
@@ -62,7 +67,7 @@ export default function Index() {
         }, 2000);
       }
     }, 100);
-    
+
     return () => clearInterval(typingInterval);
   }, [currentWordIndex]);
 
@@ -74,13 +79,13 @@ export default function Index() {
         navigate('/merchant/dashboard');
         return;
       }
-      
+
       // If user is an affiliate, redirect to products page
       if (user.isAffiliate) {
         navigate('/products');
         return;
       }
-      
+
       // Admin stays on homepage (can see everything)
       // Customer stays on homepage (default shopping experience)
     }
@@ -98,7 +103,7 @@ export default function Index() {
         ease: 'power3.out'
       });
     }
-    
+
     const featureCards = document.querySelectorAll('.feature-card');
     const featuresSection = document.querySelector('.features-section');
     if (featureCards.length > 0 && featuresSection) {
@@ -113,7 +118,7 @@ export default function Index() {
         }
       });
     }
-    
+
     const productCards = document.querySelectorAll('.product-card');
     const productsSection = document.querySelector('.products-section');
     if (productCards.length > 0 && productsSection) {
@@ -165,214 +170,12 @@ export default function Index() {
   return (
     <div className="space-y-16 pb-16">
       <EnhancedSEO {...pageSEO.home()} />
-      
-      {/* Hero Section - Enhanced Professional Design */}
-      <section className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-900 text-white overflow-hidden min-h-[90vh] flex items-center">
-        {/* Animated Background Patterns */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-        
-        {/* Floating Geometric Shapes */}
-        <div className="absolute top-20 left-10 w-64 h-64 bg-red-400/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" style={{animation: 'float 4s ease-in-out infinite'}}></div>
-        
-        {/* Enhanced 3D Logo Text Background */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-          <div className="text-[20rem] font-black text-white/5 whitespace-nowrap animate-spin-slow" style={{
-            textShadow: '0 0 40px rgba(255,255,255,0.1), 0 0 80px rgba(255,255,255,0.05)',
-            transform: 'perspective(500px) rotateX(5deg)',
-            letterSpacing: '0.1em'
-          }}>
-            egygo.me
-          </div>
-        </div>
-        
-        <div className="relative container mx-auto px-4 py-24 lg:py-32 z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 hero-content">
-              <div className="space-y-6">
-                <Badge className="bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm text-white border border-white/20 shadow-xl font-bold px-6 py-2 text-base">
-                  ✨ منصة التسويق والتجارة الإلكترونية الأولى
-                </Badge>
-                <h1 className="text-5xl lg:text-7xl font-black leading-tight text-white min-h-[140px] drop-shadow-2xl">
-                  <span className="bg-gradient-to-r from-white via-red-50 to-white bg-clip-text text-transparent">
-                    {displayedText}
-                  </span>
-                  <span className="animate-pulse text-red-300">|</span>
-                </h1>
-                <p className="text-xl lg:text-2xl text-white/90 max-w-2xl font-medium leading-relaxed">
-                  اكتشف آلاف المنتجات، انضم لبرنامج المسوقين، وابدأ تجارتك بكل ثقة وأمان
-                </p>
-                
-                {/* Trust Indicators */}
-                <div className="flex flex-wrap gap-6 pt-4">
-                  <div className="flex items-center gap-2 text-white/90">
-                    <ShieldCheck className="w-5 h-5 text-green-400" />
-                    <span className="text-sm font-medium">دفع آمن 100%</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-white/90">
-                    <Truck className="w-5 h-5 text-blue-400" />
-                    <span className="text-sm font-medium">شحن سريع</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-white/90">
-                    <Award className="w-5 h-5 text-yellow-400" />
-                    <span className="text-sm font-medium">منتجات مضمونة</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex justify-center sm:justify-start">
-                <Button
-                  size="lg"
-                  className="bg-white text-red-600 hover:bg-red-50 shadow-2xl hover:shadow-red-500/50 transition-all duration-500 hover:scale-110 font-black text-2xl px-12 py-8 rounded-2xl relative overflow-hidden group"
-                  asChild
-                >
-                  <Link to="/products">
-                    <span className="absolute inset-0 bg-gradient-to-r from-red-100 to-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
-                    <ShoppingCart className="ml-3 h-7 w-7 rtl:ml-0 rtl:mr-3 group-hover:animate-bounce" />
-                    <span className="relative z-10">تسوق الآن</span>
-                    <ArrowRight className="mr-3 h-6 w-6 rtl:mr-0 rtl:ml-3 rtl:rotate-180 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </div>
-
-              {/* Enhanced Stats with Animated Counters */}
-              <div className="grid grid-cols-3 gap-6 pt-8">
-                <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
-                  <Users className="w-8 h-8 mx-auto mb-3 text-green-300 animate-bounce" style={{animationDuration: '3s'}} />
-                  <AnimatedCounter 
-                    end={10000} 
-                    prefix="+" 
-                    className="text-3xl font-black text-white mb-1"
-                    duration={2500}
-                  />
-                  <div className="text-sm text-white/80 font-medium">عميل راضي</div>
-                </div>
-                <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
-                  <ShoppingCart className="w-8 h-8 mx-auto mb-3 text-blue-300 animate-bounce" style={{animationDuration: '3s', animationDelay: '0.2s'}} />
-                  <AnimatedCounter 
-                    end={500} 
-                    prefix="+" 
-                    className="text-3xl font-black text-white mb-1"
-                    duration={2000}
-                  />
-                  <div className="text-sm text-white/80 font-medium">منتج متنوع</div>
-                </div>
-                <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-6 text-center hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105 border border-white/10 shadow-xl">
-                  <TrendingUp className="w-8 h-8 mx-auto mb-3 text-yellow-300 animate-bounce" style={{animationDuration: '3s', animationDelay: '0.4s'}} />
-                  <AnimatedCounter 
-                    end={1000} 
-                    prefix="+" 
-                    className="text-3xl font-black text-white mb-1"
-                    duration={2200}
-                  />
-                  <div className="text-sm text-white/80 font-medium">مسوق ناجح</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative hidden lg:block">
-              {/* Enhanced Featured Products Grid */}
-              <div className="grid grid-cols-2 gap-6 items-center">
-                <div className="space-y-6">
-                  {featuredProducts.slice(0, 2).map((product, index) => (
-                    <Link key={product.id} to={`/product/${product.id}`} className="block">
-                      <Card className="bg-gradient-to-br from-white/95 to-white/90 dark:from-white/20 dark:to-white/5 backdrop-blur-md border-white/30 dark:border-white/30 hover:from-white hover:to-white/95 dark:hover:from-white/30 dark:hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
-                        <CardContent className="p-0">
-                          <div className="relative overflow-hidden">
-                            <img
-                              src={getImageUrl(product.images?.[0])}
-                              alt={product.name}
-                              className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
-                              onError={(e) => {
-                                e.currentTarget.src = placeholder.product();
-                              }}
-                            />
-                            <div className="absolute top-3 right-3">
-                              <Badge className="bg-red-600 text-white font-bold shadow-lg">
-                                <Sparkles className="w-3 h-3 ml-1" />
-                                مميز
-                              </Badge>
-                            </div>
-                            {product.discount && (
-                              <div className="absolute top-3 left-3">
-                                <Badge className="bg-yellow-400 text-black font-bold">
-                                  -{product.discount}٪
-                                </Badge>
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-4 space-y-2">
-                            <h3 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1 group-hover:text-red-600 dark:group-hover:text-red-100 transition-colors">
-                              {product.name}
-                            </h3>
-                            <div className="flex items-center justify-between">
-                              <p className="text-gray-900 dark:text-white font-black text-xl">
-                                {formatPrice(product.price)}
-                              </p>
-                              <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/20 px-2 py-1 rounded-full">
-                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 dark:text-yellow-300 dark:fill-yellow-300" />
-                                <span className="text-gray-900 dark:text-white text-sm font-bold">4.8</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-                <div className="space-y-6 mt-12">
-                  {featuredProducts.slice(2, 4).map((product) => (
-                    <Link key={product.id} to={`/product/${product.id}`} className="block">
-                      <Card className="bg-gradient-to-br from-white/95 to-white/90 dark:from-white/20 dark:to-white/5 backdrop-blur-md border-white/30 dark:border-white/30 hover:from-white hover:to-white/95 dark:hover:from-white/30 dark:hover:to-white/10 transition-all duration-300 cursor-pointer group shadow-2xl hover:shadow-red-500/50 hover:-translate-y-2 overflow-hidden">
-                        <CardContent className="p-0">
-                          <div className="relative overflow-hidden">
-                            <img
-                              src={getImageUrl(product.images?.[0])}
-                              alt={product.name}
-                              className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-500"
-                              onError={(e) => {
-                                e.currentTarget.src = placeholder.product();
-                              }}
-                            />
-                            <div className="absolute top-3 right-3">
-                              <Badge className="bg-red-600 text-white font-bold shadow-lg">
-                                <Sparkles className="w-3 h-3 ml-1" />
-                                مميز
-                              </Badge>
-                            </div>
-                            {product.discount && (
-                              <div className="absolute top-3 left-3">
-                                <Badge className="bg-yellow-400 text-black font-bold">
-                                  -{product.discount}٪
-                                </Badge>
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-4 space-y-2">
-                            <h3 className="font-bold text-gray-900 dark:text-white text-base line-clamp-1 group-hover:text-red-600 dark:group-hover:text-red-100 transition-colors">
-                              {product.name}
-                            </h3>
-                            <div className="flex items-center justify-between">
-                              <p className="text-gray-900 dark:text-white font-black text-xl">
-                                {formatPrice(product.price)}
-                              </p>
-                              <div className="flex items-center gap-1 bg-gray-100 dark:bg-white/20 px-2 py-1 rounded-full">
-                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 dark:text-yellow-300 dark:fill-yellow-300" />
-                                <span className="text-gray-900 dark:text-white text-sm font-bold">4.8</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Section - Modern Enhanced Design */}
+      <HeroSectionEnhanced
+        onShopNow={() => navigate('/products')}
+        onExploreDeals={() => navigate('/deals')}
+      />
 
       {/* Scrolling Marquee Banner */}
       <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 py-4 overflow-hidden relative">
@@ -400,23 +203,23 @@ export default function Index() {
         {/* Animated Background */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-        
+
         {/* Floating Money Icons */}
         <div className="absolute top-20 left-10 w-64 h-64 bg-green-400/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" style={{animation: 'float 4s ease-in-out infinite'}}></div>
-        
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" style={{ animation: 'float 4s ease-in-out infinite' }}></div>
+
         <div className="relative container mx-auto px-4 py-20 z-10">
           <div className="max-w-5xl mx-auto text-center space-y-8">
             <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-0 shadow-xl font-bold px-8 py-3 text-lg">
               💰 برنامج المسوقين بالعمولة
             </Badge>
-            
+
             <h2 className="text-5xl lg:text-7xl font-black leading-tight text-white drop-shadow-2xl">
               <span className="bg-gradient-to-r from-yellow-300 via-white to-yellow-300 bg-clip-text text-transparent">
                 ابدأ الربح من المنزل
               </span>
             </h2>
-            
+
             <p className="text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium leading-relaxed">
               انضم لآلاف المسوقين الناجحين واحصل على عمولات مجزية على كل عملية بيع
             </p>
@@ -428,13 +231,13 @@ export default function Index() {
                 <h3 className="text-2xl font-bold mb-2">عمولات عالية</h3>
                 <p className="text-white/80">احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص</p>
               </div>
-              
+
               <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
                 <BarChart3 className="w-12 h-12 mx-auto mb-4 text-blue-300" />
                 <h3 className="text-2xl font-bold mb-2">تتبع دقيق</h3>
                 <p className="text-white/80">راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم</p>
               </div>
-              
+
               <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
                 <Headphones className="w-12 h-12 mx-auto mb-4 text-pink-300" />
                 <h3 className="text-2xl font-bold mb-2">دعم مستمر</h3>
@@ -461,28 +264,28 @@ export default function Index() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-6 pt-12">
               <div className="text-center">
-                <AnimatedCounter 
-                  end={25} 
-                  suffix="%" 
+                <AnimatedCounter
+                  end={25}
+                  suffix="%"
                   className="text-5xl font-black text-yellow-300 mb-2"
                   duration={2000}
                 />
                 <div className="text-lg text-white/80 font-medium">نسبة العمولة</div>
               </div>
               <div className="text-center">
-                <AnimatedCounter 
-                  end={1000} 
-                  prefix="+" 
+                <AnimatedCounter
+                  end={1000}
+                  prefix="+"
                   className="text-5xl font-black text-white mb-2"
                   duration={2500}
                 />
                 <div className="text-lg text-white/80 font-medium">مسوق نشط</div>
               </div>
               <div className="text-center">
-                <AnimatedCounter 
-                  end={50000} 
-                  prefix="+" 
-                  suffix=" ج.م" 
+                <AnimatedCounter
+                  end={50000}
+                  prefix="+"
+                  suffix=" ج.م"
                   className="text-5xl font-black text-green-300 mb-2"
                   duration={3000}
                 />
@@ -512,9 +315,9 @@ export default function Index() {
             <CardContent className="text-center p-8">
               <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 dark:bg-red-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <Users className="w-12 h-12 mx-auto mb-4 text-red-600 dark:text-red-400" />
-              <AnimatedCounter 
-                end={10000} 
-                prefix="+" 
+              <AnimatedCounter
+                end={10000}
+                prefix="+"
                 className="text-5xl font-black text-red-600 dark:text-red-400 mb-3"
                 duration={2500}
               />
@@ -525,9 +328,9 @@ export default function Index() {
             <CardContent className="text-center p-8">
               <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 dark:bg-blue-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
-              <AnimatedCounter 
-                end={500} 
-                prefix="+" 
+              <AnimatedCounter
+                end={500}
+                prefix="+"
                 className="text-5xl font-black text-blue-600 dark:text-blue-400 mb-3"
                 duration={2000}
               />
@@ -538,9 +341,9 @@ export default function Index() {
             <CardContent className="text-center p-8">
               <div className="absolute top-0 right-0 w-24 h-24 bg-green-600/5 dark:bg-green-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <TrendingUp className="w-12 h-12 mx-auto mb-4 text-green-600 dark:text-green-400" />
-              <AnimatedCounter 
-                end={2000} 
-                prefix="+" 
+              <AnimatedCounter
+                end={2000}
+                prefix="+"
                 className="text-5xl font-black text-green-600 dark:text-green-400 mb-3"
                 duration={2200}
               />
@@ -551,9 +354,9 @@ export default function Index() {
             <CardContent className="text-center p-8">
               <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-600/5 dark:bg-yellow-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-600 dark:text-yellow-400" />
-              <AnimatedCounter 
-                end={5} 
-                suffix="M+" 
+              <AnimatedCounter
+                end={5}
+                suffix="M+"
                 className="text-5xl font-black text-yellow-600 dark:text-yellow-400 mb-3"
                 duration={2000}
               />
@@ -568,7 +371,7 @@ export default function Index() {
         {/* Background decorations */}
         <div className="absolute top-10 left-10 w-72 h-72 bg-red-100/30 dark:bg-red-900/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-100/20 dark:bg-blue-900/20 rounded-full blur-3xl"></div>
-        
+
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-20">
             <Badge className="mb-6 bg-gradient-to-r from-red-100 to-blue-100 dark:from-red-900/30 dark:to-blue-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 px-6 py-2 text-base font-bold">
@@ -587,47 +390,47 @@ export default function Index() {
             <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-700 overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-100 dark:from-red-900/30 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <CardContent className="p-8 relative z-10">
-              {/* فيديو توضيحي */}
-              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
-                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Play className="h-8 w-8 text-white mr-1" />
+                {/* فيديو توضيحي */}
+                <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                  <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                    <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play className="h-8 w-8 text-white mr-1" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                    <p className="text-white text-sm font-medium">🎬 كيف تتسوق على إيجي جو</p>
                   </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                  <p className="text-white text-sm font-medium">🎬 كيف تتسوق على إيجي جو</p>
+
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
+                    <ShoppingCart className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للعملاء</h3>
                 </div>
-              </div>
-              
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
-                  <ShoppingCart className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للعملاء</h3>
-              </div>
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">تصفح المنتجات</h4>
-                    <p className="text-sm text-muted-foreground">اكتشف آلاف المنتجات عالية الجودة</p>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">تصفح المنتجات</h4>
+                      <p className="text-sm text-muted-foreground">اكتشف آلاف المنتجات عالية الجودة</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">أضف للسلة</h4>
+                      <p className="text-sm text-muted-foreground">اختر ما يعجبك وأضفه لسلة المشتريات</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">اطلب واستلم</h4>
+                      <p className="text-sm text-muted-foreground">ادفع واستلم طلبك في 2-4 أيام</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">أضف للسلة</h4>
-                    <p className="text-sm text-muted-foreground">اختر ما يعجبك وأضفه لسلة المشتريات</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">اطلب واستلم</h4>
-                    <p className="text-sm text-muted-foreground">ادفع واستلم طلبك في 2-4 أيام</p>
-                  </div>
-                </div>
-              </div>
               </CardContent>
             </Card>
 
@@ -640,47 +443,47 @@ export default function Index() {
                 </Badge>
               </div>
               <CardContent className="p-8 relative z-10">
-              {/* فيديو توضيحي */}
-              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
-                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Play className="h-8 w-8 text-white mr-1" />
+                {/* فيديو توضيحي */}
+                <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                  <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                    <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play className="h-8 w-8 text-white mr-1" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                    <p className="text-white text-sm font-medium">🎬 كيف تبدأ البيع كتاجر</p>
                   </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                  <p className="text-white text-sm font-medium">🎬 كيف تبدأ البيع كتاجر</p>
+
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
+                    <Sparkles className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للتجار</h3>
                 </div>
-              </div>
-              
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
-                  <Sparkles className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للتجار</h3>
-              </div>
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">سجل حساب</h4>
-                    <p className="text-sm text-muted-foreground">انشئ حساب تاجر مجاناً</p>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">سجل حساب</h4>
+                      <p className="text-sm text-muted-foreground">انشئ حساب تاجر مجاناً</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">أضف منتجاتك</h4>
+                      <p className="text-sm text-muted-foreground">ارفع منتجاتك وحدد الأسعار والعمولات</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">ابدأ البيع</h4>
+                      <p className="text-sm text-muted-foreground">راقب مبيعاتك واستلم أرباحك أسبوعياً</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">أضف منتجاتك</h4>
-                    <p className="text-sm text-muted-foreground">ارفع منتجاتك وحدد الأسعار والعمولات</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">ابدأ البيع</h4>
-                    <p className="text-sm text-muted-foreground">راقب مبيعاتك واستلم أرباحك أسبوعياً</p>
-                  </div>
-                </div>
-              </div>
               </CardContent>
             </Card>
 
@@ -688,54 +491,54 @@ export default function Index() {
             <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-700 overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-100 dark:from-green-900/30 to-transparent rounded-full -mr-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <CardContent className="p-8 relative z-10">
-              {/* فيديو توضيحي */}
-              <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
-                <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Play className="h-8 w-8 text-white mr-1" />
+                {/* فيديو توضيحي */}
+                <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                  <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                    <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play className="h-8 w-8 text-white mr-1" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                    <p className="text-white text-sm font-medium">🎬 كيف تربح كمسوق</p>
                   </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                  <p className="text-white text-sm font-medium">🎬 كيف تربح كمسوق</p>
+
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
+                    <TrendingUp className="h-8 w-8" />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للمسوقين</h3>
                 </div>
-              </div>
-              
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
-                  <TrendingUp className="h-8 w-8" />
-                </div>
-                <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للمسوقين</h3>
-              </div>
-              <div className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">انضم مجاناً</h4>
-                    <p className="text-sm text-muted-foreground">سجل كمسوق بدون أي رسوم</p>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">انضم مجاناً</h4>
+                      <p className="text-sm text-muted-foreground">سجل كمسوق بدون أي رسوم</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">احصل على روابطك</h4>
+                      <p className="text-sm text-muted-foreground">اختر المنتجات وخذ روابط التسويق</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                    <div>
+                      <h4 className="font-semibold dark:text-gray-200">سوّق واربح</h4>
+                      <p className="text-sm text-muted-foreground">اربح عمولة لحد 25% على كل بيعة</p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">احصل على روابطك</h4>
-                    <p className="text-sm text-muted-foreground">اختر المنتجات وخذ روابط التسويق</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                  <div>
-                    <h4 className="font-semibold dark:text-gray-200">سوّق واربح</h4>
-                    <p className="text-sm text-muted-foreground">اربح عمولة لحد 25% على كل بيعة</p>
-                  </div>
-                </div>
-              </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
+      {/* Categories Section - Modern Animated Grid */}
       <section className="container mx-auto px-4">
         <div className="text-center mb-12 space-y-2">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
@@ -746,68 +549,49 @@ export default function Index() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {categories.filter(cat => cat.slug).map((category) => (
-            <Link
-              key={category.id}
-              to={`/products?category=${category.slug}`}
-              className="group"
-            >
-              <Card className="overflow-hidden card-hover group">
-                <div className="relative">
-                  <img
-                    src={category.image || placeholder.category(category.name)}
-                    alt={category.name}
-                    className="w-full h-32 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-                </div>
-                <CardContent className="p-4 text-center">
-                  <h3 className="font-semibold mb-1">{category.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {category.productCount} منتج
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <CategoryGridAnimated
+          categories={categories.filter(cat => cat.slug).slice(0, 6).map((category, index) => ({
+            id: category.id,
+            nameAr: category.name,
+            icon: [Smartphone, Shirt, HomeIcon, Gamepad2, Watch, Gift][index % 6],
+            productCount: category.productCount || 0,
+            gradient: [
+              'from-purple-500 to-blue-500',
+              'from-pink-500 to-orange-500',
+              'from-green-500 to-teal-500',
+              'from-red-500 to-pink-500',
+              'from-yellow-500 to-orange-500',
+              'from-indigo-500 to-purple-500',
+            ][index % 6],
+          }))}
+          onCategoryClick={(cat) => navigate(`/products?category=${categories.find(c => c.id === cat.id)?.slug}`)}
+        />
       </section>
 
-      {/* Featured Products with Swiper */}
+      {/* Featured Products - Modern Carousel */}
       <section className="container mx-auto px-4 products-section">
-        <div className="flex justify-between items-center mb-12">
-          <div>
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-              المنتجات المميزة
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              منتجات مختارة بعناية خصيصًا لك
-            </p>
-          </div>
-          <Button variant="outline" asChild>
-            <Link to="/products">
-              عرض الكل
-              <ArrowRight className="mr-2 h-4 w-4 rtl:mr-0 rtl:ml-2 rtl:rotate-180" />
-            </Link>
-          </Button>
-        </div>
-
         {featuredProducts.length > 0 && (
-          <SwiperProductSlider 
+          <ProductCarouselModern
             products={featuredProducts.map(p => ({
               id: p.id,
-              name: p.name,
+              nameAr: p.name,
               price: p.price,
               originalPrice: p.originalPrice,
               image: getImageUrl(p.images?.[0]),
-              rating: p.rating,
-              reviews: p.reviewCount,
-              badge: p.originalPrice && p.originalPrice > p.price ? formatDiscount(p.originalPrice, p.price) : undefined,
-              description: p.description || ''
+              rating: p.rating || 4.5,
+              reviewCount: p.reviewCount || 0,
+              discount: p.originalPrice && p.originalPrice > p.price ?
+                Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100) : undefined,
+              isNew: false,
+              isTrending: p.reviewCount > 100,
             }))}
-            variant="cards"
-            autoplay={true}
+            title="المنتجات المميزة"
+            subtitle="منتجات مختارة بعناية خصيصًا لك"
+            onProductClick={(p) => navigate(`/product/${p.id}`)}
+            onAddToCart={(p) => console.log('Add to cart:', p)}
+            onQuickView={(p) => console.log('Quick view:', p)}
+            wishlistedIds={[]}
+            onToggleWishlist={(id) => console.log('Toggle wishlist:', id)}
           />
         )}
       </section>
@@ -926,80 +710,81 @@ export default function Index() {
       </section>
 
       {/* Best Sellers */}
-      {bestSellers.length > 0 && (
-        <section className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-              الأكثر مبيعًا
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              منتجاتنا الأكثر شعبية المحبوبة من العملاء في جميع أنحاء مصر
-            </p>
-          </div>
+      {
+        bestSellers.length > 0 && (
+          <section className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+                الأكثر مبيعًا
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                منتجاتنا الأكثر شعبية المحبوبة من العملاء في جميع أنحاء مصر
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {bestSellers.slice(0, 4).map((product) => (
-              <Link key={product.id} to={`/product/${product.id}`}>
-                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
-                  <div className="relative">
-                    <img
-                      src={getImageUrl(product.images?.[0])}
-                      alt={product.name}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <Badge className="absolute top-2 left-2 bg-success text-success-foreground">
-                      الأكثر مبيعًا
-                    </Badge>
-                    <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
-                      {product.affiliateCommission}% عمولة
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {bestSellers.slice(0, 4).map((product) => (
+                <Link key={product.id} to={`/product/${product.id}`}>
+                  <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
+                    <div className="relative">
+                      <img
+                        src={getImageUrl(product.images?.[0])}
+                        alt={product.name}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <Badge className="absolute top-2 left-2 bg-success text-success-foreground">
+                        الأكثر مبيعًا
+                      </Badge>
+                      <div className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
+                        {product.affiliateCommission}% عمولة
+                      </div>
                     </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-1 mb-2">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < Math.floor(product.rating)
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-1 mb-2">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${i < Math.floor(product.rating)
                                 ? "text-yellow-400 fill-current"
                                 : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm text-muted-foreground">
-                        ({product.reviewCount})
-                      </span>
-                    </div>
-                    <h3 className="font-semibold mb-2 line-clamp-2">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold">
-                            {formatPrice(product.price)}
-                          </span>
-                          {product.originalPrice &&
-                            product.originalPrice > product.price && (
-                              <span className="text-sm text-muted-foreground line-through">
-                                {formatPrice(product.originalPrice)}
-                              </span>
-                            )}
+                                }`}
+                            />
+                          ))}
                         </div>
+                        <span className="text-sm text-muted-foreground">
+                          ({product.reviewCount})
+                        </span>
                       </div>
-                      <Button size="sm">
-                        <ShoppingCart className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+                      <h3 className="font-semibold mb-2 line-clamp-2">
+                        {product.name}
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold">
+                              {formatPrice(product.price)}
+                            </span>
+                            {product.originalPrice &&
+                              product.originalPrice > product.price && (
+                                <span className="text-sm text-muted-foreground line-through">
+                                  {formatPrice(product.originalPrice)}
+                                </span>
+                              )}
+                          </div>
+                        </div>
+                        <Button size="sm">
+                          <ShoppingCart className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )
+      }
 
       {/* Trust Signals & Customer Care */}
       <section className="bg-muted/40">
@@ -1114,7 +899,7 @@ export default function Index() {
                 انضم إلى أكثر من 500 تاجر ناجح على إيجي جو. عمولات منخفضة (5-10%)،
                 دفعات أسبوعية، ووصول لملايين العملاء المحتملين.
               </p>
-              
+
               <div className="grid grid-cols-2 gap-4 py-6">
                 <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                   <div className="text-3xl font-bold mb-1">5-10%</div>
@@ -1179,7 +964,7 @@ export default function Index() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-3">
                     <div className="bg-white/20 rounded-full p-2">
                       <BarChart3 className="h-5 w-5 text-white" />
@@ -1241,7 +1026,7 @@ export default function Index() {
             <p className="text-xl text-white/90 mb-8">
               انضم الآن لآلاف المستخدمين الناجحين واستمتع بتجربة فريدة
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
@@ -1279,6 +1064,6 @@ export default function Index() {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 }
