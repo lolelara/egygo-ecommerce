@@ -45,175 +45,219 @@ interface AdminLayoutProps {
 }
 
 const adminNavItems = [
+  // 📊 Dashboard & Overview
   {
     title: "لوحة التحكم",
     href: "/admin",
     icon: LayoutDashboard,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة المنتجات",
-    href: "/admin/products",
-    icon: Package,
-    roles: ['admin', 'merchant'], // المدير والتاجر
-  },
-  {
-    title: "حالة المنتجات",
-    href: "/merchant/products-status",
-    icon: CheckCircle,
-    roles: ['merchant'], // فقط التاجر
-  },
-  {
-    title: "موافقة المنتجات",
-    href: "/admin/product-approval",
-    icon: UserCheck,
-    roles: ['admin'], // فقط المدير
-    badge: true, // سيظهر عدد المنتجات المعلقة
-  },
-  {
-    title: "إدارة الفئات",
-    href: "/admin/categories",
-    icon: FolderOpen,
-    roles: ['admin'], // فقط المدير - التاجر يرى الفئات في صفحة المنتجات
-  },
-  {
-    title: "إدارة المستخدمين والشركاء",
-    href: "/admin/users",
-    icon: Users,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "الحسابات المعلقة",
-    href: "/admin/pending-accounts",
-    icon: UserCheck,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة الطلبات",
-    href: "/admin/orders",
-    icon: ShoppingCart,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة الكوبونات",
-    href: "/admin/coupons",
-    icon: Tag,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة العمولات",
-    href: "/admin/commissions",
-    icon: DollarSign,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة العروض",
-    href: "/admin/deals",
-    icon: Percent,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة الإعلانات",
-    href: "/admin/advertisements",
-    icon: Megaphone,
-    roles: ['admin'], // فقط المدير
-    badge: true, // سيظهر عدد الإعلانات المعلقة
-  },
-  {
-    title: "إدارة البانرات",
-    href: "/admin/banners",
-    icon: Image,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "الإعلانات",
-    href: "/merchant/advertising",
-    icon: TrendingUp,
-    roles: ['merchant'], // فقط التاجر
-  },
-  {
-    title: "النظام المالي",
-    href: "/admin/financial",
-    icon: Wallet,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "طلبات السحب",
-    href: "/admin/withdrawals",
-    icon: CreditCard,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "مدفوعات التجار",
-    href: "/admin/merchant-payments",
-    icon: DollarSign,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "التقارير المالية",
-    href: "/admin/reports",
-    icon: FileText,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "حسابي المالي",
-    href: "/merchant/financial",
-    icon: Wallet,
-    roles: ['merchant'], // فقط التاجر
-  },
-  {
-    title: "التحليلات المتقدمة",
-    href: "/admin/analytics",
-    icon: BarChart3,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "إدارة الشحن",
-    href: "/admin/shipping",
-    icon: Truck,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "الإعدادات المتقدمة",
-    href: "/admin/advanced-settings",
-    icon: Sparkles,
-    roles: ['admin'], // فقط المدير
-  },
-  {
-    title: "الإشعارات",
-    href: "/admin/notifications",
-    icon: Bell,
-    roles: ['admin'], // فقط المدير
+    roles: ['admin'],
+    separator: true,
   },
   {
     title: "لوحة الذكاء الاصطناعي",
     href: "/admin/ai-dashboard",
     icon: Bot,
-    roles: ['admin'], // فقط المدير
+    roles: ['admin'],
   },
   {
-    title: "أدوات الـ AI",
-    href: "/admin/ai-tools",
-    icon: Zap,
-    roles: ['admin'], // فقط المدير
+    title: "التحليلات المتقدمة",
+    href: "/admin/analytics",
+    icon: BarChart3,
+    roles: ['admin'],
+  },
+
+  // 📦 Products Management
+  {
+    title: "إدارة المنتجات",
+    href: "/admin/products",
+    icon: Package,
+    roles: ['admin', 'merchant'],
+    separator: true,
+  },
+  {
+    title: "المنتجات المتقدمة",
+    href: "/admin/products-advanced",
+    icon: Sparkles,
+    roles: ['admin'],
+  },
+  {
+    title: "منتجات Hero",
+    href: "/admin/hero-products",
+    icon: Image,
+    roles: ['admin'],
+  },
+  {
+    title: "موافقة المنتجات",
+    href: "/admin/product-approval",
+    icon: UserCheck,
+    roles: ['admin'],
+    badge: true,
+  },
+  {
+    title: "حالة المنتجات",
+    href: "/merchant/products-status",
+    icon: CheckCircle,
+    roles: ['merchant'],
+  },
+  {
+    title: "إدارة الفئات",
+    href: "/admin/categories",
+    icon: FolderOpen,
+    roles: ['admin'],
+  },
+
+  // 👥 Users & Accounts
+  {
+    title: "إدارة المستخدمين",
+    href: "/admin/users",
+    icon: Users,
+    roles: ['admin'],
+    separator: true,
+  },
+  {
+    title: "الحسابات المعلقة",
+    href: "/admin/pending-accounts",
+    icon: UserCheck,
+    roles: ['admin'],
+  },
+
+  // 🛒 Orders & Sales
+  {
+    title: "إدارة الطلبات",
+    href: "/admin/orders",
+    icon: ShoppingCart,
+    roles: ['admin'],
+    separator: true,
+  },
+  {
+    title: "إدارة الشحن",
+    href: "/admin/shipping",
+    icon: Truck,
+    roles: ['admin'],
+  },
+
+  // 💰 Financial Management
+  {
+    title: "النظام المالي",
+    href: "/admin/financial",
+    icon: Wallet,
+    roles: ['admin'],
+    separator: true,
+  },
+  {
+    title: "التقارير المالية",
+    href: "/admin/reports",
+    icon: FileText,
+    roles: ['admin'],
+  },
+  {
+    title: "لوحة المالية",
+    href: "/admin/financial-dashboard",
+    icon: BarChart3,
+    roles: ['admin'],
+  },
+  {
+    title: "إدارة العمولات",
+    href: "/admin/commissions",
+    icon: DollarSign,
+    roles: ['admin'],
+  },
+  {
+    title: "طلبات السحب",
+    href: "/admin/withdrawals",
+    icon: CreditCard,
+    roles: ['admin'],
+  },
+  {
+    title: "مدفوعات التجار",
+    href: "/admin/merchant-payments",
+    icon: DollarSign,
+    roles: ['admin'],
+  },
+  {
+    title: "حسابي المالي",
+    href: "/merchant/financial",
+    icon: Wallet,
+    roles: ['merchant'],
+  },
+
+  // 🎁 Marketing & Promotions
+  {
+    title: "إدارة الكوبونات",
+    href: "/admin/coupons",
+    icon: Tag,
+    roles: ['admin'],
+    separator: true,
+  },
+  {
+    title: "إدارة العروض",
+    href: "/admin/deals",
+    icon: Percent,
+    roles: ['admin'],
+  },
+  {
+    title: "العروض الخاصة",
+    href: "/admin/offers",
+    icon: Gift,
+    roles: ['admin'],
+  },
+  {
+    title: "إدارة الإعلانات",
+    href: "/admin/advertisements",
+    icon: Megaphone,
+    roles: ['admin'],
+    badge: true,
+  },
+  {
+    title: "إدارة البانرات",
+    href: "/admin/banners",
+    icon: Image,
+    roles: ['admin'],
+  },
+  {
+    title: "الإعلانات",
+    href: "/merchant/advertising",
+    icon: TrendingUp,
+    roles: ['merchant'],
+  },
+
+  // 🔔 Communication
+  {
+    title: "الإشعارات",
+    href: "/admin/notifications",
+    icon: Bell,
+    roles: ['admin'],
+    separator: true,
   },
   {
     title: "إدارة الواتساب",
     href: "/admin/whatsapp",
     icon: MessageSquare,
-    roles: ['admin'], // فقط المدير
+    roles: ['admin'],
   },
+
+  // 🤖 AI Tools
   {
-    title: "إدارة العروض الخاصة",
-    href: "/admin/offers",
-    icon: Gift,
-    roles: ['admin'], // فقط المدير
+    title: "أدوات الـ AI",
+    href: "/admin/ai-tools",
+    icon: Zap,
+    roles: ['admin'],
+    separator: true,
   },
+
+  // ⚙️ Settings
   {
     title: "الإعدادات",
     href: "/admin/settings",
     icon: Settings,
-    roles: ['admin'], // فقط المدير
+    roles: ['admin'],
+    separator: true,
+  },
+  {
+    title: "الإعدادات المتقدمة",
+    href: "/admin/advanced-settings",
+    icon: Sparkles,
+    roles: ['admin'],
   },
 ];
 
@@ -232,7 +276,7 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
   };
 
   // تصفية القوائم حسب دور المستخدم
-  const filteredNavItems = adminNavItems.filter(item => 
+  const filteredNavItems = adminNavItems.filter(item =>
     item.roles.includes(user?.role || 'customer')
   );
 
@@ -244,40 +288,45 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
         </h2>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
-        {filteredNavItems.map((item) => {
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {filteredNavItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.href;
+          const previousItem = filteredNavItems[index - 1];
+          const showSeparator = item.separator && index > 0;
 
           return (
-            <Link
-              key={item.href}
-              to={item.href}
-              onClick={onLinkClick}
-              className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors hover:bg-accent ${
-                isActive
-                  ? "bg-accent text-accent-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span className="flex-1">{item.title}</span>
-              {item.href === '/admin/pending-accounts' && pendingCount > 0 && (
-                <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
-                  {pendingCount}
-                </Badge>
+            <div key={item.href}>
+              {showSeparator && (
+                <div className="my-3 border-t border-border/50" />
               )}
-              {item.href === '/admin/product-approval' && pendingProductsCount > 0 && (
-                <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
-                  {pendingProductsCount}
-                </Badge>
-              )}
-              {item.href === '/admin/advertisements' && pendingAdsCount > 0 && (
-                <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
-                  {pendingAdsCount}
-                </Badge>
-              )}
-            </Link>
+              <Link
+                to={item.href}
+                onClick={onLinkClick}
+                className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors hover:bg-accent ${isActive
+                    ? "bg-accent text-accent-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                  }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="flex-1">{item.title}</span>
+                {item.href === '/admin/pending-accounts' && pendingCount > 0 && (
+                  <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                    {pendingCount}
+                  </Badge>
+                )}
+                {item.href === '/admin/product-approval' && pendingProductsCount > 0 && (
+                  <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                    {pendingProductsCount}
+                  </Badge>
+                )}
+                {item.href === '/admin/advertisements' && pendingAdsCount > 0 && (
+                  <Badge variant="destructive" className="h-5 min-w-5 flex items-center justify-center px-1.5">
+                    {pendingAdsCount}
+                  </Badge>
+                )}
+              </Link>
+            </div>
           );
         })}
       </nav>
@@ -312,7 +361,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // إخفاء زر الرجوع في صفحة الداشبورد الرئيسية
   const showBackButton = location.pathname !== '/admin' && location.pathname !== '/admin/';
 
