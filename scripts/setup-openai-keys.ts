@@ -35,6 +35,7 @@ async function createOpenAIKeysCollection() {
 
     await databases.createStringAttribute(DATABASE_ID, COLLECTION_ID, 'label', 255, true);
     await databases.createStringAttribute(DATABASE_ID, COLLECTION_ID, 'apiKey', 512, true);
+    await databases.createEnumAttribute(DATABASE_ID, COLLECTION_ID, 'provider', ['openai', 'gemini'], false, 'openai');
     await databases.createEnumAttribute(DATABASE_ID, COLLECTION_ID, 'status', ['active', 'inactive', 'error'], true);
     await databases.createIntegerAttribute(DATABASE_ID, COLLECTION_ID, 'priority', true, 0, 10000);
     await databases.createBooleanAttribute(DATABASE_ID, COLLECTION_ID, 'isDefault', true, false);

@@ -793,8 +793,8 @@ export const openAIKeysApi = {
         id: doc.$id,
         label: doc.label,
         provider: doc.provider || "openai",
-        key: doc.key, // Note: In a real app, we might mask this
-        isActive: doc.isActive,
+        key: doc.apiKey, // Map apiKey from DB to key
+        isActive: doc.status === 'active',
         createdAt: doc.$createdAt,
       }));
     } catch (error) {
@@ -803,7 +803,7 @@ export const openAIKeysApi = {
     }
   },
 
-  create: async (payload: { label: string; key: string; provider: "openai" | "gemini" }): Promise<AdminOpenAIKey> => {
+  create: async (payload: { label: string; key: string; provider: "openai" | "gemini"; priority?: number; isDefault?: boolean }): Promise<AdminOpenAIKey> => {
     try {
       const doc = await databases.createDocument(
         DATABASE_ID,
@@ -811,9 +811,11 @@ export const openAIKeysApi = {
         ID.unique(),
         {
           label: payload.label,
-          key: payload.key,
+          apiKey: payload.key,
           provider: payload.provider,
-          isActive: true, // Default to active
+          status: 'active',
+          priority: payload.priority || 0,
+          isDefault: payload.isDefault || false,
         }
       );
 
@@ -821,7 +823,8 @@ export const openAIKeysApi = {
         id: doc.$id,
         label: doc.label,
         provider: doc.provider,
-      };
+        isActive: doc.status === 'active',
+      } as AdminOpenAIKey;
     } catch (error: any) {
       throw new Error(error.message || "فشل في إضافة مفتاح API");
     }

@@ -251,6 +251,8 @@ export default function AdminAdvancedSettings() {
         label: newKeyLabel,
         key: newKeyValue,
         provider: newKeyProvider,
+        priority: newKeyPriority,
+        isDefault: newKeyIsDefault,
       });
       setOpenAIKeys((prev) => [created, ...prev]);
       setNewKeyLabel("");
