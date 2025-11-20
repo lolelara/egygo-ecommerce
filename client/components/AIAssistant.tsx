@@ -37,6 +37,7 @@ export function AIAssistant() {
   const [isLoadingContext, setIsLoadingContext] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const [activeProvider, setActiveProvider] = useState<'openai' | 'gemini'>('openai');
 
   // Chat history with messages
   const chatRef = useRef<Array<{ role: 'system' | 'user' | 'assistant'; content: string }>>([]);
@@ -344,158 +345,185 @@ export function AIAssistant() {
     setIsTyping(true);
 
     try {
-      console.log('✅ Fetching API key from Appwrite...');
+      console.log('✅ Fetching API keys from Appwrite...');
 
-      // 1. Get the active API key from Appwrite
+      // 1. Get ALL active API keys from Appwrite, sorted by priority
       const keysResponse = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.openai_keys,
         [
           Query.equal('status', 'active'),
-          Query.equal('isDefault', true),
-          Query.limit(1)
+          Query.orderDesc('priority'), // High priority first
+          Query.limit(10)
         ]
       );
 
-      let activeKey = keysResponse.documents[0];
+      const keys = keysResponse.documents;
 
-      // Fallback: if no default, try any active key
-      if (!activeKey && keysResponse.total === 0) {
-        const anyKeyResponse = await databases.listDocuments(
-          appwriteConfig.databaseId,
-          appwriteConfig.collections.openai_keys,
-          [
-            Query.equal('status', 'active'),
-            Query.limit(1)
-          ]
-        );
-        activeKey = anyKeyResponse.documents[0];
+      if (keys.length === 0) {
+        throw new Error('لم يتم العثور على مفاتيح API نشطة. يرجى الاتصال بالدعم.');
       }
 
-      if (!activeKey || !activeKey.apiKey) {
-        throw new Error('لم يتم العثور على مفتاح API نشط. يرجى الاتصال بالدعم.');
-      }
+      let lastError = null;
+      let success = false;
 
-      const apiKey = activeKey.apiKey;
-      const provider = activeKey.provider || 'openai';
+      // 2. Iterate through keys until one works
+      for (const activeKey of keys) {
+        if (!activeKey.apiKey) continue;
 
-      console.log(`🔑 Using ${provider} API key`);
+        const apiKey = activeKey.apiKey;
+        let provider = activeKey.provider || 'openai';
 
-      // Check if user is asking for contextual data
-      const contextualKeywords = ['راجع', 'شوف بياناتي', 'تقرير', 'نصائح', 'نصيحة', 'جدول تطوير', 'حسابي'];
-      const needsContext = contextualKeywords.some(keyword => currentInput.includes(keyword));
-
-      // Prepare context
-      let context = '';
-      if (needsContext) {
-        context = userContextData || '';
-        if (!context) {
-          context = (await loadUserContext()) || '';
+        // Auto-detect provider based on key prefix if possible
+        if (apiKey.startsWith('sk-')) {
+          provider = 'openai';
+        } else if (apiKey.startsWith('AIza')) {
+          provider = 'gemini';
         }
-      }
 
-      // Prepare system prompt
-      const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر.
-      معلومات عن الموقع: موقع تسوق إلكتروني مصري، يبيع منتجات متنوعة، شحن لجميع أنحاء مصر، دفع عند الاستلام.
-      تعليمات: تحدث باللهجة المصرية، كن مفيداً وودوداً، استخدم الإيموجي.
-      ${context ? `\nبيانات المستخدم الحالية:\n${context}` : ''}`;
+        console.log(`🔄 Trying ${provider} key (Priority: ${activeKey.priority})...`);
 
-      let aiText = '';
+        try {
+          // Check if user is asking for contextual data
+          const contextualKeywords = ['راجع', 'شوف بياناتي', 'تقرير', 'نصائح', 'نصيحة', 'جدول تطوير', 'حسابي'];
+          const needsContext = contextualKeywords.some(keyword => currentInput.includes(keyword));
 
-      if (provider === 'gemini') {
-        // --- Gemini API Implementation ---
-        console.log('🤖 Calling Gemini API...');
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: systemPrompt + "\n\nالمستخدم: " + currentInput }]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1000,
+          // Prepare context
+          let context = '';
+          if (needsContext) {
+            context = userContextData || '';
+            if (!context) {
+              context = (await loadUserContext()) || '';
             }
-          })
-        });
+          }
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('❌ Gemini API Error:', response.status, errorData);
-          throw new Error(errorData.error?.message || `Gemini API Error: ${response.status}`);
+          // Prepare system prompt
+          const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر.
+          معلومات عن الموقع: موقع تسوق إلكتروني مصري، يبيع منتجات متنوعة، شحن لجميع أنحاء مصر، دفع عند الاستلام.
+          تعليمات: تحدث باللهجة المصرية، كن مفيداً وودوداً، استخدم الإيموجي.
+          ${context ? `\nبيانات المستخدم الحالية:\n${context}` : ''}`;
+
+          let aiText = '';
+
+          if (provider === 'gemini') {
+            // --- Gemini API Implementation ---
+            console.log('🤖 Calling Gemini API...');
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [{ text: systemPrompt + "\n\nالمستخدم: " + currentInput }]
+                  }
+                ],
+                generationConfig: {
+                  temperature: 0.7,
+                  maxOutputTokens: 1000,
+                }
+              })
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              console.error('❌ Gemini API Error:', response.status, errorData);
+              throw new Error(errorData.error?.message || `Gemini API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أستطع فهم ذلك.';
+
+          } else {
+            // --- OpenAI API Implementation ---
+            console.log('🤖 Calling OpenAI API...');
+
+            // Add user message to chat history
+            chatRef.current.push({
+              role: 'user',
+              content: currentInput
+            });
+
+            // Limit chat history
+            if (chatRef.current.length > 10) {
+              chatRef.current = chatRef.current.slice(chatRef.current.length - 10);
+            }
+
+            const messagesToSend = [
+              { role: 'system', content: systemPrompt },
+              ...chatRef.current.map(m => ({ role: m.role, content: m.content }))
+            ];
+
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+              },
+              body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: messagesToSend,
+                temperature: 0.7,
+                max_tokens: 1000
+              })
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({}));
+              console.error('❌ OpenAI API Error:', response.status, errorData);
+              throw new Error(errorData.error?.message || `OpenAI API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            aiText = data.choices?.[0]?.message?.content || 'عذراً، لم أستطع فهم ذلك.';
+
+            // Add assistant response to history
+            chatRef.current.push({
+              role: 'assistant',
+              content: aiText
+            });
+          }
+
+          // Success!
+          console.log('✅ AI Response:', aiText.substring(0, 50) + '...');
+          setActiveProvider(provider as 'openai' | 'gemini');
+
+          const botMessage: Message = {
+            id: String(messages.length + 2),
+            type: 'bot',
+            content: aiText,
+            timestamp: new Date(),
+          };
+
+          setMessages((prev) => [...prev, botMessage]);
+          success = true;
+          break; // Exit loop on success
+
+        } catch (error: any) {
+          console.error(`❌ Error with ${provider} key:`, error);
+          lastError = error;
+
+          // If it's a quota or auth error, continue to next key
+          if (error.message?.includes('429') || error.message?.includes('quota') ||
+            error.message?.includes('401') || error.message?.includes('key')) {
+            console.log('⚠️ Key failed (Quota/Auth), trying next key...');
+            continue;
+          }
+
+          // For other errors, also continue (maybe network glitch on one provider?)
+          continue;
         }
-
-        const data = await response.json();
-        aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أستطع فهم ذلك.';
-
-      } else {
-        // --- OpenAI API Implementation ---
-        console.log('🤖 Calling OpenAI API...');
-
-        // Add user message to chat history
-        chatRef.current.push({
-          role: 'user',
-          content: currentInput
-        });
-
-        // Limit chat history
-        if (chatRef.current.length > 10) {
-          chatRef.current = chatRef.current.slice(chatRef.current.length - 10);
-        }
-
-        const messagesToSend = [
-          { role: 'system', content: systemPrompt },
-          ...chatRef.current.map(m => ({ role: m.role, content: m.content }))
-        ];
-
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: messagesToSend,
-            temperature: 0.7,
-            max_tokens: 1000
-          })
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('❌ OpenAI API Error:', response.status, errorData);
-          throw new Error(errorData.error?.message || `OpenAI API Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        aiText = data.choices?.[0]?.message?.content || 'عذراً، لم أستطع فهم ذلك.';
-
-        // Add assistant response to history
-        chatRef.current.push({
-          role: 'assistant',
-          content: aiText
-        });
       }
 
-      console.log('✅ AI Response:', aiText.substring(0, 50) + '...');
+      if (!success) {
+        throw lastError || new Error('فشل الاتصال بجميع مزودي الخدمة');
+      }
 
-      const botMessage: Message = {
-        id: String(messages.length + 2),
-        type: 'bot',
-        content: aiText,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, botMessage]);
     } catch (error: any) {
-      console.error('AI API Error:', error);
+      console.error('AI API Error (All keys failed):', error);
 
       // Detailed error message
       let errorMessage = 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏';
@@ -577,7 +605,7 @@ export function AIAssistant() {
               <div>
                 <h3 className="font-semibold">مساعد إيجي جو الذكي</h3>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs opacity-90">متاح دلوقتي • OpenAI</span>
+                  <span className="text-xs opacity-90">متاح دلوقتي • {activeProvider === 'gemini' ? 'Google Gemini' : 'OpenAI'}</span>
                   {getUserRoleBadge()}
                 </div>
               </div>
@@ -680,7 +708,7 @@ export function AIAssistant() {
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              مدعوم بـ OpenAI 🤖 {userContextData && '• بيانات محدثة'}
+              مدعوم بـ {activeProvider === 'gemini' ? 'Google Gemini' : 'OpenAI'} 🤖 {userContextData && '• بيانات محدثة'}
             </p>
           </div>
         </Card>

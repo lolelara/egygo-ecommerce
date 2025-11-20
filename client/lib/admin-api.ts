@@ -870,21 +870,33 @@ export const openAIKeysApi = {
         id
       );
 
-      const apiKey = doc.key;
-      const provider = doc.provider || "openai";
+      const apiKey = doc.apiKey; // Use apiKey from DB schema
+      let provider = doc.provider || "openai";
+
+      // Auto-detect provider based on key prefix
+      if (apiKey && apiKey.startsWith('sk-')) {
+        provider = 'openai';
+      } else if (apiKey && apiKey.startsWith('AIza')) {
+        provider = 'gemini';
+      }
 
       if (!apiKey) {
         return { ok: false, error: "المفتاح غير موجود" };
       }
+
+      let isValid = false;
+      let errorMessage = "";
 
       // 2. Test based on provider
       if (provider === "gemini") {
         // Test Gemini Key
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          return { ok: false, error: errorData.error?.message || "فشل التحقق من مفتاح Gemini" };
+        if (response.ok) {
+          isValid = true;
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          errorMessage = errorData.error?.message || `Gemini Error: ${response.status}`;
         }
       } else {
         // Test OpenAI Key
@@ -895,14 +907,37 @@ export const openAIKeysApi = {
           }
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          return { ok: false, error: errorData.error?.message || "فشل التحقق من مفتاح OpenAI" };
+        if (response.ok) {
+          isValid = true;
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          if (response.status === 429) {
+            errorMessage = "تم تجاوز حد الاستخدام (Quota Exceeded) - الرصيد غير كافي";
+          } else if (response.status === 401) {
+            errorMessage = "المفتاح غير صحيح (Unauthorized)";
+          } else {
+            errorMessage = errorData.error?.message || `OpenAI Error: ${response.status}`;
+          }
         }
       }
 
-      // 3. If successful, update lastUsedAt (optional)
-      return { ok: true };
+      // 3. Update key status in DB
+      await databases.updateDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id,
+        {
+          lastTestedAt: new Date().toISOString(),
+          lastError: isValid ? null : errorMessage,
+          status: isValid ? 'active' : 'error'
+        }
+      );
+
+      if (isValid) {
+        return { ok: true };
+      } else {
+        return { ok: false, error: errorMessage };
+      }
     } catch (error: any) {
       return { ok: false, error: error.message || "حدث خطأ أثناء اختبار المفتاح" };
     }
