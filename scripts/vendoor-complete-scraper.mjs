@@ -17,8 +17,9 @@ const APPWRITE_API_KEY = 'standard_4cd223829de1f0735515eed5940137b7108cdcbd46e8d
 const APPWRITE_DATABASE_ID = '68de037e003bd03c4d45';
 
 // Test mode - SET TO FALSE FOR FULL SCRAPING
-const TEST_MODE = false;  // وضع الإنتاج الكامل
-const TEST_VENDORS_LIMIT = 2;  // عدد الموردين للاختبار (ignored when TEST_MODE = false)
+// Test mode - SET TO FALSE FOR FULL SCRAPING
+const TEST_MODE = true;  // وضع الإنتاج الكامل
+const TEST_VENDORS_LIMIT = 1;  // عدد الموردين للاختبار (ignored when TEST_MODE = false)
 const TEST_PRODUCTS_PER_VENDOR = 3;  // عدد المنتجات لكل مورد (ignored when TEST_MODE = false)
 
 // Profit Margin - زيادة على سعر المنتج
@@ -45,12 +46,12 @@ async function getOrCreateCategory() {
   try {
     const categories = await databases.listDocuments(APPWRITE_DATABASE_ID, 'categories');
     const vendoor = categories.documents.find(c => c.name === 'Vendoor Products');
-    
+
     if (vendoor) {
       console.log('✅ Category found:', vendoor.$id);
       return vendoor.$id;
     }
-    
+
     const newCat = await databases.createDocument(
       APPWRITE_DATABASE_ID,
       'categories',
@@ -58,7 +59,7 @@ async function getOrCreateCategory() {
       { name: 'Vendoor Products', description: 'Products from Vendoor', image: 'https://via.placeholder.com/400' },
       [Permission.read(Role.any())]
     );
-    
+
     console.log('✅ Category created:', newCat.$id);
     return newCat.$id;
   } catch (error) {
@@ -76,15 +77,15 @@ async function login(page) {
     console.log('🔐 Logging in...');
     await page.goto(VENDOOR_LOGIN_URL, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(r => setTimeout(r, 2000));
-    
+
     const email = await page.$('input[name="name"]');
     if (!email) throw new Error('Email field not found');
     await email.type(VENDOOR_EMAIL);
-    
+
     const pass = await page.$('input[name="password"]');
     if (!pass) throw new Error('Password field not found');
     await pass.type(VENDOOR_PASSWORD);
-    
+
     const btn = await page.$('button[type="submit"]');
     if (btn) {
       await btn.click();
@@ -93,7 +94,7 @@ async function login(page) {
         page.waitForSelector('nav', { timeout: 60000 }).catch(() => null)
       ]);
     }
-    
+
     console.log('✅ Logged in');
     return true;
   } catch (error) {
@@ -111,11 +112,11 @@ async function getVendorLinks(page) {
     console.log('\n📋 Step 1: Getting vendor links...');
     await page.goto(VENDOOR_PRODUCTS_URL, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(r => setTimeout(r, 2000));
-    
+
     const vendors = await page.evaluate(() => {
       const results = [];
       const links = Array.from(document.querySelectorAll('a[href*="vendor_id"]'));
-      
+
       links.forEach(a => {
         const href = a.href;
         const match = href.match(/vendor_id=(\d+)/);
@@ -128,10 +129,10 @@ async function getVendorLinks(page) {
           });
         }
       });
-      
+
       return results;
     });
-    
+
     console.log(`✅ Found ${vendors.length} vendors`);
     return vendors;
   } catch (error) {
@@ -149,27 +150,27 @@ async function getProductsFromVendor(page, vendor, vendorIndex) {
     console.log(`\n🏪 Vendor ${vendorIndex + 1}: ${vendor.name}`);
     await page.goto(vendor.url, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(r => setTimeout(r, 2000));
-    
+
     await page.screenshot({ path: `vendor-${vendor.vendorId}.png` });
-    
+
     const products = await page.evaluate(() => {
       const results = [];
-      
+
       // البحث عن بطاقات المنتجات
       const cards = Array.from(document.querySelectorAll('.card, .product-card, [class*="product"]'));
-      
+
       cards.forEach(card => {
         // البحث عن رابط المنتج داخل البطاقة
         const link = card.querySelector('a[href*="/product/"], a[href*="/p/"]');
         if (!link) return;
-        
+
         const href = link.href;
         // تأكد أنه رابط منتج فردي وليس فلتر
         if (!href.includes('vendor_id') && !results.includes(href)) {
           results.push(href);
         }
       });
-      
+
       // إذا لم نجد شيء، ابحث عن أي رابط يحتوي على product
       if (results.length === 0) {
         const allLinks = Array.from(document.querySelectorAll('a'));
@@ -180,10 +181,10 @@ async function getProductsFromVendor(page, vendor, vendorIndex) {
           }
         });
       }
-      
+
       return results;
     });
-    
+
     console.log(`   📦 Found ${products.length} products`);
     return products;
   } catch (error) {
@@ -202,10 +203,10 @@ async function scrapeProduct(page, productUrl, index) {
     console.log(`📦 Product #${index + 1}`);
     console.log(`🔗 ${productUrl}`);
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
-    
+
     await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(r => setTimeout(r, 2000));
-    
+
     // استخراج البيانات
     const data = await page.evaluate(() => {
       const result = {
@@ -220,7 +221,7 @@ async function scrapeProduct(page, productUrl, index) {
         seller: '',
         mediaLinks: []
       };
-      
+
       // Helpers: Arabic normalization and size normalization
       const normalizeArabic = (s) => (s || '')
         .replace(/[أإآ]/g, 'ا')
@@ -232,13 +233,64 @@ async function scrapeProduct(page, productUrl, index) {
         const m = str.match(/\d+(?:\.\d+)?/);
         return m ? m[0] : str; // keep non-numeric sizes like S/M/L
       };
-      
+      // Extract description
+      // Extract description
+      const container = document.querySelector('section.component-What');
+      if (container) {
+        // Clone the container to avoid modifying the page
+        const clone = container.cloneNode(true);
+
+        // Remove unwanted elements
+        const unwantedSelectors = [
+          'h6.prodect-text', // Title
+          '.card-body-2.price', // Price and stock info
+          'table', // Stock table
+          'div.actions', // Buttons (if any)
+          'div:last-child', // Often contains the buttons
+          'a.btn-save-link', // Add order button
+          'a.btn-success' // Download catalog button
+        ];
+
+        unwantedSelectors.forEach(selector => {
+          const elements = clone.querySelectorAll(selector);
+          elements.forEach(el => el.remove());
+        });
+
+        // Remove empty paragraphs
+        const paragraphs = clone.querySelectorAll('p');
+        paragraphs.forEach(p => {
+          if (!p.innerText.trim()) p.remove();
+        });
+
+        // Extract media links (Google Drive, etc.)
+        const links = Array.from(clone.querySelectorAll('a'));
+        links.forEach(link => {
+          const href = link.href;
+          if (href && (href.includes('drive.google.com') || href.includes('mega.nz') || href.includes('dropbox.com') || href.includes('mediafire.com'))) {
+            // Add to media links if not already present
+            // Note: We can't easily pass data back out from here except via return value
+            // So we'll mark it for extraction or just extract text content
+            link.remove(); // Remove from description
+          }
+        });
+
+        // Return the cleaned HTML or text
+        result.description = clone.innerHTML.trim();
+
+        // Re-scan for media links in the original container to populate the array
+        const mediaLinks = Array.from(container.querySelectorAll('a'))
+          .map(a => a.href)
+          .filter(href => href && (href.includes('drive.google.com') || href.includes('mega.nz') || href.includes('dropbox.com') || href.includes('mediafire.com')));
+
+        result.mediaLinks = [...new Set(mediaLinks)]; // Unique links
+      }
+
       // ✅ العنوان من h6.prodect-text
       const titleEl = document.querySelector('h6.prodect-text');
       if (titleEl) {
         result.title = titleEl.textContent.trim();
       }
-      
+
       // ✅ البائع من .card-body-2.price
       const sellerDiv = Array.from(document.querySelectorAll('.card-body-2.price')).find(
         div => div.textContent.includes('البائع')
@@ -247,7 +299,7 @@ async function scrapeProduct(page, productUrl, index) {
         const sellerSpan = sellerDiv.querySelector('span');
         if (sellerSpan) result.seller = sellerSpan.textContent.trim();
       }
-      
+
       // ✅ السعر من .card-body-2.price
       const priceDiv = Array.from(document.querySelectorAll('.card-body-2.price')).find(
         div => div.textContent.includes('السعر')
@@ -258,7 +310,7 @@ async function scrapeProduct(page, productUrl, index) {
           result.price = parseInt(priceMatch[1]);
         }
       }
-      
+
       // إذا لم نجد سعر، ابحث بطريقة أخرى
       const priceSelectors = ['.price', '.product-price', '[class*="price"]'];
       for (const selector of priceSelectors) {
@@ -278,7 +330,7 @@ async function scrapeProduct(page, productUrl, index) {
         }
         if (result.price > 0) break;
       }
-      
+
       // إذا لم نجد سعر، ابحث في أي عنصر يحتوي على أرقام
       if (result.price === 0) {
         const allText = Array.from(document.querySelectorAll('*'))
@@ -292,7 +344,7 @@ async function scrapeProduct(page, productUrl, index) {
           }
         }
       }
-      
+
       // ✅ الوصف من p.prodcut-titles
       const descEl = document.querySelector('p.prodcut-titles');
       if (descEl) {
@@ -302,7 +354,7 @@ async function scrapeProduct(page, productUrl, index) {
         const links = clonedDesc.querySelectorAll('a');
         links.forEach(link => link.remove());
         result.description = clonedDesc.textContent.trim();
-        
+
         // استخراج لينكات الميديا
         const mediaLinks = descEl.querySelectorAll('a[href*="drive.google.com"]');
         mediaLinks.forEach(link => {
@@ -312,7 +364,7 @@ async function scrapeProduct(page, productUrl, index) {
           }
         });
       }
-      
+
       // Fallback: إذا الوصف فارغ، جرب من أي p tag في body
       if (!result.description || result.description.length < 10) {
         const allPs = Array.from(document.querySelectorAll('.component-What p, .card-body-2 p, section p'));
@@ -324,13 +376,13 @@ async function scrapeProduct(page, productUrl, index) {
           }
         }
       }
-      
+
       // ✅ الصور - الصورة الرئيسية من .abut-img img
       const mainImg = document.querySelector('.abut-img img');
       if (mainImg && mainImg.src) {
         result.images.push(mainImg.src);
       }
-      
+
       // الصور الإضافية - مع استبعاد اللوجوهات
       const addImage = (url) => {
         if (!url) return;
@@ -341,53 +393,53 @@ async function scrapeProduct(page, productUrl, index) {
           result.images.push(url);
         }
       };
-      
+
       // صورة og:image
       const ogImage = document.querySelector('meta[property="og:image"]');
       if (ogImage) {
         const content = ogImage.getAttribute('content');
         if (content) addImage(content);
       }
-      
+
       // الصور الأخرى
       const imgs = Array.from(document.querySelectorAll('.product-images img, .gallery img'));
       imgs.forEach(img => {
         const src = img.src || img.getAttribute('data-src') || '';
         if (src) addImage(src);
       });
-      
+
       // ✅ Variants from table.table-product
       const tables = Array.from(document.querySelectorAll('table.table-product, table'));
-      
+
       tables.forEach(table => {
         const headers = Array.from(table.querySelectorAll('th, thead td'))
           .map(h => h.textContent.trim().toLowerCase());
-        
+
         if (headers.length === 0) return;
-        
+
         // البحث عن أعمدة Size, Color, stock
         const findCol = (patterns) => headers.findIndex(h => patterns.some(p => p.test(h)));
-        
+
         const sizeIdx = findCol([/size/i, /مقاس/]);
         const colorIdx = findCol([/color/i, /لون/]);
         const qtyIdx = findCol([/stock/i, /كمية/, /qty/i, /quantity/i, /عدد/]);
-        
+
         if (colorIdx === -1 && sizeIdx === -1 && qtyIdx === -1) return;
-        
+
         const rows = Array.from(table.querySelectorAll('tbody tr, tr'));
-        
+
         rows.forEach((row, idx) => {
           // Skip row only if it's the first AND contains th elements (actual header)
           const isHeaderRow = row.querySelectorAll('th').length > 0;
           if (isHeaderRow) return;
-          
+
           const cells = Array.from(row.querySelectorAll('td'));
           if (cells.length === 0) return;
-          
+
           // ✅ استخراج البيانات من الأعمدة
           let size = sizeIdx >= 0 && cells[sizeIdx] ? cells[sizeIdx].textContent.trim() : '';
           let color = colorIdx >= 0 && cells[colorIdx] ? cells[colorIdx].textContent.trim() : '';
-          
+
           // إذا كان Size يحتوي على اللون + المقاس (مثل "اسود 41")
           // وColor يحتوي على اللون فقط (مثل "اسود")
           // نستخدم Color للون و نستخرج المقاس من Size
@@ -399,22 +451,22 @@ async function scrapeProduct(page, productUrl, index) {
           // طبّق التطبيع
           color = normalizeArabic(color);
           size = normalizeSize(size);
-          
+
           let qtyText = qtyIdx >= 0 && cells[qtyIdx] ? cells[qtyIdx].textContent : '';
           if (!qtyText) {
             const numCell = cells.find(c => /\d/.test(c.textContent || ''));
             qtyText = numCell ? numCell.textContent : '0';
           }
-          
+
           const qty = parseInt(qtyText.replace(/\D/g, '')) || 0;
-          
+
           if (color || size || qty > 0) {
             result.colorSizeInventory.push({
               color: color || 'Default',
               size: size || 'Default',
               quantity: qty
             });
-            
+
             if (color && !result.colors.includes(color)) result.colors.push(color);
             // حفظ المقاس (بدون اللون)
             if (size && !result.sizes.includes(size)) result.sizes.push(size);
@@ -426,10 +478,10 @@ async function scrapeProduct(page, productUrl, index) {
       // Unique arrays
       result.colors = Array.from(new Set(result.colors));
       result.sizes = Array.from(new Set(result.sizes.map(s => String(s))));
-      
+
       return result;
     });
-    
+
     console.log('\n📊 Scraped:');
     console.log('   Title:', data.title || '(No title)');
     console.log('   Seller:', data.seller || '(No seller)');
@@ -443,7 +495,7 @@ async function scrapeProduct(page, productUrl, index) {
     console.log('   Sizes:', data.sizes.slice(0, 10), data.sizes.length > 10 ? `...and ${data.sizes.length - 10} more` : '');
     console.log('   Variants:', data.colorSizeInventory.length);
     console.log('   Total Stock:', data.totalStock);
-    
+
     return data;
   } catch (error) {
     console.error('   ❌ Scraping error:', error.message);
@@ -461,7 +513,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       console.log('   ⏭️ Price too low, skipping');
       return null;
     }
-    
+
     // ✅ Use clean page description only (no inventory lines here)
     let description = (data.description || '').trim();
     // Optionally append media links if present
@@ -469,7 +521,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       const linksText = data.mediaLinks.map((l) => `- ${l}`).join('\n');
       description = `${description}\n\n📎 روابط الميديا:\n${linksText}`.trim();
     }
-    
+
     // ✅ استخدام الحقول الموجودة فعلياً في products collection
     // Filter images again to ensure no logos are saved
     const filteredImages = (data.images || []).filter((u) => u && !/logo2?\.png|favicon/i.test(String(u)));
@@ -477,33 +529,34 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
     // حساب السعر النهائي (السعر الأصلي + هامش الربح)
     const originalPrice = data.price;
     const finalPrice = originalPrice + PROFIT_MARGIN;
-    
+
     const productData = {
       // Required fields
       name: data.title || `Vendoor Product ${index + 1}`,
       description: description.substring(0, 1500),
       price: finalPrice, // السعر بعد إضافة الهامش
       categoryId: categoryId,
-      
+
       // Optional fields - Basic info
       images: filteredImages.length > 0 ? filteredImages : ['https://via.placeholder.com/400'],
       source: 'vendoor',
       status: 'approved', // ✅ منشور مباشرة
       originalPrice: originalPrice, // السعر الأصلي من Vendoor
       sourceUrl: productUrl, // ✅ لتتبع المنتج
-      
+
       // Optional fields - Stock
       stock: data.totalStock,
       totalStock: data.totalStock,
-      
+
       // ✅ الحقول الصحيحة - تخزين المقاسات والألوان في مكانها الصحيح
       colors: data.colors,
       sizes: data.sizes,
       colorSizeInventory: JSON.stringify(data.colorSizeInventory),
+      mediaLinks: data.mediaLinks || [], // ✅ Save media links to new attribute
     };
-    
+
     console.log('\n💾 Checking if product exists...');
-    
+
     // 🔍 البحث عن المنتج الموجود باستخدام sourceUrl
     try {
       const existingProducts = await databases.listDocuments(
@@ -514,7 +567,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
           Query.limit(1)
         ]
       );
-      
+
       if (existingProducts.documents.length > 0) {
         // ✅ المنتج موجود - تحديثه
         const existingProduct = existingProducts.documents[0];
@@ -523,32 +576,32 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
         console.log('   New Stock:', data.totalStock);
         console.log('   Old Images:', existingProduct.images?.length || 0);
         console.log('   New Images:', data.images.length);
-        
+
         // Keep SKU from existing product
         productData.sku = existingProduct.sku;
-        
+
         const doc = await databases.updateDocument(
           APPWRITE_DATABASE_ID,
           'products',
           existingProduct.$id,
           productData
         );
-        
+
         console.log('✅ Updated! ID:', doc.$id);
         console.log('   Stock: ', existingProduct.stock, '→', doc.stock);
         console.log('   Colors:', doc.colors);
         console.log('   Sizes:', doc.sizes);
         console.log('   Inventory: YES');
-        
+
         return { doc, updated: true };
       }
     } catch (searchError) {
       console.log('   ℹ️  No existing product found, creating new...');
     }
-    
+
     // ✅ المنتج غير موجود - إنشاء جديد
     productData.sku = generateSKU(index);
-    
+
     const doc = await databases.createDocument(
       APPWRITE_DATABASE_ID,
       'products',
@@ -556,13 +609,13 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
       productData,
       [Permission.read(Role.any())]
     );
-    
+
     console.log('✅ Created! ID:', doc.$id);
     console.log('   SKU:', doc.sku);
     console.log('   Colors:', doc.colors);
     console.log('   Sizes:', doc.sizes);
     console.log('   Inventory: YES');
-    
+
     return { doc, updated: false };
   } catch (error) {
     console.error('   ❌ Save error:', error.message);
@@ -576,7 +629,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
 
 async function main() {
   const start = Date.now();
-  
+
   console.log('\n');
   console.log('╔═══════════════════════════════════════════════════════════╗');
   console.log('║                                                           ║');
@@ -585,13 +638,13 @@ async function main() {
   console.log('║                                                           ║');
   console.log('╚═══════════════════════════════════════════════════════════╝');
   console.log('');
-  
+
   const categoryId = await getOrCreateCategory();
   if (!categoryId) {
     console.error('❌ No category');
     return;
   }
-  
+
   const browser = await puppeteer.launch({
     headless: false, // لمشاهدة العملية
     args: [
@@ -608,36 +661,36 @@ async function main() {
     },
     protocolTimeout: 300000 // 5 minutes timeout
   });
-  
+
   const page = await browser.newPage();
   await page.setViewport({ width: 1920, height: 1080 });
-  
+
   const stats = { vendors: 0, products: 0, saved: 0, failed: 0 };
-  
+
   try {
     if (!await login(page)) throw new Error('Login failed');
-    
+
     const vendors = await getVendorLinks(page);
     if (vendors.length === 0) throw new Error('No vendors found');
-    
+
     const vendorsToProcess = TEST_MODE ? vendors.slice(0, TEST_VENDORS_LIMIT) : vendors;
     stats.vendors = vendorsToProcess.length;
-    
+
     let globalProductIndex = 0;
-    
+
     for (let i = 0; i < vendorsToProcess.length; i++) {
       const vendor = vendorsToProcess[i];
       const productLinks = await getProductsFromVendor(page, vendor, i);
-      
+
       if (productLinks.length === 0) continue;
-      
-      const linksToProcess = TEST_MODE 
-        ? productLinks.slice(0, TEST_PRODUCTS_PER_VENDOR) 
+
+      const linksToProcess = TEST_MODE
+        ? productLinks.slice(0, TEST_PRODUCTS_PER_VENDOR)
         : productLinks;
-      
+
       for (const link of linksToProcess) {
         const productData = await scrapeProduct(page, link, globalProductIndex);
-        
+
         if (productData) {
           const result = await saveToAppwrite(productData, categoryId, globalProductIndex, link);
           if (result) {
@@ -653,22 +706,22 @@ async function main() {
         } else {
           stats.failed++;
         }
-        
+
         globalProductIndex++;
         stats.products++;
-        
+
         await new Promise(r => setTimeout(r, 2000));
       }
     }
-    
+
   } catch (error) {
     console.error('\n❌ Fatal:', error.message);
   } finally {
     await browser.close();
   }
-  
+
   const duration = ((Date.now() - start) / 1000).toFixed(2);
-  
+
   console.log('\n');
   console.log('╔═══════════════════════════════════════════════════════════╗');
   console.log('║                   📊 FINAL REPORT                         ║');
@@ -682,7 +735,7 @@ async function main() {
   console.log(`   🔄 Updated: ${stats.updated || 0}`);
   console.log(`❌ Failed: ${stats.failed}`);
   console.log('');
-  
+
   if (stats.saved > 0) {
     console.log('✅ SUCCESS! Data saved in correct fields:');
     console.log('   - colors: Array');
@@ -693,7 +746,7 @@ async function main() {
     console.log('   - description: Updated with latest info');
     console.log('   - lastSyncedAt: Current timestamp');
   }
-  
+
   if (stats.updated > 0) {
     console.log('');
     console.log('🔄 Product Updates:');
@@ -702,7 +755,7 @@ async function main() {
     console.log('   Images updated');
     console.log('   Prices synced');
   }
-  
+
   console.log('');
 }
 

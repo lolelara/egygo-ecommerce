@@ -1,19 +1,25 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { 
-  Package, 
-  DollarSign, 
-  Percent, 
-  Check, 
-  X, 
-  Trash2, 
+import {
+  Package,
+  DollarSign,
+  Percent,
+  Check,
+  X,
+  Trash2,
   Eye,
   RefreshCw,
   Settings,
-  Filter
+  Filter,
+  Search,
+  ExternalLink,
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 import { databases, DATABASE_ID } from '@/lib/appwrite-client';
 import { Query } from 'appwrite';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface VendoorProduct {
   $id: string;
@@ -37,6 +43,7 @@ interface VendoorSettings {
 
 export default function VendoorProducts() {
   const [products, setProducts] = useState<VendoorProduct[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [settings, setSettings] = useState<VendoorSettings>({
     profitType: 'percentage',
     profitValue: 5,
@@ -54,7 +61,7 @@ export default function VendoorProducts() {
     pages: 1
   });
   const [itemsPerPage, setItemsPerPage] = useState(50);
-  
+
   // Fallback: Fetch products directly from Appwrite when /api is unavailable
   const fetchProductsFromAppwrite = async () => {
     const queries = [
@@ -193,7 +200,7 @@ export default function VendoorProducts() {
               const d: any = await databases.getDocument(DATABASE_ID, 'products', docId);
               docs.push(d);
               await sleep(200);
-            } catch {}
+            } catch { }
           }
           total = ids.length;
         } else {
@@ -272,7 +279,7 @@ export default function VendoorProducts() {
       setLoading(false);
     }
   };
-  
+
   // Fetch settings
   const fetchSettings = async () => {
     try {
@@ -291,15 +298,15 @@ export default function VendoorProducts() {
       console.error('Error fetching settings:', error);
       try {
         await fetchSettingsFromAppwrite();
-      } catch {}
+      } catch { }
     }
   };
-  
+
   useEffect(() => {
     fetchProducts();
     fetchSettings();
   }, [pagination.page, statusFilter]);
-  
+
   // Update pagination when itemsPerPage changes
   useEffect(() => {
     setPagination(prev => ({
@@ -308,7 +315,7 @@ export default function VendoorProducts() {
       limit: itemsPerPage === -1 ? 99999 : itemsPerPage
     }));
   }, [itemsPerPage]);
-  
+
   // Apply profit margin to all products
   const handleApplyProfitMargin = async () => {
     const applyOnSelected = selectedProducts.length > 0;
@@ -318,7 +325,7 @@ export default function VendoorProducts() {
     if (!confirm(confirmText)) {
       return;
     }
-    
+
     try {
       setApplying(true);
       const response = await fetch('/api/apply-profit-margin', {
@@ -330,7 +337,7 @@ export default function VendoorProducts() {
           productIds: applyOnSelected ? selectedProducts : undefined
         })
       });
-      
+
       if (!response.ok) {
         // Fallback to Appwrite direct updates
         await applyProfitMarginInAppwrite(applyOnSelected ? selectedProducts : undefined);
@@ -350,7 +357,7 @@ export default function VendoorProducts() {
       // set by applyProfitMarginInAppwrite or above
     }
   };
-  
+
   // Save settings
   const handleSaveSettings = async () => {
     try {
@@ -359,7 +366,7 @@ export default function VendoorProducts() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
       });
-      
+
       if (response.ok) {
         toast.success('تم حفظ الإعدادات!');
       } else {
@@ -376,14 +383,14 @@ export default function VendoorProducts() {
       }
     }
   };
-  
+
   // Bulk status update
   const handleBulkStatus = async (status: string) => {
     if (selectedProducts.length === 0) {
       toast.error('الرجاء اختيار منتجات أولاً');
       return;
     }
-    
+
     try {
       const response = await fetch('/api/vendoor-products/bulk-status', {
         method: 'POST',
@@ -393,7 +400,7 @@ export default function VendoorProducts() {
           status
         })
       });
-      
+
       if (!response.ok) {
         await bulkUpdateStatusInAppwrite(status);
         return;
@@ -411,18 +418,18 @@ export default function VendoorProducts() {
       await bulkUpdateStatusInAppwrite(status);
     }
   };
-  
+
   // Bulk delete
   const handleBulkDelete = async () => {
     if (selectedProducts.length === 0) {
       toast.error('الرجاء اختيار منتجات أولاً');
       return;
     }
-    
+
     if (!confirm(`هل أنت متأكد من حذف ${selectedProducts.length} منتج؟ لا يمكن التراجع عن هذا الإجراء!`)) {
       return;
     }
-    
+
     try {
       const response = await fetch('/api/vendoor-products/bulk-delete', {
         method: 'DELETE',
@@ -431,7 +438,7 @@ export default function VendoorProducts() {
           productIds: selectedProducts
         })
       });
-      
+
       if (!response.ok) {
         await bulkDeleteInAppwrite();
         return;
@@ -449,16 +456,16 @@ export default function VendoorProducts() {
       await bulkDeleteInAppwrite();
     }
   };
-  
+
   // Toggle product selection
   const toggleProductSelection = (productId: string) => {
-    setSelectedProducts(prev => 
+    setSelectedProducts(prev =>
       prev.includes(productId)
         ? prev.filter(id => id !== productId)
         : [...prev, productId]
     );
   };
-  
+
   // Toggle all products
   const toggleAllProducts = () => {
     if (selectedProducts.length === products.length) {
@@ -467,369 +474,363 @@ export default function VendoorProducts() {
       setSelectedProducts(products.map(p => p.$id));
     }
   };
-  
+
   // Calculate display price
   const calculateDisplayPrice = (product: VendoorProduct) => {
     const basePrice = product.originalPrice || product.price;
     const margin = product.profitMargin || settings.profitValue;
     const type = product.profitType || settings.profitType;
-    
+
     if (type === 'percentage') {
       return Math.round(basePrice * (1 + margin / 100));
     } else {
       return Math.round(basePrice + margin);
     }
   };
-  
+
+  // Filter products
+  const filteredProducts = products.filter(p => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(term) ||
+      p.sku.toLowerCase().includes(term)
+    );
+  });
+
+  // Calculate stats
+  const stats = {
+    total: products.length,
+    value: products.reduce((sum, p) => sum + (p.price * p.totalStock), 0),
+    published: products.filter(p => p.status === 'published' || p.status === 'approved').length,
+    draft: products.filter(p => p.status !== 'published' && p.status !== 'approved').length
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Package className="w-8 h-8 text-red-600" />
-              <h1 className="text-2xl font-bold text-gray-900">إدارة منتجات Vendoor</h1>
-            </div>
-            <button
-              onClick={fetchProducts}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition"
-            >
-              <RefreshCw className="w-4 h-4" />
-              تحديث
-            </button>
-          </div>
-          
-          {/* Profit Margin Settings */}
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-6 border border-red-200">
-            <div className="flex items-center gap-2 mb-4">
-              <Settings className="w-5 h-5 text-red-600" />
-              <h2 className="text-lg font-semibold text-gray-900">إعدادات هامش الربح</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              {/* Profit Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  نوع الهامش
-                </label>
-                <select
-                  value={settings.profitType}
-                  onChange={(e) => setSettings({
-                    ...settings,
-                    profitType: e.target.value as 'percentage' | 'fixed'
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                >
-                  <option value="percentage">نسبة مئوية (%)</option>
-                  <option value="fixed">مبلغ ثابت (جنيه)</option>
-                </select>
+    <div className="min-h-screen bg-gray-50/50 p-6" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-6">
+
+        {/* Header & Stats */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="bg-white shadow-sm border-none">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                <Package className="w-6 h-6" />
               </div>
-              
-              {/* Profit Value */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  قيمة الهامش
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={settings.profitValue}
-                    onChange={(e) => setSettings({
-                      ...settings,
-                      profitValue: Number(e.target.value)
-                    })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                    min="0"
-                    step="0.1"
-                  />
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                    {settings.profitType === 'percentage' ? (
-                      <Percent className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <DollarSign className="w-4 h-4 text-gray-400" />
-                    )}
+                <p className="text-sm text-gray-500 font-medium">إجمالي المنتجات</p>
+                <h3 className="text-2xl font-bold text-gray-900">{stats.total}</h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-sm border-none">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-green-50 text-green-600 rounded-xl">
+                <DollarSign className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-medium">قيمة المخزون</p>
+                <h3 className="text-2xl font-bold text-gray-900">{stats.value.toLocaleString()} ج.م</h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-sm border-none">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                <Check className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-medium">منشور</p>
+                <h3 className="text-2xl font-bold text-gray-900">{stats.published}</h3>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white shadow-sm border-none">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 bg-orange-50 text-orange-600 rounded-xl">
+                <Eye className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 font-medium">مسودة</p>
+                <h3 className="text-2xl font-bold text-gray-900">{stats.draft}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid lg:grid-cols-4 gap-6">
+
+          {/* Sidebar Settings */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="border-none shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-6">
+                  <Settings className="w-5 h-5 text-gray-500" />
+                  <h2 className="font-semibold text-gray-900">إعدادات التسعير</h2>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      نوع الهامش
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setSettings({ ...settings, profitType: 'percentage' })}
+                        className={`px-3 py-2 text-sm rounded-lg border transition-all ${settings.profitType === 'percentage'
+                            ? 'bg-blue-50 border-blue-200 text-blue-700'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                      >
+                        نسبة %
+                      </button>
+                      <button
+                        onClick={() => setSettings({ ...settings, profitType: 'fixed' })}
+                        className={`px-3 py-2 text-sm rounded-lg border transition-all ${settings.profitType === 'fixed'
+                            ? 'bg-blue-50 border-blue-200 text-blue-700'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          }`}
+                      >
+                        مبلغ ثابت
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      قيمة الهامش
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={settings.profitValue}
+                        onChange={(e) => setSettings({ ...settings, profitValue: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                      />
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        {settings.profitType === 'percentage' ? <Percent className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-100">
+                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                      <p className="text-xs text-gray-500 mb-1">مثال للسعر:</p>
+                      <div className="flex items-center justify-between text-sm">
+                        <span>100 ج.م</span>
+                        <ArrowRight className="w-4 h-4 text-gray-400" />
+                        <span className="font-bold text-green-600">
+                          {settings.profitType === 'percentage'
+                            ? Math.round(100 * (1 + settings.profitValue / 100))
+                            : 100 + settings.profitValue} ج.م
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleSaveSettings}
+                      className="w-full py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium mb-2"
+                    >
+                      حفظ الإعدادات
+                    </button>
+
+                    <button
+                      onClick={handleApplyProfitMargin}
+                      disabled={applying}
+                      className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50"
+                    >
+                      {applying ? 'جاري التطبيق...' : 'تطبيق على الكل'}
+                    </button>
                   </div>
                 </div>
-              </div>
-              
-              {/* Actions */}
-              <div className="flex items-end gap-2">
-                <button
-                  onClick={handleSaveSettings}
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
-                >
-                  حفظ الإعدادات
-                </button>
-                <button
-                  onClick={handleApplyProfitMargin}
-                  disabled={applying}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition disabled:opacity-50"
-                >
-                  {applying ? 'جاري التطبيق...' : 'تطبيق على الكل'}
-                </button>
-              </div>
-            </div>
-            
-            {/* Preview */}
-            <div className="bg-white rounded-lg p-4 border border-gray-200">
-              <p className="text-sm text-gray-600">
-                مثال: منتج بسعر <strong>100 جنيه</strong> سيصبح{' '}
-                <strong className="text-red-600">
-                  {settings.profitType === 'percentage'
-                    ? Math.round(100 * (1 + settings.profitValue / 100))
-                    : 100 + settings.profitValue}{' '}
-                  جنيه
-                </strong>
-              </p>
-            </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-        
-        {/* Filters & Bulk Actions */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            {/* Left side: Filters */}
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Status Filter */}
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-600" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="all">جميع المنتجات</option>
-                  <option value="draft">مسودة</option>
-                  <option value="published">منشور</option>
-                </select>
-              </div>
-              
-              {/* Items Per Page */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">عرض:</span>
-                <select
-                  value={itemsPerPage}
-                  onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                >
-                  <option value={10}>10 منتجات</option>
-                  <option value={50}>50 منتج</option>
-                  <option value={100}>100 منتج</option>
-                  <option value={-1}>الكل ({pagination.total})</option>
-                </select>
-              </div>
-              
-              {/* Select All Checkbox */}
-              <button
-                onClick={toggleAllProducts}
-                className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedProducts.length === products.length && products.length > 0}
-                  onChange={() => {}}
-                  className="w-4 h-4 pointer-events-none"
-                />
-                <span>تحديد الكل ({products.length})</span>
-              </button>
-            </div>
-            
-            {/* Right side: Bulk Actions */}
-            {selectedProducts.length > 0 && (
-              <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
-                <span className="text-sm font-semibold text-blue-700">
-                  {selectedProducts.length} منتج محدد
-                </span>
-                <button
-                  onClick={() => setSelectedProducts([])}
-                  className="text-xs text-blue-600 hover:text-blue-800 underline"
-                >
-                  إلغاء التحديد
-                </button>
-                <div className="h-4 w-px bg-blue-300"></div>
-                <button
-                  onClick={() => handleBulkStatus('published')}
-                  disabled={statusUpdating}
-                  className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-sm disabled:opacity-50 flex items-center gap-1"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  نشر
-                </button>
-                <button
-                  onClick={() => handleBulkStatus('draft')}
-                  disabled={statusUpdating}
-                  className="px-3 py-1.5 bg-gray-600 hover:bg-gray-700 text-white rounded text-sm disabled:opacity-50 flex items-center gap-1"
-                >
-                  <X className="w-3.5 h-3.5" />
-                  إخفاء
-                </button>
-                <button
-                  onClick={handleBulkDelete}
-                  disabled={statusUpdating}
-                  className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm disabled:opacity-50 flex items-center gap-1"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  حذف
-                </button>
-              </div>
-            )}
+
+          {/* Products List */}
+          <div className="lg:col-span-3 space-y-6">
+            <Card className="border-none shadow-sm">
+              <CardContent className="p-6">
+                {/* Toolbar */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-between mb-6">
+                  <div className="relative flex-1 max-w-md">
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="بحث باسم المنتج أو SKU..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pr-10 pl-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="all">جميع الحالات</option>
+                      <option value="published">منشور</option>
+                      <option value="draft">مسودة</option>
+                    </select>
+
+                    <button
+                      onClick={fetchProducts}
+                      className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                      title="تحديث"
+                    >
+                      <RefreshCw className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Bulk Actions */}
+                {selectedProducts.length > 0 && (
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 text-blue-700 rounded-lg mb-4 animate-in fade-in slide-in-from-top-2">
+                    <span className="text-sm font-medium">{selectedProducts.length} منتج محدد</span>
+                    <div className="h-4 w-px bg-blue-200" />
+                    <button onClick={() => handleBulkStatus('published')} className="text-sm hover:underline">نشر</button>
+                    <button onClick={() => handleBulkStatus('draft')} className="text-sm hover:underline">إخفاء</button>
+                    <button onClick={handleBulkDelete} className="text-sm text-red-600 hover:underline">حذف</button>
+                    <div className="flex-1" />
+                    <button onClick={() => setSelectedProducts([])} className="text-sm opacity-70 hover:opacity-100">إلغاء</button>
+                  </div>
+                )}
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100 text-right">
+                        <th className="py-3 px-4 w-10">
+                          <input
+                            type="checkbox"
+                            checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+                            onChange={toggleAllProducts}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                        </th>
+                        <th className="py-3 px-4 text-sm font-medium text-gray-500">المنتج</th>
+                        <th className="py-3 px-4 text-sm font-medium text-gray-500">السعر</th>
+                        <th className="py-3 px-4 text-sm font-medium text-gray-500">المخزون</th>
+                        <th className="py-3 px-4 text-sm font-medium text-gray-500">الحالة</th>
+                        <th className="py-3 px-4 text-sm font-medium text-gray-500">التاريخ</th>
+                        <th className="py-3 px-4 w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {loading ? (
+                        <tr>
+                          <td colSpan={7} className="py-12 text-center text-gray-500">
+                            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-500" />
+                            جاري التحميل...
+                          </td>
+                        </tr>
+                      ) : filteredProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="py-12 text-center text-gray-500">
+                            لا توجد منتجات مطابقة للبحث
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredProducts.map((product) => (
+                          <tr key={product.$id} className="group hover:bg-gray-50/50 transition-colors">
+                            <td className="py-3 px-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedProducts.includes(product.$id)}
+                                onChange={() => toggleProductSelection(product.$id)}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                                  <img
+                                    src={product.images[0] || 'https://via.placeholder.com/50'}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-medium text-gray-900 truncate max-w-[200px]" title={product.name}>
+                                    {product.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500 font-mono">{product.sku}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="flex flex-col">
+                                <span className="font-bold text-gray-900">{calculateDisplayPrice(product)} ج.م</span>
+                                <span className="text-xs text-gray-400 line-through">{product.originalPrice || product.price} ج.م</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4">
+                              <Badge variant={product.totalStock > 0 ? 'secondary' : 'destructive'} className="font-normal">
+                                {product.totalStock} قطعة
+                              </Badge>
+                            </td>
+                            <td className="py-3 px-4">
+                              {product.status === 'published' || product.status === 'approved' ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                  منشور
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-gray-500" />
+                                  مسودة
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-sm text-gray-500">
+                              {new Date(product.$createdAt).toLocaleDateString('ar-EG')}
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                  <ExternalLink className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4">
+                  <p className="text-sm text-gray-500">
+                    عرض {filteredProducts.length} من أصل {pagination.total} منتج
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPagination(p => ({ ...p, page: Math.max(1, p.page - 1) }))}
+                      disabled={pagination.page === 1}
+                      className="px-3 py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      السابق
+                    </button>
+                    <button
+                      onClick={() => setPagination(p => ({ ...p, page: Math.min(pagination.pages, p.page + 1) }))}
+                      disabled={pagination.page === pagination.pages}
+                      className="px-3 py-1 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      التالي
+                    </button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-        
-        {/* Products Table */}
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {loading ? (
-            <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center p-12 text-gray-500">
-              لا توجد منتجات من Vendoor
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-4 py-3 text-right">
-                      <input
-                        type="checkbox"
-                        checked={selectedProducts.length === products.length}
-                        onChange={toggleAllProducts}
-                        className="w-4 h-4"
-                      />
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      صورة
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      اسم المنتج
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      SKU
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      السعر الأصلي
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      الهامش
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      السعر النهائي
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      المخزون
-                    </th>
-                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
-                      الحالة
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {products.map((product) => (
-                    <tr key={product.$id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedProducts.includes(product.$id)}
-                          onChange={() => toggleProductSelection(product.$id)}
-                          className="w-4 h-4"
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <img
-                          src={product.images[0] || 'https://via.placeholder.com/50'}
-                          alt={product.name}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="max-w-xs">
-                          <p className="font-medium text-gray-900 truncate">
-                            {product.name}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-mono text-gray-600">
-                          {product.sku}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-semibold text-gray-900">
-                          {product.originalPrice || product.price} ج
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-red-600">
-                          +{product.profitMargin || settings.profitValue}
-                          {(product.profitType || settings.profitType) === 'percentage' ? '%' : ' ج'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm font-bold text-green-600">
-                          {calculateDisplayPrice(product)} ج
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="text-sm text-gray-600">
-                          {product.totalStock}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        {product.status === 'published' ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                            <Check className="w-3 h-3" />
-                            منشور
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                            <Eye className="w-3 h-3" />
-                            مسودة
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          
-          {/* Pagination */}
-          {itemsPerPage !== -1 && pagination.pages > 1 && (
-            <div className="flex items-center justify-between p-4 border-t border-gray-200">
-              <div className="text-sm text-gray-600">
-                صفحة {pagination.page} من {pagination.pages} ({pagination.total} منتج)
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-                  disabled={pagination.page === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-                >
-                  السابق
-                </button>
-                <button
-                  onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-                  disabled={pagination.page === pagination.pages}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-                >
-                  التالي
-                </button>
-              </div>
-            </div>
-          )}
-          
-          {/* Total count when showing all */}
-          {itemsPerPage === -1 && (
-            <div className="flex items-center justify-center p-4 border-t border-gray-200">
-              <div className="text-sm font-semibold text-gray-700">
-                عرض جميع المنتجات ({products.length} منتج)
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
