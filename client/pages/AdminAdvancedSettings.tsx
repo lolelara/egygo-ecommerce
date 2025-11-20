@@ -8,13 +8,13 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Palette, 
-  Upload, 
-  Globe, 
-  Shield, 
-  Bell, 
-  Mail, 
+import {
+  Palette,
+  Upload,
+  Globe,
+  Shield,
+  Bell,
+  Mail,
   CreditCard,
   Database,
   Save,
@@ -40,7 +40,7 @@ interface SiteSettings {
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
-  
+
   // Contact
   contactEmail: string;
   contactPhone: string;
@@ -51,7 +51,7 @@ interface SiteSettings {
     instagram?: string;
     linkedin?: string;
   };
-  
+
   // Business
   currency: string;
   timezone: string;
@@ -59,7 +59,7 @@ interface SiteSettings {
   taxRate: number;
   shippingCost: number;
   freeShippingThreshold: number;
-  
+
   // Features
   features: {
     enableReviews: boolean;
@@ -70,7 +70,7 @@ interface SiteSettings {
     enableMultiCurrency: boolean;
     enableGuestCheckout: boolean;
   };
-  
+
   // Security
   security: {
     enableTwoFactor: boolean;
@@ -79,7 +79,7 @@ interface SiteSettings {
     passwordMinLength: number;
     requireStrongPassword: boolean;
   };
-  
+
   // Notifications
   notifications: {
     emailNotifications: boolean;
@@ -88,7 +88,7 @@ interface SiteSettings {
     orderNotifications: boolean;
     marketingEmails: boolean;
   };
-  
+
   // SEO
   seo: {
     metaTitle: string;
@@ -361,7 +361,7 @@ export default function AdminAdvancedSettings() {
       if (data?.id) {
         setSettingsId(data.id);
       }
-      
+
       setHasChanges(false);
       toast({
         title: "نجح",
@@ -393,11 +393,11 @@ export default function AdminAdvancedSettings() {
       const newSettings = { ...prev };
       const keys = path.split('.');
       let current = newSettings as any;
-      
+
       for (let i = 0; i < keys.length - 1; i++) {
         current = current[keys[i]];
       }
-      
+
       current[keys[keys.length - 1]] = value;
       setHasChanges(true);
       return newSettings;
@@ -862,151 +862,9 @@ export default function AdminAdvancedSettings() {
             </CardContent>
           </Card>
         </TabsContent>
-
-        <TabsContent value="ai" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Zap className="w-5 h-5" />
-                <span>مفاتيح OpenAI API</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label htmlFor="openai-label">اسم المفتاح</Label>
-                  <Input
-                    id="openai-label"
-                    value={newKeyLabel}
-                    onChange={(e) => setNewKeyLabel(e.target.value)}
-                  />
-                  <Label htmlFor="openai-key">OpenAI API Key</Label>
-                  <Input
-                    id="openai-key"
-                    type="password"
-                    value={newKeyValue}
-                    onChange={(e) => setNewKeyValue(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-3">
-                  <Label htmlFor="openai-priority">الأولوية</Label>
-                  <Input
-                    id="openai-priority"
-                    type="number"
-                    value={newKeyPriority}
-                    onChange={(e) => setNewKeyPriority(parseInt(e.target.value) || 0)}
-                  />
-                  <div className="flex items-center justify-between mt-2">
-                    <Label htmlFor="openai-default">تعيين كمفتاح افتراضي</Label>
-                    <Switch
-                      id="openai-default"
-                      checked={newKeyIsDefault}
-                      onCheckedChange={(checked) => setNewKeyIsDefault(checked)}
-                    />
-                  </div>
-                  <Button
-                    className="mt-4"
-                    onClick={handleCreateKey}
-                    disabled={isCreatingKey}
-                  >
-                    {isCreatingKey ? "جاري الحفظ..." : "إضافة مفتاح"}
-                  </Button>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">المفاتيح المسجلة</h3>
-                  {keysLoading && (
-                    <span className="text-sm text-muted-foreground">جاري التحميل...</span>
-                  )}
-                </div>
-                {openAIKeys.length === 0 && !keysLoading && (
-                  <div className="text-sm text-muted-foreground">
-                    لا توجد مفاتيح محفوظة حالياً.
-                  </div>
-                )}
-                {openAIKeys.length > 0 && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="p-3 text-right">الاسم</th>
-                          <th className="p-3 text-right">المفتاح</th>
-                          <th className="p-3 text-center">الحالة</th>
-                          <th className="p-3 text-center">الأولوية</th>
-                          <th className="p-3 text-center">افتراضي</th>
-                          <th className="p-3 text-center">إجراءات</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y">
-                        {openAIKeys.map((key) => (
-                          <tr key={key.id}>
-                            <td className="p-3">{key.label}</td>
-                            <td className="p-3 font-mono text-xs">{key.maskedKey}</td>
-                            <td className="p-3 text-center">
-                              <Badge
-                                className={cn(
-                                  "text-xs",
-                                  key.status === "active" && "bg-green-100 text-green-800",
-                                  key.status === "inactive" && "bg-gray-100 text-gray-800",
-                                  key.status === "error" && "bg-red-100 text-red-800",
-                                )}
-                              >
-                                {key.status === "active" && "نشط"}
-                                {key.status === "inactive" && "متوقف"}
-                                {key.status === "error" && "خطأ"}
-                              </Badge>
-                            </td>
-                            <td className="p-3 text-center">{key.priority}</td>
-                            <td className="p-3 text-center">
-                              {key.isDefault && (
-                                <Badge className="bg-purple-100 text-purple-800 text-xs">
-                                  افتراضي
-                                </Badge>
-                              )}
-                            </td>
-                            <td className="p-3 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleTestKey(key.id)}
-                                  disabled={testKeyId === key.id}
-                                >
-                                  {testKeyId === key.id ? "جاري الاختبار..." : "اختبار"}
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleActivateKey(key.id)}
-                                  disabled={activateKeyId === key.id || key.isDefault}
-                                >
-                                  {activateKeyId === key.id ? "جاري التفعيل..." : "تعيين افتراضي"}
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => handleDeleteKey(key.id)}
-                                  disabled={deleteKeyId === key.id}
-                                >
-                                  {deleteKeyId === key.id ? "جاري الحذف..." : "حذف"}
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+      </Card>
+    </TabsContent>
+    </Tabs >
+    </div >
   );
 }

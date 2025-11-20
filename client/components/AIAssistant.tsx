@@ -35,10 +35,10 @@ export function AIAssistant() {
   const [isLoadingContext, setIsLoadingContext] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  
+
   // Chat history with messages
-  const chatRef = useRef<Array<{role: 'system' | 'user' | 'assistant'; content: string}>>([]);
-  
+  const chatRef = useRef<Array<{ role: 'system' | 'user' | 'assistant'; content: string }>>([]);
+
   // User context data
   const [userContextData, setUserContextData] = useState<string | null>(null);
 
@@ -51,19 +51,19 @@ export function AIAssistant() {
 
   const loadUserContext = async (): Promise<string | null> => {
     if (!user) return null;
-    
+
     setIsLoadingContext(true);
     try {
       // Check if user is admin (adjust based on your logic)
       const isAdmin = (user as any).labels?.includes('admin') || user.email === 'admin@egygo.com';
-      
+
       let context: string;
       if (isAdmin) {
         context = await buildAdminContext();
       } else {
         context = await buildUserContext(user.$id);
       }
-      
+
       setUserContextData(context);
       console.log('✅ Context loaded:', context.substring(0, 100) + '...');
       return context;
@@ -78,7 +78,7 @@ export function AIAssistant() {
   // Lazily initialize chat history on the client-side only
   useEffect(() => {
     console.log('🔍 useEffect triggered - initializing chat...');
-    
+
     if (typeof window === 'undefined') {
       console.log('⚠️ Server-side render detected, skipping');
       return;
@@ -90,7 +90,7 @@ export function AIAssistant() {
     }
 
     console.log('� Initializing chat history with system prompt...');
-    
+
     try {
       // Initialize chat history with system prompt
       const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر. 
@@ -132,7 +132,7 @@ export function AIAssistant() {
           content: systemPrompt
         }
       ];
-      
+
       console.log('💬 Chat history initialized, length:', chatRef.current.length);
       setIsModelReady(true);
       setInitError(null);
@@ -311,10 +311,10 @@ export function AIAssistant() {
     }
   }, [isOpen, user]);
 
-  // Handle send message with server-side OpenAI API
+  // Handle send message with client-side API calls (OpenAI or Gemini)
   const handleSendMessage = async (overrideText?: string) => {
     console.log('📤 handleSendMessage called');
-    
+
     if (!isModelReady) {
       console.log('⚠️ Model not ready yet, aborting');
       return;
@@ -342,62 +342,149 @@ export function AIAssistant() {
     setIsTyping(true);
 
     try {
-      console.log('✅ Calling backend /api/chat...');
-      
+      console.log('✅ Fetching API key from Appwrite...');
+
+      // 1. Get the active API key from Appwrite
+      const { databases, appwriteConfig, Query } = await import('@/lib/appwrite');
+
+      const keysResponse = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.openai_keys,
+        [
+          Query.equal('status', 'active'),
+          Query.equal('isDefault', true),
+          Query.limit(1)
+        ]
+      );
+
+      let activeKey = keysResponse.documents[0];
+
+      // Fallback: if no default, try any active key
+      if (!activeKey && keysResponse.total === 0) {
+        const anyKeyResponse = await databases.listDocuments(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.openai_keys,
+          [
+            Query.equal('status', 'active'),
+            Query.limit(1)
+          ]
+        );
+        activeKey = anyKeyResponse.documents[0];
+      }
+
+      if (!activeKey || !activeKey.apiKey) {
+        throw new Error('لم يتم العثور على مفتاح API نشط. يرجى الاتصال بالدعم.');
+      }
+
+      const apiKey = activeKey.apiKey;
+      const provider = activeKey.provider || 'openai';
+
+      console.log(`🔑 Using ${provider} API key`);
+
       // Check if user is asking for contextual data
       const contextualKeywords = ['راجع', 'شوف بياناتي', 'تقرير', 'نصائح', 'نصيحة', 'جدول تطوير', 'حسابي'];
       const needsContext = contextualKeywords.some(keyword => currentInput.includes(keyword));
-      
-      // Add user message to chat history
-      let messageToSend = currentInput;
+
+      // Prepare context
+      let context = '';
       if (needsContext) {
-        let context = userContextData;
+        context = userContextData || '';
         if (!context) {
-          context = await loadUserContext();
-        }
-        if (context) {
-          messageToSend = `${currentInput}\n\n[بيانات المستخدم]:\n${context}`;
+          context = (await loadUserContext()) || '';
         }
       }
-      
-      chatRef.current.push({
-        role: 'user',
-        content: messageToSend
-      });
 
-      // Limit chat history to آخر 30 رسالة تقريبًا لتقليل الحجم
-      if (chatRef.current.length > 30) {
-        chatRef.current = chatRef.current.slice(chatRef.current.length - 30);
+      // Prepare system prompt
+      const systemPrompt = `أنت مساعد ذكي لموقع إيجي جو للتسوق الإلكتروني في مصر.
+      معلومات عن الموقع: موقع تسوق إلكتروني مصري، يبيع منتجات متنوعة، شحن لجميع أنحاء مصر، دفع عند الاستلام.
+      تعليمات: تحدث باللهجة المصرية، كن مفيداً وودوداً، استخدم الإيموجي.
+      ${context ? `\nبيانات المستخدم الحالية:\n${context}` : ''}`;
+
+      let aiText = '';
+
+      if (provider === 'gemini') {
+        // --- Gemini API Implementation ---
+        console.log('🤖 Calling Gemini API...');
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: systemPrompt + "\n\nالمستخدم: " + currentInput }]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1000,
+            }
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('❌ Gemini API Error:', response.status, errorData);
+          throw new Error(errorData.error?.message || `Gemini API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أستطع فهم ذلك.';
+
+      } else {
+        // --- OpenAI API Implementation ---
+        console.log('🤖 Calling OpenAI API...');
+
+        // Add user message to chat history
+        chatRef.current.push({
+          role: 'user',
+          content: currentInput
+        });
+
+        // Limit chat history
+        if (chatRef.current.length > 10) {
+          chatRef.current = chatRef.current.slice(chatRef.current.length - 10);
+        }
+
+        const messagesToSend = [
+          { role: 'system', content: systemPrompt },
+          ...chatRef.current.map(m => ({ role: m.role, content: m.content }))
+        ];
+
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: messagesToSend,
+            temperature: 0.7,
+            max_tokens: 1000
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error('❌ OpenAI API Error:', response.status, errorData);
+          throw new Error(errorData.error?.message || `OpenAI API Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        aiText = data.choices?.[0]?.message?.content || 'عذراً، لم أستطع فهم ذلك.';
+
+        // Add assistant response to history
+        chatRef.current.push({
+          role: 'assistant',
+          content: aiText
+        });
       }
 
-      // Call backend chat API
-      console.log('📡 Sending request to /api/chat...');
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: chatRef.current,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('❌ OpenAI API Error:', response.status, errorData);
-        throw new Error(errorData.error?.message || `HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Chat API Response:', data);
-      
-      const aiText = data.message || data.choices?.[0]?.message?.content || 'عذراً، ما قدرتش أفهم. جرب تاني 🙏';
-
-      // Add assistant response to history
-      chatRef.current.push({
-        role: 'assistant',
-        content: aiText
-      });
+      console.log('✅ AI Response:', aiText.substring(0, 50) + '...');
 
       const botMessage: Message = {
         id: String(messages.length + 2),
@@ -408,19 +495,17 @@ export function AIAssistant() {
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error: any) {
-      console.error('OpenAI API Error:', error);
-      
+      console.error('AI API Error:', error);
+
       // Detailed error message
       let errorMessage = 'عذراً، حصل خطأ في الاتصال. جرب تاني بعد شوية 🙏';
 
-      if (error?.message?.includes('API key') || error?.message?.includes('401')) {
-        errorMessage = 'في مشكلة في إعدادات الـ API. يرجى التواصل مع الدعم 🔑';
+      if (error?.message?.includes('API key') || error?.message?.includes('401') || error?.message?.includes('found')) {
+        errorMessage = 'في مشكلة في إعدادات الـ API. يرجى التواصل مع الدعم للتأكد من المفاتيح 🔑';
       } else if (error?.message?.includes('quota') || error?.message?.includes('429')) {
         errorMessage = 'وصلنا للحد الأقصى من الطلبات. جرب تاني بعد دقيقة ⏱️';
-      } else if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
-        errorMessage = 'في مشكلة في الاتصال بالإنترنت. تأكد من اتصالك وجرب تاني 🌐';
       }
-      
+
       const botMessage: Message = {
         id: String(messages.length + 2),
         type: 'bot',
@@ -516,11 +601,10 @@ export function AIAssistant() {
                   className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      message.type === 'user'
+                    className={`max-w-[80%] rounded-lg p-3 ${message.type === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted'
-                    }`}
+                      }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     <span className="text-xs opacity-70 mt-1 block">
@@ -568,7 +652,7 @@ export function AIAssistant() {
                 </div>
               </div>
             )}
-            
+
             {/* Loading Context Indicator */}
             {isLoadingContext && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -576,7 +660,7 @@ export function AIAssistant() {
                 <span>جاري تحميل بياناتك...</span>
               </div>
             )}
-            
+
             <div className="flex gap-2">
               <Input
                 placeholder="اكتب رسالتك هنا..."
@@ -586,8 +670,8 @@ export function AIAssistant() {
                 disabled={isTyping}
                 className="flex-1"
               />
-              <Button 
-                onClick={() => handleSendMessage()} 
+              <Button
+                onClick={() => handleSendMessage()}
                 size="icon"
                 disabled={isTyping || !inputValue.trim() || !isModelReady}
                 data-send-button
