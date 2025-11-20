@@ -359,6 +359,7 @@ export function AIAssistant() {
       );
 
       const keys = keysResponse.documents;
+      console.log(`Found ${keys.length} active keys`);
 
       if (keys.length === 0) {
         throw new Error('لم يتم العثور على مفاتيح API نشطة. يرجى الاتصال بالدعم.');
@@ -409,7 +410,7 @@ export function AIAssistant() {
             // --- Gemini API Implementation ---
             console.log('🤖 Calling Gemini API...');
 
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
