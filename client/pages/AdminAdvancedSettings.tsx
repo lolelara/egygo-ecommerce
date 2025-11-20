@@ -862,9 +862,7 @@ export default function AdminAdvancedSettings() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Card>
-    </TabsContent>
-    </Tabs >
-    </div >
+      </Tabs>
+    </div>
   );
 }
