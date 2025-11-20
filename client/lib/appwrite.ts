@@ -10,7 +10,7 @@ export const appwriteConfig = {
   projectId: import.meta.env.VITE_APPWRITE_PROJECT_ID || '',
   databaseId: import.meta.env.VITE_APPWRITE_DATABASE_ID || '68de037e003bd03c4d45',
   storageId: import.meta.env.VITE_APPWRITE_STORAGE_ID || 'product-images',
-  
+
   // Collection IDs (will be created in Appwrite dashboard)
   collections: {
     users: import.meta.env.VITE_APPWRITE_USERS_COLLECTION || 'users',
@@ -35,7 +35,8 @@ export const appwriteConfig = {
     landing_pages: 'landing_pages',  // Collection for affiliate landing pages
     affiliate_links: 'affiliate_links',  // Collection for affiliate product links
     banners: 'banners',  // Collection for rotating banners
-    bannerSettings: 'bannerSettings'  // Collection for banner settings
+    bannerSettings: 'bannerSettings',  // Collection for banner settings
+    openai_keys: 'openai_keys' // Collection for OpenAI API keys
   },
   buckets: {
     banners: 'banners'  // Storage bucket for banner images
@@ -99,7 +100,7 @@ export class AppwriteService {
       const baseUrl = window.location.origin;
       const successUrl = `${baseUrl}/#/`;
       const failureUrl = `${baseUrl}/#/login`;
-      
+
       return await account.createOAuth2Session(
         OAuthProvider.Google,
         successUrl,
@@ -117,7 +118,7 @@ export class AppwriteService {
       const baseUrl = window.location.origin;
       const successUrl = `${baseUrl}/#/`;
       const failureUrl = `${baseUrl}/#/login`;
-      
+
       return await account.createOAuth2Session(
         OAuthProvider.Facebook,
         successUrl,
@@ -142,11 +143,11 @@ export class AppwriteService {
   static async getProducts(filters?: { categoryId?: string; search?: string; limit?: number }) {
     try {
       const queries = [];
-      
+
       if (filters?.categoryId) {
         queries.push(`categoryId="${filters.categoryId}"`);
       }
-      
+
       if (filters?.search) {
         queries.push(`name~"${filters.search}"`);
       }

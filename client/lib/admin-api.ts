@@ -25,11 +25,28 @@ export interface AdminOpenAIKey {
 
 export const openAIKeysApi = {
   list: async (): Promise<AdminOpenAIKey[]> => {
-    const res = await fetch("/api/admin/openai-keys");
-    if (!res.ok) {
-      throw new Error("فشل في تحميل مفاتيح OpenAI");
+    try {
+      const res = await databases.listDocuments(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        [Query.orderDesc("priority")]
+      );
+      return res.documents.map((doc: any) => ({
+        id: doc.$id,
+        label: doc.label,
+        maskedKey: doc.apiKey ? `${doc.apiKey.substring(0, 3)}...${doc.apiKey.substring(doc.apiKey.length - 4)}` : '...',
+        status: doc.status,
+        priority: doc.priority,
+        isDefault: doc.isDefault,
+        lastTestedAt: doc.lastTestedAt,
+        lastError: doc.lastError,
+        apiKey: doc.apiKey // Keep full key for internal use if needed, but be careful
+      }));
+    } catch (error: any) {
+      console.error("Error listing OpenAI keys:", error);
+      // Return empty array if collection doesn't exist yet or other error
+      return [];
     }
-    return res.json();
   },
 
   create: async (payload: {
@@ -38,15 +55,34 @@ export const openAIKeysApi = {
     priority?: number;
     isDefault?: boolean;
   }): Promise<AdminOpenAIKey> => {
-    const res = await fetch("/api/admin/openai-keys", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      throw new Error("فشل في إنشاء مفتاح OpenAI جديد");
+    try {
+      const doc = await databases.createDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        ID.unique(),
+        {
+          label: payload.label,
+          apiKey: payload.apiKey,
+          priority: payload.priority || 0,
+          isDefault: payload.isDefault || false,
+          status: 'active',
+          lastTestedAt: null,
+          lastError: null
+        }
+      );
+      return {
+        id: doc.$id,
+        label: doc.label,
+        maskedKey: `${doc.apiKey.substring(0, 3)}...${doc.apiKey.substring(doc.apiKey.length - 4)}`,
+        status: doc.status,
+        priority: doc.priority,
+        isDefault: doc.isDefault,
+        lastTestedAt: doc.lastTestedAt,
+        lastError: doc.lastError,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في إنشاء مفتاح OpenAI جديد");
     }
-    return res.json();
   },
 
   update: async (
@@ -58,44 +94,152 @@ export const openAIKeysApi = {
       isDefault: boolean;
     }>,
   ): Promise<AdminOpenAIKey> => {
-    const res = await fetch(`/api/admin/openai-keys/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      throw new Error("فشل في تحديث مفتاح OpenAI");
+    try {
+      const doc = await databases.updateDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id,
+        payload
+      );
+      return {
+        id: doc.$id,
+        label: doc.label,
+        maskedKey: doc.apiKey ? `${doc.apiKey.substring(0, 3)}...${doc.apiKey.substring(doc.apiKey.length - 4)}` : '...',
+        status: doc.status,
+        priority: doc.priority,
+        isDefault: doc.isDefault,
+        lastTestedAt: doc.lastTestedAt,
+        lastError: doc.lastError,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تحديث مفتاح OpenAI");
     }
-    return res.json();
   },
 
   remove: async (id: string): Promise<void> => {
-    const res = await fetch(`/api/admin/openai-keys/${id}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) {
-      throw new Error("فشل في حذف مفتاح OpenAI");
+    try {
+      await databases.deleteDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id
+      );
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في حذف مفتاح OpenAI");
     }
   },
 
   test: async (id: string): Promise<{ ok: boolean; error?: string }> => {
-    const res = await fetch(`/api/admin/openai-keys/${id}/test`, {
-      method: "POST",
-    });
-    if (!res.ok) {
-      throw new Error("فشل في اختبار مفتاح OpenAI");
+    try {
+      // Get the key first
+      const doc = await databases.getDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id
+      );
+
+      const apiKey = doc.apiKey;
+      if (!apiKey) throw new Error("API Key not found");
+
+      // Test with OpenAI API
+      const response = await fetch('https://api.openai.com/v1/models', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`
+        }
+      });
+
+      if (response.ok) {
+        // Update status
+        await databases.updateDocument(
+          DATABASE_ID,
+          appwriteConfig.collections.openai_keys,
+          id,
+          {
+            status: 'active',
+            lastTestedAt: new Date().toISOString(),
+            lastError: null
+          }
+        );
+        return { ok: true };
+      } else {
+        const errorData = await response.json();
+        const errorMessage = errorData.error?.message || "API Error";
+
+        // Update status
+        await databases.updateDocument(
+          DATABASE_ID,
+          appwriteConfig.collections.openai_keys,
+          id,
+          {
+            status: 'error',
+            lastError: errorMessage
+          }
+        );
+        return { ok: false, error: errorMessage };
+      }
+    } catch (error: any) {
+      // Update status
+      try {
+        await databases.updateDocument(
+          DATABASE_ID,
+          appwriteConfig.collections.openai_keys,
+          id,
+          {
+            status: 'error',
+            lastError: error.message
+          }
+        );
+      } catch (e) {
+        // Ignore update error
+      }
+      return { ok: false, error: error.message || "فشل في اختبار مفتاح OpenAI" };
     }
-    return res.json();
   },
 
   activate: async (id: string): Promise<AdminOpenAIKey> => {
-    const res = await fetch(`/api/admin/openai-keys/${id}/activate`, {
-      method: "POST",
-    });
-    if (!res.ok) {
-      throw new Error("فشل في تفعيل مفتاح OpenAI");
+    try {
+      // 1. List all keys
+      const allKeys = await databases.listDocuments(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys
+      );
+
+      // 2. Set all others to isDefault=false
+      const updatePromises = allKeys.documents.map(async (doc: any) => {
+        if (doc.$id !== id && doc.isDefault) {
+          return databases.updateDocument(
+            DATABASE_ID,
+            appwriteConfig.collections.openai_keys,
+            doc.$id,
+            { isDefault: false }
+          );
+        }
+        return Promise.resolve();
+      });
+
+      await Promise.all(updatePromises);
+
+      // 3. Set target to isDefault=true
+      const doc = await databases.updateDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id,
+        { isDefault: true, status: 'active' }
+      );
+
+      return {
+        id: doc.$id,
+        label: doc.label,
+        maskedKey: doc.apiKey ? `${doc.apiKey.substring(0, 3)}...${doc.apiKey.substring(doc.apiKey.length - 4)}` : '...',
+        status: doc.status,
+        priority: doc.priority,
+        isDefault: doc.isDefault,
+        lastTestedAt: doc.lastTestedAt,
+        lastError: doc.lastError,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تفعيل مفتاح OpenAI");
     }
-    return res.json();
   },
 };
 
@@ -155,7 +299,7 @@ export const adminDashboardApi = {
         console.error("Error fetching affiliates:", error);
         // Fallback: count from all users
         const allUsers = usersResponse.documents;
-        totalAffiliates = allUsers.filter((user: any) => 
+        totalAffiliates = allUsers.filter((user: any) =>
           user.isAffiliate === true
         ).length;
       }
@@ -204,7 +348,7 @@ export const adminDashboardApi = {
 
       // Calculate top products (from order items - simplified version)
       const productSales: Record<string, { productId: string; quantity: number; revenue: number }> = {};
-      
+
       // Note: This is a simplified version. In production, you'd query order_items collection
       ordersResponse.documents.forEach((order: any) => {
         if (order.items && Array.isArray(order.items)) {
@@ -227,8 +371,8 @@ export const adminDashboardApi = {
       const completedOrders = ordersResponse.documents.filter(
         (order: any) => order.status === "COMPLETED"
       ).length;
-      const conversionRate = ordersResponse.total > 0 
-        ? (completedOrders / ordersResponse.total) * 100 
+      const conversionRate = ordersResponse.total > 0
+        ? (completedOrders / ordersResponse.total) * 100
         : 0;
 
       // Calculate average order value
@@ -301,7 +445,7 @@ export const adminProductsApi = {
     try {
       console.log("Creating product with data:", product);
       console.log("User ID (merchantId):", userId);
-      
+
       // Prepare document data with optional merchantId, colors, and sizes
       const stockValue = product.stock || product.stockQuantity || 0;
       const documentData: any = {
@@ -331,7 +475,7 @@ export const adminProductsApi = {
         documentData.merchantId = userId;
         console.log("Auto-assigned merchantId:", userId);
       }
-      
+
       if (product.colors && Array.isArray(product.colors)) documentData.colors = product.colors;
       if (product.sizes && Array.isArray(product.sizes)) documentData.sizes = product.sizes;
       // Add colorSizeInventory - even if empty, we want to store it
@@ -370,13 +514,13 @@ export const adminProductsApi = {
         // If error is about unknown attribute, retry without optional fields
         if (error.message?.includes('Unknown attribute')) {
           console.warn('Retrying without optional attributes:', error.message);
-          
+
           // Remove optional attributes that might not exist
           delete documentData.colorSizeInventory;
           delete documentData.merchantId;
           delete documentData.colors;
           delete documentData.sizes;
-          
+
           const doc = await databases.createDocument(
             DATABASE_ID,
             COLLECTIONS.PRODUCTS,
@@ -403,7 +547,7 @@ export const adminProductsApi = {
             createdAt: doc.$createdAt,
           };
         }
-        
+
         throw error;
       }
     } catch (error: any) {
@@ -415,7 +559,7 @@ export const adminProductsApi = {
   update: async (product: any): Promise<any> => {
     try {
       const { id, ...updateData } = product;
-      
+
       // Map fields to match schema
       const mappedData: any = {};
       if (updateData.name) mappedData.name = updateData.name;
@@ -436,7 +580,7 @@ export const adminProductsApi = {
       if (updateData.isFeatured !== undefined) mappedData.isFeatured = updateData.isFeatured;
       if (updateData.rating !== undefined) mappedData.rating = updateData.rating;
       if (updateData.reviewCount !== undefined) mappedData.reviewCount = updateData.reviewCount;
-      
+
       // Add optional fields (will be ignored if attributes don't exist)
       if (updateData.merchantId) mappedData.merchantId = updateData.merchantId;
       if (updateData.colors) mappedData.colors = updateData.colors;
@@ -445,7 +589,7 @@ export const adminProductsApi = {
         mappedData.colorSizeInventory = updateData.colorSizeInventory;
         console.log("📦 Updating colorSizeInventory:", updateData.colorSizeInventory);
       }
-      
+
       try {
         const doc = await databases.updateDocument(
           DATABASE_ID,
@@ -474,13 +618,13 @@ export const adminProductsApi = {
         // If error is about unknown attribute, retry without optional fields
         if (error.message?.includes('Unknown attribute')) {
           console.warn('Retrying update without optional attributes:', error.message);
-          
+
           // Remove optional attributes that might not exist
           delete mappedData.colorSizeInventory;
           delete mappedData.merchantId;
           delete mappedData.colors;
           delete mappedData.sizes;
-          
+
           const doc = await databases.updateDocument(
             DATABASE_ID,
             COLLECTIONS.PRODUCTS,
@@ -505,7 +649,7 @@ export const adminProductsApi = {
             updatedAt: doc.$updatedAt,
           };
         }
-        
+
         throw error;
       }
     } catch (error: any) {
@@ -624,22 +768,22 @@ export const adminUsersApi = {
   getAll: async (): Promise<any[]> => {
     try {
       console.log("Fetching all users from Appwrite Auth...");
-      
+
       // First try to get users from Appwrite Auth
       try {
         // Get current session to ensure we have admin privileges
         const currentUser = await account.get();
         console.log("Current user:", currentUser);
-        
+
         // Try to get users from the users collection if it exists
         const response = await databases.listDocuments(
           DATABASE_ID,
           COLLECTIONS.USERS,
           [Query.orderDesc("$createdAt"), Query.limit(1000)]
         );
-        
+
         console.log("Users from collection:", response);
-        
+
         if (response.documents.length > 0) {
           return response.documents.map((doc: any) => ({
             id: doc.$id,
@@ -656,7 +800,7 @@ export const adminUsersApi = {
         }
       } catch (collectionError: any) {
         console.log("Users collection error:", collectionError);
-        
+
         // Try to get users from Appwrite Auth using Teams API
         try {
           // This requires proper server-side API setup
@@ -666,11 +810,11 @@ export const adminUsersApi = {
           console.error("Auth API error:", authError);
         }
       }
-      
+
       // If absolutely no users found, return empty array instead of mock data
       console.warn("⚠️ No users collection found. Please create 'users' collection in Appwrite.");
       console.warn("📝 Collection should have attributes: email, name, avatar, role, isActive, isAffiliate, isMerchant");
-      
+
       // Return empty array - no mock data
       return [];
     } catch (error: any) {
@@ -689,7 +833,7 @@ export const adminUsersApi = {
           COLLECTIONS.USERS,
           [Query.equal("isAffiliate", true), Query.limit(1000)]
         );
-        
+
         if (response.documents.length > 0) {
           return response.documents.map((doc: any) => ({
             id: doc.$id,
@@ -716,11 +860,11 @@ export const adminUsersApi = {
       } catch (error) {
         console.log("Error fetching affiliates from collection:", error);
       }
-      
+
       // If no affiliates found, return empty array
       console.warn("⚠️ No affiliates found in users collection.");
       console.warn("📝 Make sure users with isAffiliate=true exist in the database.");
-      
+
       // Return empty array - no mock data
       return [];
     } catch (error) {
