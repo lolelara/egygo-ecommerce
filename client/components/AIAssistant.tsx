@@ -7,6 +7,8 @@ import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { buildUserContext, buildAdminContext } from '@/lib/ai-context-builder';
+import { databases, appwriteConfig } from '@/lib/appwrite';
+import { Query } from 'appwrite';
 
 interface Message {
   id: string;
@@ -345,8 +347,6 @@ export function AIAssistant() {
       console.log('✅ Fetching API key from Appwrite...');
 
       // 1. Get the active API key from Appwrite
-      const { databases, appwriteConfig, Query } = await import('@/lib/appwrite');
-
       const keysResponse = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.collections.openai_keys,
@@ -602,8 +602,8 @@ export function AIAssistant() {
                 >
                   <div
                     className={`max-w-[80%] rounded-lg p-3 ${message.type === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted'
                       }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>

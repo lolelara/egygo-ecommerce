@@ -175,46 +175,44 @@ export default function AdminAdvancedSettings() {
   const loadSettings = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('/api/admin/site-settings', {
-        headers: {
-          'x-api-key': env.ADMIN_API_KEY || '',
-        },
-      });
-      if (!res.ok) {
-        throw new Error('فشل في تحميل الإعدادات');
-      }
+      // Mock loading settings - in a real app this would fetch from Appwrite or a backend
+      // For now, we just simulate a delay and use default state
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      const data = await res.json();
-      const apiSettings = data.settings as Partial<SiteSettings>;
+      // In the future, fetch from Appwrite 'site_settings' collection
+      // const res = await databases.getDocument(DATABASE_ID, 'site_settings', 'current');
 
-      setSettings((prev) => ({
-        ...prev,
-        ...apiSettings,
-        features: {
-          ...prev.features,
-          ...(apiSettings.features || {}),
-        },
-        security: {
-          ...prev.security,
-          ...(apiSettings.security || {}),
-        },
-        notifications: {
-          ...prev.notifications,
-          ...(apiSettings.notifications || {}),
-        },
-        seo: {
-          ...prev.seo,
-          ...(apiSettings.seo || {}),
-        },
-      }));
-
-      setSettingsId(data.id || null);
       setHasChanges(false);
       setIsLoading(false);
     } catch (error: any) {
       toast({
         title: "خطأ",
         description: error?.message || "فشل في تحميل الإعدادات",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setIsLoading(true);
+      // Mock saving settings
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // In the future, save to Appwrite
+      // await databases.updateDocument(DATABASE_ID, 'site_settings', 'current', settings);
+
+      setHasChanges(false);
+      toast({
+        title: "نجح",
+        description: "تم حفظ الإعدادات بنجاح (محاكاة)"
+      });
+      setIsLoading(false);
+    } catch (error: any) {
+      toast({
+        title: "خطأ",
+        description: error?.message || "فشل في حفظ الإعدادات",
         variant: "destructive"
       });
       setIsLoading(false);
@@ -334,47 +332,6 @@ export default function AdminAdvancedSettings() {
         description: error.message || "فشل في حذف المفتاح",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleSave = async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch('/api/admin/site-settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': env.ADMIN_API_KEY || '',
-        },
-        body: JSON.stringify({
-          id: settingsId,
-          settings,
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'فشل في حفظ الإعدادات');
-      }
-
-      const data = await res.json();
-      if (data?.id) {
-        setSettingsId(data.id);
-      }
-
-      setHasChanges(false);
-      toast({
-        title: "نجح",
-        description: "تم حفظ الإعدادات بنجاح"
-      });
-      setIsLoading(false);
-    } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error?.message || "فشل في حفظ الإعدادات",
-        variant: "destructive"
-      });
-      setIsLoading(false);
     }
   };
 
