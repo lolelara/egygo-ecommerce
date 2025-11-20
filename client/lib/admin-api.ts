@@ -778,3 +778,152 @@ export const adminCommissionsApi = {
     }
   },
 };
+
+// Admin OpenAI Keys API
+export const openAIKeysApi = {
+  list: async (): Promise<AdminOpenAIKey[]> => {
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        [Query.orderDesc("$createdAt")]
+      );
+
+      return response.documents.map((doc: any) => ({
+        id: doc.$id,
+        label: doc.label,
+        provider: doc.provider || "openai",
+        key: doc.key, // Note: In a real app, we might mask this
+        isActive: doc.isActive,
+        createdAt: doc.$createdAt,
+      }));
+    } catch (error) {
+      console.error("Error fetching OpenAI keys:", error);
+      return [];
+    }
+  },
+
+  create: async (payload: { label: string; key: string; provider: "openai" | "gemini" }): Promise<AdminOpenAIKey> => {
+    try {
+      const doc = await databases.createDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        ID.unique(),
+        {
+          label: payload.label,
+          key: payload.key,
+          provider: payload.provider,
+          isActive: true, // Default to active
+        }
+      );
+
+      return {
+        id: doc.$id,
+        label: doc.label,
+        provider: doc.provider,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في إضافة مفتاح API");
+    }
+  },
+
+  update: async (id: string, payload: Partial<{ label: string; key: string; isActive: boolean; provider: "openai" | "gemini" }>): Promise<AdminOpenAIKey> => {
+    try {
+      const doc = await databases.updateDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id,
+        payload
+      );
+
+      return {
+        id: doc.$id,
+        label: doc.label,
+        provider: doc.provider,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تحديث مفتاح API");
+    }
+  },
+
+  remove: async (id: string): Promise<void> => {
+    try {
+      await databases.deleteDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id
+      );
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في حذف مفتاح API");
+    }
+  },
+
+  test: async (id: string): Promise<{ ok: boolean; error?: string }> => {
+    try {
+      // 1. Get the key from Appwrite
+      const doc = await databases.getDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id
+      );
+
+      const apiKey = doc.key;
+      const provider = doc.provider || "openai";
+
+      if (!apiKey) {
+        return { ok: false, error: "المفتاح غير موجود" };
+      }
+
+      // 2. Test based on provider
+      if (provider === "gemini") {
+        // Test Gemini Key
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          return { ok: false, error: errorData.error?.message || "فشل التحقق من مفتاح Gemini" };
+        }
+      } else {
+        // Test OpenAI Key
+        const response = await fetch('https://api.openai.com/v1/models', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          return { ok: false, error: errorData.error?.message || "فشل التحقق من مفتاح OpenAI" };
+        }
+      }
+
+      // 3. If successful, update lastUsedAt (optional)
+      return { ok: true };
+    } catch (error: any) {
+      return { ok: false, error: error.message || "حدث خطأ أثناء اختبار المفتاح" };
+    }
+  },
+
+  activate: async (id: string): Promise<AdminOpenAIKey> => {
+    try {
+      // 1. Deactivate all other keys (optional, if we only want one active key)
+      // For now, we'll just set this one to active. Logic for "only one active" can be handled in UI or backend function.
+
+      const doc = await databases.updateDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id,
+        { isActive: true }
+      );
+
+      return {
+        id: doc.$id,
+        label: doc.label,
+        provider: doc.provider,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تفعيل المفتاح");
+    }
+  }
+};
