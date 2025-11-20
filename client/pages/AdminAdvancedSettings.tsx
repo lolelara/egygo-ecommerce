@@ -164,6 +164,7 @@ export default function AdminAdvancedSettings() {
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null);
   const [newKeyLabel, setNewKeyLabel] = useState("");
   const [newKeyValue, setNewKeyValue] = useState("");
+  const [newKeyProvider, setNewKeyProvider] = useState<"openai" | "gemini">("openai");
   const [newKeyPriority, setNewKeyPriority] = useState<number>(100);
   const [newKeyIsDefault, setNewKeyIsDefault] = useState(false);
 
@@ -248,9 +249,8 @@ export default function AdminAdvancedSettings() {
       setIsCreatingKey(true);
       const created = await openAIKeysApi.create({
         label: newKeyLabel,
-        apiKey: newKeyValue,
-        priority: newKeyPriority,
-        isDefault: newKeyIsDefault,
+        key: newKeyValue,
+        provider: newKeyProvider,
       });
       setOpenAIKeys((prev) => [created, ...prev]);
       setNewKeyLabel("");
@@ -826,7 +826,7 @@ export default function AdminAdvancedSettings() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Zap className="w-5 h-5" />
-                <span>مفاتيح OpenAI</span>
+                <span>مفاتيح الذكاء الاصطناعي (AI)</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -839,6 +839,21 @@ export default function AdminAdvancedSettings() {
                     onChange={(e) => setNewKeyLabel(e.target.value)}
                   />
                 </div>
+                <div className="w-full md:w-1/4">
+                  <Label>المزود</Label>
+                  <Select
+                    value={newKeyProvider}
+                    onValueChange={(value: "openai" | "gemini") => setNewKeyProvider(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر المزود" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="openai">OpenAI</SelectItem>
+                      <SelectItem value="gemini">Google Gemini</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="w-full md:w-1/3">
                   <Label>المفتاح (API Key)</Label>
                   <Input
@@ -847,22 +862,6 @@ export default function AdminAdvancedSettings() {
                     onChange={(e) => setNewKeyValue(e.target.value)}
                     type="password"
                   />
-                </div>
-                <div className="w-full md:w-1/6">
-                  <Label>الأولوية</Label>
-                  <Input
-                    type="number"
-                    value={newKeyPriority}
-                    onChange={(e) => setNewKeyPriority(parseInt(e.target.value) || 0)}
-                  />
-                </div>
-                <div className="flex items-center space-x-2 pb-3">
-                  <Switch
-                    id="new-key-default"
-                    checked={newKeyIsDefault}
-                    onCheckedChange={setNewKeyIsDefault}
-                  />
-                  <Label htmlFor="new-key-default">افتراضي</Label>
                 </div>
                 <Button onClick={handleCreateKey} disabled={isCreatingKey}>
                   {isCreatingKey ? "جاري الإضافة..." : "إضافة مفتاح"}
@@ -893,7 +892,7 @@ export default function AdminAdvancedSettings() {
                               {(key as any).isActive && <Badge variant="default" className="text-xs">نشط</Badge>}
                             </div>
                             <div className="text-xs text-muted-foreground font-mono mt-1">
-                              {key.id.substring(0, 8)}... • {key.provider}
+                              {key.id.substring(0, 8)}... • {key.provider === 'gemini' ? 'Google Gemini' : 'OpenAI'}
                             </div>
                           </div>
                         </div>
