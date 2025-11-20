@@ -819,6 +819,127 @@ export default function AdminAdvancedSettings() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* AI Keys Tab */}
+        <TabsContent value="ai" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Zap className="w-5 h-5" />
+                <span>مفاتيح OpenAI</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex flex-col md:flex-row gap-4 items-end">
+                <div className="w-full md:w-1/4">
+                  <Label>الاسم</Label>
+                  <Input
+                    placeholder="مثال: GPT-4 Main"
+                    value={newKeyLabel}
+                    onChange={(e) => setNewKeyLabel(e.target.value)}
+                  />
+                </div>
+                <div className="w-full md:w-1/3">
+                  <Label>المفتاح (API Key)</Label>
+                  <Input
+                    placeholder="sk-..."
+                    value={newKeyValue}
+                    onChange={(e) => setNewKeyValue(e.target.value)}
+                    type="password"
+                  />
+                </div>
+                <div className="w-full md:w-1/6">
+                  <Label>الأولوية</Label>
+                  <Input
+                    type="number"
+                    value={newKeyPriority}
+                    onChange={(e) => setNewKeyPriority(parseInt(e.target.value) || 0)}
+                  />
+                </div>
+                <div className="flex items-center space-x-2 pb-3">
+                  <Switch
+                    id="new-key-default"
+                    checked={newKeyIsDefault}
+                    onCheckedChange={setNewKeyIsDefault}
+                  />
+                  <Label htmlFor="new-key-default">افتراضي</Label>
+                </div>
+                <Button onClick={handleCreateKey} disabled={isCreatingKey}>
+                  {isCreatingKey ? "جاري الإضافة..." : "إضافة مفتاح"}
+                </Button>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">المفاتيح المضافة</h3>
+                {keysLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">جاري التحميل...</div>
+                ) : openAIKeys.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                    لا توجد مفاتيح مضافة حالياً
+                  </div>
+                ) : (
+                  <div className="grid gap-4">
+                    {openAIKeys.map((key) => (
+                      <div key={key.id} className="flex items-center justify-between p-4 border rounded-lg bg-card">
+                        <div className="flex items-center space-x-4">
+                          <div className="p-2 bg-primary/10 rounded-full">
+                            <Zap className="w-4 h-4 text-primary" />
+                          </div>
+                          <div>
+                            <div className="font-medium flex items-center gap-2">
+                              {key.label}
+                              {(key as any).isActive && <Badge variant="default" className="text-xs">نشط</Badge>}
+                            </div>
+                            <div className="text-xs text-muted-foreground font-mono mt-1">
+                              {key.id.substring(0, 8)}... • {key.provider}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleTestKey(key.id)}
+                            disabled={testKeyId === key.id}
+                          >
+                            {testKeyId === key.id ? (
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            ) : (
+                              "اختبار"
+                            )}
+                          </Button>
+
+                          {!(key as any).isActive && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleActivateKey(key.id)}
+                              disabled={activateKeyId === key.id}
+                            >
+                              {activateKeyId === key.id ? "جاري التفعيل..." : "تفعيل"}
+                            </Button>
+                          )}
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteKey(key.id)}
+                            disabled={deleteKeyId === key.id}
+                          >
+                            {deleteKeyId === key.id ? "..." : "حذف"}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
