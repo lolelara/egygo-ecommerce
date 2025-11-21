@@ -76,20 +76,6 @@ export const AffiliateEarningsHistory = lazyLoad(() => import('@/pages/Affiliate
 export const AffiliateProductLinks = lazyLoad(() => import('@/pages/AffiliateProductLinks'));
 export const CustomLandingPage = lazyLoad(() => import('@/pages/CustomLandingPage'));
 export const AffiliateLeaderboard = lazyLoad(() => import('@/pages/AffiliateLeaderboard'));
-export const AffiliateTools = lazyLoad(() => import('@/pages/AffiliateTools'));
-
-// ============================================
-// MERCHANT PAGES (Lazy)
-// ============================================
-export const Merchant = lazyLoad(() => import('@/pages/Merchant'));
-export const MerchantDashboard = lazyLoad(() => import('@/pages/MerchantDashboard'));
-export const MerchantProducts = lazyLoad(() => import('@/pages/MerchantProducts'));
-export const MerchantProductsStatus = lazyLoad(() => import('@/pages/MerchantProductsStatus'));
-export const MerchantOrders = lazyLoad(() => import('@/pages/MerchantOrders'));
-export const MerchantAnalytics = lazyLoad(() => import('@/pages/MerchantAnalytics'));
-export const MerchantAdvertising = lazyLoad(() => import('@/pages/MerchantAdvertising'));
-export const MerchantFinancialHistory = lazyLoad(() => import('@/pages/MerchantFinancialHistory'));
-
 // ============================================
 // ADMIN PAGES (Lazy)
 // ============================================

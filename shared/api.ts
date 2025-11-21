@@ -74,6 +74,10 @@ export interface User {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  isFeatured?: boolean;
+  storeBanner?: string;
+  storeDescription?: string;
+  storeLogo?: string;
 }
 
 /**

@@ -14,6 +14,7 @@ declare module "@shared/prisma-types" {
   interface ProductFilters {
     isFeaturedInHero?: boolean;
     isFeatured?: boolean;
+    userId?: string;
   }
 }
 // تمت إزالة بيانات mock - يجب توفر Appwrite
@@ -28,6 +29,7 @@ const COLLECTIONS = {
   REVIEWS: "reviews",
   WISHLIST: "wishlist",
   USERS: "users",
+  USER_PREFERENCES: "userPreferences",
 };
 
 // Helper function to check if Appwrite is configured
@@ -76,6 +78,9 @@ export const productsApi = {
       }
       if (filters?.isFeatured) {
         queries.push(Query.equal("isFeatured", true));
+      }
+      if (filters?.userId) {
+        queries.push(Query.equal("merchantId", filters.userId));
       }
 
       // Add pagination
@@ -763,6 +768,73 @@ export const wishlistApi = {
     } catch (error) {
       console.error("Error checking wishlist:", error);
       return { inWishlist: false, wishlistItemId: null };
+    }
+  },
+};
+
+// Merchants API using Appwrite
+export const merchantsApi = {
+  getFeatured: async (): Promise<any[]> => {
+    try {
+      if (!isAppwriteConfigured()) {
+        return [];
+      }
+
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.USER_PREFERENCES,
+        [
+          Query.equal("isMerchant", true),
+          Query.equal("isFeatured", true),
+          Query.limit(20)
+        ]
+      );
+
+      return response.documents.map((doc: any) => ({
+        id: doc.$id,
+        userId: doc.userId,
+        name: doc.name,
+        email: doc.email,
+        storeLogo: doc.storeLogo,
+        storeBanner: doc.storeBanner,
+        storeDescription: doc.storeDescription,
+      }));
+    } catch (error) {
+      console.error("Error fetching featured merchants:", error);
+      return [];
+    }
+  },
+
+  getById: async (id: string): Promise<any> => {
+    try {
+      if (!isAppwriteConfigured()) {
+        return null;
+      }
+
+      const doc = await databases.getDocument(
+        DATABASE_ID,
+        COLLECTIONS.USER_PREFERENCES,
+        id
+      );
+
+      if (!doc.isMerchant) {
+        return null;
+      }
+
+      return {
+        id: doc.$id,
+        userId: doc.userId,
+        name: doc.name,
+        email: doc.email,
+        phone: doc.phone,
+        storeLogo: doc.storeLogo,
+        storeBanner: doc.storeBanner,
+        storeDescription: doc.storeDescription,
+        createdAt: doc.$createdAt,
+      };
+    } catch (error) {
+      console.error("Error fetching merchant details:", error);
+      return null;
     }
   },
 };

@@ -37,6 +37,7 @@ import { ProductCarouselModern } from "@/components/ProductCarouselModern";
 import { CategoryGridAnimated } from "@/components/CategoryGridAnimated";
 import { Smartphone, Shirt, Home as HomeIcon, Gamepad2, Watch, Gift } from "lucide-react";
 import { EgyGoCartAnimation } from "@/components/EgyGoCartAnimation";
+import { FeaturedMerchantsBar } from "@/components/FeaturedMerchantsBar";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -216,6 +217,9 @@ export default function Index() {
       </div>
 
 
+
+      {/* Featured Merchants Bar */}
+      <FeaturedMerchantsBar />
 
       {/* How It Works - كيف تعمل المنصة */}
       <section className="relative bg-gradient-to-b from-muted/30 via-white dark:via-gray-900 to-muted/30 py-20 overflow-hidden">

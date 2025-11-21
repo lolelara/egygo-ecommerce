@@ -240,6 +240,8 @@ const App = () => (
                                 <Route path="/merchant/analytics" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantAnalytics /></ProtectedRoute>} />
                                 <Route path="/merchant/advertising" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantAdvertising /></ProtectedRoute>} />
                                 <Route path="/merchant/financial" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantFinancialHistory /></ProtectedRoute>} />
+                                <Route path="/merchant/settings" element={<ProtectedRoute requiredRole="merchant"><LazyRoutes.MerchantSettings /></ProtectedRoute>} />
+                                <Route path="/merchant/:id" element={<LazyRoutes.MerchantProfile />} />
 
                                 {/* Intermediary Routes - Protected & Lazy */}
                                 <Route path="/intermediary/dashboard" element={<ProtectedRoute requiredRole="intermediary"><LazyRoutes.IntermediaryDashboard /></ProtectedRoute>} />

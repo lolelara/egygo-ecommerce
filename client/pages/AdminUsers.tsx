@@ -40,7 +40,7 @@ const adminAPI = {
     if (!response.ok) throw new Error(await response.text());
     return response.json();
   },
-  
+
   async updateUserEmail(userId: string, email: string) {
     const response = await fetch(`${ENDPOINT}/users/${userId}/email`, {
       method: 'PATCH',
@@ -54,7 +54,7 @@ const adminAPI = {
     if (!response.ok) throw new Error(await response.text());
     return response.json();
   },
-  
+
   async updateUserPhone(userId: string, phone: string) {
     const response = await fetch(`${ENDPOINT}/users/${userId}/phone`, {
       method: 'PATCH',
@@ -68,7 +68,7 @@ const adminAPI = {
     if (!response.ok) throw new Error(await response.text());
     return response.json();
   },
-  
+
   async deleteUser(userId: string) {
     const response = await fetch(`${ENDPOINT}/users/${userId}`, {
       method: 'DELETE',
@@ -90,18 +90,18 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const USERS_PER_PAGE = 25;
-  
+
   // Bulk Selection State
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [bulkAction, setBulkAction] = useState<string>('');
   const [showBulkActionModal, setShowBulkActionModal] = useState(false);
   const [bulkRoleChange, setBulkRoleChange] = useState<string>('customer');
-  
+
   // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
@@ -167,7 +167,7 @@ export default function AdminUsers() {
         'userPreferences',
         queries
       );
-      
+
       console.log('✅ Loaded users:', response.documents.length);
       setUsers(response.documents);
       setTotalUsers(response.total);
@@ -218,21 +218,21 @@ export default function AdminUsers() {
       if (editingUser.userId) {
         try {
           let authUpdated = false;
-          
+
           // Update name in Auth
           if (editFormData.name !== editingUser.name) {
             await adminAPI.updateUserName(editingUser.userId, editFormData.name);
             console.log('✅ Updated name in Auth');
             authUpdated = true;
           }
-          
+
           // Update email in Auth
           if (editFormData.email !== editingUser.email) {
             await adminAPI.updateUserEmail(editingUser.userId, editFormData.email);
             console.log('✅ Updated email in Auth');
             authUpdated = true;
           }
-          
+
           // Update phone in Auth
           if (editFormData.phone && editFormData.phone !== editingUser.phone) {
             await adminAPI.updateUserPhone(editingUser.userId, editFormData.phone);
@@ -301,8 +301,8 @@ export default function AdminUsers() {
               type: 'success',
               isRead: false,
               link: editFormData.role === 'merchant' ? '/merchant/dashboard' :
-                    editFormData.role === 'affiliate' ? '/affiliate/dashboard' :
-                    editFormData.role === 'intermediary' ? '/intermediary/dashboard' :
+                editFormData.role === 'affiliate' ? '/affiliate/dashboard' :
+                  editFormData.role === 'intermediary' ? '/intermediary/dashboard' :
                     editFormData.role === 'admin' ? '/admin/dashboard' : '/'
             }
           );
@@ -347,7 +347,7 @@ export default function AdminUsers() {
     try {
       // تحديث المستخدم في users collection
       const intermediaryCode = `INT${Date.now()}`;
-      
+
       await databases.updateDocument(
         DATABASE_ID,
         'users',
@@ -358,7 +358,7 @@ export default function AdminUsers() {
           commissionRate: parseFloat(intermediaryMarkup) / 100
         }
       );
-      
+
       console.log('✅ Intermediary activated');
 
       // Send notification to user
@@ -421,7 +421,7 @@ export default function AdminUsers() {
             Query.limit(100)
           ]
         );
-        
+
         for (const notif of notifications.documents) {
           await databases.deleteDocument(DATABASE_ID, 'notifications', notif.$id);
         }
@@ -440,7 +440,7 @@ export default function AdminUsers() {
             Query.limit(100)
           ]
         );
-        
+
         for (const ref of referrals.documents) {
           await databases.deleteDocument(DATABASE_ID, 'referrals', ref.$id);
         }
@@ -461,7 +461,7 @@ export default function AdminUsers() {
       try {
         await adminAPI.deleteUser(userId);
         console.log('✅ Deleted from Auth');
-        
+
         toast({
           title: "نجح",
           description: "تم حذف المستخدم بالكامل من النظام والمصادقة (Auth)"
@@ -481,6 +481,35 @@ export default function AdminUsers() {
       toast({
         title: "خطأ",
         description: "فشل حذف المستخدم",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleFeatured = async (user: any) => {
+    if (!user.isMerchant) return;
+
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        'userPreferences',
+        user.$id,
+        {
+          isFeatured: !user.isFeatured
+        }
+      );
+
+      toast({
+        title: "تم",
+        description: user.isFeatured ? "تم إزالة التاجر من المميزين" : "تم إضافة التاجر للمميزين",
+      });
+
+      loadUsers();
+    } catch (error) {
+      console.error('Error toggling featured status:', error);
+      toast({
+        title: "خطأ",
+        description: "فشل تغيير حالة التاجر",
         variant: "destructive"
       });
     }
@@ -526,7 +555,7 @@ export default function AdminUsers() {
 
     if (bulkAction === 'delete') {
       if (!confirm(`هل أنت متأكد من حذف ${selectedUsers.size} مستخدم؟`)) return;
-      
+
       let successCount = 0;
       let failCount = 0;
 
@@ -625,7 +654,7 @@ export default function AdminUsers() {
             ]
           );
           // Filter manually by user
-          commissions = commissionsResponse.documents.filter((c: any) => 
+          commissions = commissionsResponse.documents.filter((c: any) =>
             c.affiliateId === user.userId || c.affiliateId === user.$id ||
             c.userId === user.userId || c.userId === user.$id
           );
@@ -645,7 +674,7 @@ export default function AdminUsers() {
           ]
         );
         // Filter by user email or ID
-        orders = ordersResponse.documents.filter((o: any) => 
+        orders = ordersResponse.documents.filter((o: any) =>
           o.userEmail === user.email ||
           o.userId === user.userId ||
           o.userId === user.$id ||
@@ -689,7 +718,7 @@ export default function AdminUsers() {
     let role = 'customer';
     let roleName = 'عميل';
     let roleColor = 'bg-gray-100 text-gray-800';
-    
+
     if (user.isAffiliate) {
       role = 'affiliate';
       roleName = 'مسوق';
@@ -722,20 +751,20 @@ export default function AdminUsers() {
   // استخدام useMemo للبيانات المحسوبة
   const filteredUsers = useMemo(() => {
     return users.filter(u => {
-      const matchesSearch = 
+      const matchesSearch =
         u.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         u.email?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
         u.phone?.includes(debouncedSearch);
-      
+
       // تحديد الدور الفعلي للمستخدم
       let userRole = 'customer';
       if (u.isAffiliate) userRole = 'affiliate';
       if (u.isMerchant) userRole = 'merchant';
       if (u.isIntermediary) userRole = 'intermediary';
       if (u.email === 'admin@egygo.com') userRole = 'admin';
-      
+
       const matchesRole = roleFilter === 'all' || userRole === roleFilter;
-      
+
       return matchesSearch && matchesRole;
     });
   }, [users, debouncedSearch, roleFilter]);
@@ -751,7 +780,7 @@ export default function AdminUsers() {
     const adminCount = users.filter(u => u.role === 'admin').length;
     const pendingCount = users.filter(u => u.accountStatus === 'pending').length;
     const approvedCount = users.filter(u => u.accountStatus === 'approved').length;
-    
+
     return {
       total: totalCount,
       customer: customerCount,
@@ -843,7 +872,7 @@ export default function AdminUsers() {
                 className="pl-10"
               />
             </div>
-            
+
             <div>
               <select
                 className="w-full p-2 border rounded-md"
@@ -859,7 +888,7 @@ export default function AdminUsers() {
               </select>
             </div>
 
-            <Button 
+            <Button
               onClick={() => loadUsers()}
               variant="outline"
             >
@@ -883,7 +912,7 @@ export default function AdminUsers() {
                     إلغاء الاختيار
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <Select value={bulkAction} onValueChange={setBulkAction}>
                     <SelectTrigger className="w-[200px]">
@@ -894,7 +923,7 @@ export default function AdminUsers() {
                       <SelectItem value="delete">حذف المستخدمين</SelectItem>
                     </SelectContent>
                   </Select>
-                  
+
                   <Button
                     onClick={handleBulkAction}
                     disabled={!bulkAction}
@@ -927,6 +956,7 @@ export default function AdminUsers() {
                     <th className="text-right p-2">الهاتف</th>
                     <th className="text-right p-2">المحافظة</th>
                     <th className="text-right p-2">الدور</th>
+                    <th className="text-right p-2">مميز</th>
                     <th className="text-right p-2">الكود</th>
                     <th className="text-right p-2">الإجراءات</th>
                   </tr>
@@ -975,6 +1005,18 @@ export default function AdminUsers() {
                       </td>
                       <td className="p-2">{getRoleBadge(u)}</td>
                       <td className="p-2">
+                        {u.isMerchant && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleFeatured(u)}
+                            className={u.isFeatured ? "text-yellow-500 hover:text-yellow-600" : "text-gray-300 hover:text-gray-400"}
+                          >
+                            <Star className={`h-5 w-5 ${u.isFeatured ? "fill-current" : ""}`} />
+                          </Button>
+                        )}
+                      </td>
+                      <td className="p-2">
                         <code className="text-xs bg-gray-100 px-2 py-1 rounded">
                           {u.affiliateCode || '-'}
                         </code>
@@ -1003,7 +1045,7 @@ export default function AdminUsers() {
                               تفعيل وسيط
                             </Button>
                           )}
-                          
+
                           {/* Edit Button */}
                           <Button
                             size="sm"
@@ -1012,7 +1054,7 @@ export default function AdminUsers() {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          
+
                           {/* Delete Button */}
                           <Button
                             size="sm"
@@ -1034,7 +1076,7 @@ export default function AdminUsers() {
                   <div className="text-sm text-muted-foreground">
                     عرض {((currentPage - 1) * USERS_PER_PAGE) + 1} إلى {Math.min(currentPage * USERS_PER_PAGE, totalUsers)} من {totalUsers} مستخدم
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -1045,7 +1087,7 @@ export default function AdminUsers() {
                       <ChevronRight className="h-4 w-4" />
                       السابق
                     </Button>
-                    
+
                     <div className="flex items-center gap-1">
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         let pageNum;
@@ -1058,7 +1100,7 @@ export default function AdminUsers() {
                         } else {
                           pageNum = currentPage - 2 + i;
                         }
-                        
+
                         return (
                           <Button
                             key={pageNum}
@@ -1072,7 +1114,7 @@ export default function AdminUsers() {
                         );
                       })}
                     </div>
-                    
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -1095,57 +1137,57 @@ export default function AdminUsers() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-4">تعديل بيانات المستخدم</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <Label>الاسم</Label>
                 <Input
                   value={editFormData.name}
-                  onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                 />
               </div>
-              
+
               <div>
                 <Label>البريد الإلكتروني</Label>
                 <Input
                   type="email"
                   value={editFormData.email}
-                  onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
                 />
               </div>
-              
+
               <div>
                 <Label>رقم الهاتف</Label>
                 <Input
                   value={editFormData.phone}
-                  onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
                 />
               </div>
-              
+
               <div>
                 <Label>المحافظة</Label>
                 <Input
                   value={editFormData.governorate}
-                  onChange={(e) => setEditFormData({...editFormData, governorate: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, governorate: e.target.value })}
                   placeholder="مثال: القاهرة"
                 />
               </div>
-              
+
               <div>
                 <Label>المدينة/المركز</Label>
                 <Input
                   value={editFormData.city}
-                  onChange={(e) => setEditFormData({...editFormData, city: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, city: e.target.value })}
                   placeholder="مثال: مدينة نصر"
                 />
               </div>
-              
+
               <div>
                 <Label>الدور</Label>
                 <select
                   className="w-full p-2 border rounded-md"
                   value={editFormData.role}
-                  onChange={(e) => setEditFormData({...editFormData, role: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
                 >
                   <option value="customer">عميل</option>
                   <option value="merchant">تاجر</option>
@@ -1155,7 +1197,7 @@ export default function AdminUsers() {
                 </select>
               </div>
             </div>
-            
+
             <div className="flex gap-2 mt-6">
               <Button onClick={closeEditModal} variant="outline">
                 إلغاء
@@ -1173,7 +1215,7 @@ export default function AdminUsers() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-4">تفعيل دور الوسيط</h2>
-            
+
             <div className="bg-purple-50 p-4 rounded-lg mb-4 space-y-2">
               <p className="text-sm">
                 <strong>العميل:</strong> {selectedUserForIntermediary?.name}
@@ -1188,7 +1230,7 @@ export default function AdminUsers() {
                 </p>
               )}
             </div>
-            
+
             <div className="mb-4">
               <Label>نسبة الهامش الافتراضية (%)</Label>
               <Input
@@ -1203,12 +1245,12 @@ export default function AdminUsers() {
                 النسبة التي سيتم إضافتها على سعر المنتج الأصلي
               </p>
             </div>
-            
+
             <div className="flex gap-2">
               <Button onClick={closeIntermediaryModal} variant="outline">
                 إلغاء
               </Button>
-              <Button 
+              <Button
                 onClick={handleActivateIntermediary}
                 className="bg-purple-600 hover:bg-purple-700"
               >
@@ -1269,7 +1311,7 @@ export default function AdminUsers() {
                       <DollarSign className="h-5 w-5 text-green-600" />
                       <h3 className="text-lg font-bold">العمولات ({financialData.commissions.length})</h3>
                     </div>
-                    
+
                     {financialData.commissions.length === 0 ? (
                       <div className="bg-gray-50 rounded-lg p-8 text-center">
                         <DollarSign className="h-12 w-12 text-gray-300 mx-auto mb-2" />
@@ -1290,11 +1332,11 @@ export default function AdminUsers() {
                               </div>
                               <Badge className={
                                 commission.status === 'paid' ? 'bg-green-100 text-green-800' :
-                                commission.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-gray-100 text-gray-800'
+                                  commission.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-gray-100 text-gray-800'
                               }>
                                 {commission.status === 'paid' ? 'مدفوع' :
-                                 commission.status === 'pending' ? 'معلق' : 'ملغي'}
+                                  commission.status === 'pending' ? 'معلق' : 'ملغي'}
                               </Badge>
                             </div>
                             <p className="text-sm text-gray-600">
@@ -1331,7 +1373,7 @@ export default function AdminUsers() {
                       <ShoppingBag className="h-5 w-5 text-blue-600" />
                       <h3 className="text-lg font-bold">الطلبات ({financialData.orders.length})</h3>
                     </div>
-                    
+
                     {financialData.orders.length === 0 ? (
                       <div className="bg-gray-50 rounded-lg p-8 text-center">
                         <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-2" />
@@ -1352,15 +1394,15 @@ export default function AdminUsers() {
                               </div>
                               <Badge className={
                                 order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                                order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                                order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                                order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                'bg-gray-100 text-gray-800'
+                                  order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                                    order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                                      order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                        'bg-gray-100 text-gray-800'
                               }>
                                 {order.status === 'delivered' ? 'تم التوصيل' :
-                                 order.status === 'shipped' ? 'قيد الشحن' :
-                                 order.status === 'processing' ? 'قيد المعالجة' :
-                                 order.status === 'cancelled' ? 'ملغي' : 'جديد'}
+                                  order.status === 'shipped' ? 'قيد الشحن' :
+                                    order.status === 'processing' ? 'قيد المعالجة' :
+                                      order.status === 'cancelled' ? 'ملغي' : 'جديد'}
                               </Badge>
                             </div>
                             <div className="space-y-1">
@@ -1420,13 +1462,13 @@ export default function AdminUsers() {
               <UserCog className="h-6 w-6" />
               تغيير الدور لـ {selectedUsers.size} مستخدم
             </h2>
-            
+
             <div className="bg-blue-50 p-4 rounded-lg mb-4">
               <p className="text-sm text-blue-900">
                 سيتم تغيير دور جميع المستخدمين المحددين إلى الدور الجديد
               </p>
             </div>
-            
+
             <div className="mb-4">
               <Label>الدور الجديد</Label>
               <Select value={bulkRoleChange} onValueChange={setBulkRoleChange}>
@@ -1442,15 +1484,15 @@ export default function AdminUsers() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="flex gap-2">
-              <Button 
-                onClick={() => setShowBulkActionModal(false)} 
+              <Button
+                onClick={() => setShowBulkActionModal(false)}
                 variant="outline"
               >
                 إلغاء
               </Button>
-              <Button 
+              <Button
                 onClick={handleBulkRoleChange}
                 className="bg-blue-600 hover:bg-blue-700"
               >

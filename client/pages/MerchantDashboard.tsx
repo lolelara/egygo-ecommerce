@@ -25,15 +25,16 @@ import {
   ArrowUpRight,
   Loader2,
   Megaphone,
+  Settings,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { Link, Navigate } from "react-router-dom";
 import { PageLoader } from "@/components/ui/loading-screen";
 import PendingApprovalScreen from "@/components/PendingApprovalScreen";
-import { 
-  getMerchantStats, 
-  getMerchantProducts, 
+import {
+  getMerchantStats,
+  getMerchantProducts,
   getMerchantOrders,
   type MerchantStats,
   type MerchantProduct,
@@ -516,6 +517,14 @@ export default function MerchantDashboard() {
                   <div className="flex flex-col items-center gap-2">
                     <Megaphone className="h-6 w-6 text-purple-600" />
                     <span className="text-purple-700 font-semibold">روّج منتجاتك</span>
+                  </div>
+                </Button>
+              </Link>
+              <Link to="/merchant/settings">
+                <Button variant="outline" className="w-full h-auto py-4">
+                  <div className="flex flex-col items-center gap-2">
+                    <Settings className="h-6 w-6" />
+                    <span>إعدادات المتجر</span>
                   </div>
                 </Button>
               </Link>
