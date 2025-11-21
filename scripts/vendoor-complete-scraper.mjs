@@ -17,8 +17,24 @@ const APPWRITE_API_KEY = 'standard_4cd223829de1f0735515eed5940137b7108cdcbd46e8d
 const APPWRITE_DATABASE_ID = '68de037e003bd03c4d45';
 
 // Test mode - SET TO FALSE FOR FULL SCRAPING
+// Telegram Configuration
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+// Telegram Helper Function
+async function sendTelegramMessage(message) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown' })
+    });
+  } catch (e) { console.error('Telegram Error:', e.message); }
+}
+
 // Test mode - SET TO FALSE FOR FULL SCRAPING
-const TEST_MODE = true;  // وضع الإنتاج الكامل
+const TEST_MODE = false;  // وضع الإنتاج الكامل
 const TEST_VENDORS_LIMIT = 1;  // عدد الموردين للاختبار (ignored when TEST_MODE = false)
 const TEST_PRODUCTS_PER_VENDOR = 1;  // عدد المنتجات لكل مورد (ignored when TEST_MODE = false)
 
@@ -608,6 +624,7 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
 
 async function main() {
   const start = Date.now();
+  await sendTelegramMessage('🚀 *Vendoor Scraper Started*\nInitiating full scrape...');
 
   console.log('\n');
   console.log('╔═══════════════════════════════════════════════════════════╗');
@@ -662,6 +679,7 @@ async function main() {
 
     for (let i = 0; i < vendorsToProcess.length; i++) {
       const vendor = vendorsToProcess[i];
+      await sendTelegramMessage(`🏪 *Processing Vendor ${i + 1}/${vendorsToProcess.length}*\n${vendor.name}`);
       const productLinks = await getProductsFromVendor(page, vendor, i);
 
       if (productLinks.length === 0) continue;
@@ -698,6 +716,7 @@ async function main() {
 
   } catch (error) {
     console.error('\n❌ Fatal:', error.message);
+    await sendTelegramMessage(`❌ *Fatal Error*\n${error.message}`);
   } finally {
     await browser.close();
   }
@@ -717,6 +736,18 @@ async function main() {
   console.log(`   🔄 Updated: ${stats.updated || 0}`);
   console.log(`❌ Failed: ${stats.failed}`);
   console.log('');
+
+  const summary = `
+✅ *Scrape Completed*
+⏱️ Duration: ${duration}s
+🏪 Vendors: ${stats.vendors}
+📦 Products: ${stats.products}
+✅ Saved: ${stats.saved}
+   🆕 Created: ${stats.created || 0}
+   🔄 Updated: ${stats.updated || 0}
+❌ Failed: ${stats.failed}
+`;
+  await sendTelegramMessage(summary);
 
   if (stats.saved > 0) {
     console.log('✅ SUCCESS! Data saved in correct fields:');
