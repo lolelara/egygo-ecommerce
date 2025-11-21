@@ -587,7 +587,7 @@ export function AIAssistant() {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-2xl z-50 hover:scale-110 transition-transform"
+          className="fixed bottom-24 md:bottom-6 left-6 h-14 w-14 rounded-full shadow-2xl z-50 hover:scale-110 transition-transform"
           size="icon"
         >
           <MessageCircle className="h-6 w-6" />
@@ -596,7 +596,7 @@ export function AIAssistant() {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 left-6 w-96 h-[600px] shadow-2xl z-50 flex flex-col">
+        <Card className="fixed bottom-24 md:bottom-6 left-4 right-4 md:left-6 md:right-auto md:w-96 h-[500px] md:h-[600px] shadow-2xl z-50 flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b bg-primary text-primary-foreground rounded-t-lg">
             <div className="flex items-center gap-3">

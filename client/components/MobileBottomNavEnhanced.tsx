@@ -40,8 +40,8 @@ export function MobileBottomNavEnhanced({
     };
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 
-                    shadow-lg z-50 md:hidden safe-area-inset-bottom">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-white/20 
+                    shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.1)] z-50 md:hidden safe-area-inset-bottom">
             <div className="flex justify-around items-center h-16 relative">
                 {/* Background Glow Effect */}
                 {navItems.map((item) => {
@@ -101,8 +101,8 @@ export function MobileBottomNavEnhanced({
                                 >
                                     <Icon
                                         className={`w-6 h-6 transition-colors ${active
-                                                ? 'text-purple-600'
-                                                : 'text-gray-400 group-hover:text-gray-600'
+                                            ? 'text-purple-600'
+                                            : 'text-gray-400 group-hover:text-gray-600'
                                             }`}
                                         strokeWidth={active ? 2.5 : 2}
                                     />
