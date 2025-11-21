@@ -201,6 +201,9 @@ export default function AdminAdvancedSettings() {
           return val || fallback;
         };
 
+        // Parse config if it exists
+        const config = safeParse(doc.config, {});
+
         setSettings({
           siteName: doc.siteName || 'إيجي جو',
           siteDescription: doc.siteDescription || 'منصة التجارة الإلكترونية الرائدة',
@@ -212,14 +215,14 @@ export default function AdminAdvancedSettings() {
           contactEmail: doc.contactEmail || 'info@egygo.com',
           contactPhone: doc.contactPhone || '+201234567890',
           address: doc.address || 'القاهرة، مصر',
-          socialMedia: safeParse(doc.socialMedia, {}),
+          socialMedia: config.socialMedia || {},
           currency: doc.currency || 'EGP',
           timezone: doc.timezone || 'Africa/Cairo',
           language: doc.language || 'ar',
           taxRate: doc.taxRate || 14,
           shippingCost: doc.shippingCost || 50,
           freeShippingThreshold: doc.freeShippingThreshold || 500,
-          features: safeParse(doc.features, {
+          features: config.features || {
             enableReviews: true,
             enableWishlist: true,
             enableCompare: true,
@@ -227,29 +230,29 @@ export default function AdminAdvancedSettings() {
             enableAffiliate: true,
             enableMultiCurrency: false,
             enableGuestCheckout: true,
-          }),
-          security: safeParse(doc.security, {
+          },
+          security: config.security || {
             enableTwoFactor: false,
             enableBruteForceProtection: true,
             sessionTimeout: 30,
             passwordMinLength: 8,
             requireStrongPassword: true,
-          }),
-          notifications: safeParse(doc.notifications, {
+          },
+          notifications: config.notifications || {
             emailNotifications: true,
             smsNotifications: false,
             pushNotifications: true,
             orderNotifications: true,
             marketingEmails: false,
-          }),
-          seo: safeParse(doc.seo, {
+          },
+          seo: config.seo || {
             metaTitle: 'إيجي جو - منصة التجارة الإلكترونية',
             metaDescription: 'تسوق آمن وسريع مع إيجي جو',
             metaKeywords: 'تسوق، إلكتروني، مصر',
             googleAnalyticsId: '',
             facebookPixelId: '',
             enableSitemap: true,
-          })
+          }
         });
       }
 
@@ -273,6 +276,14 @@ export default function AdminAdvancedSettings() {
     try {
       setIsLoading(true);
 
+      const config = {
+        features: settings.features,
+        security: settings.security,
+        notifications: settings.notifications,
+        seo: settings.seo,
+        socialMedia: settings.socialMedia
+      };
+
       const payload = {
         siteName: settings.siteName,
         siteDescription: settings.siteDescription,
@@ -284,17 +295,13 @@ export default function AdminAdvancedSettings() {
         contactEmail: settings.contactEmail,
         contactPhone: settings.contactPhone,
         address: settings.address,
-        socialMedia: JSON.stringify(settings.socialMedia),
         currency: settings.currency,
         timezone: settings.timezone,
         language: settings.language,
         taxRate: settings.taxRate,
         shippingCost: settings.shippingCost,
         freeShippingThreshold: settings.freeShippingThreshold,
-        features: JSON.stringify(settings.features),
-        security: JSON.stringify(settings.security),
-        notifications: JSON.stringify(settings.notifications),
-        seo: JSON.stringify(settings.seo)
+        config: JSON.stringify(config)
       };
 
       if (settingsId) {
