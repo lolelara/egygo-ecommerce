@@ -181,9 +181,6 @@ export default function Index() {
 
 
 
-      // ... existing imports ...
-
-      // Inside Index component return:
 
       {/* Hero Section - Modern Enhanced Design */}
       <HeroSectionEnhanced
