@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { ShoppingBag, ArrowLeft, Sparkles, TrendingUp, Package, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ProductWithRelations } from '@shared/prisma-types';
@@ -15,6 +16,37 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
     { icon: TrendingUp, value: '50K+', label: 'عميل سعيد' },
     { icon: Zap, value: '24/7', label: 'دعم فوري' },
   ];
+
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (featuredProducts.length <= 3) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % featuredProducts.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [featuredProducts.length]);
+
+  const getVisibleProducts = () => {
+    if (featuredProducts.length === 0) return [];
+    // Always show 3 items if possible, wrapping around
+    const products = [];
+    const count = Math.min(featuredProducts.length, 3);
+
+    for (let i = 0; i < 3; i++) {
+      // If we have fewer than 3 products, just cycle through what we have
+      if (featuredProducts.length < 3) {
+        products.push(featuredProducts[i % featuredProducts.length]);
+      } else {
+        products.push(featuredProducts[(activeIndex + i) % featuredProducts.length]);
+      }
+    }
+    return products;
+  };
+
+  const visibleProducts = getVisibleProducts();
 
   return (
     <div className="relative min-h-[600px] overflow-hidden">
@@ -161,10 +193,10 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
           >
             {featuredProducts.length > 0 ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                {featuredProducts.slice(0, 3).map((product, index) => (
+                {visibleProducts.map((product, index) => (
                   <motion.div
-                    key={product.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    key={`${product.id}-${index}`} // Use index in key to force animation when position changes
+                    initial={{ opacity: 0, scale: 0.8 }}
                     animate={{
                       opacity: 1,
                       y: 0,
@@ -172,7 +204,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                       scale: index === 2 ? 1.1 : 0.9,
                       zIndex: index === 2 ? 10 : 1
                     }}
-                    transition={{ delay: 0.5 + index * 0.2 }}
+                    transition={{ duration: 0.5 }}
                     className={`absolute w-64 bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white
                                 ${index === 0 ? 'left-0 top-10' : index === 1 ? 'right-0 bottom-10' : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}
                   >
