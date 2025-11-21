@@ -1059,7 +1059,8 @@ export const openAIKeysApi = {
         id,
         {
           keyStatus: status,
-          lastError: error,
+          status: status, // Sync legacy
+          lastError: error ? error.substring(0, 999) : null, // Truncate to fit schema
           lastTestedAt: new Date().toISOString()
         }
       );
