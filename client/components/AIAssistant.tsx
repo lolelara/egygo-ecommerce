@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { buildUserContext, buildAdminContext } from '@/lib/ai-context-builder';
 import { databases, appwriteConfig } from '@/lib/appwrite';
 import { Query } from 'appwrite';
+import { openAIKeysApi } from '@/lib/admin-api';
 
 interface Message {
   id: string;
@@ -365,12 +366,25 @@ export function AIAssistant() {
         throw new Error('لم يتم العثور على مفاتيح API نشطة. يرجى الاتصال بالدعم.');
       }
 
+      // Sort keys: Default first, then by priority
+      const sortedKeys = keys.sort((a: any, b: any) => {
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        return (b.priority || 0) - (a.priority || 0);
+      });
+
       let lastError = null;
       let success = false;
 
       // 2. Iterate through keys until one works
-      for (const activeKey of keys) {
+      for (const activeKey of sortedKeys) {
         if (!activeKey.apiKey) continue;
+
+        // Skip keys marked as quota_exceeded or error unless it's the only one
+        if (sortedKeys.length > 1 && (activeKey.keyStatus === 'quota_exceeded' || activeKey.keyStatus === 'error')) {
+          console.log(`⚠️ Skipping key ${activeKey.$id} due to status: ${activeKey.keyStatus}`);
+          continue;
+        }
 
         const apiKey = activeKey.apiKey;
         let provider = activeKey.provider || 'openai';
@@ -507,10 +521,19 @@ export function AIAssistant() {
           console.error(`❌ Error with ${provider} key:`, error);
           lastError = error;
 
-          // If it's a quota or auth error, continue to next key
+          // If it's a quota or auth error, mark key as failed and continue
           if (error.message?.includes('429') || error.message?.includes('quota') ||
             error.message?.includes('401') || error.message?.includes('key')) {
-            console.log('⚠️ Key failed (Quota/Auth), trying next key...');
+
+            console.log('⚠️ Key failed (Quota/Auth), updating status and trying next key...');
+
+            // Update key status in DB to warn admin
+            const status = error.message?.includes('429') || error.message?.includes('quota')
+              ? 'quota_exceeded'
+              : 'error';
+
+            await openAIKeysApi.updateStatus(activeKey.$id, status, error.message);
+
             continue;
           }
 

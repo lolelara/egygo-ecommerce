@@ -16,6 +16,13 @@ export interface AdminOpenAIKey {
   id: string;
   label: string;
   provider: "openai" | "gemini";
+  key?: string;
+  isActive: boolean;
+  isDefault: boolean;
+  priority: number;
+  status: 'active' | 'quota_exceeded' | 'error';
+  lastError?: string;
+  lastTestedAt?: string;
 }
 
 // Admin Stats
@@ -812,8 +819,13 @@ export const openAIKeysApi = {
         id: doc.$id,
         label: doc.label,
         provider: doc.provider || "openai",
-        key: doc.apiKey, // Map apiKey from DB to key
-        isActive: doc.status === 'active',
+        key: doc.apiKey,
+        isActive: doc.status === 'active', // Legacy support
+        isDefault: doc.isDefault || false,
+        priority: doc.priority || 0,
+        status: doc.keyStatus || (doc.status === 'active' ? 'active' : 'error'), // Map DB status to UI status
+        lastError: doc.lastError,
+        lastTestedAt: doc.lastTestedAt,
         createdAt: doc.$createdAt,
       }));
     } catch (error) {
@@ -843,7 +855,10 @@ export const openAIKeysApi = {
         id: doc.$id,
         label: doc.label,
         provider: doc.provider,
-        isActive: doc.status === 'active',
+        isActive: true,
+        isDefault: doc.isDefault,
+        priority: doc.priority,
+        status: 'active',
       } as AdminOpenAIKey;
     } catch (error: any) {
       throw new Error(error.message || "فشل في إضافة مفتاح API");
@@ -863,7 +878,11 @@ export const openAIKeysApi = {
         id: doc.$id,
         label: doc.label,
         provider: doc.provider,
-      };
+        isActive: true,
+        isDefault: doc.isDefault,
+        priority: doc.priority,
+        status: 'active',
+      } as AdminOpenAIKey;
     } catch (error: any) {
       throw new Error(error.message || "فشل في تحديث مفتاح API");
     }
@@ -949,7 +968,7 @@ export const openAIKeysApi = {
         {
           lastTestedAt: new Date().toISOString(),
           lastError: isValid ? null : errorMessage,
-          status: isValid ? 'active' : 'error'
+          keyStatus: isValid ? 'active' : (errorMessage.includes('Quota') ? 'quota_exceeded' : 'error')
         }
       );
 
@@ -965,23 +984,64 @@ export const openAIKeysApi = {
 
   activate: async (id: string): Promise<AdminOpenAIKey> => {
     try {
-      // 1. Deactivate all other keys (optional, if we only want one active key)
-      // For now, we'll just set this one to active. Logic for "only one active" can be handled in UI or backend function.
+      // 1. Get all keys to unset their default status
+      const allKeys = await databases.listDocuments(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys
+      );
 
+      // 2. Unset isDefault for all other keys
+      await Promise.all(allKeys.documents.map(async (key) => {
+        if (key.$id !== id && key.isDefault) {
+          await databases.updateDocument(
+            DATABASE_ID,
+            appwriteConfig.collections.openai_keys,
+            key.$id,
+            { isDefault: false }
+          );
+        }
+      }));
+
+      // 3. Set the target key as default
       const doc = await databases.updateDocument(
         DATABASE_ID,
         appwriteConfig.collections.openai_keys,
         id,
-        { isActive: true }
+        {
+          isDefault: true,
+          keyStatus: 'active', // Reset status when activating
+          lastError: null
+        }
       );
 
       return {
         id: doc.$id,
         label: doc.label,
         provider: doc.provider,
-      };
+        isActive: true,
+        isDefault: true,
+        priority: doc.priority,
+        status: 'active',
+      } as AdminOpenAIKey;
     } catch (error: any) {
       throw new Error(error.message || "فشل في تفعيل المفتاح");
+    }
+  },
+
+  updateStatus: async (id: string, status: 'active' | 'quota_exceeded' | 'error', error?: string): Promise<void> => {
+    try {
+      await databases.updateDocument(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        id,
+        {
+          keyStatus: status,
+          lastError: error,
+          lastTestedAt: new Date().toISOString()
+        }
+      );
+    } catch (error) {
+      console.error("Error updating key status:", error);
     }
   }
 };

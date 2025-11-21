@@ -154,14 +154,14 @@ export const EgyGoCartAnimation = () => {
             {/* Running Character */}
             <div ref={characterRef} className="absolute left-0 bottom-8 z-20 flex flex-col items-center">
                 {/* Signs trailing behind (to the left) */}
-                <div className="absolute bottom-10 right-12 flex flex-col gap-2 w-48 items-end">
+                <div className="absolute bottom-10 right-12 flex flex-col gap-2 w-64 items-end">
                     {/* String connecting to character */}
                     <div className="absolute bottom-0 -right-4 w-12 h-0.5 bg-gray-400 origin-right transform rotate-12"></div>
 
-                    <div className="bg-yellow-400 text-red-900 text-[10px] font-bold px-2 py-1 rounded shadow-md transform -rotate-6 border border-yellow-500 text-center animate-bounce w-full">
+                    <div className="bg-yellow-400 text-red-900 text-sm font-bold px-3 py-2 rounded shadow-md transform -rotate-6 border border-yellow-500 text-center animate-bounce w-full">
                         الحق عروض الاحتفال ب اول 10 الاف منتج
                     </div>
-                    <div className="bg-black text-white text-[10px] font-bold px-2 py-1 rounded shadow-md transform rotate-3 border border-gray-700 text-center w-full">
+                    <div className="bg-black text-white text-sm font-bold px-3 py-2 rounded shadow-md transform rotate-3 border border-gray-700 text-center w-full">
                         الحق عروض ال white friday
                     </div>
                 </div>

@@ -178,7 +178,7 @@ export default function Index() {
     <div className="space-y-16 pb-16">
       <EnhancedSEO {...pageSEO.home()} />
 
-      import {EgyGoCartAnimation} from "@/components/EgyGoCartAnimation";
+
 
       // ... existing imports ...
 
@@ -215,173 +215,7 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Affiliate Hero Section - قسم المسوقين */}
-      <section className="relative bg-gradient-to-br from-red-600 via-orange-600 to-amber-600 text-white overflow-hidden min-h-[80vh] flex items-center">
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
 
-        {/* Floating Money Icons */}
-        <div className="absolute top-20 left-10 w-64 h-64 bg-orange-400/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" style={{ animation: 'float 4s ease-in-out infinite' }}></div>
-
-        <div className="relative container mx-auto px-4 py-20 z-10">
-          <div className="max-w-5xl mx-auto text-center space-y-8">
-            <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-0 shadow-xl font-bold px-8 py-3 text-lg">
-              💰 برنامج المسوقين بالعمولة
-            </Badge>
-
-            <h2 className="text-5xl lg:text-7xl font-black leading-tight text-white drop-shadow-2xl">
-              <span className="bg-gradient-to-r from-yellow-300 via-white to-yellow-300 bg-clip-text text-transparent">
-                ابدأ الربح من المنزل
-              </span>
-            </h2>
-
-            <p className="text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium leading-relaxed">
-              انضم لآلاف المسوقين الناجحين واحصل على عمولات مجزية على كل عملية بيع
-            </p>
-
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-3 gap-6 pt-8">
-              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
-                <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-300" />
-                <h3 className="text-2xl font-bold mb-2">عمولات عالية</h3>
-                <p className="text-white/80">احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص</p>
-              </div>
-
-              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
-                <BarChart3 className="w-12 h-12 mx-auto mb-4 text-blue-300" />
-                <h3 className="text-2xl font-bold mb-2">تتبع دقيق</h3>
-                <p className="text-white/80">راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم</p>
-              </div>
-
-              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
-                <Headphones className="w-12 h-12 mx-auto mb-4 text-pink-300" />
-                <h3 className="text-2xl font-bold mb-2">دعم مستمر</h3>
-                <p className="text-white/80">فريق دعم متواجد لمساعدتك على النجاح وزيادة أرباحك</p>
-              </div>
-            </div>
-
-            {/* CTA Button */}
-            <div className="pt-8">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black hover:from-yellow-500 hover:to-amber-600 shadow-2xl hover:shadow-yellow-500/50 transition-all duration-500 hover:scale-110 font-black text-2xl px-12 py-8 rounded-2xl relative overflow-hidden group"
-                asChild
-              >
-                <Link to="/register?type=affiliate">
-                  <span className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
-                  <DollarSign className="ml-3 h-7 w-7 rtl:ml-0 rtl:mr-3 group-hover:animate-pulse" />
-                  <span className="relative z-10">اربح معنا الآن</span>
-                  <TrendingUp className="mr-3 h-6 w-6 rtl:mr-0 rtl:ml-3 group-hover:translate-y-[-4px] transition-transform" />
-                </Link>
-              </Button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-12">
-              <div className="text-center">
-                <AnimatedCounter
-                  end={25}
-                  suffix="%"
-                  className="text-5xl font-black text-yellow-300 mb-2"
-                  duration={2000}
-                />
-                <div className="text-lg text-white/80 font-medium">نسبة العمولة</div>
-              </div>
-              <div className="text-center">
-                <AnimatedCounter
-                  end={1000}
-                  prefix="+"
-                  className="text-5xl font-black text-white mb-2"
-                  duration={2500}
-                />
-                <div className="text-lg text-white/80 font-medium">مسوق نشط</div>
-              </div>
-              <div className="text-center">
-                <AnimatedCounter
-                  end={50000}
-                  prefix="+"
-                  suffix=" ج.م"
-                  className="text-5xl font-black text-green-300 mb-2"
-                  duration={3000}
-                />
-                <div className="text-lg text-white/80 font-medium">متوسط الدخل الشهري</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Platform Statistics - إحصائيات المنصة */}
-      <section className="container mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <Badge className="mb-6 bg-gradient-to-r from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 px-6 py-2 text-base font-bold">
-            📊 إحصائيات مبهرة
-          </Badge>
-          <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 dark:from-gray-100 dark:via-red-400 dark:to-gray-100 bg-clip-text text-transparent">
-            منصة موثوقة يستخدمها الآلاف
-          </h2>
-          <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
-            انضم لمجتمع متنامي من التجار والمسوقين والعملاء الراضين
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 dark:from-gray-800 dark:to-red-950/30 border-2 border-red-100 dark:border-red-900/50 hover:border-red-300 dark:hover:border-red-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-            <CardContent className="text-center p-8">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 dark:bg-red-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
-              <Users className="w-12 h-12 mx-auto mb-4 text-red-600 dark:text-red-400" />
-              <AnimatedCounter
-                end={10000}
-                prefix="+"
-                className="text-5xl font-black text-red-600 dark:text-red-400 mb-3"
-                duration={2500}
-              />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">عميل نشط</div>
-            </CardContent>
-          </Card>
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800 dark:to-blue-950/30 border-2 border-blue-100 dark:border-blue-900/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-            <CardContent className="text-center p-8">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 dark:bg-blue-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
-              <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
-              <AnimatedCounter
-                end={500}
-                prefix="+"
-                className="text-5xl font-black text-blue-600 dark:text-blue-400 mb-3"
-                duration={2000}
-              />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">تاجر ناجح</div>
-            </CardContent>
-          </Card>
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-950/30 border-2 border-green-100 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-            <CardContent className="text-center p-8">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-green-600/5 dark:bg-green-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
-              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-green-600 dark:text-green-400" />
-              <AnimatedCounter
-                end={2000}
-                prefix="+"
-                className="text-5xl font-black text-green-600 dark:text-green-400 mb-3"
-                duration={2200}
-              />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">مسوق نشط</div>
-            </CardContent>
-          </Card>
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-yellow-50/30 dark:from-gray-800 dark:to-yellow-950/30 border-2 border-yellow-100 dark:border-yellow-900/50 hover:border-yellow-300 dark:hover:border-yellow-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-            <CardContent className="text-center p-8">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-600/5 dark:bg-yellow-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
-              <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-600 dark:text-yellow-400" />
-              <AnimatedCounter
-                end={5}
-                suffix="M+"
-                className="text-5xl font-black text-yellow-600 dark:text-yellow-400 mb-3"
-                duration={2000}
-              />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">جنيه مبيعات</div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
       {/* How It Works - كيف تعمل المنصة */}
       <section className="relative bg-gradient-to-b from-muted/30 via-white dark:via-gray-900 to-muted/30 py-20 overflow-hidden">
@@ -567,7 +401,7 @@ export default function Index() {
         </div>
 
         <CategoryGridAnimated
-          categories={categories.filter(cat => cat.slug).slice(0, 6).map((category, index) => ({
+          categories={categories.filter(cat => cat.slug).slice(0, 12).map((category, index) => ({
             id: category.id,
             name: category.name,
             nameAr: category.name,
@@ -623,6 +457,174 @@ export default function Index() {
             }}
           />
         )}
+      </section>
+
+      {/* Affiliate Hero Section - قسم المسوقين */}
+      <section className="relative bg-gradient-to-br from-red-600 via-orange-600 to-amber-600 text-white overflow-hidden min-h-[80vh] flex items-center">
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+
+        {/* Floating Money Icons */}
+        <div className="absolute top-20 left-10 w-64 h-64 bg-orange-400/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" style={{ animation: 'float 4s ease-in-out infinite' }}></div>
+
+        <div className="relative container mx-auto px-4 py-20 z-10">
+          <div className="max-w-5xl mx-auto text-center space-y-8">
+            <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-0 shadow-xl font-bold px-8 py-3 text-lg">
+              💰 برنامج المسوقين بالعمولة
+            </Badge>
+
+            <h2 className="text-5xl lg:text-7xl font-black leading-tight text-white drop-shadow-2xl">
+              <span className="bg-gradient-to-r from-yellow-300 via-white to-yellow-300 bg-clip-text text-transparent">
+                ابدأ الربح من المنزل
+              </span>
+            </h2>
+
+            <p className="text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium leading-relaxed">
+              انضم لآلاف المسوقين الناجحين واحصل على عمولات مجزية على كل عملية بيع
+            </p>
+
+            {/* Features Grid */}
+            <div className="grid md:grid-cols-3 gap-6 pt-8">
+              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
+                <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-300" />
+                <h3 className="text-2xl font-bold mb-2">عمولات عالية</h3>
+                <p className="text-white/80">احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
+                <BarChart3 className="w-12 h-12 mx-auto mb-4 text-blue-300" />
+                <h3 className="text-2xl font-bold mb-2">تتبع دقيق</h3>
+                <p className="text-white/80">راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
+                <Headphones className="w-12 h-12 mx-auto mb-4 text-pink-300" />
+                <h3 className="text-2xl font-bold mb-2">دعم مستمر</h3>
+                <p className="text-white/80">فريق دعم متواجد لمساعدتك على النجاح وزيادة أرباحك</p>
+              </div>
+            </div>
+
+            {/* CTA Button */}
+            <div className="pt-8">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black hover:from-yellow-500 hover:to-amber-600 shadow-2xl hover:shadow-yellow-500/50 transition-all duration-500 hover:scale-110 font-black text-2xl px-12 py-8 rounded-2xl relative overflow-hidden group"
+                asChild
+              >
+                <Link to="/register?type=affiliate">
+                  <span className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+                  <DollarSign className="ml-3 h-7 w-7 rtl:ml-0 rtl:mr-3 group-hover:animate-pulse" />
+                  <span className="relative z-10">اربح معنا الآن</span>
+                  <TrendingUp className="mr-3 h-6 w-6 rtl:mr-0 rtl:ml-3 group-hover:translate-y-[-4px] transition-transform" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-6 pt-12">
+              <div className="text-center">
+                <AnimatedCounter
+                  end={25}
+                  suffix="%"
+                  className="text-5xl font-black text-yellow-300 mb-2"
+                  duration={2000}
+                />
+                <div className="text-lg text-white/80 font-medium">نسبة العمولة</div>
+              </div>
+              <div className="text-center">
+                <AnimatedCounter
+                  end={1000}
+                  prefix="+"
+                  className="text-5xl font-black text-white mb-2"
+                  duration={2500}
+                />
+                <div className="text-lg text-white/80 font-medium">مسوق نشط</div>
+              </div>
+              <div className="text-center">
+                <AnimatedCounter
+                  end={50000}
+                  prefix="+"
+                  suffix=" ج.م"
+                  className="text-5xl font-black text-green-300 mb-2"
+                  duration={3000}
+                />
+                <div className="text-lg text-white/80 font-medium">متوسط الدخل الشهري</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Platform Statistics - إحصائيات المنصة */}
+      <section className="container mx-auto px-4 py-20">
+        <div className="text-center mb-16">
+          <Badge className="mb-6 bg-gradient-to-r from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 px-6 py-2 text-base font-bold">
+            📊 إحصائيات مبهرة
+          </Badge>
+          <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 dark:from-gray-100 dark:via-red-400 dark:to-gray-100 bg-clip-text text-transparent">
+            منصة موثوقة يستخدمها الآلاف
+          </h2>
+          <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
+            انضم لمجتمع متنامي من التجار والمسوقين والعملاء الراضين
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 dark:from-gray-800 dark:to-red-950/30 border-2 border-red-100 dark:border-red-900/50 hover:border-red-300 dark:hover:border-red-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-red-600/5 dark:bg-red-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <Users className="w-12 h-12 mx-auto mb-4 text-red-600 dark:text-red-400" />
+              <AnimatedCounter
+                end={10000}
+                prefix="+"
+                className="text-5xl font-black text-red-600 dark:text-red-400 mb-3"
+                duration={2500}
+              />
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">عميل نشط</div>
+            </CardContent>
+          </Card>
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800 dark:to-blue-950/30 border-2 border-blue-100 dark:border-blue-900/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 dark:bg-blue-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
+              <AnimatedCounter
+                end={500}
+                prefix="+"
+                className="text-5xl font-black text-blue-600 dark:text-blue-400 mb-3"
+                duration={2000}
+              />
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">تاجر ناجح</div>
+            </CardContent>
+          </Card>
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-950/30 border-2 border-green-100 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-green-600/5 dark:bg-green-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <TrendingUp className="w-12 h-12 mx-auto mb-4 text-green-600 dark:text-green-400" />
+              <AnimatedCounter
+                end={2000}
+                prefix="+"
+                className="text-5xl font-black text-green-600 dark:text-green-400 mb-3"
+                duration={2200}
+              />
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">مسوق نشط</div>
+            </CardContent>
+          </Card>
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-yellow-50/30 dark:from-gray-800 dark:to-yellow-950/30 border-2 border-yellow-100 dark:border-yellow-900/50 hover:border-yellow-300 dark:hover:border-yellow-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+            <CardContent className="text-center p-8">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-600/5 dark:bg-yellow-400/10 rounded-full -mr-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
+              <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-600 dark:text-yellow-400" />
+              <AnimatedCounter
+                end={5}
+                suffix="M+"
+                className="text-5xl font-black text-yellow-600 dark:text-yellow-400 mb-3"
+                duration={2000}
+              />
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">جنيه مبيعات</div>
+            </CardContent>
+          </Card>
+        </div>
       </section>
 
       {/* Affiliate Program CTA */}

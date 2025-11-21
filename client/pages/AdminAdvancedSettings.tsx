@@ -933,120 +933,180 @@ export default function AdminAdvancedSettings() {
           </Card>
         </TabsContent>
 
-        {/* AI Keys Tab */}
         <TabsContent value="ai" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Zap className="w-5 h-5" />
-                <span>مفاتيح الذكاء الاصطناعي (AI)</span>
+                <span>مفاتيح API</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex flex-col md:flex-row gap-4 items-end">
-                <div className="w-full md:w-1/4">
-                  <Label>الاسم</Label>
-                  <Input
-                    placeholder="مثال: GPT-4 Main"
-                    value={newKeyLabel}
-                    onChange={(e) => setNewKeyLabel(e.target.value)}
-                  />
+              <div className="flex justify-between items-center">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-medium">إدارة المفاتيح</h3>
+                  <p className="text-sm text-muted-foreground">
+                    إدارة مفاتيح OpenAI و Google Gemini. سيتم استخدام المفتاح الافتراضي أولاً، وفي حالة فشله (نفاذ الرصيد) سيتم استخدام المفاتيح الاحتياطية تلقائياً.
+                  </p>
                 </div>
-                <div className="w-full md:w-1/4">
-                  <Label>المزود</Label>
-                  <Select
-                    value={newKeyProvider}
-                    onValueChange={(value: "openai" | "gemini") => setNewKeyProvider(value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر المزود" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="openai">OpenAI</SelectItem>
-                      <SelectItem value="gemini">Google Gemini</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="w-full md:w-1/3">
-                  <Label>المفتاح (API Key)</Label>
-                  <Input
-                    placeholder="sk-..."
-                    value={newKeyValue}
-                    onChange={(e) => setNewKeyValue(e.target.value)}
-                    type="password"
-                  />
-                </div>
-                <Button onClick={handleCreateKey} disabled={isCreatingKey}>
-                  {isCreatingKey ? "جاري الإضافة..." : "إضافة مفتاح"}
+                <Button onClick={() => setIsCreatingKey(true)}>
+                  <Zap className="w-4 h-4 mr-2" />
+                  إضافة مفتاح جديد
                 </Button>
               </div>
 
-              <Separator />
+              {isCreatingKey && (
+                <Card className="border-dashed">
+                  <CardContent className="pt-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>اسم المفتاح (للتوضيح)</Label>
+                        <Input
+                          placeholder="مثال: مفتاح Gemini الأساسي"
+                          value={newKeyLabel}
+                          onChange={(e) => setNewKeyLabel(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>المزود</Label>
+                        <Select value={newKeyProvider} onValueChange={(v: any) => setNewKeyProvider(v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="openai">OpenAI (GPT-3.5)</SelectItem>
+                            <SelectItem value="gemini">Google Gemini (Flash)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                        <Label>مفتاح API</Label>
+                        <Input
+                          type="password"
+                          placeholder="sk-..."
+                          value={newKeyValue}
+                          onChange={(e) => setNewKeyValue(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2 md:col-span-2">
+                        <Switch
+                          id="default-key"
+                          checked={newKeyIsDefault}
+                          onCheckedChange={setNewKeyIsDefault}
+                        />
+                        <Label htmlFor="default-key">تعيين كمفتاح افتراضي</Label>
+                      </div>
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={() => setIsCreatingKey(false)}>إلغاء</Button>
+                      <Button onClick={handleCreateKey}>حفظ المفتاح</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">المفاتيح المضافة</h3>
                 {keysLoading ? (
                   <div className="text-center py-8 text-muted-foreground">جاري التحميل...</div>
                 ) : openAIKeys.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
                     لا توجد مفاتيح مضافة حالياً
                   </div>
                 ) : (
-                  <div className="grid gap-4">
-                    {openAIKeys.map((key) => (
-                      <div key={key.id} className="flex items-center justify-between p-4 border rounded-lg bg-card">
+                  openAIKeys.map((key) => (
+                    <Card key={key.id} className={cn(
+                      "transition-all",
+                      key.isDefault ? "border-primary/50 bg-primary/5" : "",
+                      key.status === 'quota_exceeded' ? "border-yellow-500/50 bg-yellow-500/5" : "",
+                      key.status === 'error' ? "border-red-500/50 bg-red-500/5" : ""
+                    )}>
+                      <CardContent className="p-4 flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                          <div className="p-2 bg-primary/10 rounded-full">
-                            <Zap className="w-4 h-4 text-primary" />
+                          <div className={cn(
+                            "p-2 rounded-full",
+                            key.provider === 'openai' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
+                          )}>
+                            <Zap className="w-5 h-5" />
                           </div>
                           <div>
-                            <div className="font-medium flex items-center gap-2">
-                              {key.label}
-                              {(key as any).isActive && <Badge variant="default" className="text-xs">نشط</Badge>}
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-semibold">{key.label}</h4>
+                              {key.isDefault && (
+                                <Badge variant="default" className="bg-primary">افتراضي</Badge>
+                              )}
+                              {!key.isDefault && (
+                                <Badge variant="secondary">احتياطي</Badge>
+                              )}
+
+                              {/* Status Badges */}
+                              {key.status === 'active' && (
+                                <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                                  نشط
+                                </Badge>
+                              )}
+                              {key.status === 'quota_exceeded' && (
+                                <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50">
+                                  ⚠️ رصيد غير كافي
+                                </Badge>
+                              )}
+                              {key.status === 'error' && (
+                                <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50">
+                                  ❌ خطأ
+                                </Badge>
+                              )}
                             </div>
-                            <div className="text-xs text-muted-foreground font-mono mt-1">
-                              {key.id.substring(0, 8)}... • {key.provider === 'gemini' ? 'Google Gemini' : 'OpenAI'}
+                            <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                              <span>{key.provider === 'openai' ? 'OpenAI' : 'Google Gemini'}</span>
+                              <span>•</span>
+                              <span className="font-mono">
+                                {key.key ? `${key.key.substring(0, 8)}...` : '••••••••'}
+                              </span>
+                              {key.lastTestedAt && (
+                                <>
+                                  <span>•</span>
+                                  <span>آخر اختبار: {new Date(key.lastTestedAt).toLocaleDateString('ar-EG')}</span>
+                                </>
+                              )}
                             </div>
+                            {key.lastError && (
+                              <div className="text-xs text-red-500 mt-1">
+                                {key.lastError}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleTestKey(key.id)}
-                            disabled={testKeyId === key.id}
-                          >
-                            {testKeyId === key.id ? (
-                              <RefreshCw className="w-4 h-4 animate-spin" />
-                            ) : (
-                              "اختبار"
-                            )}
-                          </Button>
-
-                          {!(key as any).isActive && (
+                          {!key.isDefault && (
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               onClick={() => handleActivateKey(key.id)}
                               disabled={activateKeyId === key.id}
                             >
-                              {activateKeyId === key.id ? "جاري التفعيل..." : "تفعيل"}
+                              تعيين كافتراضي
                             </Button>
                           )}
-
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleTestKey(key.id)}
+                            disabled={testKeyId === key.id}
+                          >
+                            {testKeyId === key.id ? "جاري الاختبار..." : "اختبار"}
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
                             onClick={() => handleDeleteKey(key.id)}
                             disabled={deleteKeyId === key.id}
                           >
-                            {deleteKeyId === key.id ? "..." : "حذف"}
+                            حذف
                           </Button>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      </CardContent>
+                    </Card>
+                  ))
                 )}
               </div>
             </CardContent>
