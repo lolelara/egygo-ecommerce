@@ -36,6 +36,7 @@ import { HeroSectionEnhanced } from "@/components/HeroSectionEnhanced";
 import { ProductCarouselModern } from "@/components/ProductCarouselModern";
 import { CategoryGridAnimated } from "@/components/CategoryGridAnimated";
 import { Smartphone, Shirt, Home as HomeIcon, Gamepad2, Watch, Gift } from "lucide-react";
+import { EgyGoCartAnimation } from "@/components/EgyGoCartAnimation";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -568,6 +569,7 @@ export default function Index() {
         <CategoryGridAnimated
           categories={categories.filter(cat => cat.slug).slice(0, 6).map((category, index) => ({
             id: category.id,
+            name: category.name,
             nameAr: category.name,
             icon: [Smartphone, Shirt, HomeIcon, Gamepad2, Watch, Gift][index % 6],
             productCount: category.productCount || 0,
@@ -590,6 +592,7 @@ export default function Index() {
           <ProductCarouselModern
             products={featuredProducts.map(p => ({
               id: p.id,
+              name: p.name,
               nameAr: p.name,
               price: p.price,
               originalPrice: p.originalPrice,
