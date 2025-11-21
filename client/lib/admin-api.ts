@@ -230,7 +230,8 @@ export const adminProductsApi = {
         comparePrice: product.comparePrice || product.originalPrice || null,
         stock: stockValue,
         stockQuantity: stockValue, // Also set stockQuantity to match schema
-        categoryId: product.categoryId,
+        categoryId: product.categoryId || (product.categoryIds && product.categoryIds.length > 0 ? product.categoryIds[0] : null), // Deprecated but kept for compatibility
+        categoryIds: product.categoryIds || (product.categoryId ? [product.categoryId] : []), // New field
         images: product.images || [],
         tags: product.tags || [],
         isActive: product.isActive ?? true,
@@ -277,6 +278,7 @@ export const adminProductsApi = {
           comparePrice: doc.comparePrice,
           stock: doc.stock,
           categoryId: doc.categoryId,
+          categoryIds: doc.categoryIds || (doc.categoryId ? [doc.categoryId] : []),
           images: doc.images,
           tags: doc.tags,
           isActive: doc.isActive,
@@ -348,7 +350,17 @@ export const adminProductsApi = {
         mappedData.stock = stockValue;
         mappedData.stockQuantity = stockValue; // Also set stockQuantity to match schema
       }
-      if (updateData.categoryId) mappedData.categoryId = updateData.categoryId;
+      if (updateData.categoryId) {
+        mappedData.categoryId = updateData.categoryId;
+        mappedData.categoryIds = [updateData.categoryId]; // Sync
+      }
+      if (updateData.categoryIds) {
+        mappedData.categoryIds = updateData.categoryIds;
+        if (updateData.categoryIds.length > 0) {
+          mappedData.categoryId = updateData.categoryIds[0]; // Sync
+        }
+      }
+
       if (updateData.images) mappedData.images = updateData.images;
       if (updateData.tags) mappedData.tags = updateData.tags;
       if (updateData.isActive !== undefined) mappedData.isActive = updateData.isActive;
@@ -381,6 +393,7 @@ export const adminProductsApi = {
           comparePrice: doc.comparePrice,
           stock: doc.stock,
           categoryId: doc.categoryId,
+          categoryIds: doc.categoryIds || (doc.categoryId ? [doc.categoryId] : []),
           images: doc.images,
           tags: doc.tags,
           isActive: doc.isActive,
@@ -448,6 +461,7 @@ export const adminProductsApi = {
 };
 
 // Admin Categories API
+// Admin Categories API
 export const adminCategoriesApi = {
   create: async (category: any): Promise<any> => {
     try {
@@ -466,19 +480,21 @@ export const adminCategoriesApi = {
         "unique()",
         {
           name: category.name,
+          slug: slug, // Save slug to DB
           description: category.description || "",
           image: category.image || "",
-          isActive: true,
+          isActive: category.isActive ?? true,
         }
       );
 
       return {
         id: doc.$id,
         name: doc.name,
-        slug: slug, // Return slug for frontend use (even though not stored)
+        slug: doc.slug || slug,
         description: doc.description,
         image: doc.image,
         productCount: 0,
+        isActive: doc.isActive,
         createdAt: doc.$createdAt,
       };
     } catch (error: any) {
@@ -489,18 +505,7 @@ export const adminCategoriesApi = {
 
   update: async (id: string, category: any): Promise<any> => {
     try {
-      const doc = await databases.updateDocument(
-        DATABASE_ID,
-        COLLECTIONS.CATEGORIES,
-        id,
-        {
-          name: category.name,
-          description: category.description,
-          image: category.image,
-        }
-      );
-
-      // Generate slug for frontend use
+      // Generate slug from name
       const slug = category.name
         .toLowerCase()
         .replace(/[أ-ي\s]+/g, '-')
@@ -509,12 +514,26 @@ export const adminCategoriesApi = {
         .replace(/^-+/, '')
         .replace(/-+$/, '');
 
+      const doc = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTIONS.CATEGORIES,
+        id,
+        {
+          name: category.name,
+          slug: slug, // Save slug to DB
+          description: category.description,
+          image: category.image,
+          isActive: category.isActive,
+        }
+      );
+
       return {
         id: doc.$id,
         name: doc.name,
-        slug: slug,
+        slug: doc.slug || slug,
         description: doc.description,
         image: doc.image,
+        isActive: doc.isActive,
         updatedAt: doc.$updatedAt,
       };
     } catch (error: any) {

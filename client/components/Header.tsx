@@ -53,7 +53,9 @@ export function Header({ cartItemCount }: HeaderProps) {
     categoriesApi
       .getAll()
       .then((data) => {
-        setCategories(data.categories);
+        // Filter active categories
+        const activeCategories = data.categories.filter((cat: any) => cat.isActive !== false);
+        setCategories(activeCategories);
       })
       .catch(() => {
         setCategories([]);

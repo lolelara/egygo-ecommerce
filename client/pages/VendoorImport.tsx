@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AppwriteAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,14 +15,16 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  fetchAllVendoorProducts, 
-  fetchSingleVendoorProduct, 
+import {
+  fetchAllVendoorProducts,
+  fetchSingleVendoorProduct,
   importVendoorProduct,
   importMultipleVendoorProducts,
   manualVendoorSync,
   checkVendoorFunctionStatus
 } from '@/lib/vendoor-function-api';
+import { categoriesApi } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface VendoorProduct {
   id: string;
@@ -43,7 +45,7 @@ const VENDOOR_PASSWORD = 'hema2004';
 export default function VendoorImport() {
   const { toast } = useToast();
   const { user } = useAuth();
-  
+
   const [isScrapingAll, setIsScrapingAll] = useState(false);
   const [isScrapingSingle, setIsScrapingSingle] = useState(false);
   const [scrapingProgress, setScrapingProgress] = useState({ current: 0, total: 0 });
@@ -55,6 +57,15 @@ export default function VendoorImport() {
   const [singleProductId, setSingleProductId] = useState('');
   const [markupPercentage, setMarkupPercentage] = useState(20);
   const [importingAll, setImportingAll] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+
+  // Fetch categories on mount
+  useEffect(() => {
+    categoriesApi.getAll().then(data => {
+      setCategories(data.categories);
+    });
+  }, []);
 
   /**
    * جلب جميع المنتجات من Vendoor
@@ -66,10 +77,10 @@ export default function VendoorImport() {
     try {
       // استخدام Vendoor Function API مباشرة
       const data = await fetchAllVendoorProducts();
-      
+
       if (data.success && data.products) {
         setProducts(data.products);
-        
+
         toast({
           title: 'نجح! 🎉',
           description: `تم جلب ${data.products.length} منتج`,
@@ -110,11 +121,11 @@ export default function VendoorImport() {
       // استخدام Vendoor Function API مباشرة
       const product = await fetchSingleVendoorProduct(singleProductId);
       const data = { success: true, product };
-      
+
       if (data.success && data.product) {
         setProducts(prev => [data.product, ...prev]);
         setSingleProductId('');
-        
+
         toast({
           title: 'نجح!',
           description: `تم جلب المنتج ${data.product.title}`,
@@ -145,7 +156,7 @@ export default function VendoorImport() {
     reader.onload = (e) => {
       try {
         const json = JSON.parse(e.target?.result as string);
-        
+
         // التحقق من صيغة الملف
         if (json.products && Array.isArray(json.products)) {
           setProducts(json.products);
@@ -175,7 +186,7 @@ export default function VendoorImport() {
 
     try {
       // استخدام Vendoor Function API مباشرة
-      const data = await importVendoorProduct(product.id, markupPercentage);
+      const data = await importVendoorProduct(product.id, markupPercentage, selectedCategoryId);
 
       toast({
         title: 'نجح!',
@@ -183,7 +194,7 @@ export default function VendoorImport() {
       });
 
       // تحديث حالة المنتج
-      setProducts(prev => prev.map(p => 
+      setProducts(prev => prev.map(p =>
         p.id === product.id ? { ...p, imported: true } : p
       ));
 
@@ -221,7 +232,8 @@ export default function VendoorImport() {
       // استخدام Vendoor Function API مباشرة
       const data = await importMultipleVendoorProducts(
         products.map(p => p.id),
-        markupPercentage
+        markupPercentage,
+        selectedCategoryId
       );
 
       toast({
@@ -359,7 +371,7 @@ export default function VendoorImport() {
                     <span>{Math.round((scrapingProgress.current / scrapingProgress.total) * 100)}%</span>
                   </div>
                   <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="bg-primary h-full transition-all duration-300"
                       style={{ width: `${(scrapingProgress.current / scrapingProgress.total) * 100}%` }}
                     />
@@ -393,6 +405,22 @@ export default function VendoorImport() {
                       className="mt-1"
                     />
                   </div>
+                  <div className="flex-1">
+                    <Label>التصنيف المستهدف</Label>
+                    <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="اختر التصنيف (اختياري)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">افتراضي (Vendor Products)</SelectItem>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="flex-1 flex items-end">
                     <Button
                       onClick={handleImportAll}
@@ -424,7 +452,7 @@ export default function VendoorImport() {
                           alt={product.title}
                           className="w-full h-full object-cover"
                         />
-                        <Badge 
+                        <Badge
                           className="absolute top-2 right-2"
                           variant={parseInt(product.stock) > 50 ? 'default' : 'destructive'}
                         >
@@ -435,12 +463,12 @@ export default function VendoorImport() {
                         <h3 className="font-semibold line-clamp-2 min-h-[3rem]">
                           {product.title}
                         </h3>
-                        
+
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">السعر:</span>
                           <span className="font-bold text-primary">{product.price} جنيه</span>
                         </div>
-                        
+
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">العمولة:</span>
                           <span className="font-bold text-green-600">{product.commission} جنيه</span>
@@ -501,11 +529,11 @@ export default function VendoorImport() {
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg">إعدادات الاستيراد</h3>
-                
+
                 <div className="space-y-2">
                   <Label>نسبة الهامش الربحي الافتراضية (%)</Label>
-                  <Input 
-                    type="number" 
+                  <Input
+                    type="number"
                     value={markupPercentage}
                     onChange={(e) => setMarkupPercentage(Number(e.target.value))}
                     min="0"
@@ -519,7 +547,7 @@ export default function VendoorImport() {
 
               <div className="border-t pt-6 space-y-4">
                 <h3 className="font-semibold text-lg">التحديث التلقائي</h3>
-                
+
                 <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
                   <div className="flex items-start gap-3">
                     <RefreshCw className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
@@ -549,10 +577,10 @@ export default function VendoorImport() {
                         headers: { 'Content-Type': 'application/json' }
                       });
                       const data = await response.json();
-                      
+
                       toast({
                         title: data.success ? 'نجح!' : 'خطأ',
-                        description: data.success 
+                        description: data.success
                           ? `تم تحديث ${data.updated} منتج بنجاح`
                           : data.error || 'فشل التحديث',
                         variant: data.success ? 'default' : 'destructive'
@@ -598,7 +626,7 @@ export default function VendoorImport() {
               تفاصيل المنتج من Ven-door
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedProduct && (
             <div className="space-y-4">
               <img
@@ -606,7 +634,7 @@ export default function VendoorImport() {
                 alt={selectedProduct.title}
                 className="w-full h-64 object-cover rounded-lg"
               />
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-sm text-muted-foreground">رقم المنتج</span>
@@ -646,8 +674,8 @@ export default function VendoorImport() {
                 </div>
               )}
 
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 size="lg"
                 onClick={() => {
                   handleImportProduct(selectedProduct);

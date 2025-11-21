@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -43,6 +44,7 @@ const CategoryForm = ({
     slug: category?.slug || "",
     description: category?.description || "",
     image: category?.image || "",
+    isActive: category?.isActive ?? true,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -150,6 +152,17 @@ const CategoryForm = ({
         />
       </div>
 
+      <div className="flex items-center space-x-2 flex-row-reverse space-x-reverse">
+        <Switch
+          id="isActive"
+          checked={formData.isActive}
+          onCheckedChange={(checked) =>
+            setFormData((prev) => ({ ...prev, isActive: checked }))
+          }
+        />
+        <Label htmlFor="isActive">نشط (ظاهر في الموقع)</Label>
+      </div>
+
       <DialogFooter>
         <Button type="button" variant="outline" onClick={onCancel}>
           إلغاء
@@ -236,7 +249,7 @@ export default function AdminCategories() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     if (!confirm("هل أنت متأكد من حذف هذه الفئة؟")) return;
-    
+
     try {
       await adminCategoriesApi.delete(categoryId);
       setCategories((prev) =>
@@ -333,11 +346,11 @@ export default function AdminCategories() {
               <div className="text-2xl font-bold">
                 {categories.length > 0
                   ? Math.round(
-                      categories.reduce(
-                        (sum, cat) => sum + cat.productCount,
-                        0,
-                      ) / categories.length,
-                    )
+                    categories.reduce(
+                      (sum, cat) => sum + cat.productCount,
+                      0,
+                    ) / categories.length,
+                  )
                   : 0}
               </div>
             </CardContent>
@@ -371,6 +384,7 @@ export default function AdminCategories() {
                   <TableHead>الفئة</TableHead>
                   <TableHead>الرابط</TableHead>
                   <TableHead>الوصف</TableHead>
+                  <TableHead className="text-center">الحالة</TableHead>
                   <TableHead>عدد المنتجات</TableHead>
                   <TableHead className="text-center">الإجراءات</TableHead>
                 </TableRow>

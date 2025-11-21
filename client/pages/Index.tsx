@@ -161,7 +161,7 @@ export default function Index() {
     queryFn: () => productsApi.getAll({ isFeaturedInHero: true, limit: 3 }),
   });
 
-  const categories = categoriesData?.categories || [];
+  const categories = (categoriesData?.categories || []).filter((cat: any) => cat.isActive !== false);
   const featuredProducts = featuredData?.products || [];
   const bestSellers =
     bestSellersData?.products.filter((p) => p.reviewCount > 50) || [];

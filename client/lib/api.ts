@@ -55,7 +55,8 @@ export const productsApi = {
 
       // Add filters
       if (filters?.categoryId) {
-        queries.push(Query.equal("categoryId", filters.categoryId));
+        // Check if categoryId is in the categoryIds array
+        queries.push(Query.search("categoryIds", filters.categoryId));
       }
       if (filters?.inStock !== undefined) {
         queries.push(Query.equal("inStock", filters.inStock));
@@ -118,7 +119,8 @@ export const productsApi = {
         colorSizeInventory: doc.colorSizeInventory,
         tags: doc.tags || [],
         reviews: doc.reviews || [],
-        categoryId: doc.categoryId,
+        categoryId: doc.categoryId, // Keep for backward compatibility
+        categoryIds: doc.categoryIds || (doc.categoryId ? [doc.categoryId] : []),
         category: doc.category,
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
@@ -197,6 +199,7 @@ export const productsApi = {
         tags: doc.tags || [],
         reviews: doc.reviews || [],
         categoryId: doc.categoryId,
+        categoryIds: doc.categoryIds || (doc.categoryId ? [doc.categoryId] : []),
         category,
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
@@ -262,6 +265,7 @@ export const categoriesApi = {
         description: doc.description,
         image: doc.image,
         productCount: doc.productCount || 0,
+        isActive: doc.isActive,
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
       }));

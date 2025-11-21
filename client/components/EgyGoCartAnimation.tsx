@@ -138,21 +138,6 @@ export const EgyGoCartAnimation = () => {
                 </div>
             </div>
 
-            {/* Running Character */}
-            <div ref={characterRef} className="absolute left-0 z-20 flex flex-col items-center">
-                {/* Cute Head/Body */}
-                <div className="w-12 h-12 bg-orange-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center relative overflow-hidden">
-                    <div className="absolute top-3 left-2 w-2 h-2 bg-black rounded-full eye-blink"></div>
-                    <div className="absolute top-3 right-2 w-2 h-2 bg-black rounded-full eye-blink"></div>
-                    <div className="absolute bottom-3 w-4 h-2 bg-red-500 rounded-full"></div>
-                </div>
-                {/* Short Cute Legs */}
-                <div ref={legsRef} className="flex gap-2 -mt-1">
-                    <div className="leg-left w-3 h-4 bg-black rounded-full"></div>
-                    <div className="leg-right w-3 h-4 bg-black rounded-full"></div>
-                </div>
-            </div>
-
             {/* Moving Cart with "Egy" */}
             <div ref={cartRef} className="absolute left-0 z-10">
                 <div className="relative">
@@ -163,6 +148,33 @@ export const EgyGoCartAnimation = () => {
                     {/* Speed lines */}
                     <div className="absolute top-1/2 -left-6 w-10 h-1 bg-red-300/50 rounded-full"></div>
                     <div className="absolute top-3/4 -left-8 w-8 h-1 bg-red-300/50 rounded-full"></div>
+                </div>
+            </div>
+
+            {/* Running Character */}
+            <div ref={characterRef} className="absolute left-0 z-20 flex flex-col items-center">
+                {/* Signs attached to character */}
+                <div className="absolute -top-24 left-10 flex flex-col gap-2 w-48">
+                    <div className="bg-yellow-400 text-red-900 text-[10px] font-bold px-2 py-1 rounded shadow-md transform -rotate-6 border border-yellow-500 text-center animate-bounce">
+                        الحق عروض الاحتفال ب اول 10 الاف منتج
+                    </div>
+                    <div className="bg-black text-white text-[10px] font-bold px-2 py-1 rounded shadow-md transform rotate-3 border border-gray-700 text-center">
+                        الحق عروض ال white friday
+                    </div>
+                    {/* Strings holding the signs */}
+                    <div className="absolute top-full left-1/2 w-0.5 h-8 bg-gray-400 origin-top transform -rotate-12"></div>
+                </div>
+
+                {/* Cute Head/Body */}
+                <div className="w-12 h-12 bg-orange-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center relative overflow-hidden">
+                    <div className="absolute top-3 left-2 w-2 h-2 bg-black rounded-full eye-blink"></div>
+                    <div className="absolute top-3 right-2 w-2 h-2 bg-black rounded-full eye-blink"></div>
+                    <div className="absolute bottom-3 w-4 h-2 bg-red-500 rounded-full"></div>
+                </div>
+                {/* Short Cute Legs */}
+                <div ref={legsRef} className="flex gap-2 -mt-1">
+                    <div className="leg-left w-3 h-4 bg-black rounded-full"></div>
+                    <div className="leg-right w-3 h-4 bg-black rounded-full"></div>
                 </div>
             </div>
 

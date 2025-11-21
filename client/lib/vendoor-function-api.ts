@@ -90,7 +90,7 @@ export async function fetchSingleVendoorProduct(productId: string): Promise<Vend
     }
 
     const data = await response.json();
-    
+
     if (!data.success) {
       throw new Error(data.error || 'فشل جلب المنتج');
     }
@@ -138,7 +138,8 @@ export async function manualVendoorSync(): Promise<VendoorSyncResult> {
  */
 export async function importVendoorProduct(
   productId: string,
-  markupPercentage: number = 20
+  markupPercentage: number = 20,
+  categoryId?: string
 ): Promise<{ success: boolean; productId?: string; error?: string }> {
   console.log(`🔄 استيراد المنتج ${productId}...`);
   try {
@@ -147,10 +148,11 @@ export async function importVendoorProduct(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         action: 'import-product',
         productId,
         markupPercentage,
+        categoryId,
         email: 'almlmibrahym574@gmail.com',
         password: 'hema2004'
       }),
@@ -176,7 +178,8 @@ export async function importVendoorProduct(
  */
 export async function importMultipleVendoorProducts(
   productIds: string[],
-  markupPercentage: number = 20
+  markupPercentage: number = 20,
+  categoryId?: string
 ): Promise<VendoorSyncResult> {
   try {
     const response = await fetch(FUNCTION_URL, {
@@ -184,10 +187,11 @@ export async function importMultipleVendoorProducts(
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         action: 'import-multiple',
         productIds,
         markupPercentage,
+        categoryId,
         email: 'almlmibrahym574@gmail.com',
         password: 'hema2004'
       }),

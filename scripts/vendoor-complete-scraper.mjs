@@ -72,7 +72,12 @@ async function getOrCreateCategory() {
       APPWRITE_DATABASE_ID,
       'categories',
       ID.unique(),
-      { name: 'Vendoor Products', description: 'Products from Vendoor', image: 'https://via.placeholder.com/400' },
+      {
+        name: 'Vendoor Products',
+        slug: 'vendoor-products', // Save slug
+        description: 'Products from Vendoor',
+        image: 'https://via.placeholder.com/400'
+      },
       [Permission.read(Role.any())]
     );
 

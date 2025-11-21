@@ -22,6 +22,8 @@ export interface Product {
   originalPrice?: number;
   images: string[];
   category: string;
+  categoryId: string; // Deprecated, use categoryIds
+  categoryIds: string[]; // New field for multiple categories
   tags: string[];
   inStock: boolean;
   rating: number;
@@ -189,7 +191,8 @@ export interface AdminProductCreate {
   description: string;
   price: number;
   originalPrice?: number;
-  categoryId: string;
+  categoryId: string; // Deprecated
+  categoryIds: string[]; // New field
   images: string[];
   tags: string[];
   stockQuantity: number;

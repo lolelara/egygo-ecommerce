@@ -79,7 +79,8 @@ const ProductForm = ({
     originalPrice: product?.originalPrice || 0,
     basePrice: (product as any)?.basePrice || product?.price || 0,
     minCommissionPrice: (product as any)?.minCommissionPrice || product?.price || 0,
-    categoryId: product?.category || "",
+    categoryId: product?.category || "", // Keep for backward compatibility
+    categoryIds: product?.categoryIds || (product?.category ? [product.category] : []),
     images: product?.images || [],
     tags: product?.tags?.join(", ") || "",
     stockQuantity: 100, // Default stock
@@ -89,9 +90,9 @@ const ProductForm = ({
     verificationVideo: (product as any)?.verificationVideo || "",
     approvalStatus: (product as any)?.approvalStatus || "pending",
   });
-  
+
   // Inventory management state
-  const [colorSizeInventory, setColorSizeInventory] = useState<Array<{color: string, size: string, quantity: number}>>(() => {
+  const [colorSizeInventory, setColorSizeInventory] = useState<Array<{ color: string, size: string, quantity: number }>>(() => {
     try {
       const existing = (product as any)?.colorSizeInventory;
       return existing ? JSON.parse(existing) : [];
@@ -107,15 +108,15 @@ const ProductForm = ({
       .split(",")
       .map((color) => color.trim())
       .filter(Boolean);
-    
+
     const sizesArray = formData.sizes
       .split(",")
       .map((size) => size.trim())
       .filter(Boolean);
 
     // Build inventory data for each color/size combination
-    const inventoryData: Array<{color: string, size: string, quantity: number}> = [];
-    
+    const inventoryData: Array<{ color: string, size: string, quantity: number }> = [];
+
     if (colorsArray.length > 0 && sizesArray.length > 0) {
       // Use inventory from colorSizeInventory state
       inventoryData.push(...colorSizeInventory);
@@ -123,13 +124,13 @@ const ProductForm = ({
 
     // Calculate total stock from inventory
     const totalStock = inventoryData.reduce((sum, item) => sum + item.quantity, 0);
-    
+
     console.log('📦 Inventory data being saved:', inventoryData);
     console.log('📊 Total stock calculated:', totalStock);
 
     // Use inventory total if available, otherwise use stockQuantity, default to 100 for new products
     const finalStock = totalStock > 0 ? totalStock : (formData.stockQuantity || 100);
-    
+
     const submitData = {
       ...formData,
       images: formData.images,
@@ -144,8 +145,9 @@ const ProductForm = ({
       stockQuantity: finalStock, // Also set stockQuantity
       inStock: true, // Always set to true for products with stock
       isActive: true, // Always activate new products (admin can deactivate manually)
+      categoryIds: formData.categoryIds, // Include multiple categories
     };
-    
+
     console.log('💾 Submit data:', submitData);
 
     if (product) {
@@ -154,22 +156,22 @@ const ProductForm = ({
       onSubmit(submitData as AdminProductCreate);
     }
   };
-  
+
   // Generate inventory grid when colors/sizes change
   const handleColorsOrSizesChange = () => {
     const colorsArray = formData.colors.split(",").map(c => c.trim()).filter(Boolean);
     const sizesArray = formData.sizes.split(",").map(s => s.trim()).filter(Boolean);
-    
+
     if (colorsArray.length > 0 && sizesArray.length > 0) {
-      const newInventory: Array<{color: string, size: string, quantity: number}> = [];
-      
+      const newInventory: Array<{ color: string, size: string, quantity: number }> = [];
+
       colorsArray.forEach(color => {
         sizesArray.forEach(size => {
           // Check if this combination already exists
           const existing = colorSizeInventory.find(
             item => item.color === color && item.size === size
           );
-          
+
           newInventory.push({
             color,
             size,
@@ -177,15 +179,15 @@ const ProductForm = ({
           });
         });
       });
-      
+
       setColorSizeInventory(newInventory);
     }
   };
-  
+
   const updateInventoryQuantity = (color: string, size: string, quantity: number) => {
-    setColorSizeInventory(prev => 
-      prev.map(item => 
-        item.color === color && item.size === size 
+    setColorSizeInventory(prev =>
+      prev.map(item =>
+        item.color === color && item.size === size
           ? { ...item, quantity: Math.max(0, quantity) }
           : item
       )
@@ -208,24 +210,40 @@ const ProductForm = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category">الفئة</Label>
-          <Select
-            value={formData.categoryId}
-            onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, categoryId: value }))
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="اختر فئة" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
+          <Label>الفئات</Label>
+          <div className="border rounded-md p-4 h-48 overflow-y-auto space-y-2 bg-background">
+            {categories.map((category) => (
+              <div key={category.id} className="flex items-center space-x-2 space-x-reverse">
+                <input
+                  type="checkbox"
+                  id={`category-${category.id}`}
+                  checked={formData.categoryIds.includes(category.id)}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setFormData((prev) => {
+                      const newCategoryIds = checked
+                        ? [...prev.categoryIds, category.id]
+                        : prev.categoryIds.filter((id) => id !== category.id);
+
+                      // Update primary categoryId (first selected)
+                      const newCategoryId = newCategoryIds.length > 0 ? newCategoryIds[0] : "";
+
+                      return {
+                        ...prev,
+                        categoryIds: newCategoryIds,
+                        categoryId: newCategoryId
+                      };
+                    });
+                  }}
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <Label htmlFor={`category-${category.id}`} className="text-sm font-normal cursor-pointer">
                   {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                </Label>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">يمكنك اختيار أكثر من فئة</p>
         </div>
       </div>
 
@@ -326,7 +344,7 @@ const ProductForm = ({
             </p>
           </div>
         </div>
-        
+
         {formData.basePrice > 0 && formData.minCommissionPrice > 0 && (
           <div className="mt-3 p-3 bg-muted rounded-lg">
             <p className="text-sm">
@@ -419,7 +437,7 @@ const ProductForm = ({
               إجمالي المخزون: {colorSizeInventory.reduce((sum, item) => sum + item.quantity, 0)}
             </p>
           </div>
-          
+
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-[300px] overflow-y-auto">
             {colorSizeInventory.map((item, index) => (
               <div key={index} className="space-y-1 border rounded p-2 bg-background">
@@ -437,7 +455,7 @@ const ProductForm = ({
               </div>
             ))}
           </div>
-          
+
           <p className="text-xs text-muted-foreground">
             💡 أدخل الكمية المتاحة لكل تركيبة لون ومقاس. المخزون الإجمالي سيتم حسابه تلقائياً.
           </p>
@@ -476,9 +494,9 @@ export default function AdminProducts() {
           productsApi.getAll({}),
           categoriesApi.getAll(),
         ]);
-        
+
         let filteredProducts = productsData.products as any;
-        
+
         // Filter products by merchantId if user is a merchant (not admin)
         if (user && (user as any).labels && !(user as any).labels.includes('admin')) {
           console.log('Filtering products for merchant:', user.$id);
@@ -487,7 +505,7 @@ export default function AdminProducts() {
           });
           console.log('Merchant products:', filteredProducts.length);
         }
-        
+
         setProducts(filteredProducts);
         setCategories(categoriesData.categories as any);
       } catch (error) {
@@ -526,19 +544,19 @@ export default function AdminProducts() {
       const product = products.find(p => p.id === data.id);
       const isAdmin = user && (user as any).labels?.includes('admin');
       const isMerchantOwner = product && (product as any).merchantId === user?.$id;
-      
+
       if (!isAdmin && !isMerchantOwner) {
         alert("ليس لديك صلاحية لتعديل هذا المنتج");
         return;
       }
-      
+
       // If merchant is editing, set status back to pending for re-approval
       const updateData = { ...data };
       if (!isAdmin && isMerchantOwner) {
         updateData.status = 'pending';
         alert("✅ تم تحديث المنتج بنجاح! سيتم مراجعته من قبل الإدارة قبل نشره.");
       }
-      
+
       const updatedProduct = await adminProductsApi.update(updateData);
       setProducts((prev) =>
         prev.map((product) =>
@@ -563,28 +581,28 @@ export default function AdminProducts() {
       // Admin can delete any product, no permission check needed
       await adminProductsApi.delete(productId);
       setProducts((prev) => prev.filter((product) => product.id !== productId));
-      
+
       alert("تم حذف المنتج بنجاح");
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("فشل في حذف المنتج: " + (error as any).message);
     }
   };
-  
+
   // Bulk delete products
   const handleBulkDelete = async () => {
     if (selectedProducts.length === 0) {
       alert("الرجاء اختيار منتجات أولاً");
       return;
     }
-    
+
     if (!confirm(`هل أنت متأكد من حذف ${selectedProducts.length} منتج؟ لا يمكن التراجع عن هذا الإجراء!`)) {
       return;
     }
-    
+
     setBulkUpdating(true);
     let deletedCount = 0;
-    
+
     try {
       for (const productId of selectedProducts) {
         try {
@@ -594,7 +612,7 @@ export default function AdminProducts() {
           console.error(`Error deleting product ${productId}:`, error);
         }
       }
-      
+
       setProducts((prev) => prev.filter((p) => !selectedProducts.includes(p.id)));
       setSelectedProducts([]);
       alert(`تم حذف ${deletedCount} منتج بنجاح`);
@@ -605,17 +623,17 @@ export default function AdminProducts() {
       setBulkUpdating(false);
     }
   };
-  
+
   // Bulk update product status
   const handleBulkStatusUpdate = async (inStock: boolean) => {
     if (selectedProducts.length === 0) {
       alert("الرجاء اختيار منتجات أولاً");
       return;
     }
-    
+
     setBulkUpdating(true);
     let updatedCount = 0;
-    
+
     try {
       for (const productId of selectedProducts) {
         try {
@@ -631,8 +649,8 @@ export default function AdminProducts() {
           console.error(`Error updating product ${productId}:`, error);
         }
       }
-      
-      setProducts((prev) => prev.map((p) => 
+
+      setProducts((prev) => prev.map((p) =>
         selectedProducts.includes(p.id) ? { ...p, inStock } : p
       ));
       setSelectedProducts([]);
@@ -644,17 +662,17 @@ export default function AdminProducts() {
       setBulkUpdating(false);
     }
   };
-  
+
   // Bulk update category
   const handleBulkCategoryUpdate = async (categoryId: string) => {
     if (selectedProducts.length === 0) {
       alert("الرجاء اختيار منتجات أولاً");
       return;
     }
-    
+
     setBulkUpdating(true);
     let updatedCount = 0;
-    
+
     try {
       for (const productId of selectedProducts) {
         try {
@@ -667,8 +685,8 @@ export default function AdminProducts() {
           console.error(`Error updating product ${productId}:`, error);
         }
       }
-      
-      setProducts((prev) => prev.map((p) => 
+
+      setProducts((prev) => prev.map((p) =>
         selectedProducts.includes(p.id) ? { ...p, category: categoryId } : p
       ));
       setSelectedProducts([]);
@@ -680,7 +698,7 @@ export default function AdminProducts() {
       setBulkUpdating(false);
     }
   };
-  
+
   // Toggle product selection
   const toggleProductSelection = (productId: string) => {
     setSelectedProducts((prev) =>
@@ -689,7 +707,7 @@ export default function AdminProducts() {
         : [...prev, productId]
     );
   };
-  
+
   // Toggle all products
   const toggleAllProducts = () => {
     if (selectedProducts.length === filteredProducts.length) {
@@ -698,7 +716,7 @@ export default function AdminProducts() {
       setSelectedProducts(filteredProducts.map((p) => p.id));
     }
   };
-  
+
   // Helper function to check if product is available based on inventory
   const isProductAvailable = (product: any): boolean => {
     // Try to get stock from colorSizeInventory first
@@ -713,22 +731,22 @@ export default function AdminProducts() {
         console.error('Error parsing inventory for product:', product.id, e);
       }
     }
-    
+
     // Fallback: check if product has colors/sizes (assume available)
     if (product.colors?.length > 0 || product.sizes?.length > 0) {
       return true;
     }
-    
+
     // Fallback: check stock field
     if (product.stock !== undefined && product.stock > 0) {
       return true;
     }
-    
+
     // Fallback: check inStock field
     if (product.inStock !== undefined) {
       return product.inStock;
     }
-    
+
     // Default: assume available
     return true;
   };
@@ -821,9 +839,9 @@ export default function AdminProducts() {
               <div className="text-2xl font-bold">
                 {products.length > 0
                   ? (
-                      products.reduce((sum, p) => sum + p.rating, 0) /
-                      products.length
-                    ).toFixed(1)
+                    products.reduce((sum, p) => sum + p.rating, 0) /
+                    products.length
+                  ).toFixed(1)
                   : "0.0"}
               </div>
             </CardContent>
@@ -893,7 +911,7 @@ export default function AdminProducts() {
             </CardContent>
           </Card>
         )}
-        
+
         {/* Filters */}
         <div className="flex gap-4">
           <div className="flex-1">
