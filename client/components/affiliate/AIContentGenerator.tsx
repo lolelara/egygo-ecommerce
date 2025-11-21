@@ -3,17 +3,19 @@
  * مولد محتوى تسويقي ذكي للمسوقين
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Sparkles, Copy, Download, RefreshCw, Facebook, Instagram, 
-  MessageCircle, Wand2, Check
+import {
+  Sparkles, Copy, Download, RefreshCw, Facebook, Instagram,
+  MessageCircle, Wand2, Check, AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { generateAIContent } from '@/lib/ai-helper';
+import { getAdminOpenAIKeys } from '@/lib/admin-api';
 
 export default function AIContentGenerator() {
   const { toast } = useToast();
@@ -24,6 +26,23 @@ export default function AIContentGenerator() {
   const [tone, setTone] = useState('professional');
   const [generatedContent, setGeneratedContent] = useState('');
   const [copied, setCopied] = useState(false);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch API key on mount
+    const fetchKey = async () => {
+      try {
+        const keys = await getAdminOpenAIKeys();
+        const activeKey = keys.find(k => k.isActive && k.provider === 'gemini');
+        if (activeKey) {
+          setApiKey(activeKey.key);
+        }
+      } catch (error) {
+        console.error("Failed to fetch API keys", error);
+      }
+    };
+    fetchKey();
+  }, []);
 
   const generateContent = async () => {
     if (!productName || !productPrice) {
@@ -35,42 +54,63 @@ export default function AIContentGenerator() {
       return;
     }
 
+    if (!apiKey) {
+      toast({
+        variant: 'destructive',
+        title: 'خطأ في الإعدادات',
+        description: 'لم يتم العثور على مفتاح Gemini API نشط. يرجى التواصل مع الإدارة.'
+      });
+      return;
+    }
+
     setLoading(true);
 
-    setTimeout(() => {
-      const contents: Record<string, Record<string, string>> = {
-        facebook: {
-          professional: `🌟 عرض احترافي لا يُفوّت!\n\n📦 ${productName}\n\n🎯 لماذا هذا المنتج؟\n✅ جودة مضمونة ومُختبرة\n✅ سعر تنافسي: ${productPrice} ج.م فقط\n✅ توصيل سريع لجميع المحافظات\n✅ ضمان الاسترجاع خلال 14 يوم\n\n💰 خصم خاص: وفّر 15% عند الطلب اليوم!\n\n🛒 اطلب الآن من الرابط في التعليق الأول ⬇️\n\n#تسوق_اونلاين #عروض_مصر #${productName.replace(/\s/g, '_')}`,
-          
-          friendly: `مرحبااا يا جماعة! 👋✨\n\nلقيت حاجة خطيرة لازم أشاركها معاكم! 🤩\n\n${productName} ده تحفة فنية! 💎\n\nالسعر: ${productPrice} ج.م بس 😍\nوده سعر خيالي للجودة دي!\n\nلو مهتم، الرابط تحت في أول كومنت 👇\nمتضيعش الفرصة! ⚡\n\n#شوبينج #تسوق #مصر #عروض`,
+    try {
+      const systemPrompt = `
+        أنت خبير تسويق إلكتروني محترف متخصص في السوق المصري.
+        مهمتك هي كتابة محتوى إعلاني جذاب لمنصات التواصل الاجتماعي.
+        
+        المنتج: ${productName}
+        السعر: ${productPrice} جنيه مصري
+        المنصة المستهدفة: ${platform}
+        نبرة الصوت: ${tone}
+        
+        القواعد:
+        1. استخدم اللهجة المصرية البيضاء والجذابة.
+        2. استخدم الإيموجي بشكل مناسب لجذب الانتباه.
+        3. ركز على القيمة مقابل السعر.
+        4. أضف دعوة لاتخاذ إجراء (CTA) واضحة.
+        5. أضف هاشتاجات مناسبة ورائجة في مصر.
+        6. تنسيق النص يجب أن يكون سهل القراءة (فقرات قصيرة).
+      `;
 
-          urgent: `⚠️ عرض ينتهي خلال 24 ساعة فقط! ⏰\n\n🔥 ${productName} 🔥\n\n💸 السعر الآن: ${productPrice} ج.م\n💸 السعر الأصلي: ${(parseFloat(productPrice) * 1.3).toFixed(0)} ج.م\n\n🎁 مكافأة خاصة:\n✅ شحن مجاني\n✅ هدية مع كل طلب\n✅ خصم 10% على الطلب التالي\n\n⏳ الكمية محدودة جداً!\n\n🛒 اطلب فوراً: [الرابط في التعليق]\n\n#عرض_اليوم #تخفيضات #مصر`
-        },
-        instagram: {
-          professional: `✨ ${productName} ✨\n\nسعر مميز: ${productPrice} ج.م 💰\n\n📦 مميزات المنتج:\n⚡ جودة عالية\n⚡ توصيل سريع\n⚡ ضمان شامل\n\nالرابط في البايو 👆\nأو راسلني مباشرة 💬\n\n#تسوق #مصر #القاهرة #عروض #شوبينج\n#اونلاين #توصيل #${productName.replace(/\s/g, '')}`,
+      const userPrompt = `اكتب إعلان لمنتج "${productName}" بسعر ${productPrice} على منصة ${platform} بنبرة ${tone}.`;
 
-          friendly: `حبيت أشارككم هذا الاكتشاف! 🌟\n\n${productName} 💖\n\nالسعر خيالي: ${productPrice} ج.م فقط! 😱\n\nجربته وكان رووووعة! ✨\nالجودة عالية والسعر مناسب جداً 👌\n\nاحصل عليه من الرابط في البايو 🔗\nأو راسلني للتفاصيل 📱\n\n#اكسبلور #فولو #لايك #تسوق_اونلاين\n#مصر #cairo #egypt #shopping`,
+      const content = await generateAIContent({
+        apiKey,
+        provider: 'gemini',
+        systemPrompt,
+        userPrompt,
+        temperature: 0.8
+      });
 
-          urgent: `🚨 آخر فرصة! 🚨\n\n${productName}\n\n💥 ${productPrice} ج.م فقط\n⏰ العرض ينتهي الليلة!\n\nاطلب الآن 👇\nالرابط في البايو\n\n#عرض_محدود #sale #تخفيضات`
-        },
-        whatsapp: {
-          professional: `السلام عليكم ورحمة الله 👋\n\nأتشرف بتقديم منتج مميز لك:\n\n📦 *${productName}*\n\n💰 السعر: *${productPrice} ج.م*\n\n🎯 المميزات:\n✅ جودة عالية ومضمونة\n✅ توصيل لجميع المحافظات\n✅ إمكانية الدفع عند الاستلام\n✅ ضمان وخدمة عملاء ممتازة\n\n🔗 رابط المنتج:\n[ضع رابطك هنا]\n\nللاستفسار أو الطلب، أنا في الخدمة 😊`,
-
-          friendly: `هلا! 👋\n\nشفت ${productName}؟ \nتحفة والله! 😍\n\nالسعر: ${productPrice} ج.م بس\nخيالي صح؟ 🤩\n\nلو حابب تطلبه بعتلك الرابط:\n[الرابط]\n\nوأي سؤال أنا موجود! 💬`,
-
-          urgent: `⚠️ عرض ينتهي اليوم! ⚠️\n\n${productName}\n${productPrice} ج.م فقط! 🔥\n\n⏰ باقي ساعات قليلة\n📦 الكمية محدودة جداً\n\nاطلب الآن:\n[الرابط]\n\nمتضيعش الفرصة! 🚀`
-        }
-      };
-
-      const content = contents[platform]?.[tone] || 'لم يتم العثور على محتوى';
       setGeneratedContent(content);
-      setLoading(false);
-      
+
       toast({
         title: 'تم التوليد بنجاح! ✨',
         description: 'المحتوى جاهز للنسخ والاستخدام'
       });
-    }, 1500);
+
+    } catch (error: any) {
+      console.error("Generation Error:", error);
+      toast({
+        variant: 'destructive',
+        title: 'فشل التوليد',
+        description: error.message || 'حدث خطأ أثناء توليد المحتوى'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const copyContent = () => {
@@ -91,7 +131,7 @@ export default function AIContentGenerator() {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
-    
+
     toast({
       title: 'تم التحميل!',
       description: 'الملف محفوظ على جهازك'
@@ -111,6 +151,13 @@ export default function AIContentGenerator() {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
+          {!apiKey && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg flex items-center gap-2">
+              <AlertCircle className="h-5 w-5" />
+              <p className="text-sm">تنبيه: لم يتم تفعيل مفتاح الذكاء الاصطناعي (Gemini). يرجى تفعيله من لوحة التحكم.</p>
+            </div>
+          )}
+
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">اسم المنتج</label>
@@ -122,7 +169,7 @@ export default function AIContentGenerator() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">السعر (ج.م)</label>
               <input
@@ -180,9 +227,9 @@ export default function AIContentGenerator() {
             </div>
           </div>
 
-          <Button 
-            onClick={generateContent} 
-            disabled={loading}
+          <Button
+            onClick={generateContent}
+            disabled={loading || !apiKey}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             size="lg"
           >
@@ -214,7 +261,7 @@ export default function AIContentGenerator() {
                   </Button>
                 </div>
               </div>
-              
+
               <Textarea
                 value={generatedContent}
                 onChange={(e) => setGeneratedContent(e.target.value)}

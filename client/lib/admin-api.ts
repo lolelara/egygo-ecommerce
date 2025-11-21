@@ -803,6 +803,7 @@ export const openAIKeysApi = {
     }
   },
 
+
   create: async (payload: { label: string; key: string; provider: "openai" | "gemini"; priority?: number; isDefault?: boolean }): Promise<AdminOpenAIKey> => {
     try {
       const doc = await databases.createDocument(
@@ -965,3 +966,5 @@ export const openAIKeysApi = {
     }
   }
 };
+
+export const getAdminOpenAIKeys = openAIKeysApi.list;

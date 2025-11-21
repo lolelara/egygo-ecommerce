@@ -14,12 +14,26 @@ import {
   Search,
   ExternalLink,
   ArrowRight,
-  Loader2
+  Loader2,
+  Sparkles
 } from 'lucide-react';
 import { databases, DATABASE_ID } from '@/lib/appwrite-client';
 import { Query } from 'appwrite';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { generateAIContent } from '@/lib/ai-helper';
+import { getAdminOpenAIKeys } from '@/lib/admin-api';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
 interface VendoorProduct {
   $id: string;
@@ -61,6 +75,12 @@ export default function VendoorProducts() {
     pages: 1
   });
   const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  // Bulk Rewrite State
+  const [rewriteModalOpen, setRewriteModalOpen] = useState(false);
+  const [rewriteTone, setRewriteTone] = useState('professional');
+  const [isRewriting, setIsRewriting] = useState(false);
+  const [rewriteProgress, setRewriteProgress] = useState({ current: 0, total: 0 });
 
   // Fallback: Fetch products directly from Appwrite when /api is unavailable
   const fetchProductsFromAppwrite = async () => {
@@ -384,6 +404,102 @@ export default function VendoorProducts() {
     }
   };
 
+  // Bulk delete products directly in Appwrite
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedProducts.length} products?`)) return;
+
+    setApplying(true);
+    try {
+      // Fallback: Delete directly
+      for (const id of selectedProducts) {
+        await databases.deleteDocument(DATABASE_ID, 'products', id);
+      }
+      toast.success(`Deleted ${selectedProducts.length} products`);
+      fetchProducts();
+      setSelectedProducts([]);
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      toast.error('Failed to delete products');
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const handleBulkRewrite = async () => {
+    if (selectedProducts.length === 0) return;
+
+    setIsRewriting(true);
+    setRewriteProgress({ current: 0, total: selectedProducts.length });
+
+    try {
+      // 1. Get API Key
+      const keys = await getAdminOpenAIKeys();
+      const apiKey = keys.find(k => k.isActive && k.provider === 'gemini')?.key;
+
+      if (!apiKey) {
+        toast.error('No active Gemini API key found. Please configure it in settings.');
+        setIsRewriting(false);
+        return;
+      }
+
+      // 2. Process each product
+      let successCount = 0;
+
+      for (let i = 0; i < selectedProducts.length; i++) {
+        const productId = selectedProducts[i];
+        setRewriteProgress({ current: i + 1, total: selectedProducts.length });
+
+        try {
+          // Fetch current product details
+          const product = products.find(p => p.$id === productId);
+          if (!product) continue;
+
+          // Generate new description
+          const systemPrompt = `
+            أنت خبير تسويق إلكتروني. 
+            أعد كتابة وصف المنتج التالي ليكون جذاباً واحترافياً.
+            المنتج: ${product.name}
+            السعر: ${product.price}
+            نبرة الصوت: ${rewriteTone}
+            
+            القواعد:
+            - استخدم لغة عربية سليمة وجذابة (مصرية بيضاء).
+            - ركز على المميزات.
+            - استخدم التنسيق الجيد (نقاط، فقرات).
+            - لا تذكر معلومات غير موجودة.
+          `;
+
+          const newDescription = await generateAIContent({
+            apiKey,
+            provider: 'gemini',
+            systemPrompt,
+            userPrompt: `أعد صياغة الوصف لهذا المنتج: ${product.name}`,
+            temperature: 0.7
+          });
+
+          // Update product in DB
+          await databases.updateDocument(DATABASE_ID, 'products', productId, {
+            description: newDescription
+          });
+
+          successCount++;
+        } catch (err) {
+          console.error(`Failed to rewrite product ${productId}`, err);
+        }
+      }
+
+      toast.success(`Successfully rewrote ${successCount} product descriptions!`);
+      setRewriteModalOpen(false);
+      fetchProducts(); // Refresh list
+      setSelectedProducts([]);
+
+    } catch (error) {
+      console.error('Bulk rewrite error:', error);
+      toast.error('An error occurred during bulk rewrite');
+    } finally {
+      setIsRewriting(false);
+    }
+  };
   // Bulk status update
   const handleBulkStatus = async (status: string) => {
     if (selectedProducts.length === 0) {
@@ -416,44 +532,6 @@ export default function VendoorProducts() {
     } catch (error) {
       console.error('Error updating status:', error);
       await bulkUpdateStatusInAppwrite(status);
-    }
-  };
-
-  // Bulk delete
-  const handleBulkDelete = async () => {
-    if (selectedProducts.length === 0) {
-      toast.error('الرجاء اختيار منتجات أولاً');
-      return;
-    }
-
-    if (!confirm(`هل أنت متأكد من حذف ${selectedProducts.length} منتج؟ لا يمكن التراجع عن هذا الإجراء!`)) {
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/vendoor-products/bulk-delete', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          productIds: selectedProducts
-        })
-      });
-
-      if (!response.ok) {
-        await bulkDeleteInAppwrite();
-        return;
-      }
-      const result = await response.json();
-      if (result && result.success) {
-        toast.success(`تم حذف ${result.deletedCount} منتج`);
-        setSelectedProducts([]);
-        fetchProducts();
-      } else {
-        await bulkDeleteInAppwrite();
-      }
-    } catch (error) {
-      console.error('Error deleting products:', error);
-      await bulkDeleteInAppwrite();
     }
   };
 
@@ -582,8 +660,8 @@ export default function VendoorProducts() {
                       <button
                         onClick={() => setSettings({ ...settings, profitType: 'percentage' })}
                         className={`px-3 py-2 text-sm rounded-lg border transition-all ${settings.profitType === 'percentage'
-                            ? 'bg-blue-50 border-blue-200 text-blue-700'
-                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          ? 'bg-blue-50 border-blue-200 text-blue-700'
+                          : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                       >
                         نسبة %
@@ -591,8 +669,8 @@ export default function VendoorProducts() {
                       <button
                         onClick={() => setSettings({ ...settings, profitType: 'fixed' })}
                         className={`px-3 py-2 text-sm rounded-lg border transition-all ${settings.profitType === 'fixed'
-                            ? 'bg-blue-50 border-blue-200 text-blue-700'
-                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                          ? 'bg-blue-50 border-blue-200 text-blue-700'
+                          : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                           }`}
                       >
                         مبلغ ثابت
@@ -696,7 +774,16 @@ export default function VendoorProducts() {
                     <div className="h-4 w-px bg-blue-200" />
                     <button onClick={() => handleBulkStatus('published')} className="text-sm hover:underline">نشر</button>
                     <button onClick={() => handleBulkStatus('draft')} className="text-sm hover:underline">إخفاء</button>
-                    <button onClick={handleBulkDelete} className="text-sm text-red-600 hover:underline">حذف</button>
+                    <button
+                      onClick={() => setRewriteModalOpen(true)}
+                      disabled={selectedProducts.length === 0 || applying}
+                      className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Rewrite Descriptions ({selectedProducts.length})
+                    </button>
+                    <button
+                      onClick={handleBulkDelete} className="text-sm text-red-600 hover:underline">حذف</button>
                     <div className="flex-1" />
                     <button onClick={() => setSelectedProducts([])} className="text-sm opacity-70 hover:opacity-100">إلغاء</button>
                   </div>
@@ -833,6 +920,53 @@ export default function VendoorProducts() {
           </div>
         </div>
       </div>
+      {/* Bulk Rewrite Modal */}
+      <Dialog open={rewriteModalOpen} onOpenChange={setRewriteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bulk Rewrite Descriptions</DialogTitle>
+            <DialogDescription>
+              Use AI to rewrite descriptions for {selectedProducts.length} selected products.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label>Tone of Voice</Label>
+              <Select value={rewriteTone} onValueChange={setRewriteTone}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="professional">Professional (Official)</SelectItem>
+                  <SelectItem value="friendly">Friendly (Social Media)</SelectItem>
+                  <SelectItem value="urgent">Urgent (Sales/FOMO)</SelectItem>
+                  <SelectItem value="luxury">Luxury (High-end)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRewriteModalOpen(false)} disabled={isRewriting}>
+              Cancel
+            </Button>
+            <Button onClick={handleBulkRewrite} disabled={isRewriting} className="bg-purple-600 hover:bg-purple-700">
+              {isRewriting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing {rewriteProgress.current}/{rewriteProgress.total}
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Start Rewrite
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

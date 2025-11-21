@@ -28,6 +28,7 @@ import {
   PieChart,
   Activity,
   Sparkles,
+  Megaphone,
 } from "lucide-react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
@@ -212,6 +213,16 @@ export default function AdminDashboard() {
             <CardContent>
               <div className="text-2xl font-bold">إدارة العروض</div>
               <p className="text-xs text-muted-foreground mt-1">التحكم في المنتجات المميزة في الصفحة الرئيسية</p>
+            </CardContent>
+          </Card>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/admin/marketer-tools')}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">أدوات المسوق</CardTitle>
+              <Megaphone className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">الذكاء الاصطناعي</div>
+              <p className="text-xs text-muted-foreground mt-1">تحسين الوصف، إنشاء حملات، وتحليل المتجر</p>
             </CardContent>
           </Card>
         </div>

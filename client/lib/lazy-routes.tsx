@@ -117,6 +117,8 @@ export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'
 export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
 export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
 export const ShippingPage = lazyLoad(() => import('@/pages/ShippingPage'));
+export const MarketerTools = lazyLoad(() => import('@/pages/admin/MarketerTools'));
+
 
 // CMS & Notifications
 export const AdminPages = lazyLoad(() => import('@/pages/AdminPages'));
