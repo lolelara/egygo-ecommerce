@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'wouter';
+import { Link } from 'react-router-dom';
 import { merchantsApi } from '@/lib/api';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
@@ -40,22 +40,24 @@ export function FeaturedMerchantsBar() {
                 <ScrollArea className="w-full whitespace-nowrap rounded-md">
                     <div className="flex w-max space-x-4 space-x-reverse p-1">
                         {merchants.map((merchant) => (
-                            <Link key={merchant.id} href={`/merchant/${merchant.id}`}>
-                                <a className="block group">
-                                    <Card className="w-[140px] p-3 flex flex-col items-center gap-2 hover:shadow-md transition-shadow cursor-pointer border-muted">
-                                        <Avatar className="h-16 w-16 border-2 border-muted group-hover:border-primary transition-colors">
-                                            <AvatarImage src={merchant.storeLogo} alt={merchant.name} />
-                                            <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
-                                                {merchant.name.substring(0, 1).toUpperCase()}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <div className="text-center w-full">
-                                            <p className="text-sm font-medium truncate w-full" title={merchant.name}>
-                                                {merchant.name}
-                                            </p>
-                                        </div>
-                                    </Card>
-                                </a>
+                            <Link
+                                key={merchant.id}
+                                to={`/merchant/${merchant.id}`}
+                                className="block group"
+                            >
+                                <Card className="w-[140px] p-3 flex flex-col items-center gap-2 hover:shadow-md transition-shadow cursor-pointer border-muted">
+                                    <Avatar className="h-16 w-16 border-2 border-muted group-hover:border-primary transition-colors">
+                                        <AvatarImage src={merchant.storeLogo} alt={merchant.name} />
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
+                                            {merchant.name.substring(0, 1).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="text-center w-full">
+                                        <p className="text-sm font-medium truncate w-full" title={merchant.name}>
+                                            {merchant.name}
+                                        </p>
+                                    </div>
+                                </Card>
                             </Link>
                         ))}
                     </div>
