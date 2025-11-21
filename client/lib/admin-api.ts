@@ -845,11 +845,16 @@ export const openAIKeysApi = {
         ID.unique(),
         {
           label: payload.label,
-          apiKey: payload.key,
+          apiKey: payload.key, // Legacy
+          key: payload.key,    // New
           provider: payload.provider,
-          status: 'active',
+          status: 'active',    // Legacy
+          keyStatus: 'active', // New
           priority: payload.priority || 0,
           isDefault: payload.isDefault || false,
+          isActive: true,
+          usageCount: 0,
+          errorCount: 0
         }
       );
 
@@ -869,21 +874,35 @@ export const openAIKeysApi = {
 
   update: async (id: string, payload: Partial<{ label: string; key: string; isActive: boolean; provider: "openai" | "gemini" }>): Promise<AdminOpenAIKey> => {
     try {
+      const updatePayload: any = { ...payload };
+
+      // Sync duplicate fields
+      if (payload.key) {
+        updatePayload.apiKey = payload.key;
+      }
+
+      // Map isActive to status/keyStatus if needed
+      if (payload.isActive !== undefined) {
+        const status = payload.isActive ? 'active' : 'inactive';
+        updatePayload.status = status;
+        updatePayload.keyStatus = status;
+      }
+
       const doc = await databases.updateDocument(
         DATABASE_ID,
         appwriteConfig.collections.openai_keys,
         id,
-        payload
+        updatePayload
       );
 
       return {
         id: doc.$id,
         label: doc.label,
         provider: doc.provider,
-        isActive: true,
+        isActive: doc.isActive,
         isDefault: doc.isDefault,
         priority: doc.priority,
-        status: 'active',
+        status: doc.keyStatus || doc.status || 'active',
       } as AdminOpenAIKey;
     } catch (error: any) {
       throw new Error(error.message || "فشل في تحديث مفتاح API");
@@ -911,7 +930,7 @@ export const openAIKeysApi = {
         id
       );
 
-      const apiKey = doc.apiKey; // Use apiKey from DB schema
+      const apiKey = doc.key || doc.apiKey; // Try both
       let provider = doc.provider || "openai";
 
       // Auto-detect provider based on key prefix
@@ -970,7 +989,8 @@ export const openAIKeysApi = {
         {
           lastTestedAt: new Date().toISOString(),
           lastError: isValid ? null : errorMessage,
-          keyStatus: isValid ? 'active' : (errorMessage.includes('Quota') ? 'quota_exceeded' : 'error')
+          keyStatus: isValid ? 'active' : (errorMessage.includes('Quota') ? 'quota_exceeded' : 'error'),
+          status: isValid ? 'active' : (errorMessage.includes('Quota') ? 'quota_exceeded' : 'error') // Sync legacy
         }
       );
 
@@ -1012,6 +1032,7 @@ export const openAIKeysApi = {
         {
           isDefault: true,
           keyStatus: 'active', // Reset status when activating
+          status: 'active',    // Sync legacy
           lastError: null
         }
       );
