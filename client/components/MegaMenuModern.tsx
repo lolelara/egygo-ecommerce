@@ -8,6 +8,7 @@ interface MegaMenuCategory {
     name: string;
     nameAr: string;
     icon?: string;
+    image?: string;
     gradient?: string;
     subcategories: {
         id: string;
@@ -65,8 +66,14 @@ export function MegaMenuModern({ categories, onCategoryClick }: MegaMenuModernPr
                              relative group ${activeCategory === category.id ? 'text-purple-600' : ''
                                         }`}
                                 >
-                                    {category.icon && (
-                                        <span className="text-xl">{category.icon}</span>
+                                    {category.image ? (
+                                        <img
+                                            src={category.image}
+                                            alt={category.nameAr}
+                                            className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                                        />
+                                    ) : (
+                                        category.icon && <span className="text-xl">{category.icon}</span>
                                     )}
                                     <span>{category.nameAr}</span>
                                     <ChevronDown

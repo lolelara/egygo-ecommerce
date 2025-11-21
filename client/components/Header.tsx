@@ -75,6 +75,7 @@ export function Header({ cartItemCount }: HeaderProps) {
     name: cat.name,
     nameAr: cat.name,
     icon: "🛍️", // Placeholder icon
+    image: cat.image, // Pass the category image
     subcategories: [
       { id: `${cat.id}-1`, name: "الأكثر مبيعاً", nameAr: "الأكثر مبيعاً", link: `/category/${cat.slug}?sort=best_selling` },
       { id: `${cat.id}-2`, name: "وصل حديثاً", nameAr: "وصل حديثاً", link: `/category/${cat.slug}?sort=newest` },
