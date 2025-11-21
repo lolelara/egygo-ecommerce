@@ -80,6 +80,7 @@ const ProductForm = ({
     originalPrice: product?.originalPrice || 0,
     isFeatured: product?.isFeatured || false,
     isFeaturedInHero: product?.isFeaturedInHero || false,
+    isFlashDeal: (product as any)?.isFlashDeal || false,
     basePrice: (product as any)?.basePrice || product?.price || 0,
     minCommissionPrice: (product as any)?.minCommissionPrice || product?.price || 0,
     categoryId: product?.category || "", // Keep for backward compatibility
@@ -344,6 +345,27 @@ const ProductForm = ({
             </p>
           </div>
         </div>
+
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <Checkbox
+            id="isFlashDeal"
+            checked={(formData as any).isFlashDeal}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({ ...prev, isFlashDeal: checked as boolean }))
+            }
+          />
+          <div className="grid gap-1.5 leading-none">
+            <Label
+              htmlFor="isFlashDeal"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              عرض فلاش (Flash Deal) ⚡
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              سيظهر هذا المنتج في قسم العروض الخاصة (Flash Sales)
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="border-t pt-4">
@@ -532,13 +554,17 @@ export default function AdminProducts() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const [productsData, categoriesData] = await Promise.all([
-          productsApi.getAll({}),
+          productsApi.getAll({ page, limit }),
           categoriesApi.getAll(),
         ]);
 
@@ -554,6 +580,8 @@ export default function AdminProducts() {
         }
 
         setProducts(filteredProducts);
+        setTotalProducts(productsData.total);
+        setTotalPages(Math.ceil(productsData.total / limit));
         setCategories(categoriesData.categories as any);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -562,7 +590,7 @@ export default function AdminProducts() {
     };
 
     fetchData();
-  }, [user]);
+  }, [user, page, limit]);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -1051,9 +1079,12 @@ export default function AdminProducts() {
                           />
                           <div>
                             <div className="font-medium flex items-center gap-2 flex-wrap">
-                              {product.name}
+                              <a href={`/product/${product.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-primary">
+                                {product.name}
+                              </a>
                               {product.isFeatured && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-yellow-100 text-yellow-800 border-yellow-200">مميز</Badge>}
                               {product.isFeaturedInHero && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-800 border-purple-200">Hero</Badge>}
+                              {(product as any).isFlashDeal && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-red-100 text-red-800 border-red-200">Flash ⚡</Badge>}
                             </div>
                             <div className="text-sm text-muted-foreground truncate max-w-[200px]">
                               {product.description}
@@ -1062,9 +1093,19 @@ export default function AdminProducts() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">
-                          {category?.name || product.category}
-                        </Badge>
+                        <Select
+                          value={product.category}
+                          onValueChange={(value) => handleUpdateProduct({ id: product.id, categoryId: value } as any)}
+                        >
+                          <SelectTrigger className="w-[130px] h-8 text-xs">
+                            <SelectValue placeholder={category?.name || product.category} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((c) => (
+                              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell>
                         <div>
@@ -1145,6 +1186,48 @@ export default function AdminProducts() {
                 })}
               </TableBody>
             </Table>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-4 border-t pt-4">
+              <div className="text-sm text-muted-foreground">
+                صفحة {page} من {totalPages} ({totalProducts} منتج)
+              </div>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={limit.toString()}
+                  onValueChange={(val) => {
+                    setLimit(Number(val));
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[70px] h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  السابق
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  التالي
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

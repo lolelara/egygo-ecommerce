@@ -504,13 +504,13 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <>
                       <DropdownMenuItem asChild>
                         <Link to="/admin" className="text-primary font-semibold">
-                          <Shield className="ml-2 h-4 w-4" />
+                          <Shield className="me-2 h-4 w-4" />
                           لوحة تحكم الإدارة
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to="/orders" className="text-blue-600 font-semibold">
-                          <Truck className="ml-2 h-4 w-4" />
+                          <Truck className="me-2 h-4 w-4" />
                           أوردرات
                         </Link>
                       </DropdownMenuItem>
@@ -521,7 +521,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <>
                       <DropdownMenuItem asChild>
                         <Link to="/affiliate/dashboard" className="text-orange-600 font-semibold">
-                          <TrendingUp className="ml-2 h-4 w-4" />
+                          <TrendingUp className="me-2 h-4 w-4" />
                           لوحة تحكم المسوق
                         </Link>
                       </DropdownMenuItem>
@@ -532,7 +532,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <>
                       <DropdownMenuItem asChild>
                         <Link to="/merchant/dashboard" className="text-purple-600 font-semibold">
-                          <Briefcase className="ml-2 h-4 w-4" />
+                          <Briefcase className="me-2 h-4 w-4" />
                           لوحة تحكم التاجر
                         </Link>
                       </DropdownMenuItem>
@@ -557,7 +557,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()}>
-                    <LogOut className="ml-2 h-4 w-4" />
+                    <LogOut className="me-2 h-4 w-4" />
                     تسجيل الخروج
                   </DropdownMenuItem>
                 </>

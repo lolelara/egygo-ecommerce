@@ -29,11 +29,27 @@ export function SearchBarEnhanced({
     const [query, setQuery] = useState('');
     const [isFocused, setIsFocused] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [trendingSearches, setTrendingSearches] = useState<string[]>(popularSearches);
     const searchRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
+        // Fetch trending searches
+        const fetchTrending = async () => {
+            try {
+                const { productsApi } = await import('@/lib/api');
+                const terms = await productsApi.getTrendingSearchTerms();
+                if (terms && terms.length > 0) {
+                    setTrendingSearches(terms);
+                }
+            } catch (error) {
+                console.error('Failed to fetch trending searches:', error);
+            }
+        };
+
+        fetchTrending();
+
         const handleClickOutside = (event: MouseEvent) => {
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
                 setShowSuggestions(false);

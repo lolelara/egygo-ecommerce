@@ -148,12 +148,12 @@ export function ProductCarouselModern({
                     <motion.button
                         whileHover={{ scale: 1.1, x: -5 }}
                         whileTap={{ scale: 0.9 }}
-                        className="swiper-button-prev-custom absolute top-1/2 -translate-y-1/2 right-0 
+                        className="swiper-button-prev-custom absolute top-1/2 -translate-y-1/2 end-0 
                        z-10 w-12 h-12 bg-white rounded-full shadow-xl
                        flex items-center justify-center text-purple-600
                        hover:bg-purple-600 hover:text-white transition-all duration-300
                        border-2 border-purple-200 hover:border-purple-600
-                       -mr-6 hidden md:flex"
+                       -me-6 hidden md:flex"
                     >
                         <ChevronRight className="w-6 h-6" />
                     </motion.button>
@@ -161,12 +161,12 @@ export function ProductCarouselModern({
                     <motion.button
                         whileHover={{ scale: 1.1, x: 5 }}
                         whileTap={{ scale: 0.9 }}
-                        className="swiper-button-next-custom absolute top-1/2 -translate-y-1/2 left-0 
+                        className="swiper-button-next-custom absolute top-1/2 -translate-y-1/2 start-0 
                        z-10 w-12 h-12 bg-white rounded-full shadow-xl
                        flex items-center justify-center text-purple-600
                        hover:bg-purple-600 hover:text-white transition-all duration-300
                        border-2 border-purple-200 hover:border-purple-600
-                       -ml-6 hidden md:flex"
+                       -ms-6 hidden md:flex"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </motion.button>

@@ -32,34 +32,15 @@ export default function DealsPage() {
     queryKey: [...queryKeys.products, 'deals'],
     queryFn: async () => {
       try {
-        // Try to fetch featured deals from Appwrite
-        const { databases, appwriteConfig } = await import('@/lib/appwrite');
-        const { Query } = await import('appwrite');
-        
-        const response = await databases.listDocuments(
-          appwriteConfig.databaseId,
-          'featuredDeals',
-          [
-            Query.equal('active', true),
-            Query.orderAsc('order'),
-            Query.limit(50)
-          ]
-        );
+        // First try to get explicitly marked flash deals
+        const flashDealsData = await productsApi.getAll({ isFlashDeal: true, limit: 50 });
 
-        // Map featured deals to product format
-        return response.documents.map((deal: any) => ({
-          id: deal.productId,
-          name: deal.productName,
-          image: deal.productImage,
-          images: [{ url: deal.productImage }],
-          price: deal.price,
-          originalPrice: deal.originalPrice,
-          discount: deal.discount,
-          rating: 4.5,
-        }));
-      } catch (error) {
-        // Fallback to original logic if collection doesn't exist
-        console.log('Featured deals not available, using fallback');
+        if (flashDealsData.products.length > 0) {
+          return flashDealsData.products;
+        }
+
+        // Fallback to original logic (products with discounts)
+        console.log('No flash deals found, using fallback');
         const data = await productsApi.getAll({ limit: 50 });
         const dealsProducts = data.products.filter(
           (product: any) => product.originalPrice && product.originalPrice > product.price
@@ -69,6 +50,9 @@ export default function DealsPage() {
           const discountB = ((b.originalPrice - b.price) / b.originalPrice) * 100;
           return discountB - discountA;
         });
+      } catch (error) {
+        console.error("Error fetching deals:", error);
+        return [];
       }
     },
   });
@@ -197,107 +181,107 @@ export default function DealsPage() {
             </CardContent>
           </Card>
         ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {deals.map((product: any) => {
-            const discount = calculateDiscount(product.originalPrice, product.price);
-            const savings = product.originalPrice - product.price;
-            
-            return (
-              <Card key={product.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-red-500/50">
-                {/* Badges */}
-                <div className="relative">
-                  <div className="absolute top-2 right-2 z-10 flex flex-col gap-2">
-                    <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-lg font-bold px-3 py-1 shadow-lg">
-                      -{discount}%
-                    </Badge>
-                    {discount >= 50 && (
-                      <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-1 animate-pulse">
-                        <Zap className="h-3 w-3 ml-1" />
-                        HOT
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {deals.map((product: any) => {
+              const discount = calculateDiscount(product.originalPrice, product.price);
+              const savings = product.originalPrice - product.price;
+
+              return (
+                <Card key={product.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-2 hover:border-red-500/50">
+                  {/* Badges */}
+                  <div className="relative">
+                    <div className="absolute top-2 right-2 z-10 flex flex-col gap-2">
+                      <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-lg font-bold px-3 py-1 shadow-lg">
+                        -{discount}%
                       </Badge>
-                    )}
-                  </div>
-                  
-                  {/* Product Image */}
-                  <Link to={`/product/${product.id}`}>
-                    <div className="h-48 overflow-hidden bg-muted">
-                      <img
-                        src={product.images?.[0]?.url || product.image || '/placeholder.png'}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
-                  </Link>
-                </div>
-
-                <CardHeader>
-                  <Link to={`/product/${product.id}`}>
-                    <CardTitle className="text-lg hover:text-primary transition-colors line-clamp-2">
-                      {product.name}
-                    </CardTitle>
-                  </Link>
-                  <CardDescription className="line-clamp-2">
-                    {product.description}
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  {/* Price Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-primary">
-                        {product.price.toLocaleString()} ج.م
-                      </span>
-                      <span className="text-lg line-through text-muted-foreground">
-                        {product.originalPrice.toLocaleString()} ج.م
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-green-600">
-                      <Tag className="h-4 w-4" />
-                      <span className="text-sm font-semibold">
-                        وفّر {savings.toLocaleString()} ج.م
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Stock & Rating */}
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span>{product.rating || 4.5}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>ينتهي قريباً</span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
-                      onClick={() => handleQuickAdd(product)}
-                      disabled={loadingProduct === product.id}
-                    >
-                      {loadingProduct === product.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <ShoppingCart className="h-4 w-4 mr-2" />
-                          أضف للسلة
-                        </>
+                      {discount >= 50 && (
+                        <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-1 animate-pulse">
+                          <Zap className="h-3 w-3 ml-1" />
+                          HOT
+                        </Badge>
                       )}
-                    </Button>
-                    <Button variant="outline" size="icon" asChild>
-                      <Link to={`/product/${product.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    </div>
+
+                    {/* Product Image */}
+                    <Link to={`/product/${product.id}`}>
+                      <div className="h-48 overflow-hidden bg-muted">
+                        <img
+                          src={product.images?.[0]?.url || product.image || '/placeholder.png'}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      </div>
+                    </Link>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+
+                  <CardHeader>
+                    <Link to={`/product/${product.id}`}>
+                      <CardTitle className="text-lg hover:text-primary transition-colors line-clamp-2">
+                        {product.name}
+                      </CardTitle>
+                    </Link>
+                    <CardDescription className="line-clamp-2">
+                      {product.description}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4">
+                    {/* Price Section */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl font-bold text-primary">
+                          {product.price.toLocaleString()} ج.م
+                        </span>
+                        <span className="text-lg line-through text-muted-foreground">
+                          {product.originalPrice.toLocaleString()} ج.م
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-green-600">
+                        <Tag className="h-4 w-4" />
+                        <span className="text-sm font-semibold">
+                          وفّر {savings.toLocaleString()} ج.م
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Stock & Rating */}
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span>{product.rating || 4.5}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>ينتهي قريباً</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <Button
+                        className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
+                        onClick={() => handleQuickAdd(product)}
+                        disabled={loadingProduct === product.id}
+                      >
+                        {loadingProduct === product.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <ShoppingCart className="h-4 w-4 mr-2" />
+                            أضف للسلة
+                          </>
+                        )}
+                      </Button>
+                      <Button variant="outline" size="icon" asChild>
+                        <Link to={`/product/${product.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 

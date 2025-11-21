@@ -251,7 +251,7 @@
 
   /* Arabic font improvements */
   html[dir="rtl"] * {
-    font-family: "Segoe UI", "Tahoma", "Arial", sans-serif;
+    font-family: "Cairo", "Segoe UI", "Tahoma", "Arial", sans-serif;
   }
 }
 
