@@ -177,12 +177,21 @@ export default function Index() {
     <div className="space-y-16 pb-16">
       <EnhancedSEO {...pageSEO.home()} />
 
+      import {EgyGoCartAnimation} from "@/components/EgyGoCartAnimation";
+
+      // ... existing imports ...
+
+      // Inside Index component return:
+
       {/* Hero Section - Modern Enhanced Design */}
       <HeroSectionEnhanced
         onShopNow={() => navigate('/products')}
         onExploreDeals={() => navigate('/deals')}
         featuredProducts={heroFeaturedData?.products || []}
       />
+
+      {/* Creative Cart Animation */}
+      <EgyGoCartAnimation />
 
       {/* Scrolling Marquee Banner */}
       <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 py-4 overflow-hidden relative">
@@ -206,14 +215,14 @@ export default function Index() {
       </div>
 
       {/* Affiliate Hero Section - قسم المسوقين */}
-      <section className="relative bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 text-white overflow-hidden min-h-[80vh] flex items-center">
+      <section className="relative bg-gradient-to-br from-red-600 via-orange-600 to-amber-600 text-white overflow-hidden min-h-[80vh] flex items-center">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMi4yMS0xLjc5LTQtNC00cy00IDEuNzktNCA0IDEuNzkgNCA0IDQgNC0xLjc5IDQtNHptLTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4em0yNCAwYTQgNCAwIDEgMCAwLTggNCA0IDAgMCAwIDAgOHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
 
         {/* Floating Money Icons */}
-        <div className="absolute top-20 left-10 w-64 h-64 bg-green-400/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" style={{ animation: 'float 4s ease-in-out infinite' }}></div>
+        <div className="absolute top-20 left-10 w-64 h-64 bg-orange-400/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl" style={{ animation: 'float 4s ease-in-out infinite' }}></div>
 
         <div className="relative container mx-auto px-4 py-20 z-10">
           <div className="max-w-5xl mx-auto text-center space-y-8">
