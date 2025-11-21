@@ -664,707 +664,706 @@ export default function AdminProducts() {
     }
   };
 
-}
+
+
+  const handleToggleFlashDeal = async (product: Product) => {
+    try {
+      const newStatus = !(product as any).isFlashDeal;
+      await adminProductsApi.update({
+        id: product.id,
+        isFlashDeal: newStatus,
+      } as any);
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id
+            ? ({ ...p, isFlashDeal: newStatus } as any)
+            : p
+        )
+      );
+    } catch (error) {
+      console.error("Error toggling flash deal:", error);
+      alert("فشل في تحديث حالة العرض الفلاش");
+    }
   };
 
-const handleToggleFlashDeal = async (product: Product) => {
-  try {
-    const newStatus = !(product as any).isFlashDeal;
-    await adminProductsApi.update({
-      id: product.id,
-      isFlashDeal: newStatus,
-    } as any);
+  const handleUpdateCategories = async (product: Product, newCategoryIds: string[]) => {
+    try {
+      // Determine primary category (first one or empty)
+      const primaryCategoryId = newCategoryIds.length > 0 ? newCategoryIds[0] : "";
 
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === product.id
-          ? ({ ...p, isFlashDeal: newStatus } as any)
-          : p
-      )
-    );
-  } catch (error) {
-    console.error("Error toggling flash deal:", error);
-    alert("فشل في تحديث حالة العرض الفلاش");
-  }
-};
+      await adminProductsApi.update({
+        id: product.id,
+        categoryIds: newCategoryIds,
+        categoryId: primaryCategoryId, // Sync for backward compatibility
+      } as any);
 
-const handleUpdateCategories = async (product: Product, newCategoryIds: string[]) => {
-  try {
-    // Determine primary category (first one or empty)
-    const primaryCategoryId = newCategoryIds.length > 0 ? newCategoryIds[0] : "";
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id
+            ? ({ ...p, categoryIds: newCategoryIds, category: primaryCategoryId } as any)
+            : p
+        )
+      );
+    } catch (error) {
+      console.error("Error updating categories:", error);
+      alert("فشل في تحديث الفئات");
+    }
+  };
 
-    await adminProductsApi.update({
-      id: product.id,
-      categoryIds: newCategoryIds,
-      categoryId: primaryCategoryId, // Sync for backward compatibility
-    } as any);
-
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === product.id
-          ? ({ ...p, categoryIds: newCategoryIds, category: primaryCategoryId } as any)
-          : p
-      )
-    );
-  } catch (error) {
-    console.error("Error updating categories:", error);
-    alert("فشل في تحديث الفئات");
-  }
-};
-
-const handleDeleteProduct = async (productId: string) => {
-  if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
-    return;
-  }
-
-  try {
-    // Admin can delete any product, no permission check needed
-    await adminProductsApi.delete(productId);
-    setProducts((prev) => prev.filter((product) => product.id !== productId));
-
-    alert("تم حذف المنتج بنجاح");
-  } catch (error) {
-    console.error("Error deleting product:", error);
-    alert("فشل في حذف المنتج: " + (error as any).message);
-  }
-};
-
-// Bulk delete products
-const handleBulkDelete = async () => {
-  if (selectedProducts.length === 0) {
-    alert("الرجاء اختيار منتجات أولاً");
-    return;
-  }
-
-  if (!confirm(`هل أنت متأكد من حذف ${selectedProducts.length} منتج؟ لا يمكن التراجع عن هذا الإجراء!`)) {
-    return;
-  }
-
-  setBulkUpdating(true);
-  let deletedCount = 0;
-
-  try {
-    for (const productId of selectedProducts) {
-      try {
-        await adminProductsApi.delete(productId);
-        deletedCount++;
-      } catch (error) {
-        console.error(`Error deleting product ${productId}:`, error);
-      }
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
+      return;
     }
 
-    setProducts((prev) => prev.filter((p) => !selectedProducts.includes(p.id)));
-    setSelectedProducts([]);
-    alert(`تم حذف ${deletedCount} منتج بنجاح`);
-  } catch (error) {
-    console.error("Error bulk deleting:", error);
-    alert("حدث خطأ أثناء الحذف");
-  } finally {
-    setBulkUpdating(false);
-  }
-};
+    try {
+      // Admin can delete any product, no permission check needed
+      await adminProductsApi.delete(productId);
+      setProducts((prev) => prev.filter((product) => product.id !== productId));
 
-// Bulk update product status
-const handleBulkStatusUpdate = async (inStock: boolean) => {
-  if (selectedProducts.length === 0) {
-    alert("الرجاء اختيار منتجات أولاً");
-    return;
-  }
+      alert("تم حذف المنتج بنجاح");
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("فشل في حذف المنتج: " + (error as any).message);
+    }
+  };
 
-  setBulkUpdating(true);
-  let updatedCount = 0;
+  // Bulk delete products
+  const handleBulkDelete = async () => {
+    if (selectedProducts.length === 0) {
+      alert("الرجاء اختيار منتجات أولاً");
+      return;
+    }
 
-  try {
-    for (const productId of selectedProducts) {
-      try {
-        const product = products.find(p => p.id === productId);
-        if (product) {
+    if (!confirm(`هل أنت متأكد من حذف ${selectedProducts.length} منتج؟ لا يمكن التراجع عن هذا الإجراء!`)) {
+      return;
+    }
+
+    setBulkUpdating(true);
+    let deletedCount = 0;
+
+    try {
+      for (const productId of selectedProducts) {
+        try {
+          await adminProductsApi.delete(productId);
+          deletedCount++;
+        } catch (error) {
+          console.error(`Error deleting product ${productId}:`, error);
+        }
+      }
+
+      setProducts((prev) => prev.filter((p) => !selectedProducts.includes(p.id)));
+      setSelectedProducts([]);
+      alert(`تم حذف ${deletedCount} منتج بنجاح`);
+    } catch (error) {
+      console.error("Error bulk deleting:", error);
+      alert("حدث خطأ أثناء الحذف");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
+  // Bulk update product status
+  const handleBulkStatusUpdate = async (inStock: boolean) => {
+    if (selectedProducts.length === 0) {
+      alert("الرجاء اختيار منتجات أولاً");
+      return;
+    }
+
+    setBulkUpdating(true);
+    let updatedCount = 0;
+
+    try {
+      for (const productId of selectedProducts) {
+        try {
+          const product = products.find(p => p.id === productId);
+          if (product) {
+            await adminProductsApi.update({
+              id: productId,
+              inStock,
+            } as AdminProductUpdate);
+            updatedCount++;
+          }
+        } catch (error) {
+          console.error(`Error updating product ${productId}:`, error);
+        }
+      }
+
+      setProducts((prev) => prev.map((p) =>
+        selectedProducts.includes(p.id) ? { ...p, inStock } : p
+      ));
+      setSelectedProducts([]);
+      alert(`تم تحديث ${updatedCount} منتج بنجاح`);
+    } catch (error) {
+      console.error("Error bulk updating:", error);
+      alert("حدث خطأ أثناء التحديث");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
+  // Bulk update category
+  const handleBulkCategoryUpdate = async (categoryId: string) => {
+    if (selectedProducts.length === 0) {
+      alert("الرجاء اختيار منتجات أولاً");
+      return;
+    }
+
+    setBulkUpdating(true);
+    let updatedCount = 0;
+
+    try {
+      for (const productId of selectedProducts) {
+        try {
           await adminProductsApi.update({
             id: productId,
-            inStock,
+            categoryId,
           } as AdminProductUpdate);
           updatedCount++;
+        } catch (error) {
+          console.error(`Error updating product ${productId}:`, error);
         }
-      } catch (error) {
-        console.error(`Error updating product ${productId}:`, error);
       }
+
+      setProducts((prev) => prev.map((p) =>
+        selectedProducts.includes(p.id) ? { ...p, category: categoryId } : p
+      ));
+      setSelectedProducts([]);
+      alert(`تم تحديث ${updatedCount} منتج بنجاح`);
+    } catch (error) {
+      console.error("Error bulk updating category:", error);
+      alert("حدث خطأ أثناء التحديث");
+    } finally {
+      setBulkUpdating(false);
     }
+  };
 
-    setProducts((prev) => prev.map((p) =>
-      selectedProducts.includes(p.id) ? { ...p, inStock } : p
-    ));
-    setSelectedProducts([]);
-    alert(`تم تحديث ${updatedCount} منتج بنجاح`);
-  } catch (error) {
-    console.error("Error bulk updating:", error);
-    alert("حدث خطأ أثناء التحديث");
-  } finally {
-    setBulkUpdating(false);
-  }
-};
+  // Toggle product selection
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProducts((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
 
-// Bulk update category
-const handleBulkCategoryUpdate = async (categoryId: string) => {
-  if (selectedProducts.length === 0) {
-    alert("الرجاء اختيار منتجات أولاً");
-    return;
-  }
+  // Toggle all products
+  const toggleAllProducts = () => {
+    if (selectedProducts.length === filteredProducts.length) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(filteredProducts.map((p) => p.id));
+    }
+  };
 
-  setBulkUpdating(true);
-  let updatedCount = 0;
-
-  try {
-    for (const productId of selectedProducts) {
+  // Helper function to check if product is available based on inventory
+  const isProductAvailable = (product: any): boolean => {
+    // Try to get stock from colorSizeInventory first
+    if (product.colorSizeInventory) {
       try {
-        await adminProductsApi.update({
-          id: productId,
-          categoryId,
-        } as AdminProductUpdate);
-        updatedCount++;
-      } catch (error) {
-        console.error(`Error updating product ${productId}:`, error);
+        const inventory = JSON.parse(product.colorSizeInventory);
+        if (Array.isArray(inventory) && inventory.length > 0) {
+          const totalStock = inventory.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+          return totalStock > 0;
+        }
+      } catch (e) {
+        console.error('Error parsing inventory for product:', product.id, e);
       }
     }
 
-    setProducts((prev) => prev.map((p) =>
-      selectedProducts.includes(p.id) ? { ...p, category: categoryId } : p
-    ));
-    setSelectedProducts([]);
-    alert(`تم تحديث ${updatedCount} منتج بنجاح`);
-  } catch (error) {
-    console.error("Error bulk updating category:", error);
-    alert("حدث خطأ أثناء التحديث");
-  } finally {
-    setBulkUpdating(false);
-  }
-};
-
-// Toggle product selection
-const toggleProductSelection = (productId: string) => {
-  setSelectedProducts((prev) =>
-    prev.includes(productId)
-      ? prev.filter((id) => id !== productId)
-      : [...prev, productId]
-  );
-};
-
-// Toggle all products
-const toggleAllProducts = () => {
-  if (selectedProducts.length === filteredProducts.length) {
-    setSelectedProducts([]);
-  } else {
-    setSelectedProducts(filteredProducts.map((p) => p.id));
-  }
-};
-
-// Helper function to check if product is available based on inventory
-const isProductAvailable = (product: any): boolean => {
-  // Try to get stock from colorSizeInventory first
-  if (product.colorSizeInventory) {
-    try {
-      const inventory = JSON.parse(product.colorSizeInventory);
-      if (Array.isArray(inventory) && inventory.length > 0) {
-        const totalStock = inventory.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
-        return totalStock > 0;
-      }
-    } catch (e) {
-      console.error('Error parsing inventory for product:', product.id, e);
+    // Fallback: check if product has colors/sizes (assume available)
+    if (product.colors?.length > 0 || product.sizes?.length > 0) {
+      return true;
     }
-  }
 
-  // Fallback: check if product has colors/sizes (assume available)
-  if (product.colors?.length > 0 || product.sizes?.length > 0) {
+    // Fallback: check stock field
+    if (product.stock !== undefined && product.stock > 0) {
+      return true;
+    }
+
+    // Fallback: check inStock field
+    if (product.inStock !== undefined) {
+      return product.inStock;
+    }
+
+    // Default: assume available
     return true;
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <PageLoader message="جاري تحميل المنتجات..." />
+      </AdminLayout>
+    );
   }
 
-  // Fallback: check stock field
-  if (product.stock !== undefined && product.stock > 0) {
-    return true;
-  }
-
-  // Fallback: check inStock field
-  if (product.inStock !== undefined) {
-    return product.inStock;
-  }
-
-  // Default: assume available
-  return true;
-};
-
-if (loading) {
   return (
     <AdminLayout>
-      <PageLoader message="جاري تحميل المنتجات..." />
-    </AdminLayout>
-  );
-}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">إدارة المنتجات</h1>
 
-return (
-  <AdminLayout>
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">إدارة المنتجات</h1>
-
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              إضافة منتج جديد
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>إضافة منتج جديد</DialogTitle>
-              <DialogDescription>أدخل تفاصيل المنتج الجديد</DialogDescription>
-            </DialogHeader>
-            <ProductForm
-              categories={categories}
-              onSubmit={handleAddProduct}
-              onCancel={() => setIsAddDialogOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              إجمالي المنتجات
-            </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{products.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              المنتجات المتاحة
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {products.filter((p) => isProductAvailable(p)).length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              المنتجات غير المتاحة
-            </CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {products.filter((p) => !isProductAvailable(p)).length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              متوسط التقييم
-            </CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {products.length > 0
-                ? (
-                  products.reduce((sum, p) => sum + p.rating, 0) /
-                  products.length
-                ).toFixed(1)
-                : "0.0"}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Bulk Actions Bar */}
-      {selectedProducts.length > 0 && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="py-4">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">
-                  تم اختيار {selectedProducts.length} منتج
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedProducts([])}
-                >
-                  إلغاء التحديد
-                </Button>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkStatusUpdate(true)}
-                  disabled={bulkUpdating}
-                >
-                  تعيين كمتاح
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkStatusUpdate(false)}
-                  disabled={bulkUpdating}
-                >
-                  تعيين كغير متاح
-                </Button>
-                <Select
-                  onValueChange={handleBulkCategoryUpdate}
-                  disabled={bulkUpdating}
-                >
-                  <SelectTrigger className="w-[180px] h-9">
-                    <SelectValue placeholder="تغيير الفئة" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleBulkDelete}
-                  disabled={bulkUpdating}
-                >
-                  <Trash2 className="h-4 w-4 ml-2" />
-                  حذف المحدد
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Filters */}
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="البحث في المنتجات..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                إضافة منتج جديد
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>إضافة منتج جديد</DialogTitle>
+                <DialogDescription>أدخل تفاصيل المنتج الجديد</DialogDescription>
+              </DialogHeader>
+              <ProductForm
+                categories={categories}
+                onSubmit={handleAddProduct}
+                onCancel={() => setIsAddDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
 
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-48">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">جميع الفئات</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                إجمالي المنتجات
+              </CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{products.length}</div>
+            </CardContent>
+          </Card>
 
-      {/* Products Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>المنتجات ({filteredProducts.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                المنتجات المتاحة
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {products.filter((p) => isProductAvailable(p)).length}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                المنتجات غير المتاحة
+              </CardTitle>
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {products.filter((p) => !isProductAvailable(p)).length}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                متوسط التقييم
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {products.length > 0
+                  ? (
+                    products.reduce((sum, p) => sum + p.rating, 0) /
+                    products.length
+                  ).toFixed(1)
+                  : "0.0"}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Bulk Actions Bar */}
+        {selectedProducts.length > 0 && (
+          <Card className="bg-blue-50 border-blue-200">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">
+                    تم اختيار {selectedProducts.length} منتج
+                  </span>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={toggleAllProducts}
-                    className="h-8 w-8 p-0"
+                    onClick={() => setSelectedProducts([])}
                   >
-                    {selectedProducts.length === filteredProducts.length && filteredProducts.length > 0 ? (
-                      <CheckSquare className="h-4 w-4" />
-                    ) : (
-                      <Square className="h-4 w-4" />
-                    )}
+                    إلغاء التحديد
                   </Button>
-                </TableHead>
-                <TableHead>المنتج</TableHead>
-                <TableHead>الفئات</TableHead>
-                <TableHead>فلاش ⚡</TableHead>
-                <TableHead>السعر</TableHead>
-                <TableHead>التقييم</TableHead>
-                <TableHead>المخزون</TableHead>
-                <TableHead>العمولة</TableHead>
-                <TableHead className="text-center">الإجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProducts.map((product) => {
-                const category = categories.find(
-                  (c) => c.id === product.category,
-                );
-                const isSelected = selectedProducts.includes(product.id);
-                return (
-                  <TableRow key={product.id} className={isSelected ? "bg-blue-50" : ""}>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleProductSelection(product.id)}
-                        className="h-8 w-8 p-0"
-                      >
-                        {isSelected ? (
-                          <CheckSquare className="h-4 w-4 text-blue-600" />
-                        ) : (
-                          <Square className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={getImageUrl(product.images?.[0])}
-                          alt={product.name}
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                        <div>
-                          <div className="font-medium flex items-center gap-2 flex-wrap">
-                            <a href={`/product/${product.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-primary">
-                              {product.name}
-                            </a>
-                            {product.isFeatured && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-yellow-100 text-yellow-800 border-yellow-200">مميز</Badge>}
-                            {product.isFeaturedInHero && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-800 border-purple-200">Hero</Badge>}
-                            {(product as any).isFlashDeal && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-red-100 text-red-800 border-red-200">Flash ⚡</Badge>}
-                          </div>
-                          <div className="text-sm text-muted-foreground truncate max-w-[200px]">
-                            {product.description}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-[180px] justify-between h-auto min-h-[2rem] py-1 px-2 text-xs"
-                          >
-                            <div className="flex flex-wrap gap-1 items-center text-right">
-                              {product.categoryIds && product.categoryIds.length > 0 ? (
-                                <>
-                                  <span className="truncate max-w-[100px]">
-                                    {categories.find((c) => c.id === product.categoryIds![0])?.name || "فئة غير معروفة"}
-                                  </span>
-                                  {product.categoryIds.length > 1 && (
-                                    <Badge variant="secondary" className="text-[10px] px-1 h-4">
-                                      +{product.categoryIds.length - 1}
-                                    </Badge>
-                                  )}
-                                </>
-                              ) : (
-                                <span className="text-muted-foreground">اختر الفئات</span>
-                              )}
-                            </div>
-                            <ChevronsUpDown className="mr-2 h-3 w-3 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[200px] p-0">
-                          <Command>
-                            <CommandInput placeholder="بحث عن فئة..." />
-                            <CommandList>
-                              <CommandEmpty>لا توجد فئات.</CommandEmpty>
-                              <CommandGroup>
-                                {categories.map((category) => {
-                                  const isSelected = product.categoryIds?.includes(category.id);
-                                  return (
-                                    <CommandItem
-                                      key={category.id}
-                                      value={category.name}
-                                      onSelect={() => {
-                                        const currentIds = product.categoryIds || [];
-                                        const newIds = isSelected
-                                          ? currentIds.filter((id) => id !== category.id)
-                                          : [...currentIds, category.id];
-                                        handleUpdateCategories(product, newIds);
-                                      }}
-                                    >
-                                      <div
-                                        className={cn(
-                                          "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                                          isSelected
-                                            ? "bg-primary text-primary-foreground"
-                                            : "opacity-50 [&_svg]:invisible"
-                                        )}
-                                      >
-                                        <Check className={cn("h-4 w-4")} />
-                                      </div>
-                                      <span>{category.name}</span>
-                                    </CommandItem>
-                                  );
-                                })}
-                              </CommandGroup>
-                            </CommandList>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleFlashDeal(product)}
-                        className={cn(
-                          "h-8 w-8 p-0 transition-colors",
-                          (product as any).isFlashDeal
-                            ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
-                            : "text-gray-300 hover:text-yellow-500"
-                        )}
-                        title={(product as any).isFlashDeal ? "إزالة من العروض" : "إضافة للعروض"}
-                      >
-                        <Zap className={cn("h-5 w-5", (product as any).isFlashDeal && "fill-current")} />
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{product.price} ج.م</div>
-                        {product.originalPrice && (
-                          <div className="text-sm text-muted-foreground line-through">
-                            {product.originalPrice} ج.م
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <span>{product.rating.toFixed(1)}</span>
-                        <span className="text-muted-foreground">
-                          ({product.reviewCount})
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={product.inStock ? "default" : "secondary"}
-                      >
-                        {product.inStock ? "متاح" : "غير متاح"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{product.affiliateCommission}%</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Dialog
-                          open={editingProduct?.id === product.id}
-                          onOpenChange={(open) =>
-                            !open && setEditingProduct(null)
-                          }
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setEditingProduct(product)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
-                              <DialogTitle>تعديل المنتج</DialogTitle>
-                              <DialogDescription>
-                                تعديل تفاصيل المنتج
-                              </DialogDescription>
-                            </DialogHeader>
-                            {editingProduct && (
-                              <ProductForm
-                                product={editingProduct}
-                                categories={categories}
-                                onSubmit={handleUpdateProduct}
-                                onCancel={() => setEditingProduct(null)}
-                              />
-                            )}
-                          </DialogContent>
-                        </Dialog>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkStatusUpdate(true)}
+                    disabled={bulkUpdating}
+                  >
+                    تعيين كمتاح
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleBulkStatusUpdate(false)}
+                    disabled={bulkUpdating}
+                  >
+                    تعيين كغير متاح
+                  </Button>
+                  <Select
+                    onValueChange={handleBulkCategoryUpdate}
+                    disabled={bulkUpdating}
+                  >
+                    <SelectTrigger className="w-[180px] h-9">
+                      <SelectValue placeholder="تغيير الفئة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBulkDelete}
+                    disabled={bulkUpdating}
+                  >
+                    <Trash2 className="h-4 w-4 ml-2" />
+                    حذف المحدد
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
-                              handleDeleteProduct(product.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-
-          {/* Pagination Controls */}
-          <div className="flex items-center justify-between mt-4 border-t pt-4">
-            <div className="text-sm text-muted-foreground">
-              صفحة {page} من {totalPages} ({totalProducts} منتج)
-            </div>
-            <div className="flex items-center gap-2">
-              <Select
-                value={limit.toString()}
-                onValueChange={(val) => {
-                  setLimit(Number(val));
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="w-[70px] h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="20">20</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                السابق
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
-                التالي
-              </Button>
+        {/* Filters */}
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="البحث في المنتجات..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  </AdminLayout>
-);
+
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الفئات</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Products Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>المنتجات ({filteredProducts.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleAllProducts}
+                      className="h-8 w-8 p-0"
+                    >
+                      {selectedProducts.length === filteredProducts.length && filteredProducts.length > 0 ? (
+                        <CheckSquare className="h-4 w-4" />
+                      ) : (
+                        <Square className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableHead>
+                  <TableHead>المنتج</TableHead>
+                  <TableHead>الفئات</TableHead>
+                  <TableHead>فلاش ⚡</TableHead>
+                  <TableHead>السعر</TableHead>
+                  <TableHead>التقييم</TableHead>
+                  <TableHead>المخزون</TableHead>
+                  <TableHead>العمولة</TableHead>
+                  <TableHead className="text-center">الإجراءات</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProducts.map((product) => {
+                  const category = categories.find(
+                    (c) => c.id === product.category,
+                  );
+                  const isSelected = selectedProducts.includes(product.id);
+                  return (
+                    <TableRow key={product.id} className={isSelected ? "bg-blue-50" : ""}>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleProductSelection(product.id)}
+                          className="h-8 w-8 p-0"
+                        >
+                          {isSelected ? (
+                            <CheckSquare className="h-4 w-4 text-blue-600" />
+                          ) : (
+                            <Square className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={getImageUrl(product.images?.[0])}
+                            alt={product.name}
+                            className="w-10 h-10 rounded object-cover"
+                          />
+                          <div>
+                            <div className="font-medium flex items-center gap-2 flex-wrap">
+                              <a href={`/product/${product.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-primary">
+                                {product.name}
+                              </a>
+                              {product.isFeatured && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-yellow-100 text-yellow-800 border-yellow-200">مميز</Badge>}
+                              {product.isFeaturedInHero && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-800 border-purple-200">Hero</Badge>}
+                              {(product as any).isFlashDeal && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-red-100 text-red-800 border-red-200">Flash ⚡</Badge>}
+                            </div>
+                            <div className="text-sm text-muted-foreground truncate max-w-[200px]">
+                              {product.description}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className="w-[180px] justify-between h-auto min-h-[2rem] py-1 px-2 text-xs"
+                            >
+                              <div className="flex flex-wrap gap-1 items-center text-right">
+                                {product.categoryIds && product.categoryIds.length > 0 ? (
+                                  <>
+                                    <span className="truncate max-w-[100px]">
+                                      {categories.find((c) => c.id === product.categoryIds![0])?.name || "فئة غير معروفة"}
+                                    </span>
+                                    {product.categoryIds.length > 1 && (
+                                      <Badge variant="secondary" className="text-[10px] px-1 h-4">
+                                        +{product.categoryIds.length - 1}
+                                      </Badge>
+                                    )}
+                                  </>
+                                ) : (
+                                  <span className="text-muted-foreground">اختر الفئات</span>
+                                )}
+                              </div>
+                              <ChevronsUpDown className="mr-2 h-3 w-3 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                              <CommandInput placeholder="بحث عن فئة..." />
+                              <CommandList>
+                                <CommandEmpty>لا توجد فئات.</CommandEmpty>
+                                <CommandGroup>
+                                  {categories.map((category) => {
+                                    const isSelected = product.categoryIds?.includes(category.id);
+                                    return (
+                                      <CommandItem
+                                        key={category.id}
+                                        value={category.name}
+                                        onSelect={() => {
+                                          const currentIds = product.categoryIds || [];
+                                          const newIds = isSelected
+                                            ? currentIds.filter((id) => id !== category.id)
+                                            : [...currentIds, category.id];
+                                          handleUpdateCategories(product, newIds);
+                                        }}
+                                      >
+                                        <div
+                                          className={cn(
+                                            "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
+                                            isSelected
+                                              ? "bg-primary text-primary-foreground"
+                                              : "opacity-50 [&_svg]:invisible"
+                                          )}
+                                        >
+                                          <Check className={cn("h-4 w-4")} />
+                                        </div>
+                                        <span>{category.name}</span>
+                                      </CommandItem>
+                                    );
+                                  })}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggleFlashDeal(product)}
+                          className={cn(
+                            "h-8 w-8 p-0 transition-colors",
+                            (product as any).isFlashDeal
+                              ? "text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
+                              : "text-gray-300 hover:text-yellow-500"
+                          )}
+                          title={(product as any).isFlashDeal ? "إزالة من العروض" : "إضافة للعروض"}
+                        >
+                          <Zap className={cn("h-5 w-5", (product as any).isFlashDeal && "fill-current")} />
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{product.price} ج.م</div>
+                          {product.originalPrice && (
+                            <div className="text-sm text-muted-foreground line-through">
+                              {product.originalPrice} ج.م
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <span>{product.rating.toFixed(1)}</span>
+                          <span className="text-muted-foreground">
+                            ({product.reviewCount})
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={product.inStock ? "default" : "secondary"}
+                        >
+                          {product.inStock ? "متاح" : "غير متاح"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{product.affiliateCommission}%</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Dialog
+                            open={editingProduct?.id === product.id}
+                            onOpenChange={(open) =>
+                              !open && setEditingProduct(null)
+                            }
+                          >
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setEditingProduct(product)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>تعديل المنتج</DialogTitle>
+                                <DialogDescription>
+                                  تعديل تفاصيل المنتج
+                                </DialogDescription>
+                              </DialogHeader>
+                              {editingProduct && (
+                                <ProductForm
+                                  product={editingProduct}
+                                  categories={categories}
+                                  onSubmit={handleUpdateProduct}
+                                  onCancel={() => setEditingProduct(null)}
+                                />
+                              )}
+                            </DialogContent>
+                          </Dialog>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("هل أنت متأكد من حذف هذا المنتج؟")) {
+                                handleDeleteProduct(product.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between mt-4 border-t pt-4">
+              <div className="text-sm text-muted-foreground">
+                صفحة {page} من {totalPages} ({totalProducts} منتج)
+              </div>
+              <div className="flex items-center gap-2">
+                <Select
+                  value={limit.toString()}
+                  onValueChange={(val) => {
+                    setLimit(Number(val));
+                    setPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[70px] h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  السابق
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  التالي
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </AdminLayout>
+  );
 }
