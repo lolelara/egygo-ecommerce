@@ -20,7 +20,7 @@ const APPWRITE_DATABASE_ID = '68de037e003bd03c4d45';
 // Test mode - SET TO FALSE FOR FULL SCRAPING
 const TEST_MODE = true;  // وضع الإنتاج الكامل
 const TEST_VENDORS_LIMIT = 1;  // عدد الموردين للاختبار (ignored when TEST_MODE = false)
-const TEST_PRODUCTS_PER_VENDOR = 3;  // عدد المنتجات لكل مورد (ignored when TEST_MODE = false)
+const TEST_PRODUCTS_PER_VENDOR = 1;  // عدد المنتجات لكل مورد (ignored when TEST_MODE = false)
 
 // Profit Margin - زيادة على سعر المنتج
 const PROFIT_MARGIN = 10;  // 10 جنيه زيادة على كل منتج
@@ -129,7 +129,6 @@ async function getVendorLinks(page) {
           });
         }
       });
-
       return results;
     });
 
@@ -186,6 +185,15 @@ async function getProductsFromVendor(page, vendor, vendorIndex) {
     });
 
     console.log(`   📦 Found ${products.length} products`);
+
+    if (products.length === 0) {
+      console.log('   ⚠️ No products found! Dumping HTML for debugging...');
+      const html = await page.content();
+      const fs = await import('fs');
+      fs.writeFileSync('vendor-dump.html', html);
+      console.log('   💾 Vendor HTML saved to vendor-dump.html');
+    }
+
     return products;
   } catch (error) {
     console.error(`   ❌ Error getting products from ${vendor.name}:`, error.message);
@@ -205,6 +213,8 @@ async function scrapeProduct(page, productUrl, index) {
     console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
 
     await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+    await new Promise(r => setTimeout(r, 2000));
+
     await new Promise(r => setTimeout(r, 2000));
 
     // استخراج البيانات
@@ -256,26 +266,28 @@ async function scrapeProduct(page, productUrl, index) {
           elements.forEach(el => el.remove());
         });
 
-        // Remove empty paragraphs
-        const paragraphs = clone.querySelectorAll('p');
-        paragraphs.forEach(p => {
-          if (!p.innerText.trim()) p.remove();
-        });
-
-        // Extract media links (Google Drive, etc.)
+        // Extract media links (Google Drive, etc.) and remove them from description
         const links = Array.from(clone.querySelectorAll('a'));
         links.forEach(link => {
           const href = link.href;
           if (href && (href.includes('drive.google.com') || href.includes('mega.nz') || href.includes('dropbox.com') || href.includes('mediafire.com'))) {
-            // Add to media links if not already present
-            // Note: We can't easily pass data back out from here except via return value
-            // So we'll mark it for extraction or just extract text content
-            link.remove(); // Remove from description
+            // Remove the link element
+            link.remove();
           }
         });
 
-        // Return the cleaned HTML or text
-        result.description = clone.innerHTML.trim();
+        // Remove empty paragraphs and h3 tags (often left after removing links)
+        const emptyTags = clone.querySelectorAll('p, h3');
+        emptyTags.forEach(tag => {
+          if (!tag.innerText.trim()) tag.remove();
+        });
+
+        // Improve formatting: Replace <br> with newlines
+        const brs = clone.querySelectorAll('br');
+        brs.forEach(br => br.replaceWith('\n'));
+
+        // Return the cleaned text
+        result.description = clone.innerText.trim();
 
         // Re-scan for media links in the original container to populate the array
         const mediaLinks = Array.from(container.querySelectorAll('a'))
@@ -345,37 +357,7 @@ async function scrapeProduct(page, productUrl, index) {
         }
       }
 
-      // ✅ الوصف من p.prodcut-titles
-      const descEl = document.querySelector('p.prodcut-titles');
-      if (descEl) {
-        // إزالة لينكات وأخذ النص فقط
-        const clonedDesc = descEl.cloneNode(true);
-        // إزالة جميع الـ links
-        const links = clonedDesc.querySelectorAll('a');
-        links.forEach(link => link.remove());
-        result.description = clonedDesc.textContent.trim();
 
-        // استخراج لينكات الميديا
-        const mediaLinks = descEl.querySelectorAll('a[href*="drive.google.com"]');
-        mediaLinks.forEach(link => {
-          const href = link.href;
-          if (href && !result.mediaLinks.includes(href)) {
-            result.mediaLinks.push(href);
-          }
-        });
-      }
-
-      // Fallback: إذا الوصف فارغ، جرب من أي p tag في body
-      if (!result.description || result.description.length < 10) {
-        const allPs = Array.from(document.querySelectorAll('.component-What p, .card-body-2 p, section p'));
-        for (const p of allPs) {
-          const text = p.textContent.trim();
-          if (text.length > 20 && !text.includes('السعر') && !text.includes('البائع')) {
-            result.description = text;
-            break;
-          }
-        }
-      }
 
       // ✅ الصور - الصورة الرئيسية من .abut-img img
       const mainImg = document.querySelector('.abut-img img');
@@ -516,11 +498,8 @@ async function saveToAppwrite(data, categoryId, index, productUrl) {
 
     // ✅ Use clean page description only (no inventory lines here)
     let description = (data.description || '').trim();
-    // Optionally append media links if present
-    if (data.mediaLinks && data.mediaLinks.length > 0) {
-      const linksText = data.mediaLinks.map((l) => `- ${l}`).join('\n');
-      description = `${description}\n\n📎 روابط الميديا:\n${linksText}`.trim();
-    }
+
+    // We do NOT append media links to description anymore, they are saved in mediaLinks field
 
     // ✅ استخدام الحقول الموجودة فعلياً في products collection
     // Filter images again to ensure no logos are saved
@@ -664,6 +643,9 @@ async function main() {
 
   const page = await browser.newPage();
   await page.setViewport({ width: 1920, height: 1080 });
+
+  // Capture browser logs
+  page.on('console', msg => console.log('PAGE LOG:', msg.text()));
 
   const stats = { vendors: 0, products: 0, saved: 0, failed: 0 };
 

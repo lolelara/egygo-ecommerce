@@ -409,25 +409,25 @@ export default function ProductDetail() {
               {/* Description */}
               <div>
                 <h3 className="font-semibold mb-2">وصف المنتج</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <div className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                   {product.description}
-                </p>
+                </div>
 
                 {/* Media Links */}
                 {product.mediaLinks && product.mediaLinks.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <div className="mt-6 space-y-3">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                       <span className="p-1 bg-blue-100 rounded text-blue-600">
                         <Download className="w-4 h-4" />
                       </span>
-                      ملفات الوسائط
+                      روابط الميديا (صور وفيديوهات)
                     </h3>
                     <div className="flex flex-wrap gap-3">
                       {product.mediaLinks.map((link: string, index: number) => (
-                        <Button key={index} variant="outline" className="border-blue-200 hover:bg-blue-50 text-blue-700" asChild>
-                          <a href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                            <Download className="w-4 h-4" />
-                            تحميل الملف {index + 1}
+                        <Button key={index} variant="outline" className="gap-2" asChild>
+                          <a href={link} target="_blank" rel="noopener noreferrer">
+                            <Download className="h-4 w-4" />
+                            تحميل الميديا {index + 1}
                           </a>
                         </Button>
                       ))}
@@ -629,69 +629,71 @@ export default function ProductDetail() {
                 </Card>
               )}
             </div>
-          </div>
+          </div >
 
           {/* Inventory Table */}
-          {inventory.length > 0 && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-3xl font-bold">المخزون المتاح</h2>
-                <Badge variant="outline" className="text-lg px-4 py-2">
-                  إجمالي المخزون: {totalStock} قطعة
-                </Badge>
-              </div>
-              <Card className="overflow-hidden shadow-lg">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
-                      <tr>
-                        <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
-                          المقاس
-                        </th>
-                        <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
-                          اللون
-                        </th>
-                        <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
-                          الكمية المتاحة
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {inventory.map((item, index) => (
-                        <tr
-                          key={index}
-                          className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                            }`}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
-                            {item.size}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
-                                style={{ backgroundColor: getColorInfo(item.color).hex }}
-                                title={item.color}
-                              />
-                              <span className="text-base text-gray-700">{item.color}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge
-                              variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
-                              className="text-sm font-semibold px-3 py-1"
-                            >
-                              {item.quantity} قطعة
-                            </Badge>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+          {
+            inventory.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-3xl font-bold">المخزون المتاح</h2>
+                  <Badge variant="outline" className="text-lg px-4 py-2">
+                    إجمالي المخزون: {totalStock} قطعة
+                  </Badge>
                 </div>
-              </Card>
-            </div>
-          )}
+                <Card className="overflow-hidden shadow-lg">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gradient-to-r from-slate-800 to-slate-700 text-white">
+                        <tr>
+                          <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
+                            المقاس
+                          </th>
+                          <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
+                            اللون
+                          </th>
+                          <th className="px-6 py-4 text-right text-sm font-bold uppercase tracking-wider">
+                            الكمية المتاحة
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {inventory.map((item, index) => (
+                          <tr
+                            key={index}
+                            className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                              }`}
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
+                              {item.size}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
+                                  style={{ backgroundColor: getColorInfo(item.color).hex }}
+                                  title={item.color}
+                                />
+                                <span className="text-base text-gray-700">{item.color}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <Badge
+                                variant={item.quantity > 10 ? "default" : item.quantity > 0 ? "secondary" : "destructive"}
+                                className="text-sm font-semibold px-3 py-1"
+                              >
+                                {item.quantity} قطعة
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              </div>
+            )
+          }
 
           {/* Tabs Section */}
           <Tabs defaultValue="reviews" className="space-y-8">
@@ -759,88 +761,90 @@ export default function ProductDetail() {
               </Card>
             </TabsContent>
           </Tabs>
-        </div>
+        </div >
 
         {/* Image Lightbox */}
-        {isLightboxOpen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
-            onClick={() => setIsLightboxOpen(false)}
-          >
-            {/* Close Button */}
-            <button
+        {
+          isLightboxOpen && (
+            <div
+              className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
               onClick={() => setIsLightboxOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
             >
-              <X className="w-6 h-6 text-white" />
-            </button>
+              {/* Close Button */}
+              <button
+                onClick={() => setIsLightboxOpen(false)}
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
 
-            {/* Image Counter */}
-            <div className="absolute top-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
-              {selectedImage + 1} / {images.length}
-            </div>
+              {/* Image Counter */}
+              <div className="absolute top-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+                {selectedImage + 1} / {images.length}
+              </div>
 
-            {/* Main Image */}
-            <div className="relative max-w-6xl max-h-[90vh] w-full h-full flex items-center justify-center">
-              <img
-                src={images[selectedImage].url}
-                alt={images[selectedImage].alt || product.name}
-                className="max-w-full max-h-full object-contain"
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
+              {/* Main Image */}
+              <div className="relative max-w-6xl max-h-[90vh] w-full h-full flex items-center justify-center">
+                <img
+                  src={images[selectedImage].url}
+                  alt={images[selectedImage].alt || product.name}
+                  className="max-w-full max-h-full object-contain"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
 
-            {/* Navigation Buttons */}
-            {images.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedImage((prev) => (prev > 0 ? prev - 1 : images.length - 1));
-                  }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-                >
-                  <ArrowRight className="w-6 h-6 text-white" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : 0));
-                  }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-                >
-                  <ArrowRight className="w-6 h-6 text-white rotate-180" />
-                </button>
-              </>
-            )}
-
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
-                {images.map((image, index) => (
+              {/* Navigation Buttons */}
+              {images.length > 1 && (
+                <>
                   <button
-                    key={index}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setSelectedImage(index);
+                      setSelectedImage((prev) => (prev > 0 ? prev - 1 : images.length - 1));
                     }}
-                    className={`w-16 h-16 rounded overflow-hidden border-2 transition-all ${selectedImage === index
-                      ? "border-white scale-110"
-                      : "border-transparent opacity-60 hover:opacity-100"
-                      }`}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
                   >
-                    <img
-                      src={image.url}
-                      alt={image.alt || ""}
-                      className="w-full h-full object-cover"
-                    />
+                    <ArrowRight className="w-6 h-6 text-white" />
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : 0));
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                  >
+                    <ArrowRight className="w-6 h-6 text-white rotate-180" />
+                  </button>
+                </>
+              )}
+
+              {/* Thumbnails */}
+              {images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded-lg">
+                  {images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImage(index);
+                      }}
+                      className={`w-16 h-16 rounded overflow-hidden border-2 transition-all ${selectedImage === index
+                        ? "border-white scale-110"
+                        : "border-transparent opacity-60 hover:opacity-100"
+                        }`}
+                    >
+                      <img
+                        src={image.url}
+                        alt={image.alt || ""}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        }
+      </div >
     </>
   );
 }
