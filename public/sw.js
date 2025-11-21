@@ -1,7 +1,7 @@
 // Service Worker for performance optimization
-const CACHE_NAME = 'egygo-v2';
-const STATIC_CACHE = 'egygo-static-v2';
-const DYNAMIC_CACHE = 'egygo-dynamic-v2';
+const CACHE_NAME = 'egygo-v3';
+const STATIC_CACHE = 'egygo-static-v3';
+const DYNAMIC_CACHE = 'egygo-dynamic-v3';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
@@ -22,7 +22,7 @@ const API_CACHE_PATTERNS = [
 // Install event - cache critical resources
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
-  
+
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
@@ -42,7 +42,7 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
-  
+
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
@@ -152,14 +152,14 @@ async function handleAPIRequest(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Return offline response for API requests
     return new Response(
-      JSON.stringify({ 
-        error: 'Offline', 
-        message: 'You are offline. Please check your connection.' 
+      JSON.stringify({
+        error: 'Offline',
+        message: 'You are offline. Please check your connection.'
       }),
-      { 
+      {
         status: 503,
         headers: { 'Content-Type': 'application/json' }
       }
@@ -182,11 +182,11 @@ async function handlePageRequest(request) {
     if (cachedResponse) {
       return cachedResponse;
     }
-    
+
     // Return offline page
     return caches.match('/offline.html') || new Response(
       '<html><body><h1>You are offline</h1><p>Please check your internet connection.</p></body></html>',
-      { 
+      {
         status: 503,
         headers: { 'Content-Type': 'text/html' }
       }
@@ -207,7 +207,7 @@ async function handleOtherRequest(request) {
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
   console.log('Background sync triggered:', event.tag);
-  
+
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());
   }
@@ -218,7 +218,7 @@ async function doBackgroundSync() {
   try {
     // Get pending requests from IndexedDB
     const pendingRequests = await getPendingRequests();
-    
+
     for (const request of pendingRequests) {
       try {
         await fetch(request.url, request.options);
@@ -236,7 +236,7 @@ async function doBackgroundSync() {
 // Push notification handling
 self.addEventListener('push', (event) => {
   console.log('Push notification received');
-  
+
   const options = {
     body: event.data ? event.data.text() : 'New notification',
     icon: '/images/icon-192x192.png',
@@ -268,7 +268,7 @@ self.addEventListener('push', (event) => {
 // Notification click handling
 self.addEventListener('notificationclick', (event) => {
   console.log('Notification clicked:', event.action);
-  
+
   event.notification.close();
 
   if (event.action === 'explore') {
@@ -281,11 +281,11 @@ self.addEventListener('notificationclick', (event) => {
 // Message handling from main thread
 self.addEventListener('message', (event) => {
   console.log('Service Worker received message:', event.data);
-  
+
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'CACHE_URLS') {
     event.waitUntil(
       caches.open(DYNAMIC_CACHE)
@@ -310,14 +310,14 @@ async function removePendingRequest(id) {
 // Cache management
 async function cleanupCache() {
   const cacheNames = await caches.keys();
-  const oldCaches = cacheNames.filter(name => 
+  const oldCaches = cacheNames.filter(name =>
     name !== STATIC_CACHE && name !== DYNAMIC_CACHE
   );
-  
+
   await Promise.all(
     oldCaches.map(name => caches.delete(name))
   );
-  
+
   console.log('Cache cleanup completed');
 }
 
