@@ -34,6 +34,8 @@ export interface Product {
   colorSizeInventory?: string; // JSON string of color/size inventory array
   colors?: string[]; // Available colors
   sizes?: string[]; // Available sizes
+  isFeatured?: boolean;
+  isFeaturedInHero?: boolean;
 }
 
 export interface Category {
@@ -197,6 +199,8 @@ export interface AdminProductCreate {
   tags: string[];
   stockQuantity: number;
   affiliateCommission: number;
+  isFeatured?: boolean;
+  isFeaturedInHero?: boolean;
 }
 
 export interface AdminProductUpdate extends Partial<AdminProductCreate> {

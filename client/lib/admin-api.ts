@@ -243,6 +243,7 @@ export const adminProductsApi = {
         tags: product.tags || [],
         isActive: product.isActive ?? true,
         isFeatured: product.isFeatured ?? false,
+        isFeaturedInHero: product.isFeaturedInHero ?? false,
         rating: 0,
         reviewCount: 0,
         status: userId ? 'pending' : 'approved', // Merchant products need approval, admin products are auto-approved
@@ -372,6 +373,7 @@ export const adminProductsApi = {
       if (updateData.tags) mappedData.tags = updateData.tags;
       if (updateData.isActive !== undefined) mappedData.isActive = updateData.isActive;
       if (updateData.isFeatured !== undefined) mappedData.isFeatured = updateData.isFeatured;
+      if (updateData.isFeaturedInHero !== undefined) mappedData.isFeaturedInHero = updateData.isFeaturedInHero;
       if (updateData.rating !== undefined) mappedData.rating = updateData.rating;
       if (updateData.reviewCount !== undefined) mappedData.reviewCount = updateData.reviewCount;
 

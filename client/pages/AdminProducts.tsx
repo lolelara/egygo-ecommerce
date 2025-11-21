@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
@@ -77,6 +78,8 @@ const ProductForm = ({
     description: product?.description || "",
     price: product?.price || 0,
     originalPrice: product?.originalPrice || 0,
+    isFeatured: product?.isFeatured || false,
+    isFeaturedInHero: product?.isFeaturedInHero || false,
     basePrice: (product as any)?.basePrice || product?.price || 0,
     minCommissionPrice: (product as any)?.minCommissionPrice || product?.price || 0,
     categoryId: product?.category || "", // Keep for backward compatibility
@@ -296,6 +299,50 @@ const ProductForm = ({
             step="0.01"
           />
           <p className="text-xs text-muted-foreground">السعر قبل الخصم (اختياري)</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4 border p-4 rounded-lg bg-muted/20">
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <Checkbox
+            id="isFeatured"
+            checked={formData.isFeatured}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({ ...prev, isFeatured: checked as boolean }))
+            }
+          />
+          <div className="grid gap-1.5 leading-none">
+            <Label
+              htmlFor="isFeatured"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              منتج مميز (Featured)
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              سيظهر هذا المنتج في قسم "منتجات مميزة" في الصفحة الرئيسية
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2 space-x-reverse">
+          <Checkbox
+            id="isFeaturedInHero"
+            checked={formData.isFeaturedInHero}
+            onCheckedChange={(checked) =>
+              setFormData((prev) => ({ ...prev, isFeaturedInHero: checked as boolean }))
+            }
+          />
+          <div className="grid gap-1.5 leading-none">
+            <Label
+              htmlFor="isFeaturedInHero"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              منتج Hero (الواجهة الرئيسية)
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              سيظهر هذا المنتج في القسم العلوي الكبير (Hero Section) في الصفحة الرئيسية
+            </p>
+          </div>
         </div>
       </div>
 
@@ -1003,7 +1050,11 @@ export default function AdminProducts() {
                             className="w-10 h-10 rounded object-cover"
                           />
                           <div>
-                            <div className="font-medium">{product.name}</div>
+                            <div className="font-medium flex items-center gap-2 flex-wrap">
+                              {product.name}
+                              {product.isFeatured && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-yellow-100 text-yellow-800 border-yellow-200">مميز</Badge>}
+                              {product.isFeaturedInHero && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-800 border-purple-200">Hero</Badge>}
+                            </div>
                             <div className="text-sm text-muted-foreground truncate max-w-[200px]">
                               {product.description}
                             </div>

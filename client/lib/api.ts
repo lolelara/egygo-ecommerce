@@ -13,6 +13,7 @@ import {
 declare module "@shared/prisma-types" {
   interface ProductFilters {
     isFeaturedInHero?: boolean;
+    isFeatured?: boolean;
   }
 }
 // تمت إزالة بيانات mock - يجب توفر Appwrite
@@ -73,6 +74,9 @@ export const productsApi = {
       if (filters?.isFeaturedInHero) {
         queries.push(Query.equal("isFeaturedInHero", true));
       }
+      if (filters?.isFeatured) {
+        queries.push(Query.equal("isFeatured", true));
+      }
 
       // Add pagination
       const limit = filters?.limit || 20;
@@ -82,7 +86,12 @@ export const productsApi = {
       queries.push(Query.offset(offset));
 
       // Add sorting
-      queries.push(Query.orderDesc("$createdAt"));
+      if (filters?.sortBy === "featured") {
+        queries.push(Query.orderDesc("isFeatured"));
+        queries.push(Query.orderDesc("$createdAt"));
+      } else {
+        queries.push(Query.orderDesc("$createdAt"));
+      }
 
       const response = await databases.listDocuments(
         DATABASE_ID,
@@ -122,6 +131,8 @@ export const productsApi = {
         categoryId: doc.categoryId, // Keep for backward compatibility
         categoryIds: doc.categoryIds || (doc.categoryId ? [doc.categoryId] : []),
         category: doc.category,
+        isFeatured: doc.isFeatured || false,
+        isFeaturedInHero: doc.isFeaturedInHero || false,
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
       }));
@@ -201,6 +212,8 @@ export const productsApi = {
         categoryId: doc.categoryId,
         categoryIds: doc.categoryIds || (doc.categoryId ? [doc.categoryId] : []),
         category,
+        isFeatured: doc.isFeatured || false,
+        isFeaturedInHero: doc.isFeaturedInHero || false,
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
       };
