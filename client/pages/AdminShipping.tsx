@@ -9,13 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { 
-  Truck, 
-  MapPin, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  Package, 
+import {
+  Truck,
+  MapPin,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Package,
   Search,
   Filter,
   Download,
@@ -27,7 +27,7 @@ import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { databases, appwriteConfig } from "@/lib/appwrite";
+import { databases, appwriteConfig, ID } from "@/lib/appwrite";
 import { Query } from "appwrite";
 
 interface ShippingMethod {
@@ -105,14 +105,14 @@ export default function AdminShipping() {
   const [isMethodDialogOpen, setIsMethodDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const ordersPerPage = 20;
-  
+
   const { toast } = useToast();
 
   // Form state for shipping method
@@ -134,7 +134,7 @@ export default function AdminShipping() {
     // Recalculate stats whenever allOrders change
     loadStats();
   }, [allOrders]);
-  
+
   useEffect(() => {
     // Reload orders when filter changes
     loadOrders(1);
@@ -145,19 +145,19 @@ export default function AdminShipping() {
     try {
       // Calculate offset for pagination
       const offset = (page - 1) * ordersPerPage;
-      
+
       // Build queries based on filters
       const queries: any[] = [
         Query.orderDesc('$createdAt'),
         Query.limit(ordersPerPage),
         Query.offset(offset)
       ];
-      
+
       // Add status filter if not "all"
       if (statusFilter !== 'all') {
         queries.push(Query.equal('status', statusFilter));
       }
-      
+
       // Load real orders from Appwrite with pagination
       const response = await databases.listDocuments(
         appwriteConfig.databaseId,
@@ -193,7 +193,7 @@ export default function AdminShipping() {
       setTotalOrders(response.total);
       setTotalPages(Math.ceil(response.total / ordersPerPage));
       setCurrentPage(page);
-      
+
       // Load all orders for stats calculation (without pagination)
       if (page === 1) {
         const allOrdersResponse = await databases.listDocuments(
@@ -201,7 +201,7 @@ export default function AdminShipping() {
           appwriteConfig.collections.orders,
           [Query.orderDesc('$createdAt'), Query.limit(1000)]
         );
-        
+
         const allOrdersData: Order[] = allOrdersResponse.documents.map((doc: any) => ({
           id: doc.$id,
           orderNumber: doc.orderNumber || `EGY-${doc.$id.slice(0, 8)}`,
@@ -225,7 +225,7 @@ export default function AdminShipping() {
           createdAt: new Date(doc.$createdAt),
           updatedAt: new Date(doc.$updatedAt)
         }));
-        
+
         setAllOrders(allOrdersData);
       }
 
@@ -249,40 +249,25 @@ export default function AdminShipping() {
 
   const loadShippingMethods = async () => {
     try {
-      // For now, use default shipping methods
-      // You can create a shipping_methods collection later
-      const defaultMethods: ShippingMethod[] = [
-        {
-          id: '1',
-          name: 'الشحن السريع',
-          description: 'توصيل خلال 24 ساعة',
-          cost: 100,
-          estimatedDays: 1,
-          isActive: true,
-          supportedRegions: ['القاهرة', 'الجيزة']
-        },
-        {
-          id: '2',
-          name: 'الشحن العادي',
-          description: 'توصيل خلال 3-5 أيام',
-          cost: 50,
-          estimatedDays: 3,
-          isActive: true,
-          supportedRegions: ['جميع المحافظات']
-        },
-        {
-          id: '3',
-          name: 'الشحن الاقتصادي',
-          description: 'توصيل خلال 7-10 أيام',
-          cost: 25,
-          estimatedDays: 7,
-          isActive: true,
-          supportedRegions: ['جميع المحافظات']
-        }
-      ];
-      setShippingMethods(defaultMethods);
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.shipping_methods
+      );
+
+      const methods: ShippingMethod[] = response.documents.map((doc: any) => ({
+        id: doc.$id,
+        name: doc.name,
+        description: doc.description,
+        cost: doc.cost,
+        estimatedDays: doc.estimatedDays,
+        isActive: doc.isActive,
+        supportedRegions: doc.supportedRegions || []
+      }));
+
+      setShippingMethods(methods);
     } catch (error) {
       console.error('Failed to load shipping methods:', error);
+      // Don't show error toast on initial load if collection doesn't exist yet
     }
   };
 
@@ -290,22 +275,22 @@ export default function AdminShipping() {
     try {
       // Use allOrders for stats calculation (not paginated)
       const ordersForStats = allOrders.length > 0 ? allOrders : orders;
-      
+
       // Calculate stats from real orders
       const totalOrdersCount = ordersForStats.length;
       const pendingShipment = ordersForStats.filter(o => o.status === 'pending' || o.status === 'processing').length;
       const inTransit = ordersForStats.filter(o => o.status === 'shipped').length;
       const delivered = ordersForStats.filter(o => o.status === 'delivered').length;
-      
+
       // Calculate average delivery time for delivered orders
       const deliveredOrders = ordersForStats.filter(o => o.status === 'delivered' && o.actualDelivery && o.createdAt);
       const avgDeliveryTime = deliveredOrders.length > 0
         ? deliveredOrders.reduce((sum, order) => {
-            const days = Math.ceil((order.actualDelivery!.getTime() - order.createdAt.getTime()) / (1000 * 60 * 60 * 24));
-            return sum + days;
-          }, 0) / deliveredOrders.length
+          const days = Math.ceil((order.actualDelivery!.getTime() - order.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+          return sum + days;
+        }, 0) / deliveredOrders.length
         : 0;
-      
+
       // Calculate on-time delivery rate
       const onTimeOrders = deliveredOrders.filter(order => {
         if (!order.estimatedDelivery || !order.actualDelivery) return false;
@@ -328,8 +313,18 @@ export default function AdminShipping() {
 
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.orders,
+        orderId,
+        {
+          status: newStatus,
+          updatedAt: new Date().toISOString()
+        }
+      );
+
+      setOrders(prev => prev.map(order =>
+        order.id === orderId
           ? { ...order, status: newStatus as any, updatedAt: new Date() }
           : order
       ));
@@ -347,35 +342,25 @@ export default function AdminShipping() {
     }
   };
 
-  const handleAddTrackingNumber = async (orderId: string, trackingNumber: string) => {
-    try {
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, trackingNumber, status: 'shipped' as any, updatedAt: new Date() }
-          : order
-      ));
-
-      toast({
-        title: "نجح",
-        description: "تم إضافة رقم التتبع بنجاح"
-      });
-    } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل في إضافة رقم التتبع",
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleCreateShippingMethod = async () => {
     try {
-      const newMethod: ShippingMethod = {
-        id: Date.now().toString(),
-        ...methodForm
+      const newMethodData = {
+        name: methodForm.name,
+        description: methodForm.description,
+        cost: methodForm.cost,
+        estimatedDays: methodForm.estimatedDays,
+        supportedRegions: methodForm.supportedRegions,
+        isActive: methodForm.isActive
       };
 
-      setShippingMethods(prev => [...prev, newMethod]);
+      await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.shipping_methods,
+        ID.unique(),
+        newMethodData
+      );
+
+      loadShippingMethods();
       setMethodForm({
         name: '',
         description: '',
@@ -390,10 +375,34 @@ export default function AdminShipping() {
         title: "نجح",
         description: "تم إنشاء طريقة الشحن بنجاح"
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في إنشاء طريقة الشحن",
+        description: error.message || "فشل في إنشاء طريقة الشحن",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteShippingMethod = async (methodId: string) => {
+    if (!confirm('هل أنت متأكد من حذف طريقة الشحن هذه؟')) return;
+
+    try {
+      await databases.deleteDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.shipping_methods,
+        methodId
+      );
+
+      loadShippingMethods();
+      toast({
+        title: "نجح",
+        description: "تم حذف طريقة الشحن بنجاح"
+      });
+    } catch (error: any) {
+      toast({
+        title: "خطأ",
+        description: error.message || "فشل في حذف طريقة الشحن",
         variant: "destructive"
       });
     }
@@ -425,8 +434,8 @@ export default function AdminShipping() {
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase());
+      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerEmail.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -647,78 +656,78 @@ export default function AdminShipping() {
                 </TableRow>
               ) : (
                 filteredOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>
-                    <div className="font-medium">{order.orderNumber}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{order.customerName}</div>
-                      <div className="text-sm text-muted-foreground">{order.customerEmail}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <div>{order.shippingAddress.street}</div>
-                      <div>{order.shippingAddress.city}, {order.shippingAddress.state}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-medium">{order.total.toLocaleString()} جنيه</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(order.status)}
-                      {getStatusBadge(order.status)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {order.trackingNumber ? (
-                      <code className="bg-muted px-2 py-1 rounded text-sm">
-                        {order.trackingNumber}
-                      </code>
-                    ) : (
-                      <span className="text-muted-foreground">غير متوفر</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {format(order.createdAt, 'dd/MM/yyyy', { locale: ar })}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedOrder(order);
-                          setIsTrackingDialogOpen(true);
-                        }}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Select
-                        value={order.status}
-                        onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">في الانتظار</SelectItem>
-                          <SelectItem value="processing">قيد المعالجة</SelectItem>
-                          <SelectItem value="shipped">تم الشحن</SelectItem>
-                          <SelectItem value="delivered">تم التسليم</SelectItem>
-                          <SelectItem value="cancelled">ملغي</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                  <TableRow key={order.id}>
+                    <TableCell>
+                      <div className="font-medium">{order.orderNumber}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{order.customerName}</div>
+                        <div className="text-sm text-muted-foreground">{order.customerEmail}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <div>{order.shippingAddress.street}</div>
+                        <div>{order.shippingAddress.city}, {order.shippingAddress.state}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{order.total.toLocaleString()} جنيه</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        {getStatusIcon(order.status)}
+                        {getStatusBadge(order.status)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {order.trackingNumber ? (
+                        <code className="bg-muted px-2 py-1 rounded text-sm">
+                          {order.trackingNumber}
+                        </code>
+                      ) : (
+                        <span className="text-muted-foreground">غير متوفر</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {format(order.createdAt, 'dd/MM/yyyy', { locale: ar })}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setIsTrackingDialogOpen(true);
+                          }}
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Select
+                          value={order.status}
+                          onValueChange={(value) => handleUpdateOrderStatus(order.id, value)}
+                        >
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">في الانتظار</SelectItem>
+                            <SelectItem value="processing">قيد المعالجة</SelectItem>
+                            <SelectItem value="shipped">تم الشحن</SelectItem>
+                            <SelectItem value="delivered">تم التسليم</SelectItem>
+                            <SelectItem value="cancelled">ملغي</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
-          
+
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4 pt-4 border-t">
@@ -734,7 +743,7 @@ export default function AdminShipping() {
                 >
                   السابق
                 </Button>
-                
+
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum;
@@ -747,7 +756,7 @@ export default function AdminShipping() {
                     } else {
                       pageNum = currentPage - 2 + i;
                     }
-                    
+
                     return (
                       <Button
                         key={pageNum}
@@ -762,7 +771,7 @@ export default function AdminShipping() {
                     );
                   })}
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -800,12 +809,14 @@ export default function AdminShipping() {
                       <span className="text-sm">الوقت المتوقع:</span>
                       <span className="font-medium">{method.estimatedDays} أيام</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">الحالة:</span>
-                      <Badge variant={method.isActive ? 'default' : 'secondary'}>
-                        {method.isActive ? 'نشط' : 'غير نشط'}
-                      </Badge>
-                    </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="w-full mt-4"
+                      onClick={() => handleDeleteShippingMethod(method.id)}
+                    >
+                      حذف
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

@@ -32,15 +32,22 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
+  // Placeholder for getImageUrl if not imported.
+  // In a real application, this function would be properly defined or imported.
+  const getImageUrl = (image: any) => {
+    // Assuming image is an object with a 'url' property or similar
+    // If image is already a string, it would just return image
+    return typeof image === 'string' ? image : (image?.url || '');
+  };
+
   const handleAddToCart = () => {
     addItem({
-      productId: product.id,
+      productId: product.$id,
       name: product.name,
       price: product.price,
-      originalPrice: product.originalPrice,
-      image: images[0] || "",
-      quantity,
-      stockQuantity: product.stockQuantity || 999,
+      image: getImageUrl(images[0]),
+      quantity: quantity,
+      stockQuantity: product.stockQuantity || 100,
       inStock: product.inStock ?? true,
     });
 
@@ -78,11 +85,10 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${
-                      selectedImage === index
-                        ? "border-primary"
-                        : "border-transparent hover:border-muted-foreground"
-                    }`}
+                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index
+                      ? "border-primary"
+                      : "border-transparent hover:border-muted-foreground"
+                      }`}
                   >
                     <img
                       src={image}
@@ -112,11 +118,10 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${
-                        i < Math.floor(product.rating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
-                      }`}
+                      className={`h-4 w-4 ${i < Math.floor(product.rating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
+                        }`}
                     />
                   ))}
                 </div>

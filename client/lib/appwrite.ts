@@ -36,7 +36,10 @@ export const appwriteConfig = {
     affiliate_links: 'affiliate_links',  // Collection for affiliate product links
     banners: 'banners',  // Collection for rotating banners
     bannerSettings: 'bannerSettings',  // Collection for banner settings
-    openai_keys: 'openai_keys' // Collection for OpenAI API keys
+    openai_keys: 'openai_keys', // Collection for OpenAI API keys
+    coupons: 'coupons',
+    shipping_methods: 'shipping_methods',
+    site_settings: 'site_settings'
   },
   buckets: {
     banners: 'banners'  // Storage bucket for banner images

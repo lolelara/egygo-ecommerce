@@ -169,15 +169,16 @@ export default function Products() {
 
   // Handlers
   const handleAddToCart = (product: any) => {
-    addItem({
-      productId: product.id,
+    const cartItem = {
+      productId: product.$id,
       name: product.name,
       price: product.price,
-      image: product.images?.[0] || product.image,
+      image: getImageUrl(product.images?.[0]),
       quantity: 1,
-      stockQuantity: product.stock || 100, // Fallback if stock not available
+      stockQuantity: product.stockQuantity || 100,
       inStock: product.inStock ?? true,
-    });
+    };
+    addItem(cartItem);
   };
 
   const handleToggleWishlist = async (productId: string) => {

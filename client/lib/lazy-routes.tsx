@@ -38,6 +38,8 @@ export { default as Login } from '@/pages/Login';
 export { default as Register } from '@/pages/Register';
 export const Products = lazyLoad(() => import('@/pages/Products'));
 export const ProductDetail = lazyLoad(() => import('@/pages/ProductDetail'));
+export const Search = lazyLoad(() => import('@/pages/Search'));
+export const MobileMenu = lazyLoad(() => import('@/pages/MobileMenu'));
 
 // ============================================
 // CUSTOMER PAGES (Medium Priority - Lazy)
@@ -111,19 +113,6 @@ export const AdminSettingsPage = lazyLoad(() => import('@/pages/AdminSettingsPag
 export const AdminCouponsManager = lazyLoad(() => import('@/pages/AdminCouponsManager'));
 export const AdminOffersManager = lazyLoad(() => import('@/pages/AdminOffersManager'));
 export const AdminShipping = lazyLoad(() => import('@/pages/AdminShipping'));
-export const AdminAdvancedSettings = lazyLoad(() => import('@/pages/AdminAdvancedSettings'));
-export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
-export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'));
-export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
-export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
-export const ShippingPage = lazyLoad(() => import('@/pages/ShippingPage'));
-export const MarketerTools = lazyLoad(() => import('@/pages/admin/MarketerTools'));
-
-
-// CMS & Notifications
-export const AdminPages = lazyLoad(() => import('@/pages/AdminPages'));
-export const AdminPageEditor = lazyLoad(() => import('@/pages/AdminPageEditor'));
-export const PageViewer = lazyLoad(() => import('@/pages/PageViewer'));
 
 // New Admin Pages - Deals, Advertising, Financial
 export const AdminDealsManager = lazyLoad(() => import('@/pages/AdminDealsManager'));
@@ -135,7 +124,24 @@ export const BannersManagement = lazyLoad(() => import('@/pages/admin/BannersMan
 export const AdminWhatsAppManager = lazyLoad(() => import('@/pages/AdminWhatsAppManager'));
 
 // Advertising Pages
+// Advertising Pages
 export const AdPaymentPage = lazyLoad(() => import('@/pages/AdPaymentPage'));
+
+// CMS & Notifications
+export const AdminPages = lazyLoad(() => import('@/pages/AdminPages'));
+export const AdminPageEditor = lazyLoad(() => import('@/pages/AdminPageEditor'));
+export const PageViewer = lazyLoad(() => import('@/pages/PageViewer'));
+export const AdminNotifications = lazyLoad(() => import('@/pages/AdminNotifications'));
+
+// Admin Advanced & AI
+export const AdminAdvancedSettings = lazyLoad(() => import('@/pages/AdminAdvancedSettings'));
+export const AdminAIDashboard = lazyLoad(() => import('@/pages/AdminAIDashboard'));
+export const ProductAIDemo = lazyLoad(() => import('@/pages/ProductAIDemo'));
+export const MarketerTools = lazyLoad(() => import('@/pages/admin/MarketerTools'));
+export const TestAI = lazyLoad(() => import('@/pages/TestAI'));
+
+// Other
+export const ShippingPage = lazyLoad(() => import('@/pages/ShippingPage'));
 
 // STATIC/INFO PAGES (Low Priority - Lazy)
 // ============================================

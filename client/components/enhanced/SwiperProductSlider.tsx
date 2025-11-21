@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
 import { useNavigate } from 'react-router-dom';
+import { getImageUrl } from "@/lib/storage";
 
 // Import Swiper styles
 import 'swiper/css';
@@ -20,6 +21,7 @@ import 'swiper/css/free-mode';
 
 interface Product {
   id: string;
+  $id?: string;
   name: string;
   price: number;
   originalPrice?: number;
@@ -30,6 +32,8 @@ interface Product {
   discount?: number;
   badge?: string;
   description?: string;
+  stockQuantity?: number;
+  inStock?: boolean;
 }
 
 interface SwiperProductSliderProps {
@@ -92,7 +96,7 @@ export default function SwiperProductSlider({
             slideShadows: true
           }
         } as any;
-      
+
       case 'cards':
         return {
           ...baseConfig,
@@ -102,7 +106,7 @@ export default function SwiperProductSlider({
             slideShadows: true
           }
         };
-      
+
       case 'thumbs':
         return {
           ...baseConfig,
@@ -110,7 +114,7 @@ export default function SwiperProductSlider({
             swiper: thumbsSwiper.current
           }
         };
-      
+
       default:
         return baseConfig;
     }
@@ -119,16 +123,16 @@ export default function SwiperProductSlider({
   const handleAddToCart = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     try {
       addItem({
-        productId: product.id,
+        productId: product.$id || product.id,
         name: product.name,
         price: product.price,
-        image: product.image,
+        image: getImageUrl(product.images?.[0]) || getImageUrl(product.image),
         quantity: 1,
-        stockQuantity: 100, // Default stock
-        inStock: true
+        stockQuantity: product.stockQuantity || 100,
+        inStock: product.inStock ?? true
       });
       toast.success(`تمت إضافة ${product.name} إلى السلة`);
     } catch (error) {
@@ -140,10 +144,10 @@ export default function SwiperProductSlider({
   const handleAddToWishlist = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     try {
       const productIsFavorite = isFavorite(product.id);
-      
+
       if (productIsFavorite) {
         removeFavorite(product.id);
         toast.success(`تمت إزالة ${product.name} من المفضلة`);
@@ -193,8 +197,8 @@ export default function SwiperProductSlider({
           >
             {products[0].images.map((image, index) => (
               <SwiperSlide key={index}>
-                <img 
-                  src={image} 
+                <img
+                  src={image}
                   alt={`Thumb ${index}`}
                   className="w-full h-full object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
                 />
@@ -215,7 +219,7 @@ export default function SwiperProductSlider({
                   {product.badge}
                 </Badge>
               )}
-              
+
               {/* Discount Badge */}
               {product.discount && (
                 <Badge variant="destructive" className="absolute top-2 left-2 z-10">
@@ -225,12 +229,12 @@ export default function SwiperProductSlider({
 
               {/* Image Container */}
               <div className="relative h-64 overflow-hidden">
-                <img 
-                  src={product.image} 
+                <img
+                  src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                
+
                 {/* Overlay Actions */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
                   <Button
@@ -269,7 +273,7 @@ export default function SwiperProductSlider({
                 <div className="flex items-center gap-1 mb-2">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <Star 
+                      <Star
                         key={i}
                         className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
                       />

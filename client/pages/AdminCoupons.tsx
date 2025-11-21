@@ -15,6 +15,8 @@ import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { databases, appwriteConfig, ID } from "@/lib/appwrite";
+import { Query } from "appwrite";
 
 interface Coupon {
   id: string;
@@ -81,72 +83,77 @@ export default function AdminCoupons() {
 
   const loadCoupons = async () => {
     try {
-      // Mock data - replace with actual API call
-      const mockCoupons: Coupon[] = [
-        {
-          id: '1',
-          code: 'WELCOME10',
-          type: 'percentage',
-          value: 10,
-          usageLimit: 100,
-          usageCount: 45,
-          expiresAt: new Date('2024-12-31'),
-          isActive: true,
-          createdAt: new Date('2024-01-01'),
-          description: 'خصم 10% للعملاء الجدد',
-          minOrderAmount: 100
-        },
-        {
-          id: '2',
-          code: 'SAVE50',
-          type: 'fixed',
-          value: 50,
-          usageLimit: 50,
-          usageCount: 23,
-          expiresAt: new Date('2024-11-30'),
-          isActive: true,
-          createdAt: new Date('2024-02-01'),
-          description: 'خصم 50 جنيه على الطلبات',
-          minOrderAmount: 200
-        },
-        {
-          id: '3',
-          code: 'SUMMER20',
-          type: 'percentage',
-          value: 20,
-          usageLimit: 200,
-          usageCount: 156,
-          expiresAt: new Date('2024-08-31'),
-          isActive: false,
-          createdAt: new Date('2024-06-01'),
-          description: 'عرض الصيف - خصم 20%'
-        }
-      ];
-      setCoupons(mockCoupons);
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.coupons,
+        [Query.orderDesc('$createdAt')]
+      );
+
+      const mappedCoupons: Coupon[] = response.documents.map((doc: any) => ({
+        id: doc.$id,
+        code: doc.code,
+        type: doc.type,
+        value: doc.value,
+        usageLimit: doc.usageLimit,
+        usageCount: doc.usageCount || 0,
+        expiresAt: doc.expiresAt ? new Date(doc.expiresAt) : undefined,
+        isActive: doc.isActive,
+        createdAt: new Date(doc.$createdAt),
+        description: doc.description,
+        minOrderAmount: doc.minOrderAmount,
+        maxDiscountAmount: doc.maxDiscountAmount,
+        applicableProducts: doc.applicableProducts,
+        applicableCategories: doc.applicableCategories
+      }));
+
+      setCoupons(mappedCoupons);
     } catch (error) {
-      toast({
-        title: "خطأ",
-        description: "فشل في تحميل الكوبونات",
-        variant: "destructive"
-      });
+      console.error('Error loading coupons:', error);
+      // Don't show error toast on initial load if collection doesn't exist yet
     }
   };
 
   const loadStats = async () => {
+    // In a real scenario with many coupons, this should be a server-side aggregation
+    // For now, we calculate from the loaded coupons or fetch all if needed
+    // Since we load all coupons above (default limit 25, might need pagination), 
+    // we can calculate stats from the state or a separate query.
+    // For simplicity and immediate feedback, we'll calculate from the fetched coupons in loadCoupons
+    // But here we can fetch specific stats if we had a stats collection.
+    // Let's just rely on the coupons state for now, or fetch all for stats.
+
     try {
-      // Mock stats - replace with actual API call
-      const mockStats: CouponStats = {
-        totalCoupons: 15,
-        activeCoupons: 8,
-        totalUsage: 1247,
-        totalSavings: 45680,
-        topCoupons: [
-          { code: 'SUMMER20', usageCount: 156, totalSavings: 12500 },
-          { code: 'WELCOME10', usageCount: 145, totalSavings: 8900 },
-          { code: 'SAVE50', usageCount: 89, totalSavings: 4450 }
-        ]
-      };
-      setStats(mockStats);
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.coupons,
+        [Query.limit(1000)] // Fetch more for stats
+      );
+
+      const allCoupons = response.documents;
+      const active = allCoupons.filter((c: any) => c.isActive && (!c.expiresAt || new Date(c.expiresAt) > new Date()));
+      const totalUsage = allCoupons.reduce((sum: number, c: any) => sum + (c.usageCount || 0), 0);
+
+      // Total savings is harder to calculate without order history, 
+      // but we can estimate or store it in the coupon document.
+      // Assuming we store 'totalSavings' in the coupon document:
+      const totalSavings = allCoupons.reduce((sum: number, c: any) => sum + (c.totalSavings || 0), 0);
+
+      const topCoupons = allCoupons
+        .sort((a: any, b: any) => (b.usageCount || 0) - (a.usageCount || 0))
+        .slice(0, 3)
+        .map((c: any) => ({
+          code: c.code,
+          usageCount: c.usageCount || 0,
+          totalSavings: c.totalSavings || 0
+        }));
+
+      setStats({
+        totalCoupons: allCoupons.length,
+        activeCoupons: active.length,
+        totalUsage,
+        totalSavings,
+        topCoupons
+      });
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
@@ -164,25 +171,29 @@ export default function AdminCoupons() {
         return;
       }
 
-      // Create coupon object
-      const newCoupon: Coupon = {
-        id: Date.now().toString(),
+      const couponData = {
         code: formData.code.toUpperCase(),
         type: formData.type,
         value: formData.value,
-        usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : undefined,
+        usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : null,
         usageCount: 0,
-        expiresAt: selectedDate,
+        expiresAt: selectedDate ? selectedDate.toISOString() : null,
         isActive: formData.isActive,
-        createdAt: new Date(),
         description: formData.description,
-        minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : undefined,
-        maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : undefined
+        minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : null,
+        maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : null
       };
 
-      // Add to coupons list
-      setCoupons(prev => [newCoupon, ...prev]);
-      
+      await databases.createDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.coupons,
+        ID.unique(),
+        couponData
+      );
+
+      loadCoupons();
+      loadStats();
+
       // Reset form
       setFormData({
         code: '',
@@ -203,10 +214,10 @@ export default function AdminCoupons() {
         description: "تم إنشاء الكوبون بنجاح"
       });
 
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في إنشاء الكوبون",
+        description: error.message || "فشل في إنشاء الكوبون",
         variant: "destructive"
       });
     }
@@ -233,20 +244,27 @@ export default function AdminCoupons() {
     if (!editingCoupon) return;
 
     try {
-      const updatedCoupon: Coupon = {
-        ...editingCoupon,
+      const updatedData = {
         code: formData.code.toUpperCase(),
         type: formData.type,
         value: formData.value,
-        usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : undefined,
-        expiresAt: selectedDate,
+        usageLimit: formData.usageLimit ? parseInt(formData.usageLimit) : null,
+        expiresAt: selectedDate ? selectedDate.toISOString() : null,
         isActive: formData.isActive,
         description: formData.description,
-        minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : undefined,
-        maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : undefined
+        minOrderAmount: formData.minOrderAmount ? parseFloat(formData.minOrderAmount) : null,
+        maxDiscountAmount: formData.maxDiscountAmount ? parseFloat(formData.maxDiscountAmount) : null
       };
 
-      setCoupons(prev => prev.map(c => c.id === editingCoupon.id ? updatedCoupon : c));
+      await databases.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.coupons,
+        editingCoupon.id,
+        updatedData
+      );
+
+      loadCoupons();
+      loadStats();
       setIsEditDialogOpen(false);
       setEditingCoupon(null);
 
@@ -255,10 +273,10 @@ export default function AdminCoupons() {
         description: "تم تحديث الكوبون بنجاح"
       });
 
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في تحديث الكوبون",
+        description: error.message || "فشل في تحديث الكوبون",
         variant: "destructive"
       });
     }
@@ -266,15 +284,25 @@ export default function AdminCoupons() {
 
   const handleDeleteCoupon = async (couponId: string) => {
     try {
-      setCoupons(prev => prev.filter(c => c.id !== couponId));
-      toast({
-        title: "نجح",
-        description: "تم حذف الكوبون بنجاح"
-      });
-    } catch (error) {
+      if (confirm('هل أنت متأكد من حذف هذا الكوبون؟')) {
+        await databases.deleteDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.coupons,
+          couponId
+        );
+
+        loadCoupons();
+        loadStats();
+
+        toast({
+          title: "نجح",
+          description: "تم حذف الكوبون بنجاح"
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "خطأ",
-        description: "فشل في حذف الكوبون",
+        description: error.message || "فشل في حذف الكوبون",
         variant: "destructive"
       });
     }
@@ -326,7 +354,7 @@ export default function AdminCoupons() {
                 </div>
                 <div>
                   <Label htmlFor="type">نوع الخصم</Label>
-                  <Select value={formData.type} onValueChange={(value: 'percentage' | 'fixed') => 
+                  <Select value={formData.type} onValueChange={(value: 'percentage' | 'fixed') =>
                     setFormData(prev => ({ ...prev, type: value }))}>
                     <SelectTrigger>
                       <SelectValue />
@@ -579,6 +607,113 @@ export default function AdminCoupons() {
           </DialogHeader>
           <div className="space-y-4">
             {/* Same form fields as create dialog */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-code">كود الكوبون</Label>
+                <Input
+                  id="edit-code"
+                  value={formData.code}
+                  onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
+                  placeholder="مثال: WELCOME10"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-type">نوع الخصم</Label>
+                <Select value={formData.type} onValueChange={(value: 'percentage' | 'fixed') =>
+                  setFormData(prev => ({ ...prev, type: value }))}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="percentage">نسبة مئوية</SelectItem>
+                    <SelectItem value="fixed">مبلغ ثابت</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-value">قيمة الخصم</Label>
+                <Input
+                  id="edit-value"
+                  type="number"
+                  value={formData.value}
+                  onChange={(e) => setFormData(prev => ({ ...prev, value: parseFloat(e.target.value) || 0 }))}
+                  placeholder={formData.type === 'percentage' ? '10' : '50'}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-usageLimit">حد الاستخدام</Label>
+                <Input
+                  id="edit-usageLimit"
+                  type="number"
+                  value={formData.usageLimit}
+                  onChange={(e) => setFormData(prev => ({ ...prev, usageLimit: e.target.value }))}
+                  placeholder="100"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label>تاريخ الانتهاء</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !selectedDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, "PPP", { locale: ar }) : "اختر التاريخ"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-description">الوصف</Label>
+              <Input
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="وصف الكوبون"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="edit-minOrderAmount">الحد الأدنى للطلب</Label>
+                <Input
+                  id="edit-minOrderAmount"
+                  type="number"
+                  value={formData.minOrderAmount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, minOrderAmount: e.target.value }))}
+                  placeholder="100"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-maxDiscountAmount">الحد الأقصى للخصم</Label>
+                <Input
+                  id="edit-maxDiscountAmount"
+                  type="number"
+                  value={formData.maxDiscountAmount}
+                  onChange={(e) => setFormData(prev => ({ ...prev, maxDiscountAmount: e.target.value }))}
+                  placeholder="200"
+                />
+              </div>
+            </div>
+
             <div className="flex justify-end space-x-2">
               <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 إلغاء

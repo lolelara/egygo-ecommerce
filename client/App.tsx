@@ -132,6 +132,8 @@ const App = () => (
                                 <Route path="/products" element={<LazyRoutes.Products />} />
                                 <Route path="/category/:slug" element={<LazyRoutes.Products />} />
                                 <Route path="/product/:id" element={<LazyRoutes.ProductDetail />} />
+                                <Route path="/search" element={<LazyRoutes.Search />} />
+                                <Route path="/menu" element={<LazyRoutes.MobileMenu />} />
 
                                 {/* Affiliate public pages */}
                                 <Route path="/affiliate" element={<LazyRoutes.Affiliate />} />

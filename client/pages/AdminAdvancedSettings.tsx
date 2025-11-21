@@ -30,6 +30,8 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { AdminOpenAIKey, openAIKeysApi } from "@/lib/admin-api";
 import env from "@/lib/env";
+import { databases, appwriteConfig, ID } from "@/lib/appwrite";
+import { Query } from "appwrite";
 
 interface SiteSettings {
   // Branding
@@ -176,21 +178,93 @@ export default function AdminAdvancedSettings() {
   const loadSettings = async () => {
     try {
       setIsLoading(true);
-      // Mock loading settings - in a real app this would fetch from Appwrite or a backend
-      // For now, we just simulate a delay and use default state
-      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // In the future, fetch from Appwrite 'site_settings' collection
-      // const res = await databases.getDocument(DATABASE_ID, 'site_settings', 'current');
+      const response = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.collections.site_settings,
+        [Query.limit(1)]
+      );
+
+      if (response.documents.length > 0) {
+        const doc = response.documents[0];
+        setSettingsId(doc.$id);
+
+        // Helper to safely parse JSON
+        const safeParse = (val: any, fallback: any) => {
+          if (typeof val === 'string') {
+            try {
+              return JSON.parse(val);
+            } catch (e) {
+              return fallback;
+            }
+          }
+          return val || fallback;
+        };
+
+        setSettings({
+          siteName: doc.siteName || 'إيجي جو',
+          siteDescription: doc.siteDescription || 'منصة التجارة الإلكترونية الرائدة',
+          logo: doc.logo || '',
+          favicon: doc.favicon || '',
+          primaryColor: doc.primaryColor || '#3b82f6',
+          secondaryColor: doc.secondaryColor || '#f59e0b',
+          accentColor: doc.accentColor || '#10b981',
+          contactEmail: doc.contactEmail || 'info@egygo.com',
+          contactPhone: doc.contactPhone || '+201234567890',
+          address: doc.address || 'القاهرة، مصر',
+          socialMedia: safeParse(doc.socialMedia, {}),
+          currency: doc.currency || 'EGP',
+          timezone: doc.timezone || 'Africa/Cairo',
+          language: doc.language || 'ar',
+          taxRate: doc.taxRate || 14,
+          shippingCost: doc.shippingCost || 50,
+          freeShippingThreshold: doc.freeShippingThreshold || 500,
+          features: safeParse(doc.features, {
+            enableReviews: true,
+            enableWishlist: true,
+            enableCompare: true,
+            enableNewsletter: true,
+            enableAffiliate: true,
+            enableMultiCurrency: false,
+            enableGuestCheckout: true,
+          }),
+          security: safeParse(doc.security, {
+            enableTwoFactor: false,
+            enableBruteForceProtection: true,
+            sessionTimeout: 30,
+            passwordMinLength: 8,
+            requireStrongPassword: true,
+          }),
+          notifications: safeParse(doc.notifications, {
+            emailNotifications: true,
+            smsNotifications: false,
+            pushNotifications: true,
+            orderNotifications: true,
+            marketingEmails: false,
+          }),
+          seo: safeParse(doc.seo, {
+            metaTitle: 'إيجي جو - منصة التجارة الإلكترونية',
+            metaDescription: 'تسوق آمن وسريع مع إيجي جو',
+            metaKeywords: 'تسوق، إلكتروني، مصر',
+            googleAnalyticsId: '',
+            facebookPixelId: '',
+            enableSitemap: true,
+          })
+        });
+      }
 
       setHasChanges(false);
-      setIsLoading(false);
     } catch (error: any) {
-      toast({
-        title: "خطأ",
-        description: error?.message || "فشل في تحميل الإعدادات",
-        variant: "destructive"
-      });
+      console.error('Error loading settings:', error);
+      // Don't show error if it's just that the collection is empty/missing on first run
+      if (error.code !== 404) {
+        toast({
+          title: "خطأ",
+          description: "فشل في تحميل الإعدادات",
+          variant: "destructive"
+        });
+      }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -198,24 +272,61 @@ export default function AdminAdvancedSettings() {
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      // Mock saving settings
-      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // In the future, save to Appwrite
-      // await databases.updateDocument(DATABASE_ID, 'site_settings', 'current', settings);
+      const payload = {
+        siteName: settings.siteName,
+        siteDescription: settings.siteDescription,
+        logo: settings.logo,
+        favicon: settings.favicon,
+        primaryColor: settings.primaryColor,
+        secondaryColor: settings.secondaryColor,
+        accentColor: settings.accentColor,
+        contactEmail: settings.contactEmail,
+        contactPhone: settings.contactPhone,
+        address: settings.address,
+        socialMedia: JSON.stringify(settings.socialMedia),
+        currency: settings.currency,
+        timezone: settings.timezone,
+        language: settings.language,
+        taxRate: settings.taxRate,
+        shippingCost: settings.shippingCost,
+        freeShippingThreshold: settings.freeShippingThreshold,
+        features: JSON.stringify(settings.features),
+        security: JSON.stringify(settings.security),
+        notifications: JSON.stringify(settings.notifications),
+        seo: JSON.stringify(settings.seo)
+      };
+
+      if (settingsId) {
+        await databases.updateDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.site_settings,
+          settingsId,
+          payload
+        );
+      } else {
+        const newDoc = await databases.createDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.collections.site_settings,
+          ID.unique(),
+          payload
+        );
+        setSettingsId(newDoc.$id);
+      }
 
       setHasChanges(false);
       toast({
         title: "نجح",
-        description: "تم حفظ الإعدادات بنجاح (محاكاة)"
+        description: "تم حفظ الإعدادات بنجاح"
       });
-      setIsLoading(false);
     } catch (error: any) {
+      console.error('Error saving settings:', error);
       toast({
         title: "خطأ",
-        description: error?.message || "فشل في حفظ الإعدادات",
+        description: error.message || "فشل في حفظ الإعدادات",
         variant: "destructive"
       });
+    } finally {
       setIsLoading(false);
     }
   };
