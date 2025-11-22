@@ -22,7 +22,9 @@ import { Query } from 'appwrite';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { generateAIContent } from '@/lib/ai-helper';
+import { generateAIContent } from '@/lib/ai-helper';
 import { getAdminOpenAIKeys } from '@/lib/admin-api';
+import { getImageUrl } from "@/lib/storage";
 import {
   Dialog,
   DialogContent,
@@ -839,7 +841,7 @@ export default function VendoorProducts() {
                               <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
                                   <img
-                                    src={product.images[0] || 'https://via.placeholder.com/50'}
+                                    src={getImageUrl(product.images[0]) || 'https://via.placeholder.com/50'}
                                     alt={product.name}
                                     className="w-full h-full object-cover"
                                   />

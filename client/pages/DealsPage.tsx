@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import RotatingBanner from "@/components/banners/RotatingBanner";
 import { getBannersByLocation, getBannerSettings } from "@/lib/banners-api";
+import { getImageUrl } from "@/lib/storage";
 
 export default function DealsPage() {
   const { addItem } = useCart();
@@ -206,7 +207,7 @@ export default function DealsPage() {
                     <Link to={`/product/${product.id}`}>
                       <div className="h-48 overflow-hidden bg-muted">
                         <img
-                          src={product.images?.[0]?.url || product.image || '/placeholder.png'}
+                          src={getImageUrl(product.images?.[0] || product.image)}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />

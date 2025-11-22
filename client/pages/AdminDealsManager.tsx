@@ -39,7 +39,9 @@ import { databases, appwriteConfig } from "@/lib/appwrite";
 import { Query, ID } from "appwrite";
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { getImageUrl } from "@/lib/storage";
 
 interface FeaturedDeal {
   $id: string;
@@ -86,7 +88,7 @@ function SortableRow({ deal, onToggle, onRemove }: { deal: FeaturedDeal; onToggl
       <TableCell>
         <div className="flex items-center gap-3">
           <img
-            src={deal.productImage || '/placeholder.png'}
+            src={getImageUrl(deal.productImage)}
             alt={deal.productName}
             className="w-12 h-12 object-cover rounded border"
           />
@@ -154,7 +156,7 @@ export default function AdminDealsManager() {
   const [loading, setLoading] = useState(true);
   const [deals, setDeals] = useState<FeaturedDeal[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
-  
+
   // Add Dialog
   const [addDialog, setAddDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -227,7 +229,7 @@ export default function AdminDealsManager() {
 
         // Update order in database
         updateOrders(newItems);
-        
+
         return newItems;
       });
     }
@@ -318,7 +320,7 @@ export default function AdminDealsManager() {
         { active: !deal.active }
       );
 
-      setDeals(deals.map(d => 
+      setDeals(deals.map(d =>
         d.$id === dealId ? { ...d, active: !d.active } : d
       ));
 
@@ -559,14 +561,13 @@ export default function AdminDealsManager() {
                     return (
                       <div
                         key={product.$id}
-                        className={`p-4 hover:bg-muted cursor-pointer transition-colors ${
-                          selectedProduct?.$id === product.$id ? 'bg-primary/10 border-l-4 border-primary' : ''
-                        }`}
+                        className={`p-4 hover:bg-muted cursor-pointer transition-colors ${selectedProduct?.$id === product.$id ? 'bg-primary/10 border-l-4 border-primary' : ''
+                          }`}
                         onClick={() => setSelectedProduct(product)}
                       >
                         <div className="flex items-center gap-4">
                           <img
-                            src={product.images?.[0]?.url || product.image || '/placeholder.png'}
+                            src={getImageUrl(product.images?.[0] || product.image)}
                             alt={product.name}
                             className="w-16 h-16 object-cover rounded border"
                           />

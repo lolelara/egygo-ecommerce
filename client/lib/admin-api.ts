@@ -1155,15 +1155,21 @@ export const aiContentApi = {
 قم بكتابة وصف احترافي وجذاب لهذا المنتج.`;
 
       // 2. Call API based on provider
-      // 2. Call API based on provider
       if (activeKey.provider === "gemini") {
         try {
           // Import SDK dynamically to avoid build issues if not used
           const { GoogleGenerativeAI } = await import("@google/generative-ai");
           const genAI = new GoogleGenerativeAI(activeKey.key);
 
-          // Try stable model first, then fallback
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          // Try stable model first (gemini-1.5-flash-001)
+          // If that fails, we can try gemini-pro
+          let model;
+          try {
+            model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
+          } catch (e) {
+            console.warn("Failed to get gemini-1.5-flash-001, falling back to gemini-pro");
+            model = genAI.getGenerativeModel({ model: "gemini-pro" });
+          }
 
           const result = await model.generateContent(`${systemPrompt}\n\n${userPrompt}`);
           const response = await result.response;
@@ -1172,6 +1178,23 @@ export const aiContentApi = {
           return text || currentDescription;
         } catch (geminiError: any) {
           console.error("Gemini SDK Error:", geminiError);
+
+          // If the error is 404, it might be the model name. Let's try one last fallback with raw fetch to gemini-pro
+          if (geminiError.message?.includes('404') || geminiError.toString().includes('404')) {
+            try {
+              console.log("Attempting fallback to gemini-pro via fetch...");
+              const fallbackResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${activeKey.key}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }] })
+              });
+              const data = await fallbackResponse.json();
+              return data.candidates?.[0]?.content?.parts?.[0]?.text || currentDescription;
+            } catch (fallbackError) {
+              console.error("Fallback failed:", fallbackError);
+            }
+          }
+
           // Fallback to raw fetch if SDK fails or model issue
           throw new Error(geminiError.message || "فشل في الاتصال بخدمة Gemini");
         }
