@@ -1156,7 +1156,8 @@ export const aiContentApi = {
 
       // 2. Call API based on provider
       if (activeKey.provider === "gemini") {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeKey.key}`, {
+        // Try gemini-1.5-flash-latest, if fails we might need to fallback to gemini-1.0-pro
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${activeKey.key}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

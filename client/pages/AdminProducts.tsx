@@ -75,12 +75,9 @@ import type {
   AdminProductCreate,
   AdminProductUpdate,
 } from "@shared/api";
-import { adminProductsApi, aiContentApi } from "@/lib/admin-api";
-import { productsApi, categoriesApi } from "@/lib/api";
+import { productsApi, categoriesApi, adminProductsApi, adminUsersApi, aiContentApi } from "@/lib/admin-api";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { Sparkles } from "lucide-react";
-import { productsApi, categoriesApi } from "@/lib/api";
-import { useAuth } from "@/contexts/AppwriteAuthContext";
 
 const ProductForm = ({
   product,
