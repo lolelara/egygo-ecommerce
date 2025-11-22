@@ -724,7 +724,8 @@ export const aiContentApi = {
           catch (e) { model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }); }
 
           const result = await model.generateContent(`${systemPrompt}\n\n${userPrompt}`);
-          return (await result.response).text() || currentDescription;
+          const text = (await result.response).text() || currentDescription;
+          return text.substring(0, 2000);
         } catch (geminiError: any) {
           // Fallback
           throw geminiError;
@@ -741,7 +742,8 @@ export const aiContentApi = {
         });
         if (!response.ok) throw new Error(`SambaNova Error: ${response.status}`);
         const data = await response.json();
-        return data.choices?.[0]?.message?.content || currentDescription;
+        const text = data.choices?.[0]?.message?.content || currentDescription;
+        return text.substring(0, 2000);
       } else {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -754,7 +756,8 @@ export const aiContentApi = {
         });
         if (!response.ok) throw new Error(`OpenAI Error: ${response.status}`);
         const data = await response.json();
-        return data.choices?.[0]?.message?.content || currentDescription;
+        const text = data.choices?.[0]?.message?.content || currentDescription;
+        return text.substring(0, 2000);
       }
     } catch (error: any) {
       console.error("AI Improvement Error:", error);
