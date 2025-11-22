@@ -1155,32 +1155,86 @@ export const aiContentApi = {
 قم بكتابة وصف احترافي وجذاب لهذا المنتج.`;
 
       // 2. Call API based on provider
-      headers: {
-        'Content-Type': 'application/json',
-          'Authorization': `Bearer ${activeKey.key}`
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ],
-        temperature: 0.7
-      })
-    });
+      if (activeKey.provider === "gemini") {
+        try {
+          // Import SDK dynamically to avoid build issues if not used
+          const { GoogleGenerativeAI } = await import("@google/generative-ai");
+          const genAI = new GoogleGenerativeAI(activeKey.key);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `OpenAI Error: ${response.status}`);
+          // Try available models based on user's access (2.0-flash seems available)
+          let model;
+          try {
+            model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
+          } catch (e) {
+            console.warn("Failed to get gemini-2.0-flash-001, falling back");
+            try {
+              model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+            } catch (e2) {
+              model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+            }
+          }
+
+          const result = await model.generateContent(`${systemPrompt}\n\n${userPrompt}`);
+          const response = await result.response;
+          const text = response.text();
+
+          return text || currentDescription;
+        } catch (geminiError: any) {
+          console.error("Gemini SDK Error:", geminiError);
+
+          // Fallback to raw fetch if SDK fails
+          if (geminiError.message?.includes('404') || geminiError.toString().includes('404')) {
+            try {
+              console.log("Attempting fallback to gemini-flash-latest via fetch...");
+              const fallbackResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${activeKey.key}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }] })
+              });
+
+              if (!fallbackResponse.ok) throw new Error("Fallback failed");
+
+              const data = await fallbackResponse.json();
+              return data.candidates?.[0]?.content?.parts?.[0]?.text || currentDescription;
+            } catch (fallbackError) {
+              console.error("Fallback failed:", fallbackError);
+            }
+          }
+
+          // Fallback to raw fetch if SDK fails or model issue
+          throw new Error(geminiError.message || "فشل في الاتصال بخدمة Gemini");
+        }
+
+      } else {
+        // OpenAI
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${activeKey.key}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ],
+            temperature: 0.7
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error?.message || `OpenAI Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content || currentDescription;
+      }
+
+    } catch (error: any) {
+      console.error("AI Improvement Error:", error);
+      throw new Error(error.message || "فشل في تحسين الوصف");
     }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || currentDescription;
-  }
-
-} catch (error: any) {
-  console.error("AI Improvement Error:", error);
-  throw new Error(error.message || "فشل في تحسين الوصف");
-}
   }
 };
