@@ -144,6 +144,19 @@ export const UpdateAffiliatePrefs = lazyLoad(() => import('@/pages/UpdateAffilia
 export const VendoorImport = lazyLoad(() => import('@/pages/VendoorImport'));
 export const IntermediaryDashboard = lazyLoad(() => import('@/pages/IntermediaryDashboard'));
 
+// Missing Exports
+export const Merchant = lazyLoad(() => import('@/pages/Merchant'));
+export const AffiliateTools = lazyLoad(() => import('@/pages/AffiliateTools'));
+export const MerchantDashboard = lazyLoad(() => import('@/pages/MerchantDashboard'));
+export const MerchantProducts = lazyLoad(() => import('@/pages/MerchantProducts'));
+export const MerchantProductsStatus = lazyLoad(() => import('@/pages/MerchantProductsStatus'));
+export const MerchantOrders = lazyLoad(() => import('@/pages/MerchantOrders'));
+export const MerchantAnalytics = lazyLoad(() => import('@/pages/MerchantAnalytics'));
+export const MerchantAdvertising = lazyLoad(() => import('@/pages/MerchantAdvertising'));
+export const MerchantFinancialHistory = lazyLoad(() => import('@/pages/MerchantFinancialHistory'));
+export const MerchantSettings = lazyLoad(() => import('@/pages/MerchantSettings'));
+export const MerchantProfile = lazyLoad(() => import('@/pages/MerchantProfile'));
+
 // ============================================
 // ERROR PAGES (Not Lazy - Need immediate load)
 // ============================================
