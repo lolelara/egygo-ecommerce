@@ -31,6 +31,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { analytics } from "@/lib/enhanced-analytics";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { useI18n } from "@/lib/i18n";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { HeroSectionEnhanced } from "@/components/HeroSectionEnhanced";
 import { ProductCarouselModern } from "@/components/ProductCarouselModern";
@@ -44,13 +45,19 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Index() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
 
   // Typewriter effect state
   const [displayedText, setDisplayedText] = useState("");
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const words = ["متفوتش الفرصة", "اعمل دخل بسهولة", "حافظ على فلوسك", "اكسب أكتر"];
+  const words = [
+    t('home.hero.typing.opportunity'),
+    t('home.hero.typing.income'),
+    t('home.hero.typing.save'),
+    t('home.hero.typing.earn')
+  ];
 
   // Typewriter effect
   useEffect(() => {
@@ -219,7 +226,7 @@ export default function Index() {
       <FeaturedMerchantsBar />
 
       {/* How It Works - كيف تعمل المنصة */}
-      <section className="relative bg-gradient-to-b from-muted/30 via-white dark:via-gray-900 to-muted/30 py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-b from-muted/30 via-white dark:via-gray-950 to-muted/30 py-20 overflow-hidden">
         {/* Background decorations */}
         <div className="absolute top-10 start-10 w-72 h-72 bg-red-100/30 dark:bg-red-900/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 end-10 w-96 h-96 bg-blue-100/20 dark:bg-blue-900/20 rounded-full blur-3xl"></div>
@@ -227,19 +234,19 @@ export default function Index() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-20">
             <Badge className="mb-6 bg-gradient-to-r from-red-100 to-blue-100 dark:from-red-900/30 dark:to-blue-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 px-6 py-2 text-base font-bold">
-              ⚙️ كيف تعمل المنصة
+              {t('home.howItWorks.badge')}
             </Badge>
             <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 dark:from-gray-100 dark:via-red-400 dark:to-gray-100 bg-clip-text text-transparent">
-              ابدأ رحلتك في 3 خطوات بسيطة
+              {t('home.howItWorks.title')}
             </h2>
             <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
-              سواء كنت تاجر، مسوق، أو عميل - نحن نسهل عليك البداية
+              {t('home.howItWorks.subtitle')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* للعملاء */}
-            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-700 hover:border-red-200 dark:hover:border-red-700 overflow-hidden">
+            <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-800 hover:border-red-200 dark:hover:border-red-700 overflow-hidden">
               <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-red-100 dark:from-red-900/30 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <CardContent className="p-8 relative z-10">
                 {/* فيديو توضيحي */}
@@ -250,7 +257,7 @@ export default function Index() {
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    <p className="text-white text-sm font-medium">🎬 كيف تتسوق على إيجي جو</p>
+                    <p className="text-white text-sm font-medium">{t('home.howItWorks.customers.video')}</p>
                   </div>
                 </div>
 
@@ -258,28 +265,28 @@ export default function Index() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
                     <ShoppingCart className="h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للعملاء</h3>
+                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.customers.title')}</h3>
                 </div>
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">تصفح المنتجات</h4>
-                      <p className="text-sm text-muted-foreground">اكتشف آلاف المنتجات عالية الجودة</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step1.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step1.desc')}</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">أضف للسلة</h4>
-                      <p className="text-sm text-muted-foreground">اختر ما يعجبك وأضفه لسلة المشتريات</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step2.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step2.desc')}</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">اطلب واستلم</h4>
-                      <p className="text-sm text-muted-foreground">ادفع واستلم طلبك في 2-4 أيام</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step3.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step3.desc')}</p>
                     </div>
                   </div>
                 </div>
@@ -287,12 +294,13 @@ export default function Index() {
             </Card>
 
             {/* للتجار */}
-            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 dark:border-red-800 hover:border-red-300 dark:hover:border-red-600 overflow-visible">
+            <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 dark:border-red-900 hover:border-red-300 dark:hover:border-red-600 overflow-visible">
               <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-red-200 dark:from-red-900/40 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="absolute -top-3 -end-3 z-20">
                 <Badge className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-600 text-white px-4 py-2 font-bold text-sm shadow-xl shadow-red-500/50 dark:shadow-red-400/50 border-2 border-white dark:border-gray-700">
-                  ⭐ الأكثر طلباً
-                </Badge>
+                  <Badge className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-600 text-white px-4 py-2 font-bold text-sm shadow-xl shadow-red-500/50 dark:shadow-red-400/50 border-2 border-white dark:border-gray-700">
+                    {t('home.howItWorks.merchants.badge')}
+                  </Badge>
               </div>
               <CardContent className="p-8 relative z-10">
                 {/* فيديو توضيحي */}
@@ -303,7 +311,7 @@ export default function Index() {
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    <p className="text-white text-sm font-medium">🎬 كيف تبدأ البيع كتاجر</p>
+                    <p className="text-white text-sm font-medium">{t('home.howItWorks.merchants.video')}</p>
                   </div>
                 </div>
 
@@ -311,28 +319,28 @@ export default function Index() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
                     <Sparkles className="h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للتجار</h3>
+                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.merchants.title')}</h3>
                 </div>
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">سجل حساب</h4>
-                      <p className="text-sm text-muted-foreground">انشئ حساب تاجر مجاناً</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step1.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step1.desc')}</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">أضف منتجاتك</h4>
-                      <p className="text-sm text-muted-foreground">ارفع منتجاتك وحدد الأسعار والعمولات</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step2.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step2.desc')}</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">ابدأ البيع</h4>
-                      <p className="text-sm text-muted-foreground">راقب مبيعاتك واستلم أرباحك أسبوعياً</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step3.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step3.desc')}</p>
                     </div>
                   </div>
                 </div>
@@ -340,7 +348,7 @@ export default function Index() {
             </Card>
 
             {/* للمسوقين */}
-            <Card className="group relative bg-white dark:bg-gray-800 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-700 overflow-hidden">
+            <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-700 overflow-hidden">
               <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-green-100 dark:from-green-900/30 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <CardContent className="p-8 relative z-10">
                 {/* فيديو توضيحي */}
@@ -351,7 +359,7 @@ export default function Index() {
                     </div>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    <p className="text-white text-sm font-medium">🎬 كيف تربح كمسوق</p>
+                    <p className="text-white text-sm font-medium">{t('home.howItWorks.affiliates.video')}</p>
                   </div>
                 </div>
 
@@ -359,28 +367,28 @@ export default function Index() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
                     <TrendingUp className="h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">للمسوقين</h3>
+                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.affiliates.title')}</h3>
                 </div>
                 <div className="space-y-4">
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">انضم مجاناً</h4>
-                      <p className="text-sm text-muted-foreground">سجل كمسوق بدون أي رسوم</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step1.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step1.desc')}</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">احصل على روابطك</h4>
-                      <p className="text-sm text-muted-foreground">اختر المنتجات وخذ روابط التسويق</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step2.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step2.desc')}</p>
                     </div>
                   </div>
                   <div className="flex gap-3">
                     <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
                     <div>
-                      <h4 className="font-semibold dark:text-gray-200">سوّق واربح</h4>
-                      <p className="text-sm text-muted-foreground">اربح عمولة لحد 25% على كل بيعة</p>
+                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step3.title')}</h4>
+                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step3.desc')}</p>
                     </div>
                   </div>
                 </div>
@@ -394,29 +402,42 @@ export default function Index() {
       <section className="container mx-auto px-4">
         <div className="text-center mb-12 space-y-2">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-            تسوق حسب الفئة
+            {t('home.categories.title')}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            اكتشف مجموعتنا الواسعة من المنتجات عبر فئات مختلفة
+            {t('home.categories.subtitle')}
           </p>
         </div>
 
         <CategoryGridAnimated
-          categories={categories.filter(cat => cat.slug).slice(0, 12).map((category, index) => ({
-            id: category.id,
-            name: category.name,
-            nameAr: category.name,
-            icon: getCategoryIcon(category.name, category.slug),
-            productCount: category.productCount || 0,
-            gradient: [
-              'from-purple-500 to-blue-500',
-              'from-pink-500 to-orange-500',
-              'from-green-500 to-teal-500',
-              'from-red-500 to-pink-500',
-              'from-yellow-500 to-orange-500',
-              'from-indigo-500 to-purple-500',
-            ][index % 6],
-          }))}
+          categories={categories
+            .filter(cat => !cat.parentId && cat.slug) // Only show root categories
+            .slice(0, 12)
+            .map((category, index) => ({
+              id: category.id,
+              name: category.name,
+              nameAr: category.name,
+              icon: getCategoryIcon(category.name, category.slug),
+              productCount: category.productCount || 0,
+              gradient: [
+                'from-purple-500 to-blue-500',
+                'from-pink-500 to-orange-500',
+                'from-green-500 to-teal-500',
+                'from-red-500 to-pink-500',
+                'from-yellow-500 to-orange-500',
+                'from-indigo-500 to-purple-500',
+              ][index % 6],
+              children: categories
+                .filter(child => child.parentId === category.id)
+                .map(child => ({
+                  id: child.id,
+                  name: child.name,
+                  nameAr: child.name,
+                  icon: getCategoryIcon(child.name, child.slug),
+                  productCount: child.productCount || 0,
+                  gradient: '',
+                }))
+            }))}
           onCategoryClick={(cat) => navigate(`/products?category=${categories.find(c => c.id === cat.id)?.slug}`)}
         />
       </section>
@@ -439,8 +460,8 @@ export default function Index() {
               isNew: false,
               isTrending: p.reviewCount > 100,
             }))}
-            title="المنتجات المميزة"
-            subtitle="منتجات مختارة بعناية خصيصًا لك"
+            title={t('home.featured.title')}
+            subtitle={t('home.featured.subtitle')}
             onProductClick={(p) => navigate(`/product/${p.id}`)}
             onAddToCart={(p) => {
               // Navigate to product page to add to cart
@@ -473,37 +494,37 @@ export default function Index() {
         <div className="relative container mx-auto px-4 py-20 z-10">
           <div className="max-w-5xl mx-auto text-center space-y-8">
             <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500 text-black border-0 shadow-xl font-bold px-8 py-3 text-lg">
-              💰 برنامج المسوقين بالعمولة
+              {t('home.affiliateProgram.badge')}
             </Badge>
 
             <h2 className="text-5xl lg:text-7xl font-black leading-tight text-white drop-shadow-2xl">
               <span className="bg-gradient-to-r from-yellow-300 via-white to-yellow-300 bg-clip-text text-transparent">
-                ابدأ الربح من المنزل
+                {t('home.affiliateProgram.title')}
               </span>
             </h2>
 
             <p className="text-2xl lg:text-3xl text-white/95 max-w-3xl mx-auto font-medium leading-relaxed">
-              انضم لآلاف المسوقين الناجحين واحصل على عمولات مجزية على كل عملية بيع
+              {t('home.affiliateProgram.subtitle')}
             </p>
 
             {/* Features Grid */}
             <div className="grid md:grid-cols-3 gap-6 pt-8">
               <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
                 <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-300" />
-                <h3 className="text-2xl font-bold mb-2">عمولات عالية</h3>
-                <p className="text-white/80">احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص</p>
+                <h3 className="text-2xl font-bold mb-2">{t('home.affiliateProgram.features.commissions.title')}</h3>
+                <p className="text-white/80">{t('home.affiliateProgram.features.commissions.desc')}</p>
               </div>
 
               <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
                 <BarChart3 className="w-12 h-12 mx-auto mb-4 text-blue-300" />
-                <h3 className="text-2xl font-bold mb-2">تتبع دقيق</h3>
-                <p className="text-white/80">راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم</p>
+                <h3 className="text-2xl font-bold mb-2">{t('home.affiliateProgram.features.tracking.title')}</h3>
+                <p className="text-white/80">{t('home.affiliateProgram.features.tracking.desc')}</p>
               </div>
 
               <div className="bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/20 shadow-2xl hover:from-white/30 hover:to-white/10 transition-all duration-300 hover:scale-105">
                 <Headphones className="w-12 h-12 mx-auto mb-4 text-pink-300" />
-                <h3 className="text-2xl font-bold mb-2">دعم مستمر</h3>
-                <p className="text-white/80">فريق دعم متواجد لمساعدتك على النجاح وزيادة أرباحك</p>
+                <h3 className="text-2xl font-bold mb-2">{t('home.affiliateProgram.features.support.title')}</h3>
+                <p className="text-white/80">{t('home.affiliateProgram.features.support.desc')}</p>
               </div>
             </div>
 
@@ -517,7 +538,7 @@ export default function Index() {
                 <Link to="/register?type=affiliate">
                   <span className="absolute inset-0 bg-gradient-to-r from-yellow-300 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
                   <DollarSign className="ms-3 h-7 w-7 group-hover:animate-pulse" />
-                  <span className="relative z-10">اربح معنا الآن</span>
+                  <span className="relative z-10">{t('home.affiliateProgram.cta')}</span>
                   <TrendingUp className="me-3 h-6 w-6 group-hover:translate-y-[-4px] transition-transform" />
                 </Link>
               </Button>
@@ -532,7 +553,7 @@ export default function Index() {
                   className="text-5xl font-black text-yellow-300 mb-2"
                   duration={2000}
                 />
-                <div className="text-lg text-white/80 font-medium">نسبة العمولة</div>
+                <div className="text-lg text-white/80 font-medium">{t('home.affiliateProgram.stats.commissionRate')}</div>
               </div>
               <div className="text-center">
                 <AnimatedCounter
@@ -541,7 +562,7 @@ export default function Index() {
                   className="text-5xl font-black text-white mb-2"
                   duration={2500}
                 />
-                <div className="text-lg text-white/80 font-medium">مسوق نشط</div>
+                <div className="text-lg text-white/80 font-medium">{t('home.affiliateProgram.stats.activeMarketer')}</div>
               </div>
               <div className="text-center">
                 <AnimatedCounter
@@ -551,7 +572,7 @@ export default function Index() {
                   className="text-5xl font-black text-green-300 mb-2"
                   duration={3000}
                 />
-                <div className="text-lg text-white/80 font-medium">متوسط الدخل الشهري</div>
+                <div className="text-lg text-white/80 font-medium">{t('home.affiliateProgram.stats.avgIncome')}</div>
               </div>
             </div>
           </div>
@@ -562,18 +583,18 @@ export default function Index() {
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
           <Badge className="mb-6 bg-gradient-to-r from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 px-6 py-2 text-base font-bold">
-            📊 إحصائيات مبهرة
+            {t('home.stats.badge')}
           </Badge>
           <h2 className="text-4xl lg:text-5xl font-black mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-gray-900 dark:from-gray-100 dark:via-red-400 dark:to-gray-100 bg-clip-text text-transparent">
-            منصة موثوقة يستخدمها الآلاف
+            {t('home.stats.title')}
           </h2>
           <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
-            انضم لمجتمع متنامي من التجار والمسوقين والعملاء الراضين
+            {t('home.stats.subtitle')}
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 dark:from-gray-800 dark:to-red-950/30 border-2 border-red-100 dark:border-red-900/50 hover:border-red-300 dark:hover:border-red-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 dark:from-gray-900 dark:to-red-950/30 border-2 border-red-100 dark:border-red-900/50 hover:border-red-300 dark:hover:border-red-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
             <CardContent className="text-center p-8">
               <div className="absolute top-0 end-0 w-24 h-24 bg-red-600/5 dark:bg-red-400/10 rounded-full -me-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <Users className="w-12 h-12 mx-auto mb-4 text-red-600 dark:text-red-400" />
@@ -583,10 +604,10 @@ export default function Index() {
                 className="text-5xl font-black text-red-600 dark:text-red-400 mb-3"
                 duration={2500}
               />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">عميل نشط</div>
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">{t('home.stats.activeCustomer')}</div>
             </CardContent>
           </Card>
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800 dark:to-blue-950/30 border-2 border-blue-100 dark:border-blue-900/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-900 dark:to-blue-950/30 border-2 border-blue-100 dark:border-blue-900/50 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
             <CardContent className="text-center p-8">
               <div className="absolute top-0 end-0 w-24 h-24 bg-blue-600/5 dark:bg-blue-400/10 rounded-full -me-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-blue-600 dark:text-blue-400" />
@@ -596,10 +617,10 @@ export default function Index() {
                 className="text-5xl font-black text-blue-600 dark:text-blue-400 mb-3"
                 duration={2000}
               />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">تاجر ناجح</div>
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">{t('home.stats.successfulMerchant')}</div>
             </CardContent>
           </Card>
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-green-50/30 dark:from-gray-800 dark:to-green-950/30 border-2 border-green-100 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-green-50/30 dark:from-gray-900 dark:to-green-950/30 border-2 border-green-100 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
             <CardContent className="text-center p-8">
               <div className="absolute top-0 end-0 w-24 h-24 bg-green-600/5 dark:bg-green-400/10 rounded-full -me-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <TrendingUp className="w-12 h-12 mx-auto mb-4 text-green-600 dark:text-green-400" />
@@ -609,10 +630,10 @@ export default function Index() {
                 className="text-5xl font-black text-green-600 dark:text-green-400 mb-3"
                 duration={2200}
               />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">مسوق نشط</div>
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">{t('home.stats.activeMarketer')}</div>
             </CardContent>
           </Card>
-          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-yellow-50/30 dark:from-gray-800 dark:to-yellow-950/30 border-2 border-yellow-100 dark:border-yellow-900/50 hover:border-yellow-300 dark:hover:border-yellow-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+          <Card className="group relative overflow-hidden bg-gradient-to-br from-white to-yellow-50/30 dark:from-gray-900 dark:to-yellow-950/30 border-2 border-yellow-100 dark:border-yellow-900/50 hover:border-yellow-300 dark:hover:border-yellow-700 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
             <CardContent className="text-center p-8">
               <div className="absolute top-0 end-0 w-24 h-24 bg-yellow-600/5 dark:bg-yellow-400/10 rounded-full -me-12 -mt-12 group-hover:scale-150 transition-transform duration-500"></div>
               <DollarSign className="w-12 h-12 mx-auto mb-4 text-yellow-600 dark:text-yellow-400" />
@@ -622,7 +643,7 @@ export default function Index() {
                 className="text-5xl font-black text-yellow-600 dark:text-yellow-400 mb-3"
                 duration={2000}
               />
-              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">جنيه مبيعات</div>
+              <div className="text-gray-600 dark:text-gray-300 font-semibold text-base">{t('home.stats.salesVolume')}</div>
             </CardContent>
           </Card>
         </div>
@@ -638,15 +659,13 @@ export default function Index() {
                   variant="secondary"
                   className="text-red-600 bg-white font-bold"
                 >
-                  💰 برنامج الشراكة
+                  {t('home.partnerProgram.badge')}
                 </Badge>
                 <h2 className="text-3xl lg:text-4xl font-bold">
-                  ابدأ تكسب دلوقتي مع برنامج الشراكة
+                  {t('home.partnerProgram.title')}
                 </h2>
                 <p className="text-xl text-white/90">
-                  انضم لآلاف المسوقين الناجحين واكسب عمولة لحد 25% على كل
-                  عملية بيع تيجي منك. الانضمام مجاني وعندنا كل الأدوات اللي
-                  تحتاجها عشان تنجح.
+                  {t('home.partnerProgram.desc')}
                 </p>
               </div>
 
@@ -654,17 +673,17 @@ export default function Index() {
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <TrendingUp className="h-8 w-8 mx-auto mb-2" />
                   <div className="font-bold text-lg">لحد 25%</div>
-                  <div className="text-sm text-white/80">عمولة</div>
+                  <div className="text-sm text-white/80">{t('home.partnerProgram.stats.commission')}</div>
                 </div>
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Users className="h-8 w-8 mx-auto mb-2" />
                   <div className="font-bold text-lg">+1000</div>
-                  <div className="text-sm text-white/80">مسوق نشط</div>
+                  <div className="text-sm text-white/80">{t('home.partnerProgram.stats.activeMarketer')}</div>
                 </div>
                 <div className="text-center p-4 bg-white/10 rounded-lg backdrop-blur-sm">
                   <Award className="h-8 w-8 mx-auto mb-2" />
                   <div className="font-bold text-lg">+10 مليون جنيه</div>
-                  <div className="text-sm text-white/80">اتدفع عمولات</div>
+                  <div className="text-sm text-white/80">{t('home.partnerProgram.stats.paidCommissions')}</div>
                 </div>
               </div>
 
@@ -674,7 +693,7 @@ export default function Index() {
                 asChild
               >
                 <Link to="/register?type=affiliate">
-                  انضم لبرنامج الشراكة
+                  {t('home.partnerProgram.cta')}
                   <ArrowRight className="me-2 h-5 w-5 rtl:rotate-180" />
                 </Link>
               </Button>
@@ -684,7 +703,7 @@ export default function Index() {
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-6 relative z-10">
                 <CardHeader>
                   <CardTitle className="text-white">
-                    لماذا تختار برنامجنا؟
+                    {t('home.partnerProgram.whyChoose.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -694,10 +713,10 @@ export default function Index() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-white">
-                        معدلات عمولة عالية
+                        {t('home.partnerProgram.whyChoose.highRates.title')}
                       </h4>
                       <p className="text-white/80 text-sm">
-                        اكسب 8-25% عمولة على جميع المبيعات
+                        {t('home.partnerProgram.whyChoose.highRates.desc')}
                       </p>
                     </div>
                   </div>
@@ -706,9 +725,9 @@ export default function Index() {
                       <span className="text-xs font-bold text-red-600">✓</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white">تتبع فوري</h4>
+                      <h4 className="font-semibold text-white">{t('home.partnerProgram.whyChoose.realTimeTracking.title')}</h4>
                       <p className="text-white/80 text-sm">
-                        راقب أداءك وأرباحك مباشرة
+                        {t('home.partnerProgram.whyChoose.realTimeTracking.desc')}
                       </p>
                     </div>
                   </div>
@@ -717,9 +736,9 @@ export default function Index() {
                       <span className="text-xs font-bold text-red-600">✓</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white">دعم تسويقي</h4>
+                      <h4 className="font-semibold text-white">{t('home.partnerProgram.whyChoose.marketingSupport.title')}</h4>
                       <p className="text-white/80 text-sm">
-                        احصل على بانرات وروابط ومواد ترويجية
+                        {t('home.partnerProgram.whyChoose.marketingSupport.desc')}
                       </p>
                     </div>
                   </div>
@@ -728,9 +747,9 @@ export default function Index() {
                       <span className="text-xs font-bold text-red-600">✓</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-white">دفعات سريعة</h4>
+                      <h4 className="font-semibold text-white">{t('home.partnerProgram.whyChoose.fastPayments.title')}</h4>
                       <p className="text-white/80 text-sm">
-                        دفعات أسبوعية عبر PayPal أو التحويل البنكي
+                        {t('home.partnerProgram.whyChoose.fastPayments.desc')}
                       </p>
                     </div>
                   </div>
@@ -747,10 +766,10 @@ export default function Index() {
           <section className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-                الأكثر مبيعًا
+                {t('home.bestSellers.title')}
               </h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                منتجاتنا الأكثر شعبية المحبوبة من العملاء في جميع أنحاء مصر
+                {t('home.bestSellers.subtitle')}
               </p>
             </div>
 
@@ -765,10 +784,10 @@ export default function Index() {
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <Badge className="absolute top-2 start-2 bg-success text-success-foreground">
-                        الأكثر مبيعًا
+                        {t('home.bestSellers.badge')}
                       </Badge>
                       <div className="absolute top-2 end-2 bg-red-600 text-white text-xs px-2 py-1 rounded">
-                        {product.affiliateCommission}% عمولة
+                        {product.affiliateCommission}% {t('home.bestSellers.commission')}
                       </div>
                     </div>
                     <CardContent className="p-4">

@@ -23,7 +23,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Edit, Trash2, Search, FolderOpen, Package } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Plus, Edit, Trash2, Search, FolderOpen, Package, CornerDownRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Category } from "@shared/api";
 import { adminCategoriesApi } from "@/lib/admin-api";
@@ -32,10 +39,12 @@ import { placeholder } from "@/lib/placeholder";
 
 const CategoryForm = ({
   category,
+  categories,
   onSubmit,
   onCancel,
 }: {
   category?: Category;
+  categories: Category[];
   onSubmit: (data: Omit<Category, "id" | "productCount">) => void;
   onCancel: () => void;
 }) => {
@@ -45,11 +54,16 @@ const CategoryForm = ({
     description: category?.description || "",
     image: category?.image || "",
     isActive: category?.isActive ?? true,
+    parentId: category?.parentId || "root",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    const submitData = {
+      ...formData,
+      parentId: formData.parentId === "root" ? undefined : formData.parentId,
+    };
+    onSubmit(submitData);
   };
 
   const generateSlug = (name: string) => {
@@ -100,6 +114,9 @@ const CategoryForm = ({
     }));
   };
 
+  // Filter out self and children to prevent cycles (simple check)
+  const availableParents = categories.filter(c => c.id !== category?.id);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -126,6 +143,26 @@ const CategoryForm = ({
         <p className="text-xs text-muted-foreground">
           سيكون الرابط: /category/{formData.slug}
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="parent">الفئة الأب</Label>
+        <Select
+          value={formData.parentId}
+          onValueChange={(value) => setFormData((prev) => ({ ...prev, parentId: value }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="اختر الفئة الأب" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="root">فئة رئيسية (بدون أب)</SelectItem>
+            {availableParents.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
@@ -203,6 +240,36 @@ export default function AdminCategories() {
       category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       category.slug.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  // Organize categories hierarchically for display
+  const getCategoryHierarchy = () => {
+    const roots = filteredCategories.filter(c => !c.parentId);
+    const children = filteredCategories.filter(c => c.parentId);
+
+    // Simple 1-level nesting for display
+    const organized: (Category & { level: number })[] = [];
+
+    roots.forEach(root => {
+      organized.push({ ...root, level: 0 });
+      const myChildren = children.filter(c => c.parentId === root.id);
+      myChildren.forEach(child => {
+        organized.push({ ...child, level: 1 });
+      });
+    });
+
+    // Add any orphans (children whose parents are filtered out or missing)
+    const orphans = children.filter(c => !roots.find(r => r.id === c.parentId));
+    orphans.forEach(orphan => {
+      // Only add if not already added (in case parent was just filtered by search)
+      if (!organized.find(o => o.id === orphan.id)) {
+        organized.push({ ...orphan, level: 0 });
+      }
+    });
+
+    return organized;
+  };
+
+  const displayCategories = searchTerm ? filteredCategories.map(c => ({ ...c, level: 0 })) : getCategoryHierarchy();
 
   const handleAddCategory = async (data: Omit<Category, "id" | "productCount">) => {
     try {
@@ -300,6 +367,7 @@ export default function AdminCategories() {
                 <DialogDescription>أدخل تفاصيل الفئة الجديدة</DialogDescription>
               </DialogHeader>
               <CategoryForm
+                categories={categories}
                 onSubmit={handleAddCategory}
                 onCancel={() => setIsAddDialogOpen(false)}
               />
@@ -375,7 +443,7 @@ export default function AdminCategories() {
         {/* Categories Table */}
         <Card>
           <CardHeader>
-            <CardTitle>الفئات ({filteredCategories.length})</CardTitle>
+            <CardTitle>الفئات ({categories.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -390,10 +458,11 @@ export default function AdminCategories() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCategories.map((category) => (
+                {displayCategories.map((category) => (
                   <TableRow key={category.id}>
                     <TableCell>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3" style={{ paddingRight: category.level * 24 + 'px' }}>
+                        {category.level > 0 && <CornerDownRight className="w-4 h-4 text-muted-foreground" />}
                         <img
                           src={category.image || placeholder.category(category.name)}
                           alt={category.name}
@@ -451,6 +520,7 @@ export default function AdminCategories() {
                             {editingCategory && (
                               <CategoryForm
                                 category={editingCategory}
+                                categories={categories}
                                 onSubmit={handleUpdateCategory}
                                 onCancel={() => setEditingCategory(null)}
                               />

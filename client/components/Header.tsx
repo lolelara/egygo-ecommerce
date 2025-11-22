@@ -137,14 +137,14 @@ export function Header({ cartItemCount }: HeaderProps) {
                     className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 text-primary rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Shield className="h-5 w-5" />
-                    لوحة تحكم الإدارة
+                    {t('nav.adminPanel')}
                   </Link>
                   <Link
                     to="/orders"
                     className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-blue-100 to-cyan-50 dark:from-blue-900 dark:to-cyan-800 text-blue-600 dark:text-blue-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Truck className="h-5 w-5" />
-                    أوردرات
+                    {t('nav.ordersManagement')}
                   </Link>
                 </div>
               )}
@@ -157,7 +157,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-orange-100 to-yellow-50 dark:from-orange-900 dark:to-yellow-800 text-orange-600 dark:text-orange-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <TrendingUp className="h-5 w-5" />
-                    لوحة تحكم المسوق
+                    {t('nav.affiliatePanel')}
                   </Link>
                 </div>
               )}
@@ -170,7 +170,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-purple-100 to-pink-50 dark:from-purple-900 dark:to-pink-800 text-purple-600 dark:text-purple-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Briefcase className="h-5 w-5" />
-                    لوحة تحكم التاجر
+                    {t('nav.merchantPanel')}
                   </Link>
                 </div>
               )}
@@ -183,7 +183,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                     className="flex items-center gap-2 py-2 px-3 bg-gradient-to-r from-indigo-100 to-blue-50 dark:from-indigo-900 dark:to-blue-800 text-indigo-600 dark:text-indigo-300 rounded-lg font-semibold hover:shadow-md transition-all"
                   >
                     <Users className="h-5 w-5" />
-                    لوحة تحكم الوسيط
+                    {t('nav.intermediaryPanel')}
                   </Link>
                 </div>
               )}
@@ -191,7 +191,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 <div className="flex items-center gap-2 mb-2">
                   <Grid3x3 className="h-4 w-4 text-primary" />
                   <h3 className="font-semibold text-sm text-muted-foreground">
-                    الفئات
+                    {t('nav.categories')}
                   </h3>
                 </div>
                 {categories.filter(cat => cat.slug).map((category) => (
@@ -210,7 +210,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                   to="/categories"
                   className="flex items-center justify-center py-2 px-3 mt-2 text-sm font-semibold text-primary bg-primary/10 rounded-md hover:bg-primary/20 transition-all"
                 >
-                  عرض جميع الفئات
+                  {t('nav.viewAllCategories')}
                 </Link>
               </div>
               <div className="pt-4 border-t space-y-2">
@@ -219,13 +219,13 @@ export function Header({ cartItemCount }: HeaderProps) {
                   className="flex items-center gap-2 py-2 text-sm hover:text-primary transition-colors"
                 >
                   <Users className="h-4 w-4" />
-                  برنامج الشراكة
+                  {t('nav.partnerProgram')}
                 </Link>
                 <Link
                   to="/deals"
                   className="block py-2 text-sm hover:text-primary transition-colors"
                 >
-                  العروض الخاصة
+                  {t('nav.specialOffers')}
                 </Link>
               </div>
             </nav>
@@ -242,14 +242,14 @@ export function Header({ cartItemCount }: HeaderProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link to="/deals" className="gap-1">
               <TrendingUp className="h-4 w-4" />
-              العروض
+              {t('nav.offers')}
             </Link>
           </Button>
 
           <Button variant="ghost" size="sm" asChild className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 hover:from-orange-500/20 hover:to-yellow-500/20">
             <Link to="/affiliate" className="gap-1">
               <Users className="h-4 w-4 text-orange-500" />
-              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent font-semibold">كن شريكاً</span>
+              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent font-semibold">{t('nav.bePartner')}</span>
             </Link>
           </Button>
         </nav>
@@ -294,7 +294,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                   {user.role === 'merchant' && <Briefcase className="h-4 w-4" />}
                   {user.isIntermediary && <Users className="h-4 w-4" />}
                   {user.isAffiliate && user.role !== 'admin' && user.role !== 'merchant' && user.role !== 'intermediary' && <TrendingUp className="h-4 w-4" />}
-                  <span className="hidden xl:inline">لوحة التحكم</span>
+                  <span className="hidden xl:inline">{t('nav.dashboard')}</span>
                 </Link>
               </Button>
 
@@ -308,7 +308,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 >
                   <Link to="/orders">
                     <Truck className="h-4 w-4" />
-                    <span className="hidden xl:inline">أوردرات</span>
+                    <span className="hidden xl:inline">{t('nav.ordersManagement')}</span>
                   </Link>
                 </Button>
               )}
@@ -336,24 +336,24 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
                         <Shield className="h-4 w-4" />
-                        لوحة الإدارة
+                        {t('nav.adminPanel')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/orders" className="flex items-center gap-2 cursor-pointer text-blue-600">
                         <Truck className="h-4 w-4" />
-                        أوردرات
+                        {t('nav.ordersManagement')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/admin/products" className="flex items-center gap-2 cursor-pointer">
-                        إدارة المنتجات
+                        {t('nav.productsManagement')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/admin/orders" className="flex items-center gap-2 cursor-pointer">
-                        إدارة الطلبات
+                        {t('nav.ordersManagement')}
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -363,12 +363,12 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <DropdownMenuItem asChild>
                       <Link to="/merchant/dashboard" className="flex items-center gap-2 cursor-pointer">
                         <Briefcase className="h-4 w-4" />
-                        لوحة التاجر
+                        {t('nav.merchantPanel')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/admin/products" className="flex items-center gap-2 cursor-pointer">
-                        منتجاتي
+                        {t('nav.myProducts')}
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -378,17 +378,17 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <DropdownMenuItem asChild>
                       <Link to="/affiliate/dashboard" className="flex items-center gap-2 cursor-pointer">
                         <TrendingUp className="h-4 w-4" />
-                        لوحة المسوق
+                        {t('nav.affiliatePanel')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/affiliate/analytics" className="flex items-center gap-2 cursor-pointer">
-                        التحليلات
+                        {t('nav.analytics')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/affiliate/withdraw" className="flex items-center gap-2 cursor-pointer">
-                        سحب الأرباح
+                        {t('nav.withdraw')}
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -398,17 +398,17 @@ export function Header({ cartItemCount }: HeaderProps) {
                     <DropdownMenuItem asChild>
                       <Link to="/intermediary/dashboard" className="flex items-center gap-2 cursor-pointer">
                         <Users className="h-4 w-4" />
-                        لوحة الوسيط
+                        {t('nav.intermediaryPanel')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/intermediary/products" className="flex items-center gap-2 cursor-pointer">
-                        منتجاتي
+                        {t('nav.myProducts')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/intermediary/links" className="flex items-center gap-2 cursor-pointer">
-                        روابطي
+                        {t('nav.myLinks')}
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -416,19 +416,19 @@ export function Header({ cartItemCount }: HeaderProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/orders" className="flex items-center gap-2 cursor-pointer">
-                    طلباتي
+                    {t('nav.myOrders')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/wishlist" className="flex items-center gap-2 cursor-pointer">
                     <Heart className="h-4 w-4" />
-                    المفضلة
+                    {t('nav.wishlist')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} className="flex items-center gap-2 cursor-pointer text-red-600">
                   <LogOut className="h-4 w-4" />
-                  تسجيل الخروج
+                  {t('nav.logout')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -505,13 +505,13 @@ export function Header({ cartItemCount }: HeaderProps) {
                       <DropdownMenuItem asChild>
                         <Link to="/admin" className="text-primary font-semibold">
                           <Shield className="me-2 h-4 w-4" />
-                          لوحة تحكم الإدارة
+                          {t('nav.adminPanel')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to="/orders" className="text-blue-600 font-semibold">
                           <Truck className="me-2 h-4 w-4" />
-                          أوردرات
+                          {t('nav.ordersManagement')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -522,7 +522,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                       <DropdownMenuItem asChild>
                         <Link to="/affiliate/dashboard" className="text-orange-600 font-semibold">
                           <TrendingUp className="me-2 h-4 w-4" />
-                          لوحة تحكم المسوق
+                          {t('nav.affiliatePanel')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -533,24 +533,24 @@ export function Header({ cartItemCount }: HeaderProps) {
                       <DropdownMenuItem asChild>
                         <Link to="/merchant/dashboard" className="text-purple-600 font-semibold">
                           <Briefcase className="me-2 h-4 w-4" />
-                          لوحة تحكم التاجر
+                          {t('nav.merchantPanel')}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
                   )}
                   <DropdownMenuItem asChild>
-                    <Link to="/my-orders">طلباتي</Link>
+                    <Link to="/my-orders">{t('nav.myOrders')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/account">حسابي</Link>
+                    <Link to="/account">{t('nav.myAccount')}</Link>
                   </DropdownMenuItem>
                   {user.isAffiliate && (
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link to="/affiliate/dashboard" className="text-brand-orange">
-                          لوحة تحكم الشراكة
+                          {t('nav.partnerDashboard')}
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -558,21 +558,21 @@ export function Header({ cartItemCount }: HeaderProps) {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => logout()}>
                     <LogOut className="me-2 h-4 w-4" />
-                    تسجيل الخروج
+                    {t('nav.logout')}
                   </DropdownMenuItem>
                 </>
               ) : (
                 <>
                   <DropdownMenuItem asChild>
-                    <Link to="/login">تسجيل الدخول</Link>
+                    <Link to="/login">{t('nav.login')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/register">إنشاء حساب</Link>
+                    <Link to="/register">{t('nav.register')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link to="/affiliate" className="text-brand-orange">
-                      برنامج الشراكة
+                      {t('nav.partnerProgram')}
                     </Link>
                   </DropdownMenuItem>
                 </>

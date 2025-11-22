@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { merchantsApi, productsApi } from '@/lib/api';
 import { Product } from '@shared/api';
-import { ProductCard } from '@/components/ProductCard';
+import { ProductCardPremium } from '@/components/ProductCardPremium';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Loader2, Store, MapPin, Mail, Phone, Calendar } from 'lucide-react';
@@ -141,7 +141,7 @@ export default function MerchantProfile() {
                             {products.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {products.map((product) => (
-                                        <ProductCard key={product.id} product={product} />
+                                        <ProductCardPremium key={product.id} product={product} />
                                     ))}
                                 </div>
                             ) : (

@@ -47,7 +47,7 @@ export function ProductCarouselModern({
     onToggleWishlist,
 }: ProductCarouselModernProps) {
     return (
-        <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+        <section className="py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black transition-colors duration-300">
             <div className="container mx-auto px-4">
                 {/* Section Header */}
                 <motion.div
@@ -76,7 +76,7 @@ export function ProductCarouselModern({
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.4 }}
-                        className="text-gray-600 text-lg max-w-2xl mx-auto"
+                        className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto"
                     >
                         {subtitle}
                     </motion.p>
@@ -107,7 +107,7 @@ export function ProductCarouselModern({
                             disableOnInteraction: false,
                             pauseOnMouseEnter: true,
                         }}
-                        loop={products.length > 3}
+                        loop={products.length >= 4}
                         breakpoints={{
                             640: {
                                 slidesPerView: 2,
@@ -149,10 +149,10 @@ export function ProductCarouselModern({
                         whileHover={{ scale: 1.1, x: -5 }}
                         whileTap={{ scale: 0.9 }}
                         className="swiper-button-prev-custom absolute top-1/2 -translate-y-1/2 end-0 
-                       z-10 w-12 h-12 bg-white rounded-full shadow-xl
-                       flex items-center justify-center text-purple-600
-                       hover:bg-purple-600 hover:text-white transition-all duration-300
-                       border-2 border-purple-200 hover:border-purple-600
+                       z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl
+                       flex items-center justify-center text-purple-600 dark:text-purple-400
+                       hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600 dark:hover:text-white transition-all duration-300
+                       border-2 border-purple-200 dark:border-gray-700 hover:border-purple-600
                        -me-6 hidden md:flex"
                     >
                         <ChevronRight className="w-6 h-6" />
@@ -162,10 +162,10 @@ export function ProductCarouselModern({
                         whileHover={{ scale: 1.1, x: 5 }}
                         whileTap={{ scale: 0.9 }}
                         className="swiper-button-next-custom absolute top-1/2 -translate-y-1/2 start-0 
-                       z-10 w-12 h-12 bg-white rounded-full shadow-xl
-                       flex items-center justify-center text-purple-600
-                       hover:bg-purple-600 hover:text-white transition-all duration-300
-                       border-2 border-purple-200 hover:border-purple-600
+                       z-10 w-12 h-12 bg-white dark:bg-gray-800 rounded-full shadow-xl
+                       flex items-center justify-center text-purple-600 dark:text-purple-400
+                       hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600 dark:hover:text-white transition-all duration-300
+                       border-2 border-purple-200 dark:border-gray-700 hover:border-purple-600
                        -ms-6 hidden md:flex"
                     >
                         <ChevronLeft className="w-6 h-6" />
@@ -193,7 +193,7 @@ export function ProductCarouselModern({
             </div>
 
             {/* Custom Pagination Styles */}
-            <style jsx global>{`
+            <style>{`
         .swiper-pagination-bullet {
           background: #9333EA;
           opacity: 0.3;

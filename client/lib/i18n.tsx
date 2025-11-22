@@ -35,9 +35,30 @@ export const translations: Translations = {
       profile: 'الحساب',
       logout: 'تسجيل الخروج',
       login: 'تسجيل الدخول',
-      register: 'إنشاء حساب'
+      register: 'إنشاء حساب',
+      adminPanel: 'لوحة تحكم الإدارة',
+      affiliatePanel: 'لوحة تحكم المسوق',
+      merchantPanel: 'لوحة تحكم التاجر',
+      intermediaryPanel: 'لوحة تحكم الوسيط',
+      categories: 'الفئات',
+      viewAllCategories: 'عرض جميع الفئات',
+      partnerProgram: 'برنامج الشراكة',
+      specialOffers: 'العروض الخاصة',
+      offers: 'العروض',
+      bePartner: 'كن شريكاً',
+      dashboard: 'لوحة التحكم',
+      productsManagement: 'إدارة المنتجات',
+      ordersManagement: 'إدارة الطلبات',
+      myProducts: 'منتجاتي',
+      analytics: 'التحليلات',
+      withdraw: 'سحب الأرباح',
+      myLinks: 'روابطي',
+      myOrders: 'طلباتي',
+      wishlist: 'المفضلة',
+      myAccount: 'حسابي',
+      partnerDashboard: 'لوحة تحكم الشراكة'
     },
-    
+
     // Common
     common: {
       loading: 'جاري التحميل...',
@@ -49,7 +70,7 @@ export const translations: Translations = {
       search: 'بحث...',
       filter: 'تصفية',
     },
-    
+
     // WhatsApp
     whatsapp: {
       chat: 'تواصل عبر واتساب',
@@ -74,7 +95,7 @@ export const translations: Translations = {
       warning: 'تحذير',
       info: 'معلومة'
     },
-    
+
     // Products
     products: {
       title: 'المنتجات',
@@ -90,7 +111,7 @@ export const translations: Translations = {
       description: 'الوصف',
       specifications: 'المواصفات'
     },
-    
+
     // Cart
     cart: {
       title: 'سلة التسوق',
@@ -103,7 +124,7 @@ export const translations: Translations = {
       quantity: 'الكمية',
       continueShopping: 'متابعة التسوق'
     },
-    
+
     // Orders
     orders: {
       title: 'طلباتي',
@@ -123,7 +144,7 @@ export const translations: Translations = {
         cancelled: 'ملغي'
       }
     },
-    
+
     // Profile
     profile: {
       title: 'الحساب الشخصي',
@@ -138,7 +159,7 @@ export const translations: Translations = {
       confirmPassword: 'تأكيد كلمة المرور',
       updateProfile: 'تحديث الحساب'
     },
-    
+
     // Auth
     auth: {
       login: 'تسجيل الدخول',
@@ -152,7 +173,7 @@ export const translations: Translations = {
       createAccount: 'إنشاء حساب',
       loginNow: 'تسجيل الدخول الآن'
     },
-    
+
     // Notifications
     notifications: {
       title: 'الإشعارات',
@@ -160,7 +181,7 @@ export const translations: Translations = {
       noNotifications: 'لا توجد إشعارات',
       new: 'جديد'
     },
-    
+
     // Search
     search: {
       placeholder: 'ابحث عن منتجات...',
@@ -168,7 +189,7 @@ export const translations: Translations = {
       noResults: 'لا توجد نتائج',
       showingResults: 'عرض {count} نتيجة'
     },
-    
+
     // Errors
     errors: {
       general: 'حدث خطأ غير متوقع',
@@ -182,7 +203,7 @@ export const translations: Translations = {
       minLength: 'يجب أن يكون الطول أكبر من {min} أحرف',
       maxLength: 'يجب أن يكون الطول أقل من {max} حرف'
     },
-    
+
     // Site
     site: {
       name: 'إيجي جو',
@@ -190,7 +211,7 @@ export const translations: Translations = {
       joinFamily: 'انضم إلى عائلة إيجي جو',
       smartShopping: 'أهلاً بك في عالم التسوق الذكي'
     },
-    
+
     // Trust Signals
     trust: {
       fastDelivery: 'توصيل سريع',
@@ -204,7 +225,7 @@ export const translations: Translations = {
       originalQuality: 'ضمان الجودة والأصالة',
       contact24h: 'التواصل خلال 24 ساعة'
     },
-    
+
     // Register Page
     register: {
       title: 'إنشاء حساب جديد',
@@ -252,7 +273,7 @@ export const translations: Translations = {
       trusted: 'موثوق',
       fast: 'سريع'
     },
-    
+
     // Login Page  
     login: {
       title: 'تسجيل الدخول',
@@ -269,7 +290,7 @@ export const translations: Translations = {
       testimonial: 'أفضل موقع تسوق استخدمته! المنتجات عالية الجودة',
       testimonialAuthor: 'أحمد محمد، القاهرة'
     },
-    
+
     // Products Page
     productsPage: {
       allProducts: 'جميع المنتجات',
@@ -298,7 +319,7 @@ export const translations: Translations = {
       viewCategories: 'عرض الفئات',
       page: 'صفحة'
     },
-    
+
     // Checkout Page
     checkout: {
       title: 'إتمام الطلب',
@@ -337,15 +358,111 @@ export const translations: Translations = {
       confirmOrder: 'تأكيد الطلب',
       processing: 'جاري المعالجة...'
     },
-    
+
     // Marketing Messages
     marketing: {
       partnerProgram: 'انضم لفريق الشركاء!',
       partnerDesc: 'سجّل الآن كتاجر أو مسوق واحصل على عمولات مميزة وأرباح مستمرة',
       registerEarn: 'سجّل كتاجر أو مسوق واربح عمولات مميزة!'
+    },
+
+    // Homepage
+    home: {
+      hero: {
+        typing: {
+          opportunity: "متفوتش الفرصة",
+          income: "اعمل دخل بسهولة",
+          save: "حافظ على فلوسك",
+          earn: "اكسب أكتر"
+        }
+      },
+      howItWorks: {
+        badge: "⚙️ كيف تعمل المنصة",
+        title: "ابدأ رحلتك في 3 خطوات بسيطة",
+        subtitle: "سواء كنت تاجر، مسوق، أو عميل - نحن نسهل عليك البداية",
+        customers: {
+          title: "للعملاء",
+          video: "🎬 كيف تتسوق على إيجي جو",
+          step1: { title: "تصفح المنتجات", desc: "اكتشف آلاف المنتجات عالية الجودة" },
+          step2: { title: "أضف للسلة", desc: "اختر ما يعجبك وأضفه لسلة المشتريات" },
+          step3: { title: "اطلب واستلم", desc: "ادفع واستلم طلبك في 2-4 أيام" }
+        },
+        merchants: {
+          title: "للتجار",
+          badge: "⭐ الأكثر طلباً",
+          video: "🎬 كيف تبدأ البيع كتاجر",
+          step1: { title: "سجل حساب", desc: "انشئ حساب تاجر مجاناً" },
+          step2: { title: "أضف منتجاتك", desc: "ارفع منتجاتك وحدد الأسعار والعمولات" },
+          step3: { title: "ابدأ البيع", desc: "راقب مبيعاتك واستلم أرباحك أسبوعياً" }
+        },
+        affiliates: {
+          title: "للمسوقين",
+          video: "🎬 كيف تربح كمسوق",
+          step1: { title: "انضم مجاناً", desc: "سجل كمسوق بدون أي رسوم" },
+          step2: { title: "احصل على روابطك", desc: "اختر المنتجات وخذ روابط التسويق" },
+          step3: { title: "سوّق واربح", desc: "اربح عمولة لحد 25% على كل بيعة" }
+        }
+      },
+      categories: {
+        title: "تسوق حسب الفئة",
+        subtitle: "اكتشف مجموعتنا الواسعة من المنتجات عبر فئات مختلفة"
+      },
+      featured: {
+        title: "المنتجات المميزة",
+        subtitle: "منتجات مختارة بعناية خصيصًا لك"
+      },
+      affiliateProgram: {
+        badge: "💰 برنامج المسوقين بالعمولة",
+        title: "ابدأ الربح من المنزل",
+        subtitle: "انضم لآلاف المسوقين الناجحين واحصل على عمولات مجزية على كل عملية بيع",
+        features: {
+          commissions: { title: "عمولات عالية", desc: "احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص" },
+          tracking: { title: "تتبع دقيق", desc: "راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم" },
+          support: { title: "دعم مستمر", desc: "فريق دعم متواجد لمساعدتك على النجاح وزيادة أرباحك" }
+        },
+        cta: "اربح معنا الآن",
+        stats: {
+          commissionRate: "نسبة العمولة",
+          activeMarketer: "مسوق نشط",
+          avgIncome: "متوسط الدخل الشهري"
+        }
+      },
+      stats: {
+        badge: "📊 إحصائيات مبهرة",
+        title: "منصة موثوقة يستخدمها الآلاف",
+        subtitle: "انضم لمجتمع متنامي من التجار والمسوقين والعملاء الراضين",
+        activeCustomer: "عميل نشط",
+        successfulMerchant: "تاجر ناجح",
+        activeMarketer: "مسوق نشط",
+        salesVolume: "جنيه مبيعات"
+      },
+      partnerProgram: {
+        badge: "💰 برنامج الشراكة",
+        title: "ابدأ تكسب دلوقتي مع برنامج الشراكة",
+        desc: "انضم لآلاف المسوقين الناجحين واكسب عمولة لحد 25% على كل عملية بيع تيجي منك. الانضمام مجاني وعندنا كل الأدوات اللي تحتاجها عشان تنجح.",
+        stats: {
+          commission: "عمولة",
+          activeMarketer: "مسوق نشط",
+          paidCommissions: "اتدفع عمولات"
+        },
+        cta: "انضم لبرنامج الشراكة",
+        whyChoose: {
+          title: "لماذا تختار برنامجنا؟",
+          highRates: { title: "معدلات عمولة عالية", desc: "اكسب 8-25% عمولة على جميع المبيعات" },
+          realTimeTracking: { title: "تتبع فوري", desc: "راقب أداءك وأرباحك مباشرة" },
+          marketingSupport: { title: "دعم تسويقي", desc: "احصل على بانرات وروابط ومواد ترويجية" },
+          fastPayments: { title: "دفعات سريعة", desc: "دفعات أسبوعية عبر PayPal أو التحويل البنكي" }
+        }
+      },
+      bestSellers: {
+        title: "الأكثر مبيعًا",
+        subtitle: "منتجاتنا الأكثر شعبية المحبوبة من العملاء في جميع أنحاء مصر",
+        badge: "الأكثر مبيعًا",
+        commission: "عمولة"
+      }
     }
   },
-  
+
   en: {
     // Navigation
     nav: {
@@ -356,9 +473,30 @@ export const translations: Translations = {
       profile: 'Profile',
       logout: 'Logout',
       login: 'Login',
-      register: 'Register'
+      register: 'Register',
+      adminPanel: 'Admin Panel',
+      affiliatePanel: 'Affiliate Panel',
+      merchantPanel: 'Merchant Panel',
+      intermediaryPanel: 'Intermediary Panel',
+      categories: 'Categories',
+      viewAllCategories: 'View All Categories',
+      partnerProgram: 'Partner Program',
+      specialOffers: 'Special Offers',
+      offers: 'Offers',
+      bePartner: 'Be a Partner',
+      dashboard: 'Dashboard',
+      productsManagement: 'Products Management',
+      ordersManagement: 'Orders Management',
+      myProducts: 'My Products',
+      analytics: 'Analytics',
+      withdraw: 'Withdraw',
+      myLinks: 'My Links',
+      myOrders: 'My Orders',
+      wishlist: 'Wishlist',
+      myAccount: 'My Account',
+      partnerDashboard: 'Partner Dashboard'
     },
-    
+
     // Common
     common: {
       loading: 'Loading...',
@@ -383,7 +521,7 @@ export const translations: Translations = {
       warning: 'Warning',
       info: 'Information'
     },
-    
+
     // WhatsApp
     whatsapp: {
       chat: 'Chat on WhatsApp',
@@ -395,7 +533,7 @@ export const translations: Translations = {
       send: 'Send',
       poweredBy: 'Powered by',
     },
-    
+
     // Products
     products: {
       title: 'Products',
@@ -411,7 +549,7 @@ export const translations: Translations = {
       description: 'Description',
       specifications: 'Specifications'
     },
-    
+
     // Cart
     cart: {
       title: 'Shopping Cart',
@@ -424,7 +562,7 @@ export const translations: Translations = {
       quantity: 'Quantity',
       continueShopping: 'Continue Shopping'
     },
-    
+
     // Orders
     orders: {
       title: 'My Orders',
@@ -444,7 +582,7 @@ export const translations: Translations = {
         cancelled: 'Cancelled'
       }
     },
-    
+
     // Profile
     profile: {
       title: 'My Profile',
@@ -459,7 +597,7 @@ export const translations: Translations = {
       confirmPassword: 'Confirm Password',
       updateProfile: 'Update Profile'
     },
-    
+
     // Auth
     auth: {
       login: 'Login',
@@ -473,7 +611,7 @@ export const translations: Translations = {
       createAccount: 'Create Account',
       loginNow: 'Login Now'
     },
-    
+
     // Notifications
     notifications: {
       title: 'Notifications',
@@ -481,7 +619,7 @@ export const translations: Translations = {
       noNotifications: 'No notifications',
       new: 'New'
     },
-    
+
     // Search
     search: {
       placeholder: 'Search for products...',
@@ -489,7 +627,7 @@ export const translations: Translations = {
       noResults: 'No results found',
       showingResults: 'Showing {count} results'
     },
-    
+
     // Errors
     errors: {
       general: 'An unexpected error occurred',
@@ -503,7 +641,7 @@ export const translations: Translations = {
       minLength: 'Must be at least {min} characters',
       maxLength: 'Must be at most {max} characters'
     },
-    
+
     // Site
     site: {
       name: 'EgyGo',
@@ -511,7 +649,7 @@ export const translations: Translations = {
       joinFamily: 'Join the EgyGo Family',
       smartShopping: 'Welcome to the World of Smart Shopping'
     },
-    
+
     // Trust Signals
     trust: {
       fastDelivery: 'Fast Delivery',
@@ -525,7 +663,7 @@ export const translations: Translations = {
       originalQuality: 'Quality & Authenticity Guaranteed',
       contact24h: 'Contact within 24 Hours'
     },
-    
+
     // Register Page
     register: {
       title: 'Create New Account',
@@ -573,7 +711,7 @@ export const translations: Translations = {
       trusted: 'Trusted',
       fast: 'Fast'
     },
-    
+
     // Login Page
     login: {
       title: 'Login',
@@ -590,7 +728,7 @@ export const translations: Translations = {
       testimonial: 'Best shopping site I\'ve used! High quality products',
       testimonialAuthor: 'Ahmed Mohamed, Cairo'
     },
-    
+
     // Products Page
     productsPage: {
       allProducts: 'All Products',
@@ -619,7 +757,7 @@ export const translations: Translations = {
       viewCategories: 'View Categories',
       page: 'Page'
     },
-    
+
     // Checkout Page
     checkout: {
       title: 'Checkout',
@@ -658,12 +796,108 @@ export const translations: Translations = {
       confirmOrder: 'Confirm Order',
       processing: 'Processing...'
     },
-    
+
     // Marketing Messages
     marketing: {
       partnerProgram: 'Join Our Partners Team!',
       partnerDesc: 'Register now as a merchant or affiliate and get exclusive commissions and continuous earnings',
       registerEarn: 'Register as merchant or affiliate and earn exclusive commissions!'
+    },
+
+    // Homepage
+    home: {
+      hero: {
+        typing: {
+          opportunity: "Don't Miss the Opportunity",
+          income: "Make Income Easily",
+          save: "Save Your Money",
+          earn: "Earn More"
+        }
+      },
+      howItWorks: {
+        badge: "⚙️ How Platform Works",
+        title: "Start Your Journey in 3 Simple Steps",
+        subtitle: "Whether you are a merchant, marketer, or customer - we make it easy for you to start",
+        customers: {
+          title: "For Customers",
+          video: "🎬 How to Shop on EgyGo",
+          step1: { title: "Browse Products", desc: "Discover thousands of high-quality products" },
+          step2: { title: "Add to Cart", desc: "Choose what you like and add to cart" },
+          step3: { title: "Order & Receive", desc: "Pay and receive your order in 2-4 days" }
+        },
+        merchants: {
+          title: "For Merchants",
+          badge: "⭐ Most Requested",
+          video: "🎬 How to Start Selling",
+          step1: { title: "Register Account", desc: "Create a merchant account for free" },
+          step2: { title: "Add Products", desc: "Upload products, set prices and commissions" },
+          step3: { title: "Start Selling", desc: "Monitor sales and receive weekly earnings" }
+        },
+        affiliates: {
+          title: "For Marketers",
+          video: "🎬 How to Earn as Marketer",
+          step1: { title: "Join Free", desc: "Register as a marketer with no fees" },
+          step2: { title: "Get Links", desc: "Choose products and get marketing links" },
+          step3: { title: "Market & Earn", desc: "Earn up to 25% commission on every sale" }
+        }
+      },
+      categories: {
+        title: "Shop by Category",
+        subtitle: "Discover our wide range of products across different categories"
+      },
+      featured: {
+        title: "Featured Products",
+        subtitle: "Hand-picked products especially for you"
+      },
+      affiliateProgram: {
+        badge: "💰 Affiliate Program",
+        title: "Start Earning from Home",
+        subtitle: "Join thousands of successful marketers and get rewarding commissions on every sale",
+        features: {
+          commissions: { title: "High Commissions", desc: "Get a percentage of every sale made through your link" },
+          tracking: { title: "Accurate Tracking", desc: "Monitor your earnings and sales directly from the dashboard" },
+          support: { title: "Continuous Support", desc: "Support team available to help you succeed and increase earnings" }
+        },
+        cta: "Earn With Us Now",
+        stats: {
+          commissionRate: "Commission Rate",
+          activeMarketer: "Active Marketer",
+          avgIncome: "Avg Monthly Income"
+        }
+      },
+      stats: {
+        badge: "📊 Impressive Stats",
+        title: "Trusted Platform Used by Thousands",
+        subtitle: "Join a growing community of satisfied merchants, marketers, and customers",
+        activeCustomer: "Active Customer",
+        successfulMerchant: "Successful Merchant",
+        activeMarketer: "Active Marketer",
+        salesVolume: "Sales Volume (EGP)"
+      },
+      partnerProgram: {
+        badge: "💰 Partner Program",
+        title: "Start Earning Now with Partner Program",
+        desc: "Join thousands of successful marketers and earn up to 25% commission on every sale from you. Joining is free and we have all the tools you need to succeed.",
+        stats: {
+          commission: "Commission",
+          activeMarketer: "Active Marketer",
+          paidCommissions: "Paid Commissions"
+        },
+        cta: "Join Partner Program",
+        whyChoose: {
+          title: "Why Choose Our Program?",
+          highRates: { title: "High Commission Rates", desc: "Earn 8-25% commission on all sales" },
+          realTimeTracking: { title: "Real-time Tracking", desc: "Monitor your performance and earnings instantly" },
+          marketingSupport: { title: "Marketing Support", desc: "Get banners, links, and promotional materials" },
+          fastPayments: { title: "Fast Payments", desc: "Weekly payments via PayPal or Bank Transfer" }
+        }
+      },
+      bestSellers: {
+        title: "Best Sellers",
+        subtitle: "Our most popular products loved by customers all over Egypt",
+        badge: "Best Seller",
+        commission: "Commission"
+      }
     }
   }
 };
@@ -692,26 +926,26 @@ export function I18nProvider({ children, defaultLocale = 'ar' }: I18nProviderPro
     const saved = localStorage.getItem('locale');
     return (saved as Locale) || defaultLocale;
   });
-  
+
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem('locale', newLocale);
-    
+
     // Update HTML dir and lang attributes
     document.documentElement.dir = newLocale === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = newLocale;
   };
-  
+
   // Set initial dir
   useEffect(() => {
     document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = locale;
   }, [locale]);
-  
+
   const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: any = translations[locale];
-    
+
     for (const k of keys) {
       value = value?.[k];
       if (value === undefined) {
@@ -719,21 +953,21 @@ export function I18nProvider({ children, defaultLocale = 'ar' }: I18nProviderPro
         return key;
       }
     }
-    
+
     let result = String(value);
-    
+
     // Replace params like {count}, {min}, {max}
     if (params) {
       Object.entries(params).forEach(([param, val]) => {
         result = result.replace(`{${param}}`, String(val));
       });
     }
-    
+
     return result;
   };
-  
+
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
-  
+
   return (
     <I18nContext.Provider value={{ locale, setLocale, t, dir }}>
       {children}
@@ -755,7 +989,7 @@ export function useI18n(): I18nContextType {
 
 export function LocaleSwitcher() {
   const { locale, setLocale } = useI18n();
-  
+
   return (
     <button
       onClick={() => setLocale(locale === 'ar' ? 'en' : 'ar')}

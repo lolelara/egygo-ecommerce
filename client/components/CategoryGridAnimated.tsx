@@ -10,6 +10,7 @@ interface Category {
     productCount: number;
     gradient: string;
     image?: string;
+    children?: Category[];
 }
 
 interface CategoryGridAnimatedProps {
@@ -62,7 +63,7 @@ export function CategoryGridAnimated({ categories, onCategoryClick }: CategoryGr
                                     <motion.div
                                         whileHover={{ y: -8, scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
-                                        className="relative overflow-hidden rounded-2xl cursor-pointer group"
+                                        className="relative overflow-hidden rounded-2xl cursor-pointer group h-full flex flex-col"
                                     >
                                         {/* Gradient Background */}
                                         <div className={`aspect-square p-6 flex flex-col items-center justify-center
@@ -107,13 +108,31 @@ export function CategoryGridAnimated({ categories, onCategoryClick }: CategoryGr
 
                                         {/* Content */}
                                         <div className="bg-white p-4 border-t-0 rounded-b-2xl shadow-md
-                                    group-hover:shadow-xl transition-shadow duration-300">
+                                    group-hover:shadow-xl transition-shadow duration-300 flex-grow">
                                             <h3 className="font-bold text-gray-800 text-center mb-1 text-sm md:text-base">
                                                 {category.nameAr}
                                             </h3>
-                                            <p className="text-xs md:text-sm text-gray-500 text-center">
+                                            <p className="text-xs md:text-sm text-gray-500 text-center mb-2">
                                                 {category.productCount.toLocaleString('ar-EG')} منتج
                                             </p>
+
+                                            {/* Subcategories Preview */}
+                                            {category.children && category.children.length > 0 && (
+                                                <div className="mt-2 pt-2 border-t border-gray-100">
+                                                    <div className="flex flex-wrap justify-center gap-1">
+                                                        {category.children.slice(0, 3).map(child => (
+                                                            <span key={child.id} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                                                {child.nameAr}
+                                                            </span>
+                                                        ))}
+                                                        {category.children.length > 3 && (
+                                                            <span className="text-[10px] text-gray-400 px-1">
+                                                                +{category.children.length - 3}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Shine Effect on Hover */}

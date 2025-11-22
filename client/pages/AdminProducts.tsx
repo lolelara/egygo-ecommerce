@@ -1144,7 +1144,7 @@ export default function AdminProducts() {
                           />
                           <div>
                             <div className="font-medium flex items-center gap-2 flex-wrap">
-                              <a href={`/product/${product.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-primary">
+                              <a href={`/#/product/${product.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-primary">
                                 {product.name}
                               </a>
                               {product.isFeatured && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-yellow-100 text-yellow-800 border-yellow-200">مميز</Badge>}

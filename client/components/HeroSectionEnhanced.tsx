@@ -205,7 +205,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                       zIndex: index === 2 ? 10 : 1
                     }}
                     transition={{ duration: 0.5 }}
-                    className={`absolute w-64 bg-white rounded-2xl shadow-2xl overflow-hidden border-4 border-white
+                    className={`absolute w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border-4 border-white dark:border-gray-700
                                 ${index === 0 ? 'left-0 top-10' : index === 1 ? 'right-0 bottom-10' : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}
                   >
                     <div className="aspect-square relative">
@@ -215,9 +215,9 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-4 bg-white">
-                      <h3 className="font-bold text-gray-900 truncate">{product.name}</h3>
-                      <p className="text-red-600 font-bold">{product.price} ج.م</p>
+                    <div className="p-4 bg-white dark:bg-gray-800">
+                      <h3 className="font-bold text-gray-900 dark:text-white truncate">{product.name}</h3>
+                      <p className="text-red-600 dark:text-red-400 font-bold">{product.price} ج.م</p>
                     </div>
                   </motion.div>
                 ))}

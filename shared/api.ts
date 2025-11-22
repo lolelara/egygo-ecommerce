@@ -46,6 +46,7 @@ export interface Category {
   productCount: number;
   description?: string;
   isActive?: boolean;
+  parentId?: string;
 }
 
 /**

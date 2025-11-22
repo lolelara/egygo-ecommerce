@@ -374,6 +374,7 @@ export const adminProductsApi = {
       if (updateData.isActive !== undefined) mappedData.isActive = updateData.isActive;
       if (updateData.isFeatured !== undefined) mappedData.isFeatured = updateData.isFeatured;
       if (updateData.isFeaturedInHero !== undefined) mappedData.isFeaturedInHero = updateData.isFeaturedInHero;
+      if (updateData.isFlashDeal !== undefined) mappedData.isFlashDeal = updateData.isFlashDeal;
       if (updateData.rating !== undefined) mappedData.rating = updateData.rating;
       if (updateData.reviewCount !== undefined) mappedData.reviewCount = updateData.reviewCount;
 
@@ -489,22 +490,25 @@ export const adminCategoriesApi = {
         "unique()",
         {
           name: category.name,
-          slug: slug, // Save slug to DB
+          slug: slug,
           description: category.description || "",
           image: category.image || "",
           isActive: category.isActive ?? true,
+          parentId: category.parentId || null,
         }
       );
 
       return {
         id: doc.$id,
         name: doc.name,
-        slug: doc.slug || slug,
+        slug: doc.slug,
         description: doc.description,
         image: doc.image,
         productCount: 0,
         isActive: doc.isActive,
+        parentId: doc.parentId,
         createdAt: doc.$createdAt,
+        updatedAt: doc.$updatedAt,
       };
     } catch (error: any) {
       console.error("Category creation error:", error);
@@ -514,35 +518,35 @@ export const adminCategoriesApi = {
 
   update: async (id: string, category: any): Promise<any> => {
     try {
-      // Generate slug from name
-      const slug = category.name
-        .toLowerCase()
-        .replace(/[أ-ي\s]+/g, '-')
-        .replace(/[^\w\-]+/g, '')
-        .replace(/\-\-+/g, '-')
-        .replace(/^-+/, '')
-        .replace(/-+$/, '');
+      const updateData: any = {
+        name: category.name,
+        description: category.description,
+        image: category.image,
+        isActive: category.isActive,
+        parentId: category.parentId || null,
+      };
+
+      if (category.slug) {
+        updateData.slug = category.slug;
+      }
 
       const doc = await databases.updateDocument(
         DATABASE_ID,
         COLLECTIONS.CATEGORIES,
         id,
-        {
-          name: category.name,
-          slug: slug, // Save slug to DB
-          description: category.description,
-          image: category.image,
-          isActive: category.isActive,
-        }
+        updateData
       );
 
       return {
         id: doc.$id,
         name: doc.name,
-        slug: doc.slug || slug,
+        slug: doc.slug,
         description: doc.description,
         image: doc.image,
+        productCount: doc.productCount || 0,
         isActive: doc.isActive,
+        parentId: doc.parentId,
+        createdAt: doc.$createdAt,
         updatedAt: doc.$updatedAt,
       };
     } catch (error: any) {

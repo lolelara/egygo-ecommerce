@@ -299,6 +299,7 @@ export const categoriesApi = {
         image: doc.image,
         productCount: doc.productCount || 0,
         isActive: doc.isActive,
+        parentId: doc.parentId,
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
       }));
