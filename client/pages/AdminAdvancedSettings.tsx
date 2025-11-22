@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Palette,
   Upload,
@@ -166,9 +167,44 @@ export default function AdminAdvancedSettings() {
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null);
   const [newKeyLabel, setNewKeyLabel] = useState("");
   const [newKeyValue, setNewKeyValue] = useState("");
-  const [newKeyProvider, setNewKeyProvider] = useState<"openai" | "gemini">("openai");
+  const [newKeyProvider, setNewKeyProvider] = useState<"openai" | "gemini" | "sambanova">("openai");
   const [newKeyPriority, setNewKeyPriority] = useState<number>(100);
   const [newKeyIsDefault, setNewKeyIsDefault] = useState(false);
+  const [newKeyModel, setNewKeyModel] = useState("");
+  const [newKeyCapabilities, setNewKeyCapabilities] = useState<string[]>(['text']);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(false);
+
+  const fetchModels = async (key: string) => {
+    if (!key || newKeyProvider !== 'sambanova') return;
+
+    setIsLoadingModels(true);
+    try {
+      const models = await openAIKeysApi.getModels(key, 'sambanova');
+      setAvailableModels(models);
+      if (models.length > 0) {
+        setNewKeyModel(models[0]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch models", error);
+      toast({
+        title: "خطأ",
+        description: "فشل في جلب قائمة النماذج",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingModels(false);
+    }
+  };
+
+  useEffect(() => {
+    if (newKeyProvider === 'sambanova' && newKeyValue.length > 20) {
+      const timer = setTimeout(() => {
+        fetchModels(newKeyValue);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [newKeyValue, newKeyProvider]);
 
   useEffect(() => {
     loadSettings();
@@ -363,27 +399,29 @@ export default function AdminAdvancedSettings() {
       });
       return;
     }
+
     try {
-      setIsCreatingKey(true);
-      const created = await openAIKeysApi.create({
+      await openAIKeysApi.create({
         label: newKeyLabel,
+        provider: newKeyProvider as any,
         key: newKeyValue,
-        provider: newKeyProvider,
-        priority: newKeyPriority,
         isDefault: newKeyIsDefault,
+        model: newKeyProvider === 'sambanova' ? newKeyModel : undefined,
+        capabilities: newKeyCapabilities as any
       });
-      setOpenAIKeys((prev) => [created, ...prev]);
+
       setNewKeyLabel("");
       setNewKeyValue("");
-      setNewKeyPriority(100);
       setNewKeyIsDefault(false);
+      setNewKeyCapabilities(['text']);
       setIsCreatingKey(false);
+      fetchKeys();
+
       toast({
         title: "تم الحفظ",
-        description: "تم إضافة مفتاح OpenAI بنجاح",
+        description: "تم إضافة المفتاح بنجاح",
       });
     } catch (error: any) {
-      setIsCreatingKey(false);
       toast({
         title: "خطأ",
         description: error.message || "فشل في إضافة المفتاح",
@@ -948,178 +986,434 @@ export default function AdminAdvancedSettings() {
                 <span>مفاتيح API</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <h3 className="text-lg font-medium">إدارة المفاتيح</h3>
-                  <p className="text-sm text-muted-foreground">
-                    إدارة مفاتيح OpenAI و Google Gemini. سيتم استخدام المفتاح الافتراضي أولاً، وفي حالة فشله (نفاذ الرصيد) سيتم استخدام المفاتيح الاحتياطية تلقائياً.
-                  </p>
-                </div>
-                <Button onClick={() => setIsCreatingKey(true)}>
-                  <Zap className="w-4 h-4 mr-2" />
-                  إضافة مفتاح جديد
-                </Button>
-              </div>
+                    />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+          </TabsContent >
 
-              {isCreatingKey && (
-                <Card className="border-dashed">
-                  <CardContent className="pt-6 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>اسم المفتاح (للتوضيح)</Label>
-                        <Input
-                          placeholder="مثال: مفتاح Gemini الأساسي"
-                          value={newKeyLabel}
-                          onChange={(e) => setNewKeyLabel(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>المزود</Label>
-                        <Select value={newKeyProvider} onValueChange={(v: any) => setNewKeyProvider(v)}>
+    {/* Features Tab */ }
+    < TabsContent value = "features" className = "space-y-6" >
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Zap className="w-5 h-5" />
+            <span>تفعيل الميزات</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            {Object.entries(settings.features).map(([key, value]) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor={key}>
+                    {key === 'enableReviews' && 'تفعيل التقييمات'}
+                    {key === 'enableWishlist' && 'تفعيل قائمة الأمنيات'}
+                    {key === 'enableCompare' && 'تفعيل مقارنة المنتجات'}
+                    {key === 'enableNewsletter' && 'تفعيل النشرة الإخبارية'}
+                    {key === 'enableAffiliate' && 'تفعيل برنامج الشراكة'}
+                    {key === 'enableMultiCurrency' && 'تفعيل العملات المتعددة'}
+                    {key === 'enableGuestCheckout' && 'تفعيل الطلب كضيف'}
+                  </Label>
+                </div>
+                <Switch
+                  id={key}
+                  checked={value}
+                  onCheckedChange={(checked) => updateNestedSettings(`features.${key}`, checked)}
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+          </TabsContent >
+
+    {/* Security Tab */ }
+    < TabsContent value = "security" className = "space-y-6" >
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Shield className="w-5 h-5" />
+            <span>إعدادات الأمان</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            {Object.entries(settings.security).map(([key, value]) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor={key}>
+                    {key === 'enableTwoFactor' && 'تفعيل المصادقة الثنائية'}
+                    {key === 'enableBruteForceProtection' && 'حماية من الهجمات'}
+                    {key === 'sessionTimeout' && 'انتهاء الجلسة (دقيقة)'}
+                    {key === 'passwordMinLength' && 'الحد الأدنى لكلمة المرور'}
+                    {key === 'requireStrongPassword' && 'طلب كلمة مرور قوية'}
+                  </Label>
+                </div>
+                {typeof value === 'boolean' ? (
+                  <Switch
+                    id={key}
+                    checked={value}
+                    onCheckedChange={(checked) => updateNestedSettings(`security.${key}`, checked)}
+                  />
+                ) : (
+                  <Input
+                    id={key}
+                    type="number"
+                    value={value}
+                    onChange={(e) => updateNestedSettings(`security.${key}`, parseInt(e.target.value) || 0)}
+                    className="w-20"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+          </TabsContent >
+
+    {/* Notifications Tab */ }
+    < TabsContent value = "notifications" className = "space-y-6" >
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Bell className="w-5 h-5" />
+            <span>إعدادات الإشعارات</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            {Object.entries(settings.notifications).map(([key, value]) => (
+              <div key={key} className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor={key}>
+                    {key === 'emailNotifications' && 'الإشعارات عبر البريد الإلكتروني'}
+                    {key === 'smsNotifications' && 'الإشعارات عبر الرسائل النصية'}
+                    {key === 'pushNotifications' && 'الإشعارات الفورية'}
+                    {key === 'orderNotifications' && 'إشعارات الطلبات'}
+                    {key === 'marketingEmails' && 'رسائل التسويق'}
+                  </Label>
+                </div>
+                <Switch
+                  id={key}
+                  checked={value}
+                  onCheckedChange={(checked) => updateNestedSettings(`notifications.${key}`, checked)}
+                />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+          </TabsContent >
+
+    {/* SEO Tab */ }
+    < TabsContent value = "seo" className = "space-y-6" >
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Globe className="w-5 h-5" />
+            <span>إعدادات SEO</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="metaTitle">عنوان الموقع</Label>
+              <Input
+                id="metaTitle"
+                value={settings.seo.metaTitle}
+                onChange={(e) => updateNestedSettings('seo.metaTitle', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="metaDescription">وصف الموقع</Label>
+              <Input
+                id="metaDescription"
+                value={settings.seo.metaDescription}
+                onChange={(e) => updateNestedSettings('seo.metaDescription', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="metaKeywords">الكلمات المفتاحية</Label>
+              <Input
+                id="metaKeywords"
+                value={settings.seo.metaKeywords}
+                onChange={(e) => updateNestedSettings('seo.metaKeywords', e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="googleAnalyticsId">Google Analytics ID</Label>
+                <Input
+                  id="googleAnalyticsId"
+                  value={settings.seo.googleAnalyticsId}
+                  onChange={(e) => updateNestedSettings('seo.googleAnalyticsId', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="facebookPixelId">Facebook Pixel ID</Label>
+                <Input
+                  id="facebookPixelId"
+                  value={settings.seo.facebookPixelId}
+                  onChange={(e) => updateNestedSettings('seo.facebookPixelId', e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="enableSitemap">تفعيل خريطة الموقع</Label>
+              <Switch
+                id="enableSitemap"
+                checked={settings.seo.enableSitemap}
+                onCheckedChange={(checked) => updateNestedSettings('seo.enableSitemap', checked)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+          </TabsContent >
+
+    <TabsContent value="ai" className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Zap className="w-5 h-5" />
+            <span>مفاتيح API</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="space-y-1">
+              <h3 className="text-lg font-medium">إدارة المفاتيح</h3>
+              <p className="text-sm text-muted-foreground">
+                إدارة مفاتيح OpenAI و Google Gemini و SambaNova. سيتم استخدام المفتاح الافتراضي أولاً.
+              </p>
+            </div>
+            <Button onClick={() => setIsCreatingKey(true)}>
+              <Zap className="w-4 h-4 mr-2" />
+              إضافة مفتاح جديد
+            </Button>
+          </div>
+
+          {isCreatingKey && (
+            <Card className="border-dashed">
+              <CardContent className="pt-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>اسم المفتاح (للتوضيح)</Label>
+                    <Input
+                      placeholder="مثال: مفتاح SambaNova الأساسي"
+                      value={newKeyLabel}
+                      onChange={(e) => setNewKeyLabel(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>المزود</Label>
+                    <Select value={newKeyProvider} onValueChange={(v: any) => setNewKeyProvider(v)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="openai">OpenAI (GPT-3.5)</SelectItem>
+                        <SelectItem value="gemini">Google Gemini (Flash)</SelectItem>
+                        <SelectItem value="sambanova">SambaNova (Llama 3)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {newKeyProvider === 'sambanova' && (
+                    <div className="space-y-2">
+                      <Label>النموذج (Model)</Label>
+                      {isLoadingModels ? (
+                        <div className="text-sm text-muted-foreground">جاري جلب النماذج...</div>
+                      ) : (
+                        <Select value={newKeyModel} onValueChange={setNewKeyModel}>
                           <SelectTrigger>
-                            <SelectValue />
+                            <SelectValue placeholder="اختر النموذج" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="openai">OpenAI (GPT-3.5)</SelectItem>
-                            <SelectItem value="gemini">Google Gemini (Flash)</SelectItem>
+                            {availableModels.length > 0 ? (
+                              availableModels.map(model => (
+                                <SelectItem key={model} value={model}>{model}</SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="Meta-Llama-3.3-70B-Instruct">Meta-Llama-3.3-70B-Instruct (Default)</SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <Label>مفتاح API</Label>
-                        <Input
-                          type="password"
-                          placeholder="sk-..."
-                          value={newKeyValue}
-                          onChange={(e) => setNewKeyValue(e.target.value)}
+                      )}
+                    </div>
+                  )}
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>القدرات (Capabilities)</Label>
+                    <div className="flex gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="cap-text"
+                          checked={newKeyCapabilities.includes('text')}
+                          onCheckedChange={(checked) => {
+                            if (checked) setNewKeyCapabilities([...newKeyCapabilities, 'text']);
+                            else setNewKeyCapabilities(newKeyCapabilities.filter(c => c !== 'text'));
+                          }}
                         />
+                        <Label htmlFor="cap-text">توليد نصوص (Text)</Label>
                       </div>
-                      <div className="flex items-center space-x-2 md:col-span-2">
-                        <Switch
-                          id="default-key"
-                          checked={newKeyIsDefault}
-                          onCheckedChange={setNewKeyIsDefault}
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="cap-image"
+                          checked={newKeyCapabilities.includes('image')}
+                          disabled={newKeyProvider === 'sambanova'}
+                          onCheckedChange={(checked) => {
+                            if (checked) setNewKeyCapabilities([...newKeyCapabilities, 'image']);
+                            else setNewKeyCapabilities(newKeyCapabilities.filter(c => c !== 'image'));
+                          }}
                         />
-                        <Label htmlFor="default-key">تعيين كمفتاح افتراضي</Label>
+                        <Label htmlFor="cap-image" className={newKeyProvider === 'sambanova' ? 'text-muted-foreground' : ''}>
+                          توليد صور (Image)
+                        </Label>
                       </div>
                     </div>
-                    <div className="flex justify-end space-x-2">
-                      <Button variant="outline" onClick={() => setIsCreatingKey(false)}>إلغاء</Button>
-                      <Button onClick={handleCreateKey}>حفظ المفتاح</Button>
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>مفتاح API</Label>
+                    <Input
+                      type="password"
+                      placeholder={newKeyProvider === 'sambanova' ? "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" : "sk-..."}
+                      value={newKeyValue}
+                      onChange={(e) => setNewKeyValue(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 md:col-span-2">
+                    <Switch
+                      id="default-key"
+                      checked={newKeyIsDefault}
+                      onCheckedChange={setNewKeyIsDefault}
+                    />
+                    <Label htmlFor="default-key">تعيين كمفتاح افتراضي</Label>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setIsCreatingKey(false)}>إلغاء</Button>
+                  <Button onClick={handleCreateKey}>حفظ المفتاح</Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="space-y-4">
+            {keysLoading ? (
+              <div className="text-center py-8 text-muted-foreground">جاري التحميل...</div>
+            ) : openAIKeys.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                لا توجد مفاتيح مضافة حالياً
+              </div>
+            ) : (
+              openAIKeys.map((key) => (
+                <Card key={key.id} className={cn(
+                  "transition-all",
+                  key.isDefault ? "border-primary/50 bg-primary/5" : "",
+                  key.status === 'quota_exceeded' ? "border-yellow-500/50 bg-yellow-500/5" : "",
+                  key.status === 'error' ? "border-red-500/50 bg-red-500/5" : ""
+                )}>
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={cn(
+                        "p-2 rounded-full",
+                        key.provider === 'openai' ? "bg-green-100 text-green-600" :
+                          key.provider === 'sambanova' ? "bg-purple-100 text-purple-600" :
+                            "bg-blue-100 text-blue-600"
+                      )}>
+                        <Zap className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold">{key.label}</h4>
+                          {key.isDefault && (
+                            <Badge variant="default" className="bg-primary">افتراضي</Badge>
+                          )}
+                          {!key.isDefault && (
+                            <Badge variant="secondary">احتياطي</Badge>
+                          )}
+
+                          {key.status === 'active' && (
+                            <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                              نشط
+                            </Badge>
+                          )}
+                          {key.status === 'quota_exceeded' && (
+                            <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50">
+                              ⚠️ رصيد غير كافي
+                            </Badge>
+                          )}
+                          {key.status === 'error' && (
+                            <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50">
+                              ❌ خطأ
+                            </Badge>
+                          )}
+                          {key.capabilities?.includes('text') && <Badge variant="secondary" className="text-xs">Text</Badge>}
+                          {key.capabilities?.includes('image') && <Badge variant="secondary" className="text-xs">Image</Badge>}
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                          <span>{key.provider === 'openai' ? 'OpenAI' : key.provider === 'sambanova' ? 'SambaNova' : 'Google Gemini'}</span>
+                          {key.model && <span>({key.model})</span>}
+                          <span>•</span>
+                          <span className="font-mono">
+                            {key.key ? `${key.key.substring(0, 8)}...` : '••••••••'}
+                          </span>
+                          {key.lastTestedAt && (
+                            <>
+                              <span>•</span>
+                              <span>آخر اختبار: {new Date(key.lastTestedAt).toLocaleDateString('ar-EG')}</span>
+                            </>
+                          )}
+                        </div>
+                        {key.lastError && (
+                          <div className="text-xs text-red-500 mt-1">
+                            {key.lastError}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {!key.isDefault && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleActivateKey(key.id)}
+                          disabled={activateKeyId === key.id}
+                        >
+                          تعيين كافتراضي
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTestKey(key.id)}
+                        disabled={testKeyId === key.id}
+                      >
+                        {testKeyId === key.id ? "جاري الاختبار..." : "اختبار"}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        onClick={() => handleDeleteKey(key.id)}
+                        disabled={deleteKeyId === key.id}
+                      >
+                        حذف
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
-              )}
-
-              <div className="space-y-4">
-                {keysLoading ? (
-                  <div className="text-center py-8 text-muted-foreground">جاري التحميل...</div>
-                ) : openAIKeys.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-                    لا توجد مفاتيح مضافة حالياً
-                  </div>
-                ) : (
-                  openAIKeys.map((key) => (
-                    <Card key={key.id} className={cn(
-                      "transition-all",
-                      key.isDefault ? "border-primary/50 bg-primary/5" : "",
-                      key.status === 'quota_exceeded' ? "border-yellow-500/50 bg-yellow-500/5" : "",
-                      key.status === 'error' ? "border-red-500/50 bg-red-500/5" : ""
-                    )}>
-                      <CardContent className="p-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className={cn(
-                            "p-2 rounded-full",
-                            key.provider === 'openai' ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"
-                          )}>
-                            <Zap className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-semibold">{key.label}</h4>
-                              {key.isDefault && (
-                                <Badge variant="default" className="bg-primary">افتراضي</Badge>
-                              )}
-                              {!key.isDefault && (
-                                <Badge variant="secondary">احتياطي</Badge>
-                              )}
-
-                              {/* Status Badges */}
-                              {key.status === 'active' && (
-                                <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
-                                  نشط
-                                </Badge>
-                              )}
-                              {key.status === 'quota_exceeded' && (
-                                <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50">
-                                  ⚠️ رصيد غير كافي
-                                </Badge>
-                              )}
-                              {key.status === 'error' && (
-                                <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50">
-                                  ❌ خطأ
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                              <span>{key.provider === 'openai' ? 'OpenAI' : 'Google Gemini'}</span>
-                              <span>•</span>
-                              <span className="font-mono">
-                                {key.key ? `${key.key.substring(0, 8)}...` : '••••••••'}
-                              </span>
-                              {key.lastTestedAt && (
-                                <>
-                                  <span>•</span>
-                                  <span>آخر اختبار: {new Date(key.lastTestedAt).toLocaleDateString('ar-EG')}</span>
-                                </>
-                              )}
-                            </div>
-                            {key.lastError && (
-                              <div className="text-xs text-red-500 mt-1">
-                                {key.lastError}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          {!key.isDefault && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleActivateKey(key.id)}
-                              disabled={activateKeyId === key.id}
-                            >
-                              تعيين كافتراضي
-                            </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleTestKey(key.id)}
-                            disabled={testKeyId === key.id}
-                          >
-                            {testKeyId === key.id ? "جاري الاختبار..." : "اختبار"}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                            onClick={() => handleDeleteKey(key.id)}
-                            disabled={deleteKeyId === key.id}
-                          >
-                            حذف
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </TabsContent >
+            </Tabs >
+          </div >
+          );
 }
