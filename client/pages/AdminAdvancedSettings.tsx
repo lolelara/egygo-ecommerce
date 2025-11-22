@@ -406,7 +406,7 @@ export default function AdminAdvancedSettings() {
         provider: newKeyProvider as any,
         key: newKeyValue,
         isDefault: newKeyIsDefault,
-        model: newKeyProvider === 'sambanova' ? newKeyModel : undefined,
+        model: (newKeyProvider === 'sambanova' || newKeyProvider === 'openai') ? newKeyModel : undefined,
         capabilities: newKeyCapabilities as any
       });
 
@@ -415,7 +415,7 @@ export default function AdminAdvancedSettings() {
       setNewKeyIsDefault(false);
       setNewKeyCapabilities(['text']);
       setIsCreatingKey(false);
-      fetchKeys();
+      loadOpenAIKeys();
 
       toast({
         title: "تم الحفظ",
@@ -1026,7 +1026,7 @@ export default function AdminAdvancedSettings() {
                         </Select>
                       </div>
 
-                      {newKeyProvider === 'sambanova' && (
+                      {(newKeyProvider === 'sambanova' || newKeyProvider === 'openai') && (
                         <div className="space-y-2">
                           <Label>النموذج (Model)</Label>
                           {isLoadingModels ? (
@@ -1037,7 +1037,15 @@ export default function AdminAdvancedSettings() {
                                 <SelectValue placeholder="اختر النموذج" />
                               </SelectTrigger>
                               <SelectContent>
-                                {availableModels.length > 0 ? (
+                                {newKeyProvider === 'openai' ? (
+                                  <>
+                                    <SelectItem value="dall-e-3">DALL-E 3 (Images)</SelectItem>
+                                    <SelectItem value="dall-e-2">DALL-E 2 (Images)</SelectItem>
+                                    <SelectItem value="gpt-4-turbo">GPT-4 Turbo (Text)</SelectItem>
+                                    <SelectItem value="gpt-4o">GPT-4o (Text)</SelectItem>
+                                    <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Text)</SelectItem>
+                                  </>
+                                ) : availableModels.length > 0 ? (
                                   availableModels.map(model => (
                                     <SelectItem key={model} value={model}>{model}</SelectItem>
                                   ))

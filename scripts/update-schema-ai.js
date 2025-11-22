@@ -25,7 +25,7 @@ async function updateSchema() {
             'capabilities',
             255,   // size
             false, // required
-            ['text'], // default value
+            null, // default value (null for no default)
             true   // array
         );
         console.log('Success! Attribute capabilities added.');
