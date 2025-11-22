@@ -298,9 +298,8 @@ export default function Index() {
               <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-red-200 dark:from-red-900/40 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="absolute -top-3 -end-3 z-20">
                 <Badge className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-600 text-white px-4 py-2 font-bold text-sm shadow-xl shadow-red-500/50 dark:shadow-red-400/50 border-2 border-white dark:border-gray-700">
-                  <Badge className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-600 text-white px-4 py-2 font-bold text-sm shadow-xl shadow-red-500/50 dark:shadow-red-400/50 border-2 border-white dark:border-gray-700">
-                    {t('home.howItWorks.merchants.badge')}
-                  </Badge>
+                  {t('home.howItWorks.merchants.badge')}
+                </Badge>
               </div>
               <CardContent className="p-8 relative z-10">
                 {/* فيديو توضيحي */}
