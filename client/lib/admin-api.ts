@@ -1155,29 +1155,26 @@ export const aiContentApi = {
 قم بكتابة وصف احترافي وجذاب لهذا المنتج.`;
 
       // 2. Call API based on provider
+      // 2. Call API based on provider
       if (activeKey.provider === "gemini") {
-        // Try gemini-1.5-flash-001 which is the stable version
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-001:generateContent?key=${activeKey.key}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `${systemPrompt}\n\n${userPrompt}`
-              }]
-            }]
-          })
-        });
+        try {
+          // Import SDK dynamically to avoid build issues if not used
+          const { GoogleGenerativeAI } = await import("@google/generative-ai");
+          const genAI = new GoogleGenerativeAI(activeKey.key);
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error?.message || `Gemini Error: ${response.status}`);
+          // Try stable model first, then fallback
+          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+          const result = await model.generateContent(`${systemPrompt}\n\n${userPrompt}`);
+          const response = await result.response;
+          const text = response.text();
+
+          return text || currentDescription;
+        } catch (geminiError: any) {
+          console.error("Gemini SDK Error:", geminiError);
+          // Fallback to raw fetch if SDK fails or model issue
+          throw new Error(geminiError.message || "فشل في الاتصال بخدمة Gemini");
         }
-
-        const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || currentDescription;
 
       } else {
         // OpenAI

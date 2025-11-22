@@ -69,7 +69,7 @@ export const storageUtils = {
    */
   deleteFiles: async (fileIds: string[]): Promise<void> => {
     try {
-      const deletePromises = fileIds.map((fileId) => 
+      const deletePromises = fileIds.map((fileId) =>
         storageUtils.deleteFile(fileId)
       );
       await Promise.all(deletePromises);
@@ -92,22 +92,23 @@ export const storageUtils = {
    */
   getImageUrl: (image: string | { url: string } | undefined): string => {
     if (!image) return placeholder.product();
-    
+
     // If it's already an object with url property
     if (typeof image === 'object' && 'url' in image) {
       return image.url;
     }
-    
+
     // If it's a string
     if (typeof image === 'string') {
       // If it's already a full URL, return it
-      if (image.startsWith('http://') || image.startsWith('https://')) {
+      if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('data:')) {
         return image;
       }
       // If it's a file ID, convert to URL
-      return storage.getFileView(BUCKET_ID, image).toString();
+      const view = storage.getFileView(BUCKET_ID, image);
+      return view instanceof URL ? view.href : view.toString();
     }
-    
+
     return placeholder.product();
   },
 
@@ -118,7 +119,7 @@ export const storageUtils = {
     if (!images || !Array.isArray(images) || images.length === 0) {
       return [placeholder.product()];
     }
-    
+
     return images.map(img => storageUtils.getImageUrl(img));
   },
 
