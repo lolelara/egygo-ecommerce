@@ -511,7 +511,7 @@ export const openAIKeysApi = {
     }
   },
 
-  getActiveKey: async (capability: 'text' | 'image' = 'text'): Promise<AdminOpenAIKey> {
+  getActiveKey: async (capability: 'text' | 'image' = 'text'): Promise<AdminOpenAIKey> => {
     try {
       const keys = await openAIKeysApi.list();
       // Filter active keys that have the required capability
