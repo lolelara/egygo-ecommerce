@@ -40,6 +40,7 @@ export const Products = lazyLoad(() => import('@/pages/Products'));
 export const ProductDetail = lazyLoad(() => import('@/pages/ProductDetail'));
 export const Search = lazyLoad(() => import('@/pages/Search'));
 export const MobileMenu = lazyLoad(() => import('@/pages/MobileMenu'));
+export const DealsPage = lazyLoad(() => import('@/pages/DealsPage'));
 
 // ============================================
 // CUSTOMER PAGES (Medium Priority - Lazy)

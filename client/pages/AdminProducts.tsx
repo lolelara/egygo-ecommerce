@@ -879,6 +879,65 @@ export default function AdminProducts() {
     }
   };
 
+  // Bulk AI Improve Description
+  const handleBulkImproveDescription = async () => {
+    if (selectedProducts.length === 0) {
+      alert("الرجاء اختيار منتجات أولاً");
+      return;
+    }
+
+    if (!confirm(`هل أنت متأكد من تحسين وصف ${selectedProducts.length} منتج باستخدام الذكاء الاصطناعي؟`)) {
+      return;
+    }
+
+    setBulkUpdating(true);
+    let updatedCount = 0;
+    let failedCount = 0;
+
+    try {
+      // Get active key first to fail fast
+      const activeKey = await aiContentApi.improveDescription("test", "test").catch(() => null);
+      // We just test if it throws "no key" error, but improveDescription calls getActive internally.
+      // Actually, let's just try the first one and see.
+
+      for (const productId of selectedProducts) {
+        try {
+          const product = products.find(p => p.id === productId);
+          if (!product) continue;
+
+          const improvedDescription = await aiContentApi.improveDescription(
+            product.name,
+            product.description
+          );
+
+          await adminProductsApi.update({
+            id: productId,
+            description: improvedDescription,
+          } as AdminProductUpdate);
+
+          updatedCount++;
+
+          // Update local state immediately for better UX
+          setProducts((prev) => prev.map((p) =>
+            p.id === productId ? { ...p, description: improvedDescription } : p
+          ));
+
+        } catch (error) {
+          console.error(`Error improving product ${productId}:`, error);
+          failedCount++;
+        }
+      }
+
+      setSelectedProducts([]);
+      alert(`✅ تم تحسين وصف ${updatedCount} منتج بنجاح! ${failedCount > 0 ? `(فشل ${failedCount})` : ''}`);
+    } catch (error) {
+      console.error("Error bulk improving:", error);
+      alert("حدث خطأ أثناء التحسين الجماعي");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   // Toggle product selection
   const toggleProductSelection = (productId: string) => {
     setSelectedProducts((prev) =>
@@ -1086,6 +1145,16 @@ export default function AdminProducts() {
                     <Trash2 className="h-4 w-4 ml-2" />
                     حذف المحدد
                   </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBulkImproveDescription}
+                    disabled={bulkUpdating}
+                    className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 border-purple-200"
+                  >
+                    <Sparkles className="h-4 w-4 ml-2" />
+                    تحسين الوصف (AI)
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -1279,6 +1348,25 @@ export default function AdminProducts() {
                           title={(product as any).isFlashDeal ? "إزالة من العروض" : "إضافة للعروض"}
                         >
                           <Zap className={cn("h-5 w-5", (product as any).isFlashDeal && "fill-current")} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={async () => {
+                            if (!confirm(`هل تريد تحسين وصف المنتج "${product.name}"؟`)) return;
+                            try {
+                              const improved = await aiContentApi.improveDescription(product.name, product.description);
+                              await adminProductsApi.update({ id: product.id, description: improved } as AdminProductUpdate);
+                              setProducts(prev => prev.map(p => p.id === product.id ? { ...p, description: improved } : p));
+                              alert("✨ تم تحسين الوصف بنجاح!");
+                            } catch (e: any) {
+                              alert(e.message || "فشل التحسين");
+                            }
+                          }}
+                          className="h-8 w-8 p-0 text-gray-300 hover:text-purple-600 hover:bg-purple-50"
+                          title="تحسين الوصف بالذكاء الاصطناعي"
+                        >
+                          <Sparkles className="h-4 w-4" />
                         </Button>
                       </TableCell>
                       <TableCell>

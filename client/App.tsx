@@ -140,7 +140,7 @@ const App = () => (
                                 <Route path="/merchant" element={<LazyRoutes.Merchant />} />
 
                                 {/* Customer pages - Lazy */}
-                                {/* <Route path="/deals" element={<LazyRoutes.DealsPage />} /> */}
+                                <Route path="/deals" element={<LazyRoutes.DealsPage />} />
                                 <Route path="/cart" element={<LazyRoutes.Cart />} />
                                 <Route path="/checkout" element={<LazyRoutes.Checkout />} />
                                 <Route path="/wishlist" element={<LazyRoutes.Wishlist />} />
