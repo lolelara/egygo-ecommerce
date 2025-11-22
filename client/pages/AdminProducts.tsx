@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -802,6 +803,65 @@ export default function AdminProducts() {
     }
   };
 
+  // Bulk Auto Categorize
+  const handleBulkAutoCategorize = async () => {
+    if (selectedProducts.length === 0) return;
+
+    setBulkUpdating(true);
+    const toastId = toast.loading("جاري التصنيف التلقائي...");
+
+    try {
+      // 1. Get categories for context
+      const categoriesList = categories.map(c => ({ id: c.id, name: c.name }));
+
+      let successCount = 0;
+      let failedCount = 0;
+
+      for (const productId of selectedProducts) {
+        try {
+          const product = products.find(p => p.id === productId);
+          if (!product) continue;
+
+          // Suggest category
+          const suggestedCategoryId = await aiContentApi.suggestCategory(
+            product.name,
+            product.description,
+            categoriesList
+          );
+
+          if (suggestedCategoryId) {
+            // Update product
+            await adminProductsApi.update({
+              id: productId,
+              categoryId: suggestedCategoryId
+            } as AdminProductUpdate);
+
+            successCount++;
+
+            // Update local state immediately
+            setProducts((prev) => prev.map((p) =>
+              p.id === productId ? { ...p, category: suggestedCategoryId } : p
+            ));
+          } else {
+            failedCount++;
+          }
+        } catch (err) {
+          console.error(`Failed to categorize product ${productId}`, err);
+          failedCount++;
+        }
+      }
+
+      toast.success(`تم تصنيف ${successCount} منتج بنجاح! ${failedCount > 0 ? `(فشل ${failedCount})` : ''}`, { id: toastId });
+      setSelectedProducts([]);
+
+    } catch (error) {
+      console.error('Bulk categorize error:', error);
+      toast.error('حدث خطأ أثناء التصنيف التلقائي', { id: toastId });
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   // Bulk update product status
   const handleBulkStatusUpdate = async (inStock: boolean) => {
     if (selectedProducts.length === 0) {
@@ -880,7 +940,7 @@ export default function AdminProducts() {
   // Bulk AI Improve Description
   const handleBulkImproveDescription = async () => {
     if (selectedProducts.length === 0) {
-      alert("الرجاء اختيار منتجات أولاً");
+      toast.error("الرجاء اختيار منتجات أولاً");
       return;
     }
 
@@ -889,14 +949,13 @@ export default function AdminProducts() {
     }
 
     setBulkUpdating(true);
+    const toastId = toast.loading("جاري تحسين الوصف...");
     let updatedCount = 0;
     let failedCount = 0;
 
     try {
       // Get active key first to fail fast
-      const activeKey = await aiContentApi.improveDescription("test", "test").catch(() => null);
-      // We just test if it throws "no key" error, but improveDescription calls getActive internally.
-      // Actually, let's just try the first one and see.
+      await aiContentApi.improveDescription("test", "test");
 
       for (const productId of selectedProducts) {
         try {
@@ -910,12 +969,11 @@ export default function AdminProducts() {
 
           await adminProductsApi.update({
             id: productId,
-            description: improvedDescription,
+            description: improvedDescription
           } as AdminProductUpdate);
 
           updatedCount++;
 
-          // Update local state immediately for better UX
           setProducts((prev) => prev.map((p) =>
             p.id === productId ? { ...p, description: improvedDescription } : p
           ));
@@ -927,10 +985,10 @@ export default function AdminProducts() {
       }
 
       setSelectedProducts([]);
-      alert(`✅ تم تحسين وصف ${updatedCount} منتج بنجاح! ${failedCount > 0 ? `(فشل ${failedCount})` : ''}`);
+      toast.success(`تم تحسين وصف ${updatedCount} منتج بنجاح! ${failedCount > 0 ? `(فشل ${failedCount})` : ''}`, { id: toastId });
     } catch (error) {
       console.error("Error bulk improving:", error);
-      alert("حدث خطأ أثناء التحسين الجماعي");
+      toast.error("حدث خطأ أثناء التحسين الجماعي", { id: toastId });
     } finally {
       setBulkUpdating(false);
     }
@@ -1098,11 +1156,22 @@ export default function AdminProducts() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedProducts([])}
+                    className="text-muted-foreground hover:text-foreground"
                   >
                     إلغاء التحديد
                   </Button>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleBulkAutoCategorize}
+                    disabled={bulkUpdating} // Assuming isRewriting is similar to bulkUpdating for disabling
+                    className="gap-2"
+                  >
+                    <Sparkles className="h-4 w-4 text-purple-600" />
+                    تصنيف تلقائي (AI)
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"

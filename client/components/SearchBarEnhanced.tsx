@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, TrendingUp, Clock, ArrowLeft } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { productsApi } from '@/lib/api';
 
 interface SearchSuggestion {
     id: string;
@@ -18,6 +19,8 @@ interface SearchBarEnhancedProps {
     popularSearches?: string[];
     isLoading?: boolean;
 }
+
+
 
 export function SearchBarEnhanced({
     onSearch,
@@ -38,7 +41,6 @@ export function SearchBarEnhanced({
         // Fetch trending searches
         const fetchTrending = async () => {
             try {
-                const { productsApi } = await import('@/lib/api');
                 const terms = await productsApi.getTrendingSearchTerms();
                 if (terms && terms.length > 0) {
                     setTrendingSearches(terms);

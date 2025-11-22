@@ -1236,5 +1236,101 @@ export const aiContentApi = {
       console.error("AI Improvement Error:", error);
       throw new Error(error.message || "فشل في تحسين الوصف");
     }
+  },
+
+  suggestCategory: async (productName: string, productDescription: string, categories: { id: string; name: string }[]): Promise<string | null> => {
+    try {
+      // 1. Get active key
+      const activeKey = await openAIKeysApi.getActive();
+
+      if (!activeKey || !activeKey.key) {
+        throw new Error("لا يوجد مفتاح ذكاء اصطناعي نشط.");
+      }
+
+      const categoriesList = categories.map(c => `- ${c.name} (ID: ${c.id})`).join('\n');
+
+      const systemPrompt = `أنت خبير تصنيف منتجات. مهمتك هي اختيار أنسب فئة للمنتج من القائمة المتاحة فقط.
+يجب أن يكون الرد عبارة عن ID الفئة فقط، بدون أي نص إضافي.
+إذا لم تجد فئة مناسبة، رد بـ "null".
+
+قائمة الفئات المتاحة:
+${categoriesList}`;
+
+      const userPrompt = `اسم المنتج: ${productName}
+وصف المنتج: ${productDescription || "لا يوجد وصف"}
+
+ما هي الفئة المناسبة (ID فقط)؟`;
+
+      // 2. Call API based on provider
+      let responseText = "";
+
+      if (activeKey.provider === "gemini") {
+        try {
+          const { GoogleGenerativeAI } = await import("@google/generative-ai");
+          const genAI = new GoogleGenerativeAI(activeKey.key);
+
+          let model;
+          try {
+            model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
+          } catch (e) {
+            try {
+              model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+            } catch (e2) {
+              model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+            }
+          }
+
+          const result = await model.generateContent(`${systemPrompt}\n\n${userPrompt}`);
+          const response = await result.response;
+          responseText = response.text();
+        } catch (geminiError: any) {
+          // Fallback to raw fetch if SDK fails
+          if (geminiError.message?.includes('404') || geminiError.toString().includes('404')) {
+            const fallbackResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${activeKey.key}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }] })
+            });
+            const data = await fallbackResponse.json();
+            responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          } else {
+            throw geminiError;
+          }
+        }
+      } else {
+        // OpenAI
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${activeKey.key}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ],
+            temperature: 0.3
+          })
+        });
+
+        const data = await response.json();
+        responseText = data.choices?.[0]?.message?.content || "";
+      }
+
+      // Clean up response
+      const cleanId = responseText.trim().replace(/['"`]/g, '');
+
+      if (cleanId === "null" || !cleanId) return null;
+
+      // Verify ID exists in categories
+      const exists = categories.find(c => c.id === cleanId);
+      return exists ? exists.id : null;
+
+    } catch (error: any) {
+      console.error("AI Categorization Error:", error);
+      return null; // Fail gracefully
+    }
   }
 };
