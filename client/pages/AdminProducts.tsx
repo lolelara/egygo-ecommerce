@@ -75,7 +75,10 @@ import type {
   AdminProductCreate,
   AdminProductUpdate,
 } from "@shared/api";
-import { adminProductsApi } from "@/lib/admin-api";
+import { adminProductsApi, aiContentApi } from "@/lib/admin-api";
+import { productsApi, categoriesApi } from "@/lib/api";
+import { useAuth } from "@/contexts/AppwriteAuthContext";
+import { Sparkles } from "lucide-react";
 import { productsApi, categoriesApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 
@@ -121,6 +124,31 @@ const ProductForm = ({
       return [];
     }
   });
+
+  const [isImproving, setIsImproving] = useState(false);
+
+  const handleImproveDescription = async () => {
+    if (!formData.name) {
+      alert("يرجى إدخال اسم المنتج أولاً");
+      return;
+    }
+
+    setIsImproving(true);
+    try {
+      const improvedDescription = await aiContentApi.improveDescription(
+        formData.name,
+        formData.description
+      );
+
+      setFormData(prev => ({ ...prev, description: improvedDescription }));
+      alert("✨ تم تحسين الوصف بنجاح!");
+    } catch (error: any) {
+      console.error("Error improving description:", error);
+      alert(error.message || "فشل في تحسين الوصف");
+    } finally {
+      setIsImproving(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -269,7 +297,20 @@ const ProductForm = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">الوصف</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="description">الوصف</Label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleImproveDescription}
+            disabled={isImproving || !formData.name}
+            className="h-6 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          >
+            <Sparkles className={`w-3 h-3 me-1 ${isImproving ? 'animate-spin' : ''}`} />
+            {isImproving ? 'جاري التحسين...' : 'تحسين الوصف بالذكاء الاصطناعي'}
+          </Button>
+        </div>
         <Textarea
           id="description"
           value={formData.description}

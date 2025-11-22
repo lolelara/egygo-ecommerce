@@ -840,6 +840,63 @@ export const openAIKeysApi = {
     }
   },
 
+  getActive: async (): Promise<AdminOpenAIKey | null> => {
+    try {
+      // 1. Try to find a default key first
+      const defaultKeys = await databases.listDocuments(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        [
+          Query.equal("isDefault", true),
+          Query.limit(1)
+        ]
+      );
+
+      if (defaultKeys.documents.length > 0) {
+        const doc = defaultKeys.documents[0];
+        return {
+          id: doc.$id,
+          label: doc.label,
+          provider: doc.provider || "openai",
+          key: doc.key || doc.apiKey,
+          isActive: true,
+          isDefault: true,
+          priority: doc.priority || 0,
+          status: doc.keyStatus || 'active',
+        } as AdminOpenAIKey;
+      }
+
+      // 2. If no default, find any active key
+      const activeKeys = await databases.listDocuments(
+        DATABASE_ID,
+        appwriteConfig.collections.openai_keys,
+        [
+          Query.equal("status", "active"),
+          Query.limit(1)
+        ]
+      );
+
+      if (activeKeys.documents.length > 0) {
+        const doc = activeKeys.documents[0];
+        return {
+          id: doc.$id,
+          label: doc.label,
+          provider: doc.provider || "openai",
+          key: doc.key || doc.apiKey,
+          isActive: true,
+          isDefault: false,
+          priority: doc.priority || 0,
+          status: doc.keyStatus || 'active',
+        } as AdminOpenAIKey;
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error fetching active OpenAI key:", error);
+      return null;
+    }
+  },
+
 
   create: async (payload: { label: string; key: string; provider: "openai" | "gemini"; priority?: number; isDefault?: boolean }): Promise<AdminOpenAIKey> => {
     try {
@@ -1075,3 +1132,82 @@ export const openAIKeysApi = {
 };
 
 export const getAdminOpenAIKeys = openAIKeysApi.list;
+
+// AI Content Generation API
+export const aiContentApi = {
+  improveDescription: async (productName: string, currentDescription: string): Promise<string> => {
+    try {
+      // 1. Get active key
+      const activeKey = await openAIKeysApi.getActive();
+
+      if (!activeKey || !activeKey.key) {
+        throw new Error("لا يوجد مفتاح ذكاء اصطناعي نشط. يرجى إضافته من الإعدادات المتقدمة.");
+      }
+
+      const systemPrompt = `أنت خبير تسويق إلكتروني محترف متخصص في كتابة وصف منتجات جذاب ومقنع باللغة العربية.
+مهمتك هي تحسين وصف المنتج التالي ليكون أكثر جاذبية للمشترين، مع التركيز على الفوائد والمميزات.
+استخدم لغة تسويقية قوية، واجعل الوصف منظمًا وسهل القراءة.
+لا تضف أي مقدمات أو خاتمات، فقط نص الوصف المحسن.`;
+
+      const userPrompt = `اسم المنتج: ${productName}
+الوصف الحالي: ${currentDescription || "لا يوجد وصف"}
+
+قم بكتابة وصف احترافي وجذاب لهذا المنتج.`;
+
+      // 2. Call API based on provider
+      if (activeKey.provider === "gemini") {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${activeKey.key}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: `${systemPrompt}\n\n${userPrompt}`
+              }]
+            }]
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error?.message || `Gemini Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || currentDescription;
+
+      } else {
+        // OpenAI
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${activeKey.key}`
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt }
+            ],
+            temperature: 0.7
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error?.message || `OpenAI Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content || currentDescription;
+      }
+
+    } catch (error: any) {
+      console.error("AI Improvement Error:", error);
+      throw new Error(error.message || "فشل في تحسين الوصف");
+    }
+  }
+};
