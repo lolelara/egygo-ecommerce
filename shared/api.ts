@@ -36,6 +36,7 @@ export interface Product {
   sizes?: string[]; // Available sizes
   isFeatured?: boolean;
   isFeaturedInHero?: boolean;
+  mediaLinks?: string[];
 }
 
 export interface Category {
@@ -206,6 +207,7 @@ export interface AdminProductCreate {
   affiliateCommission: number;
   isFeatured?: boolean;
   isFeaturedInHero?: boolean;
+  mediaLinks?: string[];
 }
 
 export interface AdminProductUpdate extends Partial<AdminProductCreate> {

@@ -279,7 +279,11 @@ export const adminProductsApi = {
       if (updateData.merchantId) mappedData.merchantId = updateData.merchantId;
       if (updateData.colors) mappedData.colors = updateData.colors;
       if (updateData.sizes) mappedData.sizes = updateData.sizes;
-      if (updateData.mediaLinks) mappedData.mediaLinks = updateData.mediaLinks;
+      if (updateData.mediaLinks) {
+        mappedData.mediaLinks = updateData.mediaLinks.map((link: any) =>
+          typeof link === 'string' ? link : (link.url || link.link || '')
+        ).filter((link: string) => link && typeof link === 'string');
+      }
       if (updateData.colorSizeInventory !== undefined) mappedData.colorSizeInventory = updateData.colorSizeInventory;
 
       try {

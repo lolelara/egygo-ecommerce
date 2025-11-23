@@ -725,9 +725,22 @@ export default function AdminProducts() {
   const handleUpdateProduct = async (data: AdminProductUpdate) => {
     try {
       // Check if user has permission to edit this product (must be admin or the merchant who owns it)
+      // Check if user has permission to edit this product (must be admin or the merchant who owns it)
       const product = products.find(p => p.id === data.id);
-      const isAdmin = user && (user as any).labels?.includes('admin');
+
+      console.log('👤 User for permission check:', user);
+      console.log('🏷️ User Labels:', (user as any)?.labels);
+      console.log('👑 User Roles:', (user as any)?.roles);
+
+      const isAdmin = user && (
+        (user as any).labels?.includes('admin') ||
+        (user as any).roles?.includes('admin') ||
+        (user as any).email === 'admin@egygo.com' // Fallback for main admin
+      );
       const isMerchantOwner = product && (product as any).merchantId === user?.$id;
+
+      console.log('👮 isAdmin:', isAdmin);
+      console.log('🏪 isMerchantOwner:', isMerchantOwner);
 
       if (!isAdmin && !isMerchantOwner) {
         alert("ليس لديك صلاحية لتعديل هذا المنتج");
@@ -1014,20 +1027,29 @@ export default function AdminProducts() {
           const product = products.find(p => p.id === productId);
           if (!product) continue;
 
-          const improvedDescription = await aiContentApi.improveDescription(
+          const { description: improved, mediaLinks } = await aiContentApi.improveDescription(
             product.name,
             product.description
           );
 
+          // Merge new media links with existing ones
+          const currentMediaLinks = (product as any).mediaLinks || [];
+          const updatedMediaLinks = [...new Set([...currentMediaLinks, ...mediaLinks])];
+
           await adminProductsApi.update({
             id: productId,
-            description: improvedDescription
+            description: improved,
+            mediaLinks: updatedMediaLinks
           } as AdminProductUpdate);
 
           updatedCount++;
 
           setProducts((prev) => prev.map((p) =>
-            p.id === productId ? { ...p, description: improvedDescription } : p
+            p.id === productId ? {
+              ...p,
+              description: improved,
+              mediaLinks: updatedMediaLinks
+            } : p
           ));
 
         } catch (error) {
@@ -1474,10 +1496,25 @@ export default function AdminProducts() {
                           onClick={async () => {
                             if (!confirm(`هل تريد تحسين وصف المنتج "${product.name}"؟`)) return;
                             try {
-                              const improved = await aiContentApi.improveDescription(product.name, product.description);
-                              await adminProductsApi.update({ id: product.id, description: improved } as AdminProductUpdate);
-                              setProducts(prev => prev.map(p => p.id === product.id ? { ...p, description: improved } : p));
-                              alert("✨ تم تحسين الوصف بنجاح!");
+                              const { description: improved, mediaLinks } = await aiContentApi.improveDescription(product.name, product.description);
+
+                              // Merge new media links with existing ones
+                              const currentMediaLinks = (product as any).mediaLinks || [];
+                              const updatedMediaLinks = [...new Set([...currentMediaLinks, ...mediaLinks])];
+
+                              await adminProductsApi.update({
+                                id: product.id,
+                                description: improved,
+                                mediaLinks: updatedMediaLinks
+                              } as AdminProductUpdate);
+
+                              setProducts(prev => prev.map(p => p.id === product.id ? {
+                                ...p,
+                                description: improved,
+                                mediaLinks: updatedMediaLinks
+                              } : p));
+
+                              alert(`✨ تم تحسين الوصف واستخراج ${mediaLinks.length} رابط ميديا!`);
                             } catch (e: any) {
                               alert(e.message || "فشل التحسين");
                             }

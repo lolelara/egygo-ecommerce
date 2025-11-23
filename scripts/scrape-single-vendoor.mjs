@@ -299,7 +299,7 @@ async function saveToAppwrite(data, url) {
     const finalPrice = originalPrice + PROFIT_MARGIN;
 
     const sku = generateStableSKU(url);
-    description += `\n\nSKU: ${sku}\nالمصدر: Vendoor`;
+    description += `\n\nSKU: ${sku}`;
 
     const productData = {
       name: data.title || 'Unnamed Product',

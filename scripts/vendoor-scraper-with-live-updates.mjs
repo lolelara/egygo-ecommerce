@@ -618,7 +618,7 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
 
     // Create new product if not exists
     let description = details.description || `منتج من Vendoor - ${effectiveTitle}`;
-    description += `\n\nSKU: ${sku}\nالمصدر: Vendoor`;
+    description += `\n\nSKU: ${sku}`;
 
     // إضافة التنويعات للوصف
     if (details.colorSizeInventory && details.colorSizeInventory.length > 0) {
