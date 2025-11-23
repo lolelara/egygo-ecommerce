@@ -688,7 +688,7 @@ export default function ProductDetail() {
 
           {/* Tabs Section */}
           <Tabs defaultValue="reviews" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="w-full flex md:grid md:grid-cols-3 h-auto overflow-x-auto md:overflow-visible justify-start md:justify-center">
               <TabsTrigger value="reviews">التقييمات ({product.reviewCount})</TabsTrigger>
               <TabsTrigger value="specs">المواصفات</TabsTrigger>
               <TabsTrigger value="shipping">الشحن والإرجاع</TabsTrigger>

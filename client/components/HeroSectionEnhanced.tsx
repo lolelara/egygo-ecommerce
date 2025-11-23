@@ -49,7 +49,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
   const visibleProducts = getVisibleProducts();
 
   return (
-    <div className="relative min-h-[600px] overflow-hidden">
+    <div className="relative min-h-[85vh] lg:min-h-[600px] overflow-hidden">
       {/* Gradient Background with Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-500 to-red-700">
         {/* Egyptian Pattern Overlay */}
@@ -95,7 +95,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
             </motion.div>
 
             {/* Main Heading */}
-            <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white mb-6 leading-tight">
               <motion.span
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -108,7 +108,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="block text-4xl md:text-5xl mt-2 text-white/90 font-bold"
+                className="block text-3xl md:text-4xl lg:text-5xl mt-2 text-white/90 font-bold"
               >
                 تجربة تسوق استثنائية
               </motion.span>
@@ -119,7 +119,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="text-xl text-white/90 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+              className="text-lg md:text-xl text-white/90 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
             >
               اكتشف آلاف المنتجات المميزة بأفضل الأسعار مع شحن سريع ومجاني على جميع الطلبات
             </motion.p>

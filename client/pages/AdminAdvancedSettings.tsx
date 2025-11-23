@@ -139,7 +139,7 @@ function AITaskConfigSection({ keys }: { keys: AdminOpenAIKey[] }) {
   );
 }
 
-export default function AdminAdvancedSettings() {
+interface SiteSettings {
   // Branding
   siteName: string;
   siteDescription: string;
@@ -154,10 +154,10 @@ export default function AdminAdvancedSettings() {
   contactPhone: string;
   address: string;
   socialMedia: {
-    facebook ?: string;
-    twitter ?: string;
-    instagram ?: string;
-    linkedin ?: string;
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
   };
 
   // Business
@@ -202,9 +202,7 @@ export default function AdminAdvancedSettings() {
     metaTitle: string;
     metaDescription: string;
     metaKeywords: string;
-    googleAnalyticsId: string;
-    facebookPixelId: string;
-    enableSitemap: boolean;
+    ogImage: string;
   };
 }
 

@@ -217,6 +217,20 @@ export default function Index() {
               </div>
             ))}
           </div>
+          <div className="flex items-center gap-12 px-6">
+            {[...Array(15)].map((_, i) => (
+              <div key={`dup-${i}`} className="flex items-center gap-12">
+                <span className="text-white font-black text-2xl flex items-center gap-3">
+                  <Sparkles className="w-6 h-6" />
+                  egygo.me
+                </span>
+                <span className="text-white/80 font-bold text-xl flex items-center gap-3">
+                  <Users className="w-5 h-5" />
+                  PowerFamily
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
