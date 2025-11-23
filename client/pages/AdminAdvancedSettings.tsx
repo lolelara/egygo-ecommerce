@@ -29,12 +29,117 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { AdminOpenAIKey, openAIKeysApi } from "@/lib/admin-api";
+import { AdminOpenAIKey, openAIKeysApi, aiTaskConfigsApi, AITaskConfig } from "@/lib/admin-api";
 import env from "@/lib/env";
 import { databases, appwriteConfig, ID } from "@/lib/appwrite";
 import { Query } from "appwrite";
 
-interface SiteSettings {
+// AI Task Configuration Component
+function AITaskConfigSection({ keys }: { keys: AdminOpenAIKey[] }) {
+  const [tasks, setTasks] = useState<AITaskConfig[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const TASK_LABELS: Record<string, string> = {
+    'description': 'تحسين وصف المنتجات',
+    'chat': 'المحادثة الذكية (Chat)',
+    'image': 'توليد الصور',
+    'categorization': 'تصنيف المنتجات التلقائي'
+  };
+
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    setLoading(true);
+    try {
+      const loadedTasks = await Promise.all(
+        Object.keys(TASK_LABELS).map(async (taskId) => {
+          const config = await aiTaskConfigsApi.get(taskId);
+          return config || { id: '', taskId, primaryKeyId: '', fallbackKeyId: '', model: '' };
+        })
+      );
+      setTasks(loadedTasks);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async (taskId: string, field: keyof AITaskConfig, value: string) => {
+    try {
+      const updated = await aiTaskConfigsApi.update(taskId, { [field]: value });
+      setTasks(prev => prev.map(t => t.taskId === taskId ? { ...t, [field]: value, id: updated.id } : t));
+      toast({ title: "تم التحديث", description: "تم تحديث إعدادات المهمة بنجاح" });
+    } catch (error) {
+      toast({ title: "خطأ", description: "فشل تحديث الإعدادات", variant: "destructive" });
+    }
+  };
+
+  return (
+    <div className="grid gap-6">
+      {Object.entries(TASK_LABELS).map(([taskId, label]) => {
+        const task = tasks.find(t => t.taskId === taskId) || { taskId, primaryKeyId: '', fallbackKeyId: '' };
+
+        return (
+          <Card key={taskId}>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                {label}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>المفتاح الأساسي (Primary)</Label>
+                <Select
+                  value={task.primaryKeyId}
+                  onValueChange={(val) => handleUpdate(taskId, 'primaryKeyId', val)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر مفتاح..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">-- غير محدد --</SelectItem>
+                    {keys.map(k => (
+                      <SelectItem key={k.id} value={k.id}>
+                        {k.label} ({k.provider})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>مفتاح احتياطي (Fallback)</Label>
+                <Select
+                  value={task.fallbackKeyId}
+                  onValueChange={(val) => handleUpdate(taskId, 'fallbackKeyId', val)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر مفتاح..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">-- غير محدد --</SelectItem>
+                    {keys.map(k => (
+                      <SelectItem key={k.id} value={k.id}>
+                        {k.label} ({k.provider})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+export default function AdminAdvancedSettings() {
   // Branding
   siteName: string;
   siteDescription: string;
@@ -49,10 +154,10 @@ interface SiteSettings {
   contactPhone: string;
   address: string;
   socialMedia: {
-    facebook?: string;
-    twitter?: string;
-    instagram?: string;
-    linkedin?: string;
+    facebook ?: string;
+    twitter ?: string;
+    instagram ?: string;
+    linkedin ?: string;
   };
 
   // Business
@@ -575,7 +680,16 @@ export default function AdminAdvancedSettings() {
             <Zap className="w-4 h-4" />
             <span>مفاتيح OpenAI</span>
           </TabsTrigger>
+          <TabsTrigger value="ai-tasks" className="flex items-center space-x-2">
+            <Settings className="w-4 h-4" />
+            <span>مهام AI</span>
+          </TabsTrigger>
         </TabsList>
+
+        {/* AI Tasks Configuration Tab */}
+        <TabsContent value="ai-tasks" className="space-y-6">
+          <AITaskConfigSection keys={openAIKeys} />
+        </TabsContent>
 
         {/* Branding Tab */}
         <TabsContent value="branding" className="space-y-6">

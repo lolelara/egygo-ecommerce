@@ -39,7 +39,8 @@ export const appwriteConfig = {
     openai_keys: 'openai_keys', // Collection for OpenAI API keys
     coupons: 'coupons',
     shipping_methods: 'shipping_methods',
-    site_settings: 'site_settings'
+    site_settings: 'site_settings',
+    ai_task_configs: '6923575f0009ac079806'
   },
   buckets: {
     banners: 'banners'  // Storage bucket for banner images

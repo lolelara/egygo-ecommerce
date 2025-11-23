@@ -260,20 +260,47 @@ async function scrapeProduct(page, url, browser) {
             const drivePage = await browser.newPage();
             await drivePage.goto(driveLink, { waitUntil: 'networkidle2', timeout: 60000 });
 
-            // Wait for grid
-            try {
-              await drivePage.waitForSelector('div[role="gridcell"]', { timeout: 10000 });
-            } catch (e) {
-              await new Promise(r => setTimeout(r, 3000));
+            // Scroll to load all content
+            let previousHeight = 0;
+            let noChangeCount = 0;
+
+            while (noChangeCount < 3) {
+              // Scroll to bottom
+              await drivePage.evaluate(() => {
+                const scrollable = document.querySelector('div[role="main"] div[role="grid"]') || document.body;
+                if (scrollable) scrollable.scrollTop = scrollable.scrollHeight;
+                window.scrollTo(0, document.body.scrollHeight);
+              });
+
+              await new Promise(r => setTimeout(r, 2000)); // Wait for load
+
+              const currentHeight = await drivePage.evaluate(() => {
+                const scrollable = document.querySelector('div[role="main"] div[role="grid"]') || document.body;
+                return scrollable ? scrollable.scrollHeight : document.body.scrollHeight;
+              });
+
+              if (currentHeight === previousHeight) {
+                noChangeCount++;
+              } else {
+                previousHeight = currentHeight;
+                noChangeCount = 0;
+              }
             }
 
             const fileIds = await drivePage.evaluate(() => {
               const ids = [];
-              const elements = document.querySelectorAll('div[data-id]');
-              elements.forEach(el => {
+              // Strategy 1: data-id attribute (Grid view)
+              document.querySelectorAll('div[data-id]').forEach(el => {
                 const id = el.getAttribute('data-id');
                 if (id && id.length > 20) ids.push(id);
               });
+
+              // Strategy 2: data-target-id (List view sometimes)
+              document.querySelectorAll('div[data-target-id]').forEach(el => {
+                const id = el.getAttribute('data-target-id');
+                if (id && id.length > 20) ids.push(id);
+              });
+
               return [...new Set(ids)];
             });
 

@@ -729,11 +729,98 @@ export const openAIKeysApi = {
 
 export const getAdminOpenAIKeys = openAIKeysApi.list;
 
+export interface AITaskConfig {
+  id: string;
+  taskId: string; // 'description', 'chat', 'image', 'categorization'
+  primaryKeyId?: string;
+  fallbackKeyId?: string;
+  model?: string;
+  provider?: string;
+}
+
+export const aiTaskConfigsApi = {
+  get: async (taskId: string): Promise<AITaskConfig | null> => {
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        appwriteConfig.collections.ai_task_configs,
+        [Query.equal('taskId', taskId)]
+      );
+      if (response.documents.length > 0) {
+        const doc = response.documents[0];
+        return {
+          id: doc.$id,
+          taskId: doc.taskId,
+          primaryKeyId: doc.primaryKeyId,
+          fallbackKeyId: doc.fallbackKeyId,
+          model: doc.model,
+          provider: doc.provider
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error fetching config for ${taskId}:`, error);
+      return null;
+    }
+  },
+
+  update: async (taskId: string, data: Partial<AITaskConfig>): Promise<AITaskConfig> => {
+    try {
+      const existing = await aiTaskConfigsApi.get(taskId);
+      if (existing) {
+        const doc = await databases.updateDocument(
+          DATABASE_ID,
+          appwriteConfig.collections.ai_task_configs,
+          existing.id,
+          data
+        );
+        return { ...doc, id: doc.$id } as unknown as AITaskConfig;
+      } else {
+        const doc = await databases.createDocument(
+          DATABASE_ID,
+          appwriteConfig.collections.ai_task_configs,
+          ID.unique(),
+          { taskId, ...data }
+        );
+        return { ...doc, id: doc.$id } as unknown as AITaskConfig;
+      }
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تحديث إعدادات المهمة");
+    }
+  },
+
+  // Helper to get the best available key for a task
+  getEffectiveKey: async (taskId: string): Promise<AdminOpenAIKey> => {
+    const config = await aiTaskConfigsApi.get(taskId);
+
+    // 1. Try Primary Key
+    if (config?.primaryKeyId) {
+      try {
+        const key = await databases.getDocument(DATABASE_ID, appwriteConfig.collections.openai_keys, config.primaryKeyId);
+        if (key.status === 'active') return { ...key, id: key.$id } as unknown as AdminOpenAIKey;
+      } catch (e) { console.warn('Primary key failed, trying fallback...'); }
+    }
+
+    // 2. Try Fallback Key
+    if (config?.fallbackKeyId) {
+      try {
+        const key = await databases.getDocument(DATABASE_ID, appwriteConfig.collections.openai_keys, config.fallbackKeyId);
+        if (key.status === 'active') return { ...key, id: key.$id } as unknown as AdminOpenAIKey;
+      } catch (e) { console.warn('Fallback key failed...'); }
+    }
+
+    // 3. Default to any active text key
+    return await openAIKeysApi.getActiveKey('text');
+  }
+};
+
 // AI Content Generation API
 export const aiContentApi = {
   improveDescription: async (productName: string, currentDescription: string): Promise<{ description: string; mediaLinks: string[] }> => {
     try {
-      const activeKey = await openAIKeysApi.getActiveKey('text');
+      // Use the new config system to get the key
+      const activeKey = await aiTaskConfigsApi.getEffectiveKey('description');
+
       const systemPrompt = `أنت خبير تسويق إلكتروني محترف متخصص في كتابة وصف منتجات جذاب ومقنع باللغة العربية.
 مهمتك هي تحسين وصف المنتج التالي ليكون أكثر جاذبية للمشترين، واستخراج روابط الميديا (Google Drive) إن وجدت.
 
@@ -749,6 +836,7 @@ export const aiContentApi = {
 5. **الإيموجي:** استخدم الإيموجي لإضفاء لمسة جمالية وحيوية.
 6. **تجنب النجوم:** لا تستخدم رموز النجوم (⭐) في الوصف نهائياً. استخدم التنسيق العريض (**) للعناوين فقط.
 7. **روابط الميديا:** إذا وجدت روابط Google Drive أو روابط تحت قسم "روابط الميديا"، قم باستخراجها ووضعها في حقل "mediaLinks" ولا تتركها داخل نص الوصف.
+8. **إزالة العمولات:** احذف نهائياً أي ذكر للـ "عمولة" أو "Commission" أو أي أسعار إضافية (مثل "+ عمولة 80 جنيه"). الوصف موجه للمشتري النهائي ويجب ألا يرى هذه التفاصيل.
 
 مثال للتنسيق المطلوب (JSON):
 {
@@ -783,8 +871,7 @@ export const aiContentApi = {
           body: JSON.stringify({
             model: activeKey.model || "Meta-Llama-3.3-70B-Instruct",
             messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
-            temperature: 0.7,
-            response_format: { type: "json_object" }
+            temperature: 0.7
           })
         });
         if (!response.ok) throw new Error(`SambaNova Error: ${response.status}`);

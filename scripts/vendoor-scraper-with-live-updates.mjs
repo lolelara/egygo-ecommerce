@@ -251,10 +251,10 @@ async function getOrCreateVendoorCategory() {
   return null;
 }
 
-async function scrapeProductDetails(page, productUrl) {
+async function scrapeProductDetails(page, productUrl, browser) {
   try {
-    await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
-    await new Promise(resolve => setTimeout(resolve, 2500));
+    console.log('   🔍 جاري سحب تفاصيل المنتج...');
+    // ... (rest of function)
 
     const details = await page.evaluate(() => {
       const data = { productImages: [], variants: [], totalStock: 0, title: '', originalPrice: 0 };
@@ -523,7 +523,7 @@ function generateStableSKU(link) {
   }
 }
 
-async function addProductToAppwrite(product, categoryId, page, productIndex) {
+async function addProductToAppwrite(product, categoryId, page, productIndex, browser) {
   try {
     const ignoreList = ['لوحة التحكم', 'تسجيل الخروج', 'أضف اوردر', 'جميع المنتجات', 'المنتجات الخاصه', 'فيديو'];
     const listTitle = (product.title || '').toString();
@@ -533,7 +533,17 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     }
 
     // جلب التفاصيل أولاً للحصول على العنوان والسعر والصور بدقة
-    const details = await scrapeProductDetails(page, product.link);
+    // Use a new page for each product to avoid state issues
+    const productPage = await browser.newPage();
+    await productPage.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+
+    // Copy cookies from main page to ensure login session is shared
+    const cookies = await page.cookies();
+    await productPage.setCookie(...cookies);
+
+    const details = await scrapeProductDetails(productPage, product.link, browser);
+    await productPage.close();
+
     if (!details) {
       if (DEBUG) {
         try { await page.screenshot({ path: `debug_fail_details_${productIndex}.png`, fullPage: true }); } catch (e) { }
@@ -692,15 +702,39 @@ async function collectAllProductLinks(page) {
   let lastPage = 1;
   while (true) {
     const url = currentPage === 1 ? VENDOOR_PRODUCTS_URL : `${VENDOOR_PRODUCTS_URL}?page=${currentPage}`;
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 500));
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+
+    // Check if redirected to login
+    if (page.url().includes('login')) {
+      console.error('❌ Redirected to login page! Session might be invalid.');
+      return null;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 2500));
     const result = await page.evaluate(() => {
-      const anchors = Array.from(document.querySelectorAll('a'));
-      const productAnchors = anchors.filter(a => {
-        const href = a.href || '';
-        return href.includes('/product/') && !href.includes('/logout') && !href.includes('/login');
+      const links = [];
+      // Select all rows in the table body
+      const rows = Array.from(document.querySelectorAll('table#example tbody tr'));
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 5) {
+          // Column 3 (index 2) contains the Title Link
+          const titleAnchor = cells[2].querySelector('a');
+          // Column 5 (index 4) contains the Price
+          const priceCell = cells[4];
+
+          if (titleAnchor) {
+            const priceText = priceCell ? (priceCell.textContent || '').trim() : '';
+            links.push({
+              link: titleAnchor.href.trim(),
+              title: (titleAnchor.textContent || '').trim(),
+              price: priceText
+            });
+          }
+        }
       });
-      const links = productAnchors.map(a => ({ link: a.href.trim(), title: (a.textContent || '').trim() }));
+
       let lastPage = 1;
       const pageLinks = Array.from(document.querySelectorAll('a[href*="page="]'));
       const nums = pageLinks.map(a => {
@@ -715,7 +749,7 @@ async function collectAllProductLinks(page) {
     console.log(`📄 صفحة ${currentPage}/${lastPage} - روابط المنتجات المكتشفة: ${result.links.length}`);
     if (currentPage >= lastPage) break;
     currentPage++;
-    if (currentPage > 200) break; // أمان
+    if (currentPage > 5) break; // Limit to 5 pages for testing
   }
   return Array.from(collected.values());
 }
@@ -750,7 +784,7 @@ async function scrapeVendoorProducts() {
   let browser;
   try {
     browser = await puppeteer.launch({
-      headless: 'new',
+      headless: false,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -771,17 +805,34 @@ async function scrapeVendoorProducts() {
       page.on('requestfailed', req => console.log('[REQ-FAILED]', req.url(), req.failure() && req.failure().errorText));
     }
 
-    console.log('📄 تسجيل دخول...');
-    await page.goto(VENDOOR_LOGIN_URL, { waitUntil: 'networkidle2', timeout: 60000 });
-    await page.waitForSelector('input[name="name"]', { timeout: 10000 });
+    // 1. Login with retry
+    let loginSuccess = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        console.log(`🔑 محاولة تسجيل الدخول (${attempt}/3)...`);
 
-    await page.type('input[name="name"]', VENDOOR_EMAIL, { delay: 100 });
-    await page.type('input[type="password"]', VENDOOR_PASSWORD, { delay: 100 });
+        // Inline login logic
+        await page.goto(VENDOOR_LOGIN_URL, { waitUntil: 'networkidle2', timeout: 60000 });
+        await page.waitForSelector('input[name="name"]', { timeout: 10000 });
 
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }),
-      page.click('button[type="submit"]')
-    ]);
+        await page.type('input[name="name"]', VENDOOR_EMAIL, { delay: 100 });
+        await page.type('input[type="password"]', VENDOOR_PASSWORD, { delay: 100 });
+
+        await Promise.all([
+          page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 120000 }),
+          page.click('button[type="submit"]')
+        ]);
+        loginSuccess = true;
+        break;
+      } catch (err) {
+        console.error(`❌ فشل تسجيل الدخول (محاولة ${attempt}): ${err.message}`);
+        if (attempt < 3) await new Promise(r => setTimeout(r, 5000));
+      }
+    }
+
+    if (!loginSuccess) {
+      throw new Error('فشل تسجيل الدخول بعد 3 محاولات');
+    }
 
     console.log('✅ تم تسجيل الدخول!\n');
     await sendTelegram('✅ تم تسجيل الدخول بنجاح!' + '\n' + '🔍 جاري استخراج المنتجات...');
@@ -803,10 +854,28 @@ async function scrapeVendoorProducts() {
     let failCount = 0;
     const results = [];
 
+    const total = products.length;
+
+    console.log(`\n🚀 بدء معالجة ${total} منتج (وضع الاختبار)...\n`);
+
     // معالجة المنتجات مع تحديثات دورية
-    for (let i = 0; i < products.length; i++) {
-      console.log(`[${i + 1}/${products.length}]`);
-      const result = await addProductToAppwrite(products[i], categoryId, page, i + 1);
+    for (let i = 0; i < total; i++) {
+      const product = products[i];
+      const index = i + 1;
+
+      // تحديث رسالة Telegram كل 5 منتجات
+      if (i > 0 && i % 5 === 0) {
+        const msg = formatProgressUpdate(i, total, successCount, failCount);
+        await sendTelegram(msg);
+      }
+
+      console.log(`\n📦 [${index}/${total}] معالجة: ${product.title || product.link}`);
+
+      // Add delay to prevent rate limiting or connection issues
+      await new Promise(r => setTimeout(r, 2000));
+
+      // معالجة المنتج
+      const result = await addProductToAppwrite(product, categoryId, page, index, browser);
 
       if (result) {
         successCount++;
@@ -816,8 +885,8 @@ async function scrapeVendoorProducts() {
       }
 
       // إرسال تحديث كل 5 منتجات
-      if ((i + 1) % 5 === 0 || i + 1 === products.length) {
-        const progressMsg = formatProgressUpdate(i + 1, products.length, successCount, failCount);
+      if ((i + 1) % 5 === 0 || i + 1 === total) {
+        const progressMsg = formatProgressUpdate(i + 1, total, successCount, failCount);
         await sendTelegram(progressMsg);
       }
 
