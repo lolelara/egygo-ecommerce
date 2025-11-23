@@ -36,6 +36,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { usePendingAccountsCount } from "@/hooks/usePendingAccountsCount";
 import { usePendingProductsCount } from "@/hooks/usePendingProductsCount";
@@ -371,16 +372,21 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
         })}
       </nav>
 
+
+
       <div className="p-4 border-t">
-        <div className="flex items-center gap-3 mb-4">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="" />
-            <AvatarFallback>أدمن</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">المدير العام</p>
-            <p className="text-xs text-muted-foreground">admin@example.com</p>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src="" />
+              <AvatarFallback>أدمن</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">المدير العام</p>
+              <p className="text-xs text-muted-foreground">admin@example.com</p>
+            </div>
           </div>
+          <ThemeToggle />
         </div>
 
         <Button

@@ -112,6 +112,7 @@ const ProductForm = ({
     sizes: (product as any)?.sizes?.join(", ") || "",
     verificationVideo: (product as any)?.verificationVideo || "",
     approvalStatus: (product as any)?.approvalStatus || "pending",
+    mediaLinks: (product as any)?.mediaLinks || [],
   });
 
   // Inventory management state
@@ -134,13 +135,22 @@ const ProductForm = ({
 
     setIsImproving(true);
     try {
-      const improvedDescription = await aiContentApi.improveDescription(
+      const result = await aiContentApi.improveDescription(
         formData.name,
         formData.description
       );
 
-      setFormData(prev => ({ ...prev, description: improvedDescription }));
-      alert("✨ تم تحسين الوصف بنجاح!");
+      setFormData(prev => ({
+        ...prev,
+        description: result.description,
+        mediaLinks: [...new Set([...prev.mediaLinks, ...result.mediaLinks])]
+      }));
+
+      if (result.mediaLinks.length > 0) {
+        alert(`✨ تم تحسين الوصف واستخراج ${result.mediaLinks.length} رابط ميديا!`);
+      } else {
+        alert("✨ تم تحسين الوصف بنجاح!");
+      }
     } catch (error: any) {
       console.error("Error improving description:", error);
       alert(error.message || "فشل في تحسين الوصف");
@@ -194,6 +204,7 @@ const ProductForm = ({
       inStock: true, // Always set to true for products with stock
       isActive: true, // Always activate new products (admin can deactivate manually)
       categoryIds: formData.categoryIds, // Include multiple categories
+      mediaLinks: formData.mediaLinks,
     };
 
     console.log('💾 Submit data:', submitData);
@@ -506,6 +517,46 @@ const ProductForm = ({
           label="فيديو التحقق من المنتج"
           required={!product}
         />
+      </div>
+
+      {/* Media Links Section */}
+      <div className="space-y-2">
+        <Label>روابط الميديا (Google Drive)</Label>
+        <div className="space-y-2">
+          {formData.mediaLinks.map((link: string, index: number) => (
+            <div key={index} className="flex items-center gap-2">
+              <Input
+                value={link}
+                onChange={(e) => {
+                  const newLinks = [...formData.mediaLinks];
+                  newLinks[index] = e.target.value;
+                  setFormData(prev => ({ ...prev, mediaLinks: newLinks }));
+                }}
+                placeholder="https://drive.google.com/..."
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const newLinks = formData.mediaLinks.filter((_: any, i: number) => i !== index);
+                  setFormData(prev => ({ ...prev, mediaLinks: newLinks }));
+                }}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
+          ))}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setFormData(prev => ({ ...prev, mediaLinks: [...prev.mediaLinks, ""] }))}
+            className="w-full"
+          >
+            <Plus className="h-4 w-4 mr-2" /> إضافة رابط ميديا
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-2">

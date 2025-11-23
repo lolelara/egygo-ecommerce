@@ -721,44 +721,49 @@ export const getAdminOpenAIKeys = openAIKeysApi.list;
 
 // AI Content Generation API
 export const aiContentApi = {
-  improveDescription: async (productName: string, currentDescription: string): Promise<string> => {
+  improveDescription: async (productName: string, currentDescription: string): Promise<{ description: string; mediaLinks: string[] }> => {
     try {
       const activeKey = await openAIKeysApi.getActiveKey('text');
       const systemPrompt = `أنت خبير تسويق إلكتروني محترف متخصص في كتابة وصف منتجات جذاب ومقنع باللغة العربية.
-مهمتك هي تحسين وصف المنتج التالي ليكون أكثر جاذبية للمشترين، مع اتباع القواعد التالية بدقة:
+مهمتك هي تحسين وصف المنتج التالي ليكون أكثر جاذبية للمشترين، واستخراج روابط الميديا (Google Drive) إن وجدت.
+
+عليك إرجاع النتيجة بصيغة JSON فقط، تحتوي على الحقلين التاليين:
+1. "description": الوصف المحسن (نص).
+2. "mediaLinks": قائمة بروابط الميديا المستخرجة (مصفوفة نصوص).
+
+قواعد تحسين الوصف:
 1. **العنوان الجذاب:** ابدأ بعنوان قوي وجذاب يحتوي على اسم المنتج وشعار قصير (Slogan) مع إيموجي مناسب.
 2. **المميزات الأساسية (Key Features):** قم بسرد أهم 4-6 مميزات للمنتج في شكل نقاط (Bullet Points). كل نقطة يجب أن تبدأ بـ **عنوان الميزة بخط عريض** يليه شرح قصير وجذاب. استخدم الإيموجي المناسب لكل ميزة.
 3. **التنسيق:** اجعل الوصف مرتبًا وسهل القراءة. افصل بين الفقرات بوضوح.
-4. **الأسلوب:** استخدم لغة تسويقية راقية ومقنعة ولكن **بدون مبالغة** (تجنب الكلمات المبتذلة). ركز على الفوائد الحقيقية للمستخدم.
-5. **الإيموجي:** استخدم الإيموجي لإضفاء لمسة جمالية وحيوية، ولكن بذكاء ودون إفراط.
+4. **الأسلوب:** استخدم لغة تسويقية راقية ومقنعة ولكن **بدون مبالغة**. ركز على الفوائد الحقيقية للمستخدم.
+5. **الإيموجي:** استخدم الإيموجي لإضفاء لمسة جمالية وحيوية.
 6. **تجنب النجوم:** لا تستخدم رموز النجوم (⭐) في الوصف نهائياً. استخدم التنسيق العريض (**) للعناوين فقط.
+7. **روابط الميديا:** إذا وجدت روابط Google Drive أو روابط تحت قسم "روابط الميديا"، قم باستخراجها ووضعها في حقل "mediaLinks" ولا تتركها داخل نص الوصف.
 
-مثال للتنسيق المطلوب:
-**اسم المنتج: شعار جذاب! 🚀**
-
-**ميزة 1: شرح الميزة.** 🌟 تفاصيل الميزة...
-**ميزة 2: شرح الميزة.** 🛡️ تفاصيل الميزة...
-
-خاتمة قصيرة وجذابة.`;
+مثال للتنسيق المطلوب (JSON):
+{
+  "description": "**اسم المنتج: شعار جذاب! 🚀**\\n\\n**ميزة 1: شرح الميزة.** 🌟 تفاصيل...\\n\\nخاتمة...",
+  "mediaLinks": ["https://drive.google.com/...", "https://..."]
+}`;
 
       const userPrompt = `اسم المنتج: ${productName}
 الوصف الحالي: ${currentDescription || "لا يوجد وصف"}
 
-قم بكتابة وصف احترافي وجذاب لهذا المنتج.`;
+قم بكتابة وصف احترافي وجذاب لهذا المنتج واستخرج روابط الميديا.`;
+
+      let responseText = "";
 
       if (activeKey.provider === "gemini") {
         try {
           const { GoogleGenerativeAI } = await import("@google/generative-ai");
           const genAI = new GoogleGenerativeAI(activeKey.key!);
           let model;
-          try { model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" }); }
-          catch (e) { model = genAI.getGenerativeModel({ model: "gemini-flash-latest" }); }
+          try { model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001", generationConfig: { responseMimeType: "application/json" } }); }
+          catch (e) { model = genAI.getGenerativeModel({ model: "gemini-flash-latest", generationConfig: { responseMimeType: "application/json" } }); }
 
           const result = await model.generateContent(`${systemPrompt}\n\n${userPrompt}`);
-          const text = (await result.response).text() || currentDescription;
-          return text.substring(0, 2000);
+          responseText = (await result.response).text();
         } catch (geminiError: any) {
-          // Fallback
           throw geminiError;
         }
       } else if (activeKey.provider === "sambanova") {
@@ -768,28 +773,41 @@ export const aiContentApi = {
           body: JSON.stringify({
             model: activeKey.model || "Meta-Llama-3.3-70B-Instruct",
             messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
-            temperature: 0.7
+            temperature: 0.7,
+            response_format: { type: "json_object" }
           })
         });
         if (!response.ok) throw new Error(`SambaNova Error: ${response.status}`);
         const data = await response.json();
-        const text = data.choices?.[0]?.message?.content || currentDescription;
-        return text.substring(0, 2000);
+        responseText = data.choices?.[0]?.message?.content || "{}";
       } else {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${activeKey.key}` },
           body: JSON.stringify({
-            model: activeKey.model || "gpt-3.5-turbo",
+            model: activeKey.model || "gpt-3.5-turbo-1106",
             messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
-            temperature: 0.7
+            temperature: 0.7,
+            response_format: { type: "json_object" }
           })
         });
         if (!response.ok) throw new Error(`OpenAI Error: ${response.status}`);
         const data = await response.json();
-        const text = data.choices?.[0]?.message?.content || currentDescription;
-        return text.substring(0, 2000);
+        responseText = data.choices?.[0]?.message?.content || "{}";
       }
+
+      try {
+        const parsed = JSON.parse(responseText);
+        return {
+          description: parsed.description || currentDescription,
+          mediaLinks: Array.isArray(parsed.mediaLinks) ? parsed.mediaLinks : []
+        };
+      } catch (e) {
+        console.error("Failed to parse AI JSON response:", e);
+        // Fallback: return text as description if parsing fails
+        return { description: responseText, mediaLinks: [] };
+      }
+
     } catch (error: any) {
       console.error("AI Improvement Error:", error);
       throw new Error(error.message || "فشل في تحسين الوصف");

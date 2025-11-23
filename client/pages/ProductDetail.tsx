@@ -39,6 +39,7 @@ import { EnhancedProductGallery } from "@/components/product/EnhancedProductGall
 import { SEOHead } from "@/components/SEOHead";
 import { analytics } from "@/lib/enhanced-analytics";
 import { getColorInfo } from "@/lib/colorUtils";
+import { GoogleDriveViewer } from "@/components/GoogleDriveViewer";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -413,26 +414,14 @@ export default function ProductDetail() {
                   {product.description}
                 </div>
 
-                {/* Media Links */}
-                {product.mediaLinks && product.mediaLinks.length > 0 && (
-                  <div className="mt-6 space-y-3">
-                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <span className="p-1 bg-blue-100 rounded text-blue-600">
-                        <Download className="w-4 h-4" />
-                      </span>
-                      روابط الميديا (صور وفيديوهات)
-                    </h3>
-                    <div className="flex flex-wrap gap-3">
-                      {product.mediaLinks.map((link: string, index: number) => (
-                        <Button key={index} variant="outline" className="gap-2" asChild>
-                          <a href={link} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-4 w-4" />
-                            تحميل الميديا {index + 1}
-                          </a>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
+                {/* Media Links (Google Drive Viewer) */}
+                {(product.mediaLinks?.length > 0 || product.mediaLink) && (
+                  <GoogleDriveViewer
+                    links={[
+                      ...(product.mediaLinks || []),
+                      ...(product.mediaLink ? [product.mediaLink] : [])
+                    ].filter(Boolean)}
+                  />
                 )}
               </div>
 

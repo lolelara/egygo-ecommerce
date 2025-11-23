@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { Client, Databases, ID, Permission, Role } from 'node-appwrite';
+import { Client, Databases, ID, Permission, Role, Query } from 'node-appwrite';
 import fs from 'fs';
 import https from 'https';
 
@@ -51,7 +51,7 @@ async function sendTelegram(message) {
       text: message,
       parse_mode: 'HTML'
     });
-    
+
     const options = {
       hostname: 'api.telegram.org',
       port: 443,
@@ -62,7 +62,7 @@ async function sendTelegram(message) {
         'Content-Length': Buffer.byteLength(data)
       }
     };
-    
+
     const req = https.request(options, (res) => {
       let body = '';
       res.on('data', (chunk) => { body += chunk; });
@@ -81,12 +81,12 @@ async function sendTelegram(message) {
         }
       });
     });
-    
+
     req.on('error', (error) => {
       console.error('❌ خطأ في الاتصال:', error.message);
       resolve(false);
     });
-    
+
     req.write(data);
     req.end();
   });
@@ -164,7 +164,7 @@ async function sendToGoogleSheets(reportData) {
 function formatProgressUpdate(current, total, successCount, failCount) {
   const progress = ((current / total) * 100).toFixed(1);
   const progressBar = generateProgressBar(current, total);
-  
+
   let msg = '⚡ <b>تحديث مباشر</b>\n';
   msg += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
   msg += progressBar + '\n';
@@ -172,7 +172,7 @@ function formatProgressUpdate(current, total, successCount, failCount) {
   msg += '✅ نجح: <b>' + successCount + '</b>\n';
   msg += '❌ فشل: <b>' + failCount + '</b>\n';
   msg += '⏳ متبقي: <b>' + (total - current) + '</b>\n';
-  
+
   return msg;
 }
 
@@ -187,7 +187,7 @@ function formatFinalReport(data) {
   const successRate = totalFound > 0 ? ((successCount / totalFound) * 100).toFixed(1) : 0;
   const date = new Date();
   const timeStr = date.toISOString().replace('T', ' ').substring(0, 19);
-  
+
   let msg = '🎉 <b>تقرير نهائي - Vendoor Scraper</b>\n';
   msg += '━━━━━━━━━━━━━━━━━━━━━━\n\n';
   msg += '📊 <b>الإحصائيات:</b>\n';
@@ -195,7 +195,7 @@ function formatFinalReport(data) {
   msg += '❌ فشل: <b>' + failCount + '</b> منتج\n';
   msg += '📦 إجمالي: <b>' + totalFound + '</b> منتج\n';
   msg += '📈 نسبة النجاح: <b>' + successRate + '%</b>\n\n';
-  
+
   if (duration) {
     const min = Math.floor(duration / 60);
     const sec = duration % 60;
@@ -203,9 +203,9 @@ function formatFinalReport(data) {
     const avgTime = totalFound > 0 ? (duration / totalFound).toFixed(1) : 0;
     msg += '⚡ متوسط الوقت: <b>' + avgTime + 'ث/منتج</b>\n\n';
   }
-  
+
   msg += '🕐 ' + timeStr + '\n\n';
-  
+
   if (results.length > 0) {
     msg += '🏆 <b>أمثلة من المنتجات المضافة:</b>\n';
     results.slice(0, 3).forEach((p, i) => {
@@ -218,11 +218,11 @@ function formatFinalReport(data) {
       msg += '\n';
     });
   }
-  
+
   msg += '━━━━━━━━━━━━━━━━━━━━━━\n';
   msg += '✅ <b>اكتمل بنجاح!</b>\n\n';
   msg += '🔗 <a href="https://egygo.me/#/admin/vendoor-products">فتح لوحة التحكم</a>';
-  
+
   return msg;
 }
 
@@ -255,7 +255,7 @@ async function scrapeProductDetails(page, productUrl) {
   try {
     await page.goto(productUrl, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(resolve => setTimeout(resolve, 2500));
-    
+
     const details = await page.evaluate(() => {
       const data = { productImages: [], variants: [], totalStock: 0, title: '', originalPrice: 0 };
 
@@ -264,47 +264,114 @@ async function scrapeProductDetails(page, productUrl) {
       if (titleEl && titleEl.textContent) {
         data.title = titleEl.textContent.trim();
       }
-      
+
+      // Description & Media Link Extraction (Refined for .component-What structure)
+      const componentWhat = document.querySelector('.component-What');
+      let bestDesc = '';
+
+      if (componentWhat) {
+        // 1. Extract Media Links
+        const mediaAnchors = componentWhat.querySelectorAll('a[href*="drive.google.com"]');
+        mediaAnchors.forEach(a => {
+          if (a.href && !data.mediaLink) {
+            data.mediaLink = a.href;
+          }
+        });
+
+        // 2. Extract Description
+        const paragraphs = componentWhat.querySelectorAll('p');
+        paragraphs.forEach(p => {
+          const hasMediaLink = p.querySelector('a[href*="drive.google.com"]');
+          const isTitle = p.classList.contains('prodect-text');
+
+          if (!hasMediaLink && !isTitle) {
+            const text = p.textContent.trim();
+            if (text.length > 0) {
+              bestDesc += text + '\n';
+            }
+          }
+        });
+
+        if (!bestDesc.trim()) {
+          const clone = componentWhat.cloneNode(true);
+          const titleToRemove = clone.querySelector('.prodect-text');
+          if (titleToRemove) titleToRemove.remove();
+          const linksToRemove = clone.querySelectorAll('a[href*="drive.google.com"]');
+          linksToRemove.forEach(l => l.remove());
+          bestDesc = clone.textContent.trim();
+        }
+      } else {
+        // Fallback
+        const descElements = document.querySelectorAll('.description, .product-description, p');
+        for (const el of descElements) {
+          const text = el.textContent.trim();
+          if (text.length > 20 && text.length < 2000) {
+            if (el.className.includes('description') || el.className.includes('detail')) {
+              bestDesc = text;
+              break;
+            }
+            if (text.length > bestDesc.length) {
+              bestDesc = text;
+            }
+          }
+        }
+      }
+
+      if (bestDesc) {
+        data.description = bestDesc.trim();
+      }
+
+      // استخراج رابط الميديا (Google Drive)
+      const mediaLinkEl = document.querySelector('h2 a[href*="drive.google.com"]');
+      if (mediaLinkEl) {
+        data.mediaLink = mediaLinkEl.href;
+      }
+
       // استخراج الصور
       const galleryImages = document.querySelectorAll(
         '.product-gallery img, .product-images img, [class*="gallery"] img, .swiper-slide img'
       );
-      
-      galleryImages.forEach(img => {
-        const src = img.src || img.getAttribute('data-src');
-        const isInGallery = img.closest('.product-gallery, .product-images, .swiper');
-        const isNotProfile = !img.closest('.vendor-profile, .seller-info, aside');
-        
-        if (src && src.includes('storage') && isInGallery && isNotProfile && !data.productImages.includes(src)) {
-          data.productImages.push(src);
+
+      // Images - Target ONLY the main product image in .abut-img
+      const mainImgEl = document.querySelector('.abut-img img');
+      if (mainImgEl && mainImgEl.src) {
+        data.productImages.push(mainImgEl.src);
+      } else {
+        // Fallback: try to find the first large image in the main container if specific class fails
+        const allImgs = document.querySelectorAll('article img');
+        for (const img of allImgs) {
+          if (img.src && img.width > 300 && !img.src.includes('logo') && !img.src.includes('profile')) {
+            data.productImages.push(img.src);
+            break; // Take only the first valid large image
+          }
         }
-      });
-      
+      }
+
       if (data.productImages.length === 0) {
         const mainImages = document.querySelectorAll('.product-detail img, article img');
         mainImages.forEach(img => {
           const src = img.src;
           const isNotSmall = img.width > 100 && img.height > 100;
           const isNotProfile = !img.closest('.vendor-profile, aside');
-          
+
           if (src && src.includes('storage') && isNotSmall && isNotProfile && !data.productImages.includes(src)) {
             data.productImages.push(src);
           }
         });
       }
-      
+
       // محاولة استخراج السعر من الصفحة
       try {
         let priceText = '';
         let foundSelector = '';
-        
+
         // محاولة 1: البحث عن "السعر :" في innerHTML لعناصر صغيرة فقط
         const smallElements = Array.from(document.querySelectorAll('div, p, span, td, h3, h4, h5, strong, b')).filter(el => {
           const txt = (el.textContent || '').trim();
           // تجنب العناصر الكبيرة (container, body, navigation)
           return txt.length < 300 && !el.classList.contains('container') && !el.classList.contains('navbar') && el.tagName !== 'BODY' && el.tagName !== 'HTML';
         });
-        
+
         for (const el of smallElements) {
           const txt = (el.textContent || '').trim();
           // بحث دقيق عن نمط "السعر : رقم جنيه"
@@ -314,7 +381,7 @@ async function scrapeProductDetails(page, productUrl) {
             break;
           }
         }
-        
+
         // محاولة 2: البحث عن "رقم جنيه" فقط في عناصر صغيرة
         if (!priceText) {
           for (const el of smallElements) {
@@ -330,7 +397,7 @@ async function scrapeProductDetails(page, productUrl) {
             }
           }
         }
-        
+
         // محاولة 3: البحث في class="price" بالتحديد
         if (!priceText) {
           const priceEls = Array.from(document.querySelectorAll('.price, [class*="price"], [class*="Price"]'));
@@ -346,7 +413,7 @@ async function scrapeProductDetails(page, productUrl) {
             }
           }
         }
-        
+
         if (priceText) {
           // استخراج الرقم من النص
           const m = priceText.replace(/[,\s]/g, '').match(/(\d+(?:\.\d+)?)/);
@@ -365,13 +432,13 @@ async function scrapeProductDetails(page, productUrl) {
       data.colors = [];
       data.sizes = [];
       data.colorSizeInventory = [];
-      
+
       const tables = document.querySelectorAll('table');
       tables.forEach(table => {
         // البحث عن الـ headers
         const headerRow = table.querySelector('thead tr');
         let sizeIdx = -1, colorIdx = -1, qtyIdx = -1;
-        
+
         if (headerRow) {
           const headers = Array.from(headerRow.querySelectorAll('th'));
           headers.forEach((th, idx) => {
@@ -381,58 +448,78 @@ async function scrapeProductDetails(page, productUrl) {
             if (txt.includes('stock') || txt.includes('كمية') || txt.includes('qty') || txt.includes('quantity')) qtyIdx = idx;
           });
         }
-        
+
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
           const isHeaderRow = row.querySelectorAll('th').length > 0;
           if (isHeaderRow) return;
-          
+
           const cells = Array.from(row.querySelectorAll('td'));
           if (cells.length === 0) return;
-          
+
           let size = sizeIdx >= 0 && cells[sizeIdx] ? cells[sizeIdx].textContent.trim() : '';
           let color = colorIdx >= 0 && cells[colorIdx] ? cells[colorIdx].textContent.trim() : '';
-          
+
           // معالجة "اسود 41" → لون: اسود، مقاس: 41
           if (size && color && size.includes(color)) {
             const sizeOnly = size.replace(color, '').trim();
             size = sizeOnly || size;
           }
-          
+
           let qtyText = qtyIdx >= 0 && cells[qtyIdx] ? cells[qtyIdx].textContent : '';
           if (!qtyText) {
             const numCell = cells.find(c => /\d/.test(c.textContent || ''));
             qtyText = numCell ? numCell.textContent : '0';
           }
-          
+
           const qty = parseInt(qtyText.replace(/\D/g, '')) || 0;
-          
+
           if (color || size || qty > 0) {
             data.colorSizeInventory.push({
               color: color || 'Default',
               size: size || 'Default',
               quantity: qty
             });
-            
+
             if (color && !data.colors.includes(color)) data.colors.push(color);
             if (size && !data.sizes.includes(size)) data.sizes.push(size);
             data.totalStock += qty;
           }
         });
       });
-      
+
       // Unique arrays
       data.colors = Array.from(new Set(data.colors));
       data.sizes = Array.from(new Set(data.sizes.map(s => String(s))));
-      
+
       return data;
     });
-    
+
     return details;
   } catch (error) {
     console.error('   ⚠️ فشل استخراج التفاصيل للمنتج:', productUrl);
     console.error('      السبب:', error && error.message ? error.message : error);
     return null;
+  }
+}
+
+function generateStableSKU(link) {
+  try {
+    // Extract ID from URL like https://aff.ven-door.com/product/12345
+    const match = link.match(/\/product\/(\d+)/);
+    if (match && match[1]) {
+      return `V-${match[1]}`;
+    }
+    // Fallback to hash if no ID found (simple hash)
+    let hash = 0;
+    for (let i = 0; i < link.length; i++) {
+      const char = link.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return `V-HASH-${Math.abs(hash)}`;
+  } catch (e) {
+    return `V-UNKNOWN-${Date.now()}`;
   }
 }
 
@@ -444,12 +531,12 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
       console.log('   ⚠️ تم تجاهل المنتج بسبب العنوان (قائمة التجاهل):', listTitle.substring(0, 40));
       return null;
     }
-    
+
     // جلب التفاصيل أولاً للحصول على العنوان والسعر والصور بدقة
     const details = await scrapeProductDetails(page, product.link);
     if (!details) {
       if (DEBUG) {
-        try { await page.screenshot({ path: `debug_fail_details_${productIndex}.png`, fullPage: true }); } catch (e) {}
+        try { await page.screenshot({ path: `debug_fail_details_${productIndex}.png`, fullPage: true }); } catch (e) { }
       }
       return null;
     }
@@ -463,34 +550,76 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
         console.log('      [DEBUG] استخراج السعر:', JSON.stringify(details._priceDebug));
       }
       if (DEBUG) {
-        try { await page.screenshot({ path: `debug_invalid_price_${productIndex}.png`, fullPage: true }); } catch (e) {}
+        try { await page.screenshot({ path: `debug_invalid_price_${productIndex}.png`, fullPage: true }); } catch (e) { }
       }
       return null;
     }
-    
+
     if (DEBUG && details._priceDebug) {
       dlog('تم استخراج السعر بنجاح:', details._priceDebug);
     }
-    
+
     // حساب السعر النهائي (السعر الأصلي + هامش الربح)
     const finalPrice = originalPrice + PROFIT_MARGIN;
-    
+
     console.log(`\n📦 ${effectiveTitle.substring(0, 40)}...`);
-    
-    const productImages = details.productImages.length > 0 
-      ? details.productImages 
+
+    const productImages = details.productImages.length > 0
+      ? details.productImages
       : (product.image ? [product.image] : ['https://via.placeholder.com/400']);
-    
-    const sku = generateVendoorSKU(productIndex);
-    
+
+    // Use stable SKU based on URL ID
+    const sku = generateStableSKU(product.link);
+
     const variantsCount = (details.colorSizeInventory || []).length;
-    console.log(`   📸 ${productImages.length} | 📦 ${variantsCount} تنويعات | 💰 ${originalPrice}→${finalPrice} ج`);
+    console.log(`   📸 ${productImages.length} | 📦 ${variantsCount} تنويعات | 💰 ${originalPrice}→${finalPrice} ج | SKU: ${sku}`);
     if (details.productImages.length === 0) dlog('لا توجد صور مستخرجة من صفحة المنتج:', product.link);
     if (!details.title) dlog('لم يتم استخراج عنوان للمنتج من الصفحة، سيتم استخدام عنوان القائمة');
-    
-    let description = `منتج من Vendoor - ${effectiveTitle}\n\n`;
-    description += `SKU: ${sku}\nالمصدر: Vendoor\nرابط: ${product.link}\n\n`;
-    
+
+    // Check if product exists
+    let existingProduct = null;
+    try {
+      const existing = await databases.listDocuments(
+        APPWRITE_DATABASE_ID,
+        APPWRITE_PRODUCTS_COLLECTION_ID,
+        [Query.equal('sku', sku)]
+      );
+      if (existing.documents.length > 0) {
+        existingProduct = existing.documents[0];
+      }
+    } catch (e) {
+      dlog('Error checking for existing product:', e.message);
+    }
+
+    if (existingProduct) {
+      console.log(`   🔄 تحديث منتج موجود (${existingProduct.$id})...`);
+
+      const updateData = {
+        stock: details.totalStock,
+        totalStock: details.totalStock,
+        price: finalPrice,
+        originalPrice: originalPrice,
+        colors: details.colors || [],
+        sizes: details.sizes || [],
+        colorSizeInventory: JSON.stringify(details.colorSizeInventory || []),
+        // Update mediaLink if found and not present or different
+        ...(details.mediaLink ? { mediaLink: details.mediaLink } : {})
+      };
+
+      await databases.updateDocument(
+        APPWRITE_DATABASE_ID,
+        APPWRITE_PRODUCTS_COLLECTION_ID,
+        existingProduct.$id,
+        updateData
+      );
+      console.log(`   ✅ تم تحديث المخزون والسعر`);
+      return { ...existingProduct, ...updateData };
+    }
+
+    // Create new product if not exists
+    let description = details.description || `منتج من Vendoor - ${effectiveTitle}`;
+    description += `\n\nSKU: ${sku}\nالمصدر: Vendoor`;
+
     // إضافة التنويعات للوصف
     if (details.colorSizeInventory && details.colorSizeInventory.length > 0) {
       description += 'التنويعات:\n';
@@ -501,7 +630,7 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
       });
       description += `\nإجمالي: ${details.totalStock} قطعة\n`;
     }
-    
+
     // إضافة الألوان والمقاسات
     if (details.colors && details.colors.length > 0) {
       description += `\nالألوان: ${details.colors.join(', ')}\n`;
@@ -509,7 +638,7 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
     if (details.sizes && details.sizes.length > 0) {
       description += `المقاسات: ${details.sizes.join(', ')}\n`;
     }
-    
+
     const productData = {
       name: effectiveTitle,
       description: description.substring(0, 1500),
@@ -526,9 +655,10 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
       // الحقول الجديدة - التنويعات
       colors: details.colors || [],
       sizes: details.sizes || [],
-      colorSizeInventory: JSON.stringify(details.colorSizeInventory || [])
+      colorSizeInventory: JSON.stringify(details.colorSizeInventory || []),
+      mediaLink: details.mediaLink || null
     };
-    
+
     const document = await databases.createDocument(
       APPWRITE_DATABASE_ID,
       APPWRITE_PRODUCTS_COLLECTION_ID,
@@ -536,20 +666,20 @@ async function addProductToAppwrite(product, categoryId, page, productIndex) {
       productData,
       [Permission.read(Role.any())]
     );
-    
-    console.log(`   ✅ ${document.$id.substring(0, 10)}`);
+
+    console.log(`   ✅ تم إنشاء منتج جديد: ${document.$id.substring(0, 10)}`);
     if (DEBUG && details.colorSizeInventory && details.colorSizeInventory.length > 0) {
       dlog('تم حفظ التنويعات:', details.colorSizeInventory.length, 'تنويعة');
     }
     return { ...document, colorSizeInventory: details.colorSizeInventory, colors: details.colors, sizes: details.sizes };
-    
+
   } catch (error) {
-    console.error(`   ❌ خطأ أثناء إنشاء المنتج في Appwrite: ${error && error.message ? error.message : error}`);
+    console.error(`   ❌ خطأ أثناء معالجة المنتج في Appwrite: ${error && error.message ? error.message : error}`);
     if (error && error.response) {
       try { console.error('      Appwrite response:', JSON.stringify(error.response)); } catch (e) { console.error('      Appwrite response (raw):', error.response); }
     }
     if (DEBUG) {
-      try { await page.screenshot({ path: `debug_appwrite_error_${productIndex}.png`, fullPage: true }); } catch (e) {}
+      try { await page.screenshot({ path: `debug_appwrite_error_${productIndex}.png`, fullPage: true }); } catch (e) { }
     }
     return null;
   }
@@ -596,27 +726,27 @@ async function collectAllProductLinks(page) {
 
 async function scrapeVendoorProducts() {
   const startTime = Date.now();
-  
+
   console.log('🚀 Vendoor Scraper v14.0 - LIVE UPDATES\n');
   console.log(`📱 Telegram Chat ID: ${TELEGRAM_CHAT_ID}\n`);
   console.log(`💰 Profit Margin: +${PROFIT_MARGIN} ج.م على كل منتج\n`);
-  
+
   // إرسال رسالة البداية
   const now = new Date();
   const timeStr = now.toISOString().replace('T', ' ').substring(0, 19);
   const startMsg = '🚀 <b>بدء Vendoor Scraper</b>\n\n' +
-                   '⏰ الوقت: ' + timeStr + '\n' +
-                   '💰 هامش الربح: <b>+' + PROFIT_MARGIN + ' ج.م</b>\n\n' +
-                   '🔄 جاري الاتصال بـ Vendoor...';
+    '⏰ الوقت: ' + timeStr + '\n' +
+    '💰 هامش الربح: <b>+' + PROFIT_MARGIN + ' ج.م</b>\n\n' +
+    '🔄 جاري الاتصال بـ Vendoor...';
   await sendTelegram(startMsg);
-  
+
   const categoryId = await getOrCreateVendoorCategory();
   if (!categoryId) {
     console.error('❌ فشل الحصول على categoryId');
     await sendTelegram('❌ <b>خطأ:</b> فشل الحصول على categoryId');
     process.exit(1);
   }
-  
+
   let browser;
   try {
     browser = await puppeteer.launch({
@@ -633,70 +763,70 @@ async function scrapeVendoorProducts() {
         height: 1080
       }
     });
-    
+
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
     if (DEBUG) {
       page.on('console', msg => console.log('[PAGE]', msg.type(), msg.text()));
       page.on('requestfailed', req => console.log('[REQ-FAILED]', req.url(), req.failure() && req.failure().errorText));
     }
-    
+
     console.log('📄 تسجيل دخول...');
     await page.goto(VENDOOR_LOGIN_URL, { waitUntil: 'networkidle2', timeout: 60000 });
     await page.waitForSelector('input[name="name"]', { timeout: 10000 });
-    
+
     await page.type('input[name="name"]', VENDOOR_EMAIL, { delay: 100 });
     await page.type('input[type="password"]', VENDOOR_PASSWORD, { delay: 100 });
-    
+
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 }),
       page.click('button[type="submit"]')
     ]);
-    
+
     console.log('✅ تم تسجيل الدخول!\n');
     await sendTelegram('✅ تم تسجيل الدخول بنجاح!' + '\n' + '🔍 جاري استخراج المنتجات...');
-    
+
     console.log('🔎 جمع روابط المنتجات من كل الصفحات...');
     const products = await collectAllProductLinks(page);
-    
+
     console.log(`📊 تم العثور على ${products.length} منتج\n`);
-    
+
     // إرسال إشعار بعدد المنتجات
     const productsFoundMsg = '📦 <b>تم العثور على ' + products.length + ' منتج</b>\n\n' +
-                              '🔄 جاري معالجة المنتجات...\n' +
-                              'سيتم إرسال تحديثات كل 5 منتجات';
+      '🔄 جاري معالجة المنتجات...\n' +
+      'سيتم إرسال تحديثات كل 5 منتجات';
     await sendTelegram(productsFoundMsg);
-    
+
     console.log('='.repeat(60));
-    
+
     let successCount = 0;
     let failCount = 0;
     const results = [];
-    
+
     // معالجة المنتجات مع تحديثات دورية
     for (let i = 0; i < products.length; i++) {
       console.log(`[${i + 1}/${products.length}]`);
       const result = await addProductToAppwrite(products[i], categoryId, page, i + 1);
-      
+
       if (result) {
         successCount++;
         results.push(result);
       } else {
         failCount++;
       }
-      
+
       // إرسال تحديث كل 5 منتجات
       if ((i + 1) % 5 === 0 || i + 1 === products.length) {
         const progressMsg = formatProgressUpdate(i + 1, products.length, successCount, failCount);
         await sendTelegram(progressMsg);
       }
-      
+
       await new Promise(resolve => setTimeout(resolve, 1500));
     }
-    
+
     const endTime = Date.now();
     const duration = Math.floor((endTime - startTime) / 1000);
-    
+
     // بيانات التقرير الكاملة
     const fullOutputData = {
       scrapedAt: new Date().toISOString(),
@@ -709,16 +839,16 @@ async function scrapeVendoorProducts() {
       profitMargin: PROFIT_MARGIN,
       results: results // كل المنتجات للشيت
     };
-    
+
     // بيانات ملخصة لـ Telegram فقط
     const outputData = {
       ...fullOutputData,
       results: results.slice(0, 5) // أول 5 منتجات فقط للتليجرام
     };
-    
+
     // حفظ النتائج في ملف JSON
     fs.writeFileSync('vendoor-final-report.json', JSON.stringify(outputData, null, 2));
-    
+
     console.log('\n' + '='.repeat(60));
     console.log('🎉 النتيجة النهائية:');
     console.log('='.repeat(60));
@@ -726,31 +856,31 @@ async function scrapeVendoorProducts() {
     console.log(`❌ فشل: ${failCount}`);
     console.log(`⏱️  المدة: ${Math.floor(duration / 60)}د ${duration % 60}ث`);
     console.log('='.repeat(60));
-    
+
     // إرسال التقرير النهائي على Telegram
     const finalReport = formatFinalReport(outputData);
     await sendTelegram(finalReport);
     console.log('\n📱 تم إرسال التقرير النهائي على Telegram!');
-    
+
     // إرسال التقرير إلى Google Sheets (البيانات الكاملة)
     console.log('\n📊 جاري حفظ التقرير في Google Sheets...');
     const sheetsSaved = await sendToGoogleSheets(fullOutputData);
-    
+
     if (sheetsSaved) {
       console.log('✅ تم حفظ التقرير في Google Sheets بنجاح!');
       await sendTelegram('✅ <b>تم حفظ التقرير في Google Sheets</b>\n\n🔗 <a href="https://docs.google.com/spreadsheets/">فتح Google Sheets</a>');
     } else {
       console.log('⚠️ فشل حفظ التقرير في Google Sheets');
     }
-    
+
     await browser.close();
     return outputData;
-    
+
   } catch (error) {
     console.error('\n❌ خطأ:', error.message);
     const errorMsg = '❌ <b>خطأ في Vendoor Scraper</b>\n\n' +
-                     '<code>' + error.message + '</code>\n\n' +
-                     'الرجاء التحقق من الـ logs.';
+      '<code>' + error.message + '</code>\n\n' +
+      'الرجاء التحقق من الـ logs.';
     await sendTelegram(errorMsg);
     if (browser) await browser.close();
     throw error;
