@@ -203,9 +203,9 @@ const ProductForm = ({
       stock: finalStock, // Use total from inventory or stockQuantity
       stockQuantity: finalStock, // Also set stockQuantity
       inStock: true, // Always set to true for products with stock
-      isActive: true, // Always activate new products (admin can deactivate manually)
+      isActive: true, // Always activate new products (admin can deactivate manually
       categoryIds: formData.categoryIds, // Include multiple categories
-      mediaLinks: formData.mediaLinks,
+      mediaLinks: formData.mediaLinks.filter((link: string) => link && link.trim() !== ''), // Remove empty links
     };
 
     console.log('💾 Submit data:', submitData);
