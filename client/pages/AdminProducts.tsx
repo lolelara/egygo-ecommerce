@@ -1320,15 +1320,15 @@ export default function AdminProducts() {
                             className="w-10 h-10 rounded object-cover"
                           />
                           <div>
-                            <div className="font-medium flex items-center gap-2 flex-wrap">
-                              <a href={`/#/product/${product.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-primary">
+                            <div className="font-bold text-lg flex items-center gap-2 flex-wrap">
+                              <a href={`/#/product/${product.id}`} target="_blank" rel="noopener noreferrer" className="hover:underline text-primary transition-colors">
                                 {product.name}
                               </a>
-                              {product.isFeatured && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-yellow-100 text-yellow-800 border-yellow-200">مميز</Badge>}
-                              {product.isFeaturedInHero && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-800 border-purple-200">Hero</Badge>}
-                              {(product as any).isFlashDeal && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-red-100 text-red-800 border-red-200">Flash ⚡</Badge>}
+                              {product.isFeatured && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-yellow-100 text-yellow-800 border-yellow-200 shadow-sm">مميز</Badge>}
+                              {product.isFeaturedInHero && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-purple-100 text-purple-800 border-purple-200 shadow-sm">Hero</Badge>}
+                              {(product as any).isFlashDeal && <Badge variant="secondary" className="text-[10px] h-5 px-1 bg-red-100 text-red-800 border-red-200 shadow-sm">Flash ⚡</Badge>}
                             </div>
-                            <div className="text-sm text-muted-foreground truncate max-w-[200px]">
+                            <div className="text-sm text-muted-foreground line-clamp-2 max-w-[300px] mt-1 leading-relaxed">
                               {product.description}
                             </div>
                           </div>
@@ -1438,10 +1438,10 @@ export default function AdminProducts() {
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{product.price} ج.م</div>
+                          <div className="font-bold text-base text-green-600">{product.price.toLocaleString()} ج.م</div>
                           {product.originalPrice && (
-                            <div className="text-sm text-muted-foreground line-through">
-                              {product.originalPrice} ج.م
+                            <div className="text-xs text-red-400 line-through">
+                              {product.originalPrice.toLocaleString()} ج.م
                             </div>
                           )}
                         </div>
@@ -1456,12 +1456,18 @@ export default function AdminProducts() {
                       </TableCell>
                       <TableCell>
                         <Badge
-                          variant={product.inStock ? "default" : "secondary"}
+                          className={cn(
+                            "px-2 py-1 text-xs font-medium border",
+                            product.inStock
+                              ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                              : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                          )}
+                          variant="outline"
                         >
                           {product.inStock ? "متاح" : "غير متاح"}
                         </Badge>
                       </TableCell>
-                      <TableCell>{product.affiliateCommission}%</TableCell>
+                      <TableCell className="font-medium text-blue-600">{product.affiliateCommission}%</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Dialog
