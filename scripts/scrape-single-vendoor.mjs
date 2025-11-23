@@ -55,13 +55,13 @@ async function login(page) {
   }
 }
 
-async function scrapeProduct(page, url) {
+async function scrapeProduct(page, url, browser) {
   try {
     console.log('\n📦 Opening product page:', url);
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
     await new Promise(r => setTimeout(r, 3000));
 
-    const data = await page.evaluate(() => {
+    const result = await page.evaluate(() => {
       const result = {
         title: '',
         seller: '',
@@ -246,17 +246,68 @@ async function scrapeProduct(page, url) {
       return result;
     });
 
-    console.log('\n📊 Extracted Data:');
-    console.log('   Title:', data.title);
-    console.log('   Seller:', data.seller);
-    console.log('   Price:', data.price, 'EGP');
-    console.log('   Description length:', (data.description || '').length, 'chars');
-    console.log('   Colors:', data.colors);
-    console.log('   Sizes:', data.sizes);
-    console.log('   Inventory items:', data.colorSizeInventory.length);
-    console.log('   Total stock:', data.totalStock);
+    console.log(`\n🔍 Debug: Extracted ${result.mediaLinks ? result.mediaLinks.length : 0} media links from page.`);
+    if (result.mediaLinks) console.log(result.mediaLinks);
 
-    return data;
+    // 3. Deep Scrape Google Drive Folders (Outside evaluate)
+    if (result.mediaLinks && result.mediaLinks.length > 0) {
+      console.log(`📂 Found ${result.mediaLinks.length} Drive links. Extracting images...`);
+
+      for (const driveLink of result.mediaLinks) {
+        try {
+          if (driveLink.includes('drive.google.com/drive/folders')) {
+            console.log(`   - Navigating to Drive folder: ${driveLink}`);
+            const drivePage = await browser.newPage();
+            await drivePage.goto(driveLink, { waitUntil: 'networkidle2', timeout: 60000 });
+
+            // Wait for grid
+            try {
+              await drivePage.waitForSelector('div[role="gridcell"]', { timeout: 10000 });
+            } catch (e) {
+              await new Promise(r => setTimeout(r, 3000));
+            }
+
+            const fileIds = await drivePage.evaluate(() => {
+              const ids = [];
+              const elements = document.querySelectorAll('div[data-id]');
+              elements.forEach(el => {
+                const id = el.getAttribute('data-id');
+                if (id && id.length > 20) ids.push(id);
+              });
+              return [...new Set(ids)];
+            });
+
+            console.log(`     Found ${fileIds.length} files.`);
+
+            const folderIdMatch = driveLink.match(/folders\/([a-zA-Z0-9_-]+)/);
+            const folderId = folderIdMatch ? folderIdMatch[1] : '';
+
+            const newImages = fileIds
+              .filter(id => id !== folderId)
+              .map(id => `https://lh3.googleusercontent.com/d/${id}`);
+
+            result.images.push(...newImages);
+
+            await drivePage.close();
+          }
+        } catch (err) {
+          console.error(`   ❌ Failed to scrape Drive folder: ${err.message}`);
+        }
+      }
+      result.images = [...new Set(result.images)];
+    }
+
+    console.log('\n📊 Extracted Data:');
+    console.log('   Title:', result.title);
+    console.log('   Seller:', result.seller);
+    console.log('   Price:', result.price, 'EGP');
+    console.log('   Description length:', (result.description || '').length, 'chars');
+    console.log('   Colors:', result.colors);
+    console.log('   Sizes:', result.sizes);
+    console.log('   Inventory items:', result.colorSizeInventory.length);
+    console.log('   Total stock:', result.totalStock);
+
+    return result;
   } catch (error) {
     console.error('❌ Scraping error:', error.message);
     return null;
@@ -340,6 +391,7 @@ async function saveToAppwrite(data, url) {
         colors: data.colors || [],
         sizes: data.sizes || [],
         colorSizeInventory: JSON.stringify(data.colorSizeInventory || []),
+        images: filteredImages, // Update images too
       };
 
       result = await databases.updateDocument(
@@ -391,7 +443,7 @@ async function main() {
       throw new Error('Login failed');
     }
 
-    const data = await scrapeProduct(page, PRODUCT_URL);
+    const data = await scrapeProduct(page, PRODUCT_URL, browser);
 
     if (data && data.title) {
       const saved = await saveToAppwrite(data, PRODUCT_URL);
