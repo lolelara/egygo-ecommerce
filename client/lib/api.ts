@@ -129,6 +129,7 @@ export const productsApi = {
         category: doc.category,
         isFeatured: doc.isFeatured || false,
         isFeaturedInHero: doc.isFeaturedInHero || false,
+        mediaLinks: doc.mediaLinks || [],
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
       }));
@@ -234,6 +235,7 @@ export const productsApi = {
         category,
         isFeatured: doc.isFeatured || false,
         isFeaturedInHero: doc.isFeaturedInHero || false,
+        mediaLinks: doc.mediaLinks || [],
         createdAt: new Date(doc.$createdAt),
         updatedAt: new Date(doc.$updatedAt),
       };

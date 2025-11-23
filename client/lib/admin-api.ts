@@ -275,6 +275,7 @@ export const adminProductsApi = {
       if (updateData.merchantId) mappedData.merchantId = updateData.merchantId;
       if (updateData.colors) mappedData.colors = updateData.colors;
       if (updateData.sizes) mappedData.sizes = updateData.sizes;
+      if (updateData.mediaLinks) mappedData.mediaLinks = updateData.mediaLinks;
       if (updateData.colorSizeInventory !== undefined) mappedData.colorSizeInventory = updateData.colorSizeInventory;
 
       try {
@@ -286,6 +287,7 @@ export const adminProductsApi = {
           delete mappedData.merchantId;
           delete mappedData.colors;
           delete mappedData.sizes;
+          delete mappedData.mediaLinks;
           const doc = await databases.updateDocument(DATABASE_ID, COLLECTIONS.PRODUCTS, id, mappedData);
           return { ...doc, id: doc.$id };
         }
