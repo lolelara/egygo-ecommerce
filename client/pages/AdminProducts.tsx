@@ -191,7 +191,7 @@ const ProductForm = ({
 
     const submitData = {
       ...formData,
-      description: (formData.description || '').substring(0, 2000), // Truncate to Appwrite limit
+      description: (formData.description || '').substring(0, 99999), // Truncate to updated Appwrite limit
       images: formData.images,
       tags: formData.tags
         .split(",")

@@ -798,8 +798,8 @@ export const aiContentApi = {
 
       try {
         const parsed = JSON.parse(responseText);
-        // Truncate description to 2000 chars (Appwrite limit)
-        const description = (parsed.description || currentDescription).substring(0, 2000);
+        // Truncate description to 99999 chars (Updated Appwrite limit)
+        const description = (parsed.description || currentDescription || '').substring(0, 99999);
         return {
           description,
           mediaLinks: Array.isArray(parsed.mediaLinks) ? parsed.mediaLinks : []

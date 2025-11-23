@@ -124,6 +124,8 @@ export default function ProductDetail() {
   if (product?.id) {
     console.log('🔍 Product data:', product);
     console.log('📦 Raw product object:', JSON.stringify(product, null, 2));
+    console.log('🎥 Media Links:', (product as any)?.mediaLinks);
+    console.log('🎥 Single Media Link:', (product as any)?.mediaLink);
 
     try {
       const inventoryData = (product as any)?.colorSizeInventory;
