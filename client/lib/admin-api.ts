@@ -264,7 +264,11 @@ export const adminProductsApi = {
         mappedData.categoryIds = updateData.categoryIds;
         if (updateData.categoryIds.length > 0) mappedData.categoryId = updateData.categoryIds[0];
       }
-      if (updateData.images) mappedData.images = updateData.images;
+      if (updateData.images) {
+        mappedData.images = updateData.images.map((img: any) =>
+          typeof img === 'string' ? img : img.url
+        ).filter(Boolean);
+      }
       if (updateData.tags) mappedData.tags = updateData.tags;
       if (updateData.isActive !== undefined) mappedData.isActive = updateData.isActive;
       if (updateData.isFeatured !== undefined) mappedData.isFeatured = updateData.isFeatured;
