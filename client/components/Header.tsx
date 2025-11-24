@@ -112,7 +112,7 @@ export function Header({ cartItemCount }: HeaderProps) {
       </div>
 
       {/* Main Header */}
-      <div className={`container mx-auto flex items-center justify-between gap-4 px-4 ${isScrolled ? 'h-14' : 'h-16'} transition-all duration-300`}>
+      <div className={`container mx-auto flex items-center justify-between gap-4 px-[var(--s-md)] ${isScrolled ? 'h-14' : 'h-16'} transition-all duration-300`}>
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild>
@@ -233,7 +233,7 @@ export function Header({ cartItemCount }: HeaderProps) {
         </Sheet>
 
         {/* Logo */}
-        <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center transition-all duration-300 hover:scale-105">
+        <Link to="/" aria-label="EgyGo" className="shrink-0 inline-flex items-center transition-all duration-300 hover:scale-105 active:scale-95">
           <BrandLogo size="lg" />
         </Link>
 

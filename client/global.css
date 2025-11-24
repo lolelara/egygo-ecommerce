@@ -112,6 +112,33 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Fluid Typography & Spacing */
+    --fluid-min-width: 320;
+    --fluid-max-width: 1240;
+
+    --fluid-screen: 100vw;
+    --fluid-bp: calc((var(--fluid-screen) - var(--fluid-min-width) / 16 * 1rem) / (var(--fluid-max-width) - var(--fluid-min-width)));
+
+    /* Fluid Font Sizes */
+    --f-xs: clamp(0.75rem, 0.65rem + 0.4vw, 0.875rem);
+    --f-sm: clamp(0.875rem, 0.78rem + 0.4vw, 1rem);
+    --f-base: clamp(1rem, 0.9rem + 0.4vw, 1.125rem);
+    --f-lg: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
+    --f-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+    --f-2xl: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    --f-3xl: clamp(1.875rem, 1.6rem + 1.2vw, 2.5rem);
+    --f-4xl: clamp(2.25rem, 1.8rem + 1.8vw, 3.5rem);
+    --f-5xl: clamp(3rem, 2.5rem + 2.5vw, 4.5rem);
+    --f-6xl: clamp(3.75rem, 3rem + 3vw, 6rem);
+
+    /* Fluid Spacing */
+    --s-xs: clamp(0.25rem, 0.2rem + 0.2vw, 0.5rem);
+    --s-sm: clamp(0.5rem, 0.4rem + 0.4vw, 0.75rem);
+    --s-md: clamp(1rem, 0.8rem + 0.8vw, 1.5rem);
+    --s-lg: clamp(1.5rem, 1.2rem + 1.2vw, 2.5rem);
+    --s-xl: clamp(2.5rem, 2rem + 2vw, 4rem);
+    --s-2xl: clamp(4rem, 3rem + 4vw, 8rem);
   }
 
   .dark {
@@ -318,6 +345,47 @@
   .glass-dark {
     @apply bg-black/20 backdrop-blur-lg;
     @apply border border-white/10;
+  }
+
+  /* Fluid Typography Utilities */
+  .text-fluid-xs {
+    font-size: var(--f-xs);
+  }
+
+  .text-fluid-sm {
+    font-size: var(--f-sm);
+  }
+
+  .text-fluid-base {
+    font-size: var(--f-base);
+  }
+
+  .text-fluid-lg {
+    font-size: var(--f-lg);
+  }
+
+  .text-fluid-xl {
+    font-size: var(--f-xl);
+  }
+
+  .text-fluid-2xl {
+    font-size: var(--f-2xl);
+  }
+
+  .text-fluid-3xl {
+    font-size: var(--f-3xl);
+  }
+
+  .text-fluid-4xl {
+    font-size: var(--f-4xl);
+  }
+
+  .text-fluid-5xl {
+    font-size: var(--f-5xl);
+  }
+
+  .text-fluid-6xl {
+    font-size: var(--f-6xl);
   }
 }
 

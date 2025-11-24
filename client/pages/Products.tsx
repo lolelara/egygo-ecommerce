@@ -330,7 +330,7 @@ export default function Products() {
         keywords={['منتجات', 'تسوق', 'مصر', currentCategory?.name || '']}
       />
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background w-full overflow-x-hidden">
         {/* Hero Section */}
         <div className="bg-gradient-to-br from-primary/10 via-purple-50 to-orange-50 dark:from-primary/5 dark:via-purple-950/20 dark:to-orange-950/20 py-12">
           <div className="container mx-auto px-4">
@@ -432,7 +432,7 @@ export default function Products() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Desktop Filters Sidebar */}
             <div className="hidden lg:block">
               <Card className="p-6 sticky top-24">

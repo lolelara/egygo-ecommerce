@@ -49,7 +49,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
   const visibleProducts = getVisibleProducts();
 
   return (
-    <div className="relative min-h-[85vh] lg:min-h-[600px] overflow-hidden">
+    <div className="relative min-h-[svh] lg:min-h-[600px] overflow-hidden flex items-center">
       {/* Gradient Background with Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-500 to-red-700">
         {/* Egyptian Pattern Overlay */}
@@ -73,14 +73,14 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 container mx-auto px-4 pt-20 pb-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 container mx-auto px-4 pt-20 pb-32 lg:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Text Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center lg:text-right"
+            className="text-center lg:text-right order-2 lg:order-1"
           >
             {/* Special Badge */}
             <motion.div
@@ -95,12 +95,12 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
             </motion.div>
 
             {/* Main Heading */}
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white mb-6 leading-tight">
+            <h1 className="font-black text-white mb-6 leading-tight">
               <motion.span
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="block"
+                className="block text-fluid-5xl"
               >
                 إيجي جو
               </motion.span>
@@ -108,7 +108,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="block text-3xl md:text-4xl lg:text-5xl mt-2 text-white/90 font-bold"
+                className="block text-fluid-3xl mt-2 text-white/90 font-bold"
               >
                 تجربة تسوق استثنائية
               </motion.span>
@@ -119,7 +119,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
-              className="text-lg md:text-xl text-white/90 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+              className="text-fluid-lg text-white/90 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
             >
               اكتشف آلاف المنتجات المميزة بأفضل الأسعار مع شحن سريع ومجاني على جميع الطلبات
             </motion.p>
@@ -160,7 +160,7 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.1 }}
-              className="mt-12 grid grid-cols-3 gap-6"
+              className="mt-12 grid grid-cols-3 gap-4 lg:gap-6"
             >
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
@@ -172,12 +172,12 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                     transition={{ delay: 1.2 + index * 0.1 }}
                     className="text-center"
                   >
-                    <div className="inline-flex items-center justify-center w-12 h-12 
+                    <div className="inline-flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 
                                     bg-white/20 backdrop-blur-md rounded-full mb-2 border border-white/30">
-                      <Icon className="w-6 h-6 text-white" />
+                      <Icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
                     </div>
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-sm text-white/80">{stat.label}</div>
+                    <div className="text-xl lg:text-2xl font-bold text-white">{stat.value}</div>
+                    <div className="text-xs lg:text-sm text-white/80">{stat.label}</div>
                   </motion.div>
                 );
               })}
@@ -189,10 +189,10 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="hidden lg:block relative h-[500px]"
+            className="relative h-[300px] lg:h-[500px] order-1 lg:order-2 mb-8 lg:mb-0"
           >
             {featuredProducts.length > 0 ? (
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative w-full h-full flex items-center justify-center transform scale-75 lg:scale-100 origin-center">
                 {visibleProducts.map((product, index) => (
                   <motion.div
                     key={`${product.id}-${index}`} // Use index in key to force animation when position changes
@@ -205,8 +205,8 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                       zIndex: index === 2 ? 10 : 1
                     }}
                     transition={{ duration: 0.5 }}
-                    className={`absolute w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border-4 border-white dark:border-gray-700
-                                ${index === 0 ? 'left-0 top-10' : index === 1 ? 'right-0 bottom-10' : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}
+                    className={`absolute w-48 lg:w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border-4 border-white dark:border-gray-700
+                                ${index === 0 ? 'left-0 lg:left-0 top-4 lg:top-10' : index === 1 ? 'right-0 lg:right-0 bottom-4 lg:bottom-10' : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}
                   >
                     <div className="aspect-square relative">
                       <img
@@ -215,15 +215,15 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="p-4 bg-white dark:bg-gray-800">
-                      <h3 className="font-bold text-gray-900 dark:text-white truncate">{product.name}</h3>
-                      <p className="text-red-600 dark:text-red-400 font-bold">{product.price} ج.م</p>
+                    <div className="p-3 lg:p-4 bg-white dark:bg-gray-800">
+                      <h3 className="font-bold text-sm lg:text-base text-gray-900 dark:text-white truncate">{product.name}</h3>
+                      <p className="text-red-600 dark:text-red-400 font-bold text-sm lg:text-base">{product.price} ج.م</p>
                     </div>
                   </motion.div>
                 ))}
               </div>
             ) : (
-              <>
+              <div className="relative w-full h-full transform scale-75 lg:scale-100 origin-center">
                 {/* Decorative Elements */}
                 <motion.div
                   animate={{
@@ -235,12 +235,12 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                     repeat: Infinity,
                     ease: 'easeInOut',
                   }}
-                  className="absolute top-10 right-10 w-64 h-80 bg-white/10 backdrop-blur-lg 
-                         rounded-2xl border border-white/20 p-6 shadow-2xl"
+                  className="absolute top-0 right-0 lg:top-10 lg:right-10 w-48 lg:w-64 h-64 lg:h-80 bg-white/10 backdrop-blur-lg 
+                         rounded-2xl border border-white/20 p-4 lg:p-6 shadow-2xl"
                 >
-                  <div className="w-full h-48 bg-white/20 rounded-xl mb-4" />
-                  <div className="h-4 bg-white/30 rounded mb-2" />
-                  <div className="h-4 bg-white/20 rounded w-2/3" />
+                  <div className="w-full h-32 lg:h-48 bg-white/20 rounded-xl mb-4" />
+                  <div className="h-3 lg:h-4 bg-white/30 rounded mb-2" />
+                  <div className="h-3 lg:h-4 bg-white/20 rounded w-2/3" />
                 </motion.div>
 
                 <motion.div
@@ -253,12 +253,12 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                     repeat: Infinity,
                     ease: 'easeInOut',
                   }}
-                  className="absolute bottom-10 left-10 w-56 h-72 bg-white/10 backdrop-blur-lg 
-                         rounded-2xl border border-white/20 p-6 shadow-2xl"
+                  className="absolute bottom-0 left-0 lg:bottom-10 lg:left-10 w-40 lg:w-56 h-56 lg:h-72 bg-white/10 backdrop-blur-lg 
+                         rounded-2xl border border-white/20 p-4 lg:p-6 shadow-2xl"
                 >
-                  <div className="w-full h-40 bg-white/20 rounded-xl mb-4" />
-                  <div className="h-4 bg-white/30 rounded mb-2" />
-                  <div className="h-4 bg-white/20 rounded w-3/4" />
+                  <div className="w-full h-28 lg:h-40 bg-white/20 rounded-xl mb-4" />
+                  <div className="h-3 lg:h-4 bg-white/30 rounded mb-2" />
+                  <div className="h-3 lg:h-4 bg-white/20 rounded w-3/4" />
                 </motion.div>
 
                 {/* Center spotlight card */}
@@ -272,19 +272,19 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
                     ease: 'easeInOut',
                   }}
                   className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-                         w-60 h-76 bg-gradient-to-br from-white/30 to-white/10 
-                         backdrop-blur-xl rounded-2xl border-2 border-white/40 p-6 
+                         w-48 lg:w-60 h-64 lg:h-76 bg-gradient-to-br from-white/30 to-white/10 
+                         backdrop-blur-xl rounded-2xl border-2 border-white/40 p-4 lg:p-6 
                          shadow-2xl z-10"
                 >
-                  <div className="w-full h-44 bg-white rounded-xl mb-4 shadow-lg" />
-                  <div className="h-5 bg-white rounded mb-2" />
-                  <div className="h-5 bg-white/70 rounded w-2/3 mb-3" />
-                  <div className="h-10 bg-gradient-to-r from-red-500 to-red-700 
-                              rounded-lg flex items-center justify-center text-white font-bold">
+                  <div className="w-full h-32 lg:h-44 bg-white rounded-xl mb-4 shadow-lg" />
+                  <div className="h-4 lg:h-5 bg-white rounded mb-2" />
+                  <div className="h-4 lg:h-5 bg-white/70 rounded w-2/3 mb-3" />
+                  <div className="h-8 lg:h-10 bg-gradient-to-r from-red-500 to-red-700 
+                              rounded-lg flex items-center justify-center text-white font-bold text-sm lg:text-base">
                     اشترِ الآن
                   </div>
                 </motion.div>
-              </>
+              </div>
             )}
           </motion.div>
         </div>
