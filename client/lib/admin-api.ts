@@ -10,6 +10,7 @@ const COLLECTIONS = {
   REVIEWS: appwriteConfig.collections.reviews,
   COMMISSIONS: "commissions",
   NOTIFICATIONS: "notifications",
+  FLASH_SALES: "flash_sales",
 };
 
 export interface AdminOpenAIKey {
@@ -965,4 +966,70 @@ ${categoriesList}`;
       return null;
     }
   }
+};
+// Admin Flash Sales API
+export const adminFlashSalesApi = {
+  create: async (data: any): Promise<any> => {
+    try {
+      const doc = await databases.createDocument(
+        DATABASE_ID,
+        COLLECTIONS.FLASH_SALES,
+        ID.unique(),
+        {
+          ...data,
+          createdAt: new Date().toISOString(),
+        }
+      );
+      return { ...doc, id: doc.$id };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في إنشاء عرض الفلاش");
+    }
+  },
+
+  getAll: async (): Promise<any[]> => {
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.FLASH_SALES,
+        [Query.orderDesc("$createdAt")]
+      );
+      return response.documents.map((doc: any) => ({
+        id: doc.$id,
+        title: doc.title,
+        discount: doc.discount,
+        startDate: doc.startDate,
+        endDate: doc.endDate,
+        status: doc.status,
+        productIds: doc.productIds || [],
+        merchantId: doc.merchantId,
+        merchantName: doc.merchantName,
+        createdAt: doc.$createdAt,
+      }));
+    } catch (error) {
+      console.error("Error fetching flash sales:", error);
+      return [];
+    }
+  },
+
+  delete: async (id: string): Promise<void> => {
+    try {
+      await databases.deleteDocument(DATABASE_ID, COLLECTIONS.FLASH_SALES, id);
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في حذف عرض الفلاش");
+    }
+  },
+
+  update: async (id: string, data: any): Promise<any> => {
+    try {
+      const doc = await databases.updateDocument(
+        DATABASE_ID,
+        COLLECTIONS.FLASH_SALES,
+        id,
+        data
+      );
+      return { ...doc, id: doc.$id };
+    } catch (error: any) {
+      throw new Error(error.message || "فشل في تحديث عرض الفلاش");
+    }
+  },
 };

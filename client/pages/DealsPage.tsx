@@ -2,12 +2,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tag, Percent, Gift, Star, Clock, ShoppingCart, TrendingDown, Loader2, Zap, Heart, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { productsApi, queryKeys } from "@/lib/api";
+import { adminFlashSalesApi } from "@/lib/admin-api";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RotatingBanner from "@/components/banners/RotatingBanner";
 import { getBannersByLocation, getBannerSettings } from "@/lib/banners-api";
 import { getImageUrl } from "@/lib/storage";
@@ -16,6 +17,7 @@ export default function DealsPage() {
   const { addItem } = useCart();
   const { toast } = useToast();
   const [loadingProduct, setLoadingProduct] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
   // Fetch banners
   const { data: bannersData } = useQuery({
@@ -28,20 +30,65 @@ export default function DealsPage() {
     queryFn: () => getBannerSettings('offers'),
   });
 
-  // Fetch featured deals from admin-selected products
-  const { data: productsData, isLoading } = useQuery({
-    queryKey: [...queryKeys.products, 'deals'],
+  // Fetch active flash sale
+  const { data: activeFlashSale } = useQuery({
+    queryKey: ['flash-sales', 'active'],
     queryFn: async () => {
       try {
-        // First try to get explicitly marked flash deals
-        const flashDealsData = await productsApi.getAll({ isFlashDeal: true, limit: 50 });
+        const sales = await adminFlashSalesApi.getAll();
+        const now = new Date();
+        // Find the first active sale
+        const active = sales.find((sale: any) => {
+          const start = new Date(sale.startDate);
+          const end = new Date(sale.endDate);
+          return now >= start && now <= end;
+        });
+        return active || null;
+      } catch (error) {
+        console.error("Error fetching flash sales:", error);
+        return null;
+      }
+    }
+  });
 
+  // Fetch products
+  const { data: productsData, isLoading } = useQuery({
+    queryKey: [...queryKeys.products, 'deals', activeFlashSale?.id],
+    queryFn: async () => {
+      try {
+        // If there is an active flash sale, fetch its products
+        if (activeFlashSale && activeFlashSale.productIds && activeFlashSale.productIds.length > 0) {
+          // We need to fetch specific products. 
+          // Since productsApi.getAll doesn't support fetching by IDs array directly in one go usually (unless implemented),
+          // we might need to fetch all and filter, or fetch individually.
+          // Assuming we can't fetch by IDs array easily, we'll fetch all and filter client side for now 
+          // (Optimization: Backend should support fetching by IDs)
+
+          // Better approach: Search/Filter if API supports it. 
+          // If not, we'll fetch a larger limit and filter.
+          const allProducts = await productsApi.getAll({ limit: 1000 }); // Potential performance bottleneck if many products
+
+          const saleProducts = allProducts.products.filter((p: any) =>
+            activeFlashSale.productIds.includes(p.id)
+          );
+
+          // Apply the flash sale discount to these products visually (or maybe they already have it if backend updated them? 
+          // The flash sale system seems to be a separate layer. We should calculate the discounted price here for display)
+          return saleProducts.map((p: any) => ({
+            ...p,
+            // Override price with flash sale discount
+            price: Math.round(p.price * (1 - activeFlashSale.discount / 100)),
+            originalPrice: p.price, // The current price becomes the original price for comparison
+            flashSaleDiscount: activeFlashSale.discount
+          }));
+        }
+
+        // Fallback: Existing logic
+        const flashDealsData = await productsApi.getAll({ isFlashDeal: true, limit: 50 });
         if (flashDealsData.products.length > 0) {
           return flashDealsData.products;
         }
 
-        // Fallback to original logic (products with discounts)
-        console.log('No flash deals found, using fallback');
         const data = await productsApi.getAll({ limit: 50 });
         const dealsProducts = data.products.filter(
           (product: any) => product.originalPrice && product.originalPrice > product.price
@@ -56,12 +103,42 @@ export default function DealsPage() {
         return [];
       }
     },
+    enabled: activeFlashSale !== undefined // Wait for flash sale check
   });
+
+  // Countdown Timer
+  useEffect(() => {
+    if (!activeFlashSale) return;
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const end = new Date(activeFlashSale.endDate).getTime();
+      const distance = end - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        setTimeLeft(null);
+      } else {
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [activeFlashSale]);
 
   const deals = productsData || [];
 
-  const calculateDiscount = (originalPrice: number, price: number) => {
-    return Math.round(((originalPrice - price) / originalPrice) * 100);
+  const calculateDiscount = (product: any) => {
+    if (product.flashSaleDiscount) return product.flashSaleDiscount;
+    if (product.originalPrice && product.price) {
+      return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+    }
+    return 0;
   };
 
   const handleQuickAdd = async (product: any) => {
@@ -117,11 +194,39 @@ export default function DealsPage() {
             <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-red-500 to-orange-500 mb-4 animate-pulse">
               <Zap className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold">عروض البرق ⚡</h1>
+            <h1 className="text-5xl font-bold">
+              {activeFlashSale ? activeFlashSale.title : "عروض البرق ⚡"}
+            </h1>
             <p className="text-lg text-muted-foreground">
-              وفّر حتى <span className="text-3xl font-bold text-red-600">70%</span> على منتجات مختارة
+              {activeFlashSale
+                ? `خصم ${activeFlashSale.discount}% على منتجات مختارة لفترة محدودة`
+                : "وفّر حتى 70% على منتجات مختارة"
+              }
             </p>
-            {deals.length > 0 && (
+
+            {/* Countdown Timer */}
+            {activeFlashSale && timeLeft && (
+              <div className="flex justify-center gap-4 text-center my-6">
+                <div className="bg-background border rounded-lg p-3 min-w-[80px] shadow-sm">
+                  <div className="text-2xl font-bold text-red-600">{timeLeft.days}</div>
+                  <div className="text-xs text-muted-foreground">يوم</div>
+                </div>
+                <div className="bg-background border rounded-lg p-3 min-w-[80px] shadow-sm">
+                  <div className="text-2xl font-bold text-red-600">{timeLeft.hours}</div>
+                  <div className="text-xs text-muted-foreground">ساعة</div>
+                </div>
+                <div className="bg-background border rounded-lg p-3 min-w-[80px] shadow-sm">
+                  <div className="text-2xl font-bold text-red-600">{timeLeft.minutes}</div>
+                  <div className="text-xs text-muted-foreground">دقيقة</div>
+                </div>
+                <div className="bg-background border rounded-lg p-3 min-w-[80px] shadow-sm">
+                  <div className="text-2xl font-bold text-red-600">{timeLeft.seconds}</div>
+                  <div className="text-xs text-muted-foreground">ثانية</div>
+                </div>
+              </div>
+            )}
+
+            {deals.length > 0 && !activeFlashSale && (
               <div className="flex items-center justify-center gap-2">
                 <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-lg px-4 py-2">
                   {deals.length} عرض متاح الآن
@@ -184,7 +289,7 @@ export default function DealsPage() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {deals.map((product: any) => {
-              const discount = calculateDiscount(product.originalPrice, product.price);
+              const discount = calculateDiscount(product);
               const savings = product.originalPrice - product.price;
 
               return (
@@ -303,6 +408,7 @@ export default function DealsPage() {
               </Button>
               <Button size="lg" asChild className="bg-gradient-to-r from-primary to-purple-600">
                 <Link to="/products">
+                  <ShoppingCart className="h-5 w-5 ml-2" />
                   تصفح المنتجات
                 </Link>
               </Button>

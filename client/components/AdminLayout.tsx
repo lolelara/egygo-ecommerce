@@ -243,6 +243,12 @@ const adminNavItems = [
     roles: ['admin'],
   },
   {
+    title: "عروض الفلاش",
+    href: "/admin/flash-sales",
+    icon: Zap,
+    roles: ['admin'],
+  },
+  {
     title: "إدارة الإعلانات",
     href: "/admin/advertisements",
     icon: Megaphone,

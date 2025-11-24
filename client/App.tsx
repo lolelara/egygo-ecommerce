@@ -222,6 +222,7 @@ const App = () => (
 
                                 {/* New Admin Routes - Deals & Advertising */}
                                 <Route path="/admin/deals" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminDealsManager /></ProtectedRoute>} />
+                                <Route path="/admin/flash-sales" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminFlashSales /></ProtectedRoute>} />
                                 <Route path="/admin/advertisements" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminAdvertisementsManager /></ProtectedRoute>} />
                                 <Route path="/admin/withdrawals" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.AdminWithdrawals /></ProtectedRoute>} />
                                 <Route path="/admin/banners" element={<ProtectedRoute requiredRole="admin"><LazyRoutes.BannersManagement /></ProtectedRoute>} />
