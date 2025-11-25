@@ -25,7 +25,12 @@ import {
   Settings,
   Image as ImageIcon,
   FileText,
-  Zap
+  Image as ImageIcon,
+  FileText,
+  Zap,
+  ArrowRightLeft,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -40,11 +45,11 @@ function AITaskConfigSection({ keys }: { keys: AdminOpenAIKey[] }) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const TASK_LABELS: Record<string, string> = {
-    'description': 'تحسين وصف المنتجات',
-    'chat': 'المحادثة الذكية (Chat)',
-    'image': 'توليد الصور',
-    'categorization': 'تصنيف المنتجات التلقائي'
+  const TASK_LABELS: Record<string, { label: string, icon: any, capability: 'text' | 'image' }> = {
+    'description': { label: 'تحسين وصف المنتجات', icon: FileText, capability: 'text' },
+    'chat': { label: 'المحادثة الذكية (Chat)', icon: MessageSquare, capability: 'text' },
+    'image': { label: 'توليد الصور', icon: ImageIcon, capability: 'image' },
+    'categorization': { label: 'تصنيف المنتجات التلقائي', icon: Zap, capability: 'text' }
   };
 
   useEffect(() => {
@@ -78,58 +83,113 @@ function AITaskConfigSection({ keys }: { keys: AdminOpenAIKey[] }) {
     }
   };
 
+  const handleSwap = async (taskId: string) => {
+    const task = tasks.find(t => t.taskId === taskId);
+    if (!task) return;
+
+    try {
+      const newPrimary = task.fallbackKeyId;
+      const newFallback = task.primaryKeyId;
+
+      await aiTaskConfigsApi.update(taskId, {
+        primaryKeyId: newPrimary,
+        fallbackKeyId: newFallback
+      });
+
+      setTasks(prev => prev.map(t => t.taskId === taskId ? {
+        ...t,
+        primaryKeyId: newPrimary,
+        fallbackKeyId: newFallback
+      } : t));
+
+      toast({ title: "تم التبديل", description: "تم تبديل المفاتيح بنجاح" });
+    } catch (error) {
+      toast({ title: "خطأ", description: "فشل تبديل المفاتيح", variant: "destructive" });
+    }
+  };
+
+  const getFilteredKeys = (capability: 'text' | 'image') => {
+    return keys.filter(k => !k.capabilities || k.capabilities.includes(capability));
+  };
+
   return (
     <div className="grid gap-6">
-      {Object.entries(TASK_LABELS).map(([taskId, label]) => {
+      {Object.entries(TASK_LABELS).map(([taskId, info]) => {
         const task = tasks.find(t => t.taskId === taskId) || { taskId, primaryKeyId: '', fallbackKeyId: '' };
+        const Icon = info.icon;
+        const filteredKeys = getFilteredKeys(info.capability);
 
         return (
-          <Card key={taskId}>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Zap className="w-4 h-4 text-yellow-500" />
-                {label}
+          <Card key={taskId} className="overflow-hidden border-l-4 border-l-primary/20">
+            <CardHeader className="bg-muted/30 pb-4">
+              <CardTitle className="text-lg flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                {info.label}
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>المفتاح الأساسي (Primary)</Label>
-                <Select
-                  value={task.primaryKeyId}
-                  onValueChange={(val) => handleUpdate(taskId, 'primaryKeyId', val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر مفتاح..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">-- غير محدد --</SelectItem>
-                    {keys.map(k => (
-                      <SelectItem key={k.id} value={k.id}>
-                        {k.label} ({k.provider})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row gap-4 items-end">
+                <div className="flex-1 space-y-2 w-full">
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">المفتاح الأساسي (Primary)</Label>
+                  <Select
+                    value={task.primaryKeyId}
+                    onValueChange={(val) => handleUpdate(taskId, 'primaryKeyId', val)}
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="اختر مفتاح..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">-- غير محدد --</SelectItem>
+                      {filteredKeys.map(k => (
+                        <SelectItem key={k.id} value={k.id}>
+                          <div className="flex items-center gap-2">
+                            <span className={cn("w-2 h-2 rounded-full", k.status === 'active' ? "bg-green-500" : "bg-red-500")} />
+                            <span className="font-medium">{k.label}</span>
+                            <Badge variant="outline" className="text-xs ml-auto">{k.provider}</Badge>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label>مفتاح احتياطي (Fallback)</Label>
-                <Select
-                  value={task.fallbackKeyId}
-                  onValueChange={(val) => handleUpdate(taskId, 'fallbackKeyId', val)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر مفتاح..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">-- غير محدد --</SelectItem>
-                    {keys.map(k => (
-                      <SelectItem key={k.id} value={k.id}>
-                        {k.label} ({k.provider})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center justify-center pb-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleSwap(taskId)}
+                    className="rounded-full hover:bg-primary/10 hover:text-primary"
+                    title="تبديل المفاتيح"
+                  >
+                    <ArrowRightLeft className="w-5 h-5" />
+                  </Button>
+                </div>
+
+                <div className="flex-1 space-y-2 w-full">
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">مفتاح احتياطي (Fallback)</Label>
+                  <Select
+                    value={task.fallbackKeyId}
+                    onValueChange={(val) => handleUpdate(taskId, 'fallbackKeyId', val)}
+                  >
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="اختر مفتاح..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">-- غير محدد --</SelectItem>
+                      {filteredKeys.map(k => (
+                        <SelectItem key={k.id} value={k.id}>
+                          <div className="flex items-center gap-2">
+                            <span className={cn("w-2 h-2 rounded-full", k.status === 'active' ? "bg-green-500" : "bg-red-500")} />
+                            <span className="font-medium">{k.label}</span>
+                            <Badge variant="outline" className="text-xs ml-auto">{k.provider}</Badge>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardContent>
           </Card>

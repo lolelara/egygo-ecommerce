@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Star, ThumbsUp, Edit, Trash2, Plus } from "lucide-react";
+import { Star, ThumbsUp, Edit, Trash2, Plus, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -143,11 +143,10 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`h-6 w-6 ${
-                      star <= Math.round(stats.averageRating)
-                        ? "fill-yellow-400 text-yellow-400"
-                        : "text-muted"
-                    }`}
+                    className={`h-6 w-6 ${star <= Math.round(stats.averageRating)
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-muted"
+                      }`}
                   />
                 ))}
               </div>
@@ -194,62 +193,26 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       {/* Reviews List */}
       <div className="space-y-4">
         {reviews.length === 0 ? (
-          <Card>
-            <CardContent className="p-6 text-center text-muted-foreground">
-              لا توجد تقييمات لهذا المنتج بعد. كن أول من يقيم!
+          <Card className="border-dashed">
+            <CardContent className="p-12 text-center flex flex-col items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+                <Star className="h-8 w-8 text-muted-foreground/50" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">لا توجد تقييمات بعد</h3>
+                <p className="text-muted-foreground">كن أول من يشارك رأيه حول هذا المنتج</p>
+              </div>
             </CardContent>
           </Card>
         ) : (
           reviews.map((review: any) => (
-            <Card key={review.id}>
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-start gap-3">
-                    <Avatar>
-                      <AvatarFallback>
-                        {review.userName.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold">{review.userName}</p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${
-                                star <= review.rating
-                                  ? "fill-yellow-400 text-yellow-400"
-                                  : "text-muted"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                          {review.date}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Delete button for own reviews */}
-                  {user && review.userEmail === user.email && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteReview(review.id)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  )}
-                </div>
-
-                {review.comment && (
-                  <p className="text-muted-foreground">{review.comment}</p>
-                )}
-              </CardContent>
-            </Card>
+            <ReviewCard
+              key={review.id}
+              review={review}
+              currentUser={user}
+              onDelete={handleDeleteReview}
+              isDeleting={deleteMutation.isPending}
+            />
           ))
         )}
       </div>
@@ -279,11 +242,10 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                     className="focus:outline-none"
                   >
                     <Star
-                      className={`h-8 w-8 cursor-pointer transition-colors ${
-                        star <= selectedRating
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-muted hover:text-yellow-200"
-                      }`}
+                      className={`h-8 w-8 cursor-pointer transition-colors ${star <= selectedRating
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted hover:text-yellow-200"
+                        }`}
                     />
                   </button>
                 ))}
@@ -322,5 +284,120 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function ReviewCard({ review, currentUser, onDelete, isDeleting }: {
+  review: any;
+  currentUser: any;
+  onDelete: (id: string) => void;
+  isDeleting: boolean;
+}) {
+  const [helpfulCount, setHelpfulCount] = useState(review.helpful || 0);
+  const [hasVoted, setHasVoted] = useState(false);
+  const { toast } = useToast();
+
+  const handleHelpful = async () => {
+    if (!currentUser) {
+      toast({
+        title: "يجب تسجيل الدخول",
+        description: "يرجى تسجيل الدخول للتفاعل مع التقييمات",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (hasVoted) return;
+
+    try {
+      await reviewsApi.markReviewHelpful(review.id);
+      setHelpfulCount((prev: number) => prev + 1);
+      setHasVoted(true);
+      toast({
+        title: "شكراً لك",
+        description: "تم تسجيل صوتك بنجاح",
+      });
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في تسجيل صوتك",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <Card className="transition-all hover:shadow-md">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+              <AvatarFallback className="bg-gradient-to-br from-primary/10 to-purple-500/10 text-primary font-bold">
+                {review.userName.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="font-bold text-base">{review.userName}</p>
+                {review.verified && (
+                  <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    <BadgeCheck className="w-3 h-3" />
+                    شراء مؤكد
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-3.5 w-3.5 ${star <= review.rating
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-200"
+                        }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(review.$createdAt).toLocaleDateString('ar-EG')}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Delete button for own reviews */}
+          {currentUser && review.userEmail === currentUser.email && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 -mt-2 -ml-2"
+              onClick={() => onDelete(review.id)}
+              disabled={isDeleting}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+
+        {review.comment && (
+          <p className="text-foreground/90 leading-relaxed mb-4 text-sm md:text-base bg-muted/30 p-3 rounded-lg">
+            {review.comment}
+          </p>
+        )}
+
+        <div className="flex items-center gap-4 pt-2 border-t border-border/50">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`gap-2 text-muted-foreground hover:text-primary ${hasVoted ? 'text-primary bg-primary/5' : ''}`}
+            onClick={handleHelpful}
+            disabled={hasVoted}
+          >
+            <ThumbsUp className={`h-4 w-4 ${hasVoted ? 'fill-current' : ''}`} />
+            <span>مفيد ({helpfulCount})</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

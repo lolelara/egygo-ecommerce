@@ -96,15 +96,18 @@ export function Header({ cartItemCount }: HeaderProps) {
   return (
     <header className={`sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 ${isScrolled ? 'shadow-xl' : 'shadow-lg'} transition-all duration-300`}>
       {/* Top Bar - Compact */}
-      <div className="border-b border-border/40 bg-gradient-to-r from-red-600/5 via-red-700/5 to-red-600/5">
-        <div className="container mx-auto px-4 py-2">
-          <div className="flex items-center justify-between text-xs">
+      <div className="border-b border-border/40 bg-gradient-to-r from-red-600/10 via-red-700/10 to-red-600/10 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-1.5">
+          <div className="flex items-center justify-between text-xs font-medium">
             <div className="flex items-center gap-4">
-              <span className="text-muted-foreground hidden sm:inline">💼 {t('marketing.registerEarn')}</span>
+              <span className="text-muted-foreground hidden sm:inline flex items-center gap-1">
+                <Briefcase className="w-3 h-3" />
+                {t('marketing.registerEarn')}
+              </span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <LanguageToggle />
-              <div className="h-4 w-px bg-border hidden sm:block" />
+              <div className="h-3 w-px bg-border/50 hidden sm:block" />
               <ThemeToggle />
             </div>
           </div>
@@ -112,7 +115,7 @@ export function Header({ cartItemCount }: HeaderProps) {
       </div>
 
       {/* Main Header */}
-      <div className={`container mx-auto flex items-center justify-between gap-4 px-[var(--s-md)] ${isScrolled ? 'h-14' : 'h-16'} transition-all duration-300`}>
+      <div className={`container mx-auto flex items-center justify-between gap-4 px-4 lg:px-8 ${isScrolled ? 'h-16' : 'h-20'} transition-all duration-300`}>
         {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild>

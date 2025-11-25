@@ -518,24 +518,24 @@ export default function ProductDetail() {
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 pt-4">
                   <Button
                     size="lg"
-                    className="w-full h-14 text-lg bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90"
+                    className="w-full h-14 text-lg font-bold bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 shadow-lg hover:shadow-primary/25 transition-all rounded-xl"
                     onClick={handleAddToCart}
                     disabled={totalStock === 0}
                   >
-                    <ShoppingCart className="ml-2 h-5 w-5" />
-                    أضف إلى السلة 🛒
+                    <ShoppingCart className="ml-2 h-6 w-6" />
+                    {totalStock > 0 ? "أضف إلى السلة" : "نفذت الكمية"}
                   </Button>
 
                   <div className="grid grid-cols-2 gap-3">
                     <Button
                       size="lg"
-                      variant={isWishlisted ? "default" : "outline"}
+                      variant={isWishlisted ? "secondary" : "outline"}
                       onClick={handleToggleWishlist}
                       disabled={addToWishlist.isPending || removeFromWishlist.isPending}
-                      className="h-12"
+                      className={`h-12 rounded-xl border-2 ${isWishlisted ? "bg-red-50 text-red-600 border-red-200" : "hover:border-red-200 hover:text-red-600"}`}
                     >
                       {addToWishlist.isPending || removeFromWishlist.isPending ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
@@ -546,7 +546,7 @@ export default function ProductDetail() {
                         </>
                       )}
                     </Button>
-                    <Button size="lg" variant="outline" onClick={handleShare} className="h-12">
+                    <Button size="lg" variant="outline" onClick={handleShare} className="h-12 rounded-xl border-2 hover:border-blue-200 hover:text-blue-600">
                       <Share2 className="h-5 w-5 ml-2" />
                       مشاركة
                     </Button>
@@ -555,54 +555,39 @@ export default function ProductDetail() {
               </div>
 
               {/* Trust Signals - Enhanced */}
-              <Card className="border-2">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
-                    <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                      <Truck className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="font-bold">توصيل سريع 🚚</p>
-                      <p className="text-sm text-muted-foreground">
-                        خلال 2-5 أيام عمل
-                      </p>
-                    </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20 transition-transform hover:scale-105">
+                  <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-3">
+                    <Truck className="h-6 w-6 text-green-600" />
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                      <RotateCcw className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-bold">إرجاع مجاني 🔄</p>
-                      <p className="text-sm text-muted-foreground">
-                        خلال 14 يوم من الاستلام
-                      </p>
-                    </div>
+                  <p className="font-bold text-sm mb-1">توصيل سريع 🚚</p>
+                  <p className="text-xs text-muted-foreground">2-5 أيام عمل</p>
+                </div>
+
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 transition-transform hover:scale-105">
+                  <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-3">
+                    <RotateCcw className="h-6 w-6 text-blue-600" />
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
-                    <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                      <Shield className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="font-bold">دفع آمن 🔒</p>
-                      <p className="text-sm text-muted-foreground">
-                        معاملات مشفرة 100%
-                      </p>
-                    </div>
+                  <p className="font-bold text-sm mb-1">إرجاع مجاني 🔄</p>
+                  <p className="text-xs text-muted-foreground">خلال 14 يوم</p>
+                </div>
+
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/20 transition-transform hover:scale-105">
+                  <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-3">
+                    <Shield className="h-6 w-6 text-purple-600" />
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-50 dark:bg-orange-950/20">
-                    <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                      <BadgeCheck className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="font-bold">منتج أصلي ✓</p>
-                      <p className="text-sm text-muted-foreground">
-                        ضمان الجودة والأصالة
-                      </p>
-                    </div>
+                  <p className="font-bold text-sm mb-1">دفع آمن 🔒</p>
+                  <p className="text-xs text-muted-foreground">تشفير 100%</p>
+                </div>
+
+                <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/20 transition-transform hover:scale-105">
+                  <div className="h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mb-3">
+                    <BadgeCheck className="h-6 w-6 text-orange-600" />
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="font-bold text-sm mb-1">منتج أصلي ✓</p>
+                  <p className="text-xs text-muted-foreground">ضمان الجودة</p>
+                </div>
+              </div>
 
               {/* Affiliate Info */}
               {user?.role !== "customer" && (
@@ -688,10 +673,25 @@ export default function ProductDetail() {
 
           {/* Tabs Section */}
           <Tabs defaultValue="reviews" className="space-y-8">
-            <TabsList className="w-full flex md:grid md:grid-cols-3 h-auto overflow-x-auto md:overflow-visible justify-start md:justify-center">
-              <TabsTrigger value="reviews">التقييمات ({product.reviewCount})</TabsTrigger>
-              <TabsTrigger value="specs">المواصفات</TabsTrigger>
-              <TabsTrigger value="shipping">الشحن والإرجاع</TabsTrigger>
+            <TabsList className="w-full flex md:grid md:grid-cols-3 h-auto p-1 bg-muted/50 rounded-2xl">
+              <TabsTrigger
+                value="reviews"
+                className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 text-base"
+              >
+                التقييمات ({product.reviewCount})
+              </TabsTrigger>
+              <TabsTrigger
+                value="specs"
+                className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 text-base"
+              >
+                المواصفات
+              </TabsTrigger>
+              <TabsTrigger
+                value="shipping"
+                className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm py-3 text-base"
+              >
+                الشحن والإرجاع
+              </TabsTrigger>
             </TabsList>
 
             {/* Reviews Tab */}

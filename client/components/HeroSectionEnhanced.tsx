@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { ShoppingBag, ArrowLeft, Sparkles, TrendingUp, Package, Zap } from 'lucide-react';
+import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { ShoppingBag, ArrowLeft, Sparkles, TrendingUp, Package, Zap, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ProductWithRelations } from '@shared/prisma-types';
 
@@ -18,6 +18,36 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Mouse parallax effect
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (rect) {
+      const width = rect.width;
+      const height = rect.height;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const xPct = mouseX / width - 0.5;
+      const yPct = mouseY / height - 0.5;
+      x.set(xPct);
+      y.set(yPct);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
 
   useEffect(() => {
     if (featuredProducts.length <= 3) return;
@@ -31,12 +61,8 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
 
   const getVisibleProducts = () => {
     if (featuredProducts.length === 0) return [];
-    // Always show 3 items if possible, wrapping around
     const products = [];
-    const count = Math.min(featuredProducts.length, 3);
-
     for (let i = 0; i < 3; i++) {
-      // If we have fewer than 3 products, just cycle through what we have
       if (featuredProducts.length < 3) {
         products.push(featuredProducts[i % featuredProducts.length]);
       } else {
@@ -48,266 +74,199 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
 
   const visibleProducts = getVisibleProducts();
 
-  return (
-    <div className="relative min-h-[svh] lg:min-h-[600px] overflow-hidden flex items-center">
-      {/* Gradient Background with Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-500 to-red-700">
-        {/* Egyptian Pattern Overlay */}
-        <div className="absolute inset-0 egygo-pattern-pharaonic opacity-20" />
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.3
+      }
+    }
+  };
 
-        {/* Animated Gradient Overlay */}
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative min-h-[svh] lg:min-h-[700px] overflow-hidden flex items-center perspective-1000"
+    >
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-600 via-red-500 to-red-800 overflow-hidden">
+        <div className="absolute inset-0 egygo-pattern-pharaonic opacity-10" />
+
+        {/* Animated Orbs */}
         <motion.div
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(circle at 20% 50%, rgba(220, 38, 38, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(239, 68, 68, 0.4) 0%, transparent 50%)',
-          }}
           animate={{
-            opacity: [0.3, 0.6, 0.3],
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+            x: [0, 50, 0],
+            y: [0, -30, 0],
           }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: 'easeInOut',
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/30 rounded-full blur-[100px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+            x: [0, -50, 0],
+            y: [0, 50, 0],
           }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[120px]"
         />
       </div>
 
-      {/* Content Container */}
       <div className="relative z-10 container mx-auto px-4 pt-20 pb-32 lg:py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+
           {/* Text Content */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
             className="text-center lg:text-right order-2 lg:order-1"
           >
-            {/* Special Badge */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md 
-                         px-4 py-2 rounded-full text-white mb-6 border border-white/30"
-            >
-              <Sparkles className="w-4 h-4 animate-pulse" />
-              <span className="text-sm font-semibold">عروض حصرية تصل إلى 50%</span>
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full text-white mb-6 border border-white/20 shadow-lg">
+              <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
+              <span className="text-sm font-semibold tracking-wide">عروض حصرية تصل إلى 50%</span>
             </motion.div>
 
-            {/* Main Heading */}
-            <h1 className="font-black text-white mb-6 leading-tight">
-              <motion.span
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="block text-fluid-5xl"
-              >
+            <h1 className="font-black text-white mb-6 leading-tight relative">
+              <motion.span variants={itemVariants} className="block text-6xl lg:text-8xl bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80 filter drop-shadow-lg">
                 إيجي جو
               </motion.span>
-              <motion.span
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="block text-fluid-3xl mt-2 text-white/90 font-bold"
-              >
-                تجربة تسوق استثنائية
+              <motion.span variants={itemVariants} className="block text-3xl lg:text-5xl mt-2 text-white/90 font-bold">
+                تجربة تسوق <span className="text-yellow-300 relative inline-block">
+                  استثنائية
+                  <svg className="absolute w-full h-3 -bottom-1 left-0 text-yellow-300 opacity-60" viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="3" fill="none" />
+                  </svg>
+                </span>
               </motion.span>
             </h1>
 
-            {/* Description */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="text-fluid-lg text-white/90 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
-            >
-              اكتشف آلاف المنتجات المميزة بأفضل الأسعار مع شحن سريع ومجاني على جميع الطلبات
+            <motion.p variants={itemVariants} className="text-lg lg:text-xl text-white/90 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+              اكتشف آلاف المنتجات المميزة بأفضل الأسعار مع شحن سريع ومجاني على جميع الطلبات. الجودة التي تستحقها، بالسعر الذي تحبه.
             </motion.p>
 
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-              className="flex flex-wrap gap-4 justify-center lg:justify-start"
-            >
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-4 justify-center lg:justify-start">
               <motion.button
-                whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(255,255,255,0.5)' }}
+                whileHover={{ scale: 1.05, boxShadow: "0 20px 40px -10px rgba(0,0,0,0.3)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onShopNow}
-                className="btn-modern btn-gradient-orange px-8 py-4 text-lg rounded-xl
-                           shadow-2xl hover:shadow-white/30 flex items-center gap-2"
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-4 text-lg rounded-2xl shadow-xl hover:shadow-yellow-500/30 flex items-center gap-3 font-bold transition-all"
               >
-                <ShoppingBag className="w-5 h-5" />
+                <ShoppingBag className="w-6 h-6" />
                 تسوق الآن
               </motion.button>
 
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.2)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onExploreDeals}
-                className="px-8 py-4 text-lg rounded-xl border-2 border-white text-white 
-                           hover:bg-white hover:text-red-600 transition-all duration-300
-                           flex items-center gap-2 font-semibold backdrop-blur-sm bg-white/10"
+                className="px-8 py-4 text-lg rounded-2xl border-2 border-white/30 text-white hover:border-white transition-all flex items-center gap-3 font-bold backdrop-blur-sm bg-white/5"
               >
                 استكشف العروض
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-6 h-6" />
               </motion.button>
             </motion.div>
 
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.1 }}
-              className="mt-12 grid grid-cols-3 gap-4 lg:gap-6"
-            >
+            <motion.div variants={itemVariants} className="mt-12 grid grid-cols-3 gap-4 lg:gap-8 border-t border-white/10 pt-8">
               {stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <motion.div
-                    key={stat.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.2 + index * 0.1 }}
-                    className="text-center"
-                  >
-                    <div className="inline-flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 
-                                    bg-white/20 backdrop-blur-md rounded-full mb-2 border border-white/30">
-                      <Icon className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
+                  <div key={stat.label} className="text-center group cursor-default">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl mb-3 border border-white/20 group-hover:bg-white/20 transition-colors shadow-lg">
+                      <Icon className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
                     </div>
-                    <div className="text-xl lg:text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-xs lg:text-sm text-white/80">{stat.label}</div>
-                  </motion.div>
+                    <div className="text-2xl font-black text-white">{stat.value}</div>
+                    <div className="text-sm text-white/70 font-medium">{stat.label}</div>
+                  </div>
                 );
               })}
             </motion.div>
           </motion.div>
 
-          {/* Visual Content - Floating Cards */}
+          {/* 3D Visual Content */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="relative h-[300px] lg:h-[500px] order-1 lg:order-2 mb-8 lg:mb-0"
+            initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            style={{
+              rotateX,
+              rotateY,
+              transformStyle: "preserve-3d",
+            }}
+            className="relative h-[400px] lg:h-[600px] order-1 lg:order-2 mb-8 lg:mb-0 perspective-1000"
           >
             {featuredProducts.length > 0 ? (
-              <div className="relative w-full h-full flex items-center justify-center transform scale-75 lg:scale-100 origin-center">
+              <div className="relative w-full h-full flex items-center justify-center transform-style-3d">
                 {visibleProducts.map((product, index) => (
-                  <motion.div
-                    key={`${product.id}-${index}`} // Use index in key to force animation when position changes
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      rotate: index === 0 ? -5 : index === 1 ? 5 : 0,
-                      scale: index === 2 ? 1.1 : 0.9,
-                      zIndex: index === 2 ? 10 : 1
-                    }}
-                    transition={{ duration: 0.5 }}
-                    className={`absolute w-48 lg:w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border-4 border-white dark:border-gray-700
-                                ${index === 0 ? 'left-0 lg:left-0 top-4 lg:top-10' : index === 1 ? 'right-0 lg:right-0 bottom-4 lg:bottom-10' : 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'}`}
+                  <Link
+                    to={`/product/${product.id}`}
+                    key={`${product.id}-${index}`}
+                    className="contents"
                   >
-                    <div className="aspect-square relative">
-                      <img
-                        src={product.images?.[0]?.url || '/placeholder.png'}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-3 lg:p-4 bg-white dark:bg-gray-800">
-                      <h3 className="font-bold text-sm lg:text-base text-gray-900 dark:text-white truncate">{product.name}</h3>
-                      <p className="text-red-600 dark:text-red-400 font-bold text-sm lg:text-base">{product.price} ج.م</p>
-                    </div>
-                  </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, z: -100 }}
+                      animate={{
+                        opacity: 1,
+                        x: index === 0 ? -40 : index === 1 ? 40 : 0,
+                        y: index === 0 ? -40 : index === 1 ? 40 : 0,
+                        z: index === 2 ? 50 : 0,
+                        scale: index === 2 ? 1.1 : 0.9,
+                        rotateZ: index === 0 ? -10 : index === 1 ? 10 : 0,
+                      }}
+                      transition={{ duration: 0.8, type: "spring" }}
+                      className={`absolute w-56 lg:w-72 bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden border-4 border-white dark:border-gray-800 cursor-pointer hover:shadow-orange-500/20 transition-shadow
+                        ${index === 2 ? 'z-20' : 'z-10 blur-[1px]'}`}
+                      style={{
+                        transformStyle: "preserve-3d",
+                      }}
+                    >
+                      <div className="aspect-[4/5] relative overflow-hidden group">
+                        <img
+                          src={product.images?.[0]?.url || '/placeholder.png'}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                          <h3 className="font-bold text-lg truncate mb-1">{product.name}</h3>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-yellow-400 text-xl">{product.price} ج.م</span>
+                            <div className="flex items-center gap-1 text-xs bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
+                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                              <span>{product.rating || 4.5}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
             ) : (
-              <div className="relative w-full h-full transform scale-75 lg:scale-100 origin-center">
-                {/* Decorative Elements */}
+              // Fallback 3D Cards
+              <div className="relative w-full h-full flex items-center justify-center transform-style-3d">
                 <motion.div
-                  animate={{
-                    y: [0, -20, 0],
-                    rotate: [0, 5, 0],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute top-0 right-0 lg:top-10 lg:right-10 w-48 lg:w-64 h-64 lg:h-80 bg-white/10 backdrop-blur-lg 
-                         rounded-2xl border border-white/20 p-4 lg:p-6 shadow-2xl"
+                  style={{ z: 50 }}
+                  className="w-64 h-80 bg-white/10 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl flex items-center justify-center"
                 >
-                  <div className="w-full h-32 lg:h-48 bg-white/20 rounded-xl mb-4" />
-                  <div className="h-3 lg:h-4 bg-white/30 rounded mb-2" />
-                  <div className="h-3 lg:h-4 bg-white/20 rounded w-2/3" />
-                </motion.div>
-
-                <motion.div
-                  animate={{
-                    y: [0, 20, 0],
-                    rotate: [0, -5, 0],
-                  }}
-                  transition={{
-                    duration: 5,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute bottom-0 left-0 lg:bottom-10 lg:left-10 w-40 lg:w-56 h-56 lg:h-72 bg-white/10 backdrop-blur-lg 
-                         rounded-2xl border border-white/20 p-4 lg:p-6 shadow-2xl"
-                >
-                  <div className="w-full h-28 lg:h-40 bg-white/20 rounded-xl mb-4" />
-                  <div className="h-3 lg:h-4 bg-white/30 rounded mb-2" />
-                  <div className="h-3 lg:h-4 bg-white/20 rounded w-3/4" />
-                </motion.div>
-
-                {/* Center spotlight card */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.05, 1],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-                         w-48 lg:w-60 h-64 lg:h-76 bg-gradient-to-br from-white/30 to-white/10 
-                         backdrop-blur-xl rounded-2xl border-2 border-white/40 p-4 lg:p-6 
-                         shadow-2xl z-10"
-                >
-                  <div className="w-full h-32 lg:h-44 bg-white rounded-xl mb-4 shadow-lg" />
-                  <div className="h-4 lg:h-5 bg-white rounded mb-2" />
-                  <div className="h-4 lg:h-5 bg-white/70 rounded w-2/3 mb-3" />
-                  <div className="h-8 lg:h-10 bg-gradient-to-r from-red-500 to-red-700 
-                              rounded-lg flex items-center justify-center text-white font-bold text-sm lg:text-base">
-                    اشترِ الآن
-                  </div>
+                  <Package className="w-20 h-20 text-white/50" />
                 </motion.div>
               </div>
             )}
           </motion.div>
         </div>
-      </div>
-
-      {/* Bottom Wave */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg
-          viewBox="0 0 1440 120"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-auto"
-        >
-          <path
-            d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"
-            fill="white"
-            fillOpacity="0.1"
-          />
-          <path
-            d="M0,96L48,90.7C96,85,192,75,288,74.7C384,75,480,85,576,90.7C672,96,768,96,864,90.7C960,85,1056,75,1152,69.3C1248,64,1344,64,1392,64L1440,64L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"
-            fill="white"
-          />
-        </svg>
       </div>
     </div>
   );

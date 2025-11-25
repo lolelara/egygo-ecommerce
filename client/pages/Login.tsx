@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles, Check, Star, Shield, Truck } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
@@ -39,16 +40,16 @@ export default function Login() {
       const htmlLang = document.documentElement.lang;
       setIsRTL(htmlDir === 'rtl' || htmlLang === 'ar');
     };
-    
+
     checkLanguage();
-    
+
     // Watch for language changes
     const observer = new MutationObserver(checkLanguage);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['dir', 'lang']
     });
-    
+
     return () => observer.disconnect();
   }, []);
 
@@ -119,100 +120,135 @@ export default function Login() {
   return (
     <div className={`min-h-screen grid grid-cols-1 lg:grid-cols-2 ${!isRTL ? 'direction-ltr' : ''}`}>
       {/* Left Side - Branding (appears on right in RTL, left in LTR) */}
-      <div className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
-        <div className="absolute inset-0 opacity-20">
+      <motion.div
+        initial={{ opacity: 0, x: isRTL ? 50 : -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className={`hidden lg:flex flex-col justify-center p-12 bg-gradient-to-br from-red-600 via-red-700 to-red-900 text-white relative overflow-hidden ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}
+      >
+        <div className="absolute inset-0 opacity-10">
           <div className="w-full h-full flex items-center justify-center">
-            <div className="text-9xl font-black tracking-tight">
-              <span className="text-red-300">egy</span>
-              <span className="text-white">go</span>
-              <span className="text-red-100">.me</span>
+            <div className="text-[20rem] font-black tracking-tighter rotate-12 select-none">
+              GO
             </div>
           </div>
         </div>
-        <div className="relative z-10 max-w-md">
-          <Link to="/" className="inline-flex items-center gap-2 text-5xl font-bold mb-6">
-            <Sparkles className="w-12 h-12" />
-            إيجي جو
+
+        {/* Animated Orbs */}
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+            x: [0, 50, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-0 right-0 w-[500px] h-[500px] bg-orange-500/30 rounded-full blur-[100px]"
+        />
+
+        <div className="relative z-10 max-w-lg mx-auto">
+          <Link to="/" className="inline-flex items-center gap-3 text-6xl font-black mb-8 tracking-tight hover:scale-105 transition-transform duration-300">
+            <Sparkles className="w-16 h-16 text-yellow-300 animate-pulse" />
+            <span>إيجي جو</span>
           </Link>
-          <p className="text-2xl mb-8 opacity-90">
-            التسوق الذكي يبدأ هنا
-          </p>
 
-          <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Check className="h-6 w-6" />
-              </div>
-              <div>آلاف المنتجات المميزة</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Truck className="h-6 w-6" />
-              </div>
-              <div>توصيل سريع وآمن</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Check className="h-6 w-6" />
-              </div>
-              <div>استرجاع سهل خلال 14 يوم</div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Shield className="h-6 w-6" />
-              </div>
-              <div>دفع آمن 100%</div>
-            </div>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-3xl font-bold mb-12 leading-relaxed text-red-50"
+          >
+            وجهتك الأولى للتسوق الذكي <br />
+            <span className="text-yellow-300">جودة.. سرعة.. توفير</span>
+          </motion.p>
+
+          <div className="space-y-6 mb-12">
+            {[
+              { icon: Check, text: "آلاف المنتجات المميزة بأسعار تنافسية" },
+              { icon: Truck, text: "شحن سريع لجميع محافظات مصر" },
+              { icon: Shield, text: "ضمان استرجاع ودفع آمن 100%" }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + (index * 0.1) }}
+                className="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors"
+              >
+                <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center shadow-lg">
+                  <item.icon className="h-6 w-6 text-white" />
+                </div>
+                <div className="text-lg font-medium">{item.text}</div>
+              </motion.div>
+            ))}
           </div>
 
-          <Card className="bg-white/10 backdrop-blur border-white/20">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm mb-1">
-                    "أفضل موقع تسوق استخدمته! المنتجات عالية الجودة"
-                  </p>
-                  <p className="text-xs opacity-75">- أحمد محمد، القاهرة</p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            <Card className="bg-white/10 backdrop-blur-xl border-white/20 shadow-2xl">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-yellow-400/20 p-2 rounded-full">
+                    <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-medium mb-2 italic text-white/90">
+                      "تجربة تسوق ممتازة، المنتجات وصلت في الموعد وبجودة عالية جداً. شكراً إيجي جو!"
+                    </p>
+                    <p className="text-sm text-white/70 font-bold">- أحمد محمد، القاهرة</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Right Side - Form (appears on left in RTL, right in LTR) */}
-      <div className={`flex items-center justify-center p-6 lg:p-12 bg-background ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
-        <div className="w-full max-w-md space-y-8">
-          {/* Mobile Logo */}
-          <div className="text-center lg:hidden">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <BrandLogo size="xl" />
-            </Link>
-          </div>
-          {/* Header */}
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold">مرحباً بعودتك</h2>
-            <p className="text-muted-foreground">
-              سجل دخولك للمتابعة
+      <div className={`flex items-center justify-center p-6 lg:p-12 bg-background relative ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
+        <div className="absolute top-6 left-6 lg:hidden">
+          <Link to="/" className="inline-flex items-center gap-2">
+            <BrandLogo size="lg" />
+          </Link>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-md space-y-8"
+        >
+          <div className="space-y-2 text-center lg:text-right">
+            <h2 className="text-4xl font-bold tracking-tight text-foreground">مرحباً بعودتك 👋</h2>
+            <p className="text-muted-foreground text-lg">
+              سجل دخولك للمتابعة واستكشاف العروض
             </p>
           </div>
 
           {/* Email Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-gradient-to-r from-red-50 to-red-100 border border-red-300 rounded-md shadow-sm">
-                  {error}
-                </div>
-              )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="p-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3"
+              >
+                <Shield className="w-5 h-5 flex-shrink-0" />
+                {error}
+              </motion.div>
+            )}
 
+            <div className="space-y-5">
               {/* Email Field */}
-              <div>
-                <Label htmlFor="email">البريد الإلكتروني</Label>
-                <div className="relative mt-1">
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-base">البريد الإلكتروني</Label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   </div>
                   <Input
                     id="email"
@@ -220,20 +256,28 @@ export default function Login() {
                     type="email"
                     autoComplete="email"
                     required
-                    placeholder="أدخل بريدك الإلكتروني"
+                    placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pr-10"
+                    className="pr-12 h-12 text-lg bg-muted/30 border-muted-foreground/20 focus:border-primary focus:ring-primary/20 transition-all rounded-xl"
                   />
                 </div>
               </div>
 
               {/* Password Field */}
-              <div>
-                <Label htmlFor="password">كلمة المرور</Label>
-                <div className="relative mt-1">
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-base">كلمة المرور</Label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                  >
+                    نسيت كلمة المرور؟
+                  </Link>
+                </div>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   </div>
                   <Input
                     id="password"
@@ -241,99 +285,108 @@ export default function Login() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     required
-                    placeholder="أدخل كلمة المرور"
+                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10 pl-10"
+                    className="pr-12 pl-12 h-12 text-lg bg-muted/30 border-muted-foreground/20 focus:border-primary focus:ring-primary/20 transition-all rounded-xl"
                   />
                   <button
                     type="button"
-                    className="absolute inset-y-0 left-0 pl-3 flex items-center"
+                    className="absolute inset-y-0 left-0 pl-4 flex items-center focus:outline-none"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                     )}
                   </button>
                 </div>
               </div>
+            </div>
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                  <Checkbox
-                    id="remember-me"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(!!checked)}
-                  />
-                  <Label
-                    htmlFor="remember-me"
-                    className="text-sm cursor-pointer"
-                  >
-                    تذكرني
-                  </Label>
+            <div className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Checkbox
+                id="remember-me"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(!!checked)}
+                className="w-5 h-5 border-2"
+              />
+              <Label
+                htmlFor="remember-me"
+                className="text-sm cursor-pointer select-none"
+              >
+                تذكرني على هذا الجهاز
+              </Label>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full h-14 text-lg font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-lg hover:shadow-red-500/25 transition-all rounded-xl"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  جاري التحقق...
                 </div>
-
-                <div className="text-sm">
-                  <Link
-                    to="/forgot-password"
-                    className="font-medium text-primary hover:text-primary/80 transition-colors"
-                  >
-                    نسيت كلمة المرور؟
-                  </Link>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  تسجيل الدخول
+                  <ArrowRight className="h-5 w-5 rtl:rotate-180" />
                 </div>
-              </div>
+              )}
+            </Button>
 
-              {/* Submit Button */}
-              <Button type="submit" size="lg" className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90" disabled={isLoading}>
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    جاري تسجيل الدخول...
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-2">
-                    تسجيل الدخول
-                    <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-                  </div>
-                )}
-              </Button>
-
-              {/* reCAPTCHA Badge */}
-              <RecaptchaBadge className="mt-2" />
+            {/* reCAPTCHA Badge */}
+            <div className="flex justify-center opacity-80 scale-90">
+              <RecaptchaBadge />
+            </div>
           </form>
 
-          {/* Divider */}
-          {/* Sign Up Link */}
-          <div className="text-center text-sm mt-6">
-            ليس لديك حساب؟{" "}
-            <Link to="/register" className="text-primary font-semibold hover:underline">
-              سجل الآن
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-muted" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                أو
+              </span>
+            </div>
+          </div>
+
+          <div className="text-center space-y-4">
+            <p className="text-muted-foreground">
+              ليس لديك حساب؟{" "}
+              <Link to="/register" className="text-primary font-bold hover:underline text-lg">
+                أنشئ حساب جديد
+              </Link>
+            </p>
+
+            {/* Affiliate Program */}
+            <Link to="/affiliate" className="block group">
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 transition-all group-hover:shadow-md group-hover:scale-[1.02]">
+                <div className="flex items-center justify-center gap-2 text-orange-700 dark:text-orange-400 font-bold">
+                  <Sparkles className="w-5 h-5" />
+                  انضم لبرنامج الشراكة واكسب معنا
+                </div>
+                <p className="text-sm text-orange-600/80 dark:text-orange-400/80 mt-1">
+                  عمولات تصل إلى 25% على كل عملية بيع
+                </p>
+              </div>
             </Link>
           </div>
 
-          {/* Affiliate Program */}
-          <Card className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border-orange-200 dark:border-orange-800">
-            <CardContent className="p-4 text-center">
-              <p className="text-sm font-semibold mb-1">
-                💰 انضم لبرنامج الشراكة
-              </p>
-              <Link to="/affiliate" className="text-sm text-orange-600 hover:underline">
-                اكسب عمولة تصل إلى 25%
-              </Link>
-            </CardContent>
-          </Card>
-
           {/* Footer */}
-          <div className="text-center text-xs text-muted-foreground">
-            بتسجيل الدخول، فإنك توافق على{" "}
-            <Link to="/terms" className="hover:underline">شروط الخدمة</Link>
+          <div className="text-center text-xs text-muted-foreground pt-8">
+            محمي بواسطة reCAPTCHA وتطبق{" "}
+            <Link to="/privacy" className="underline hover:text-primary">الخصوصية</Link>
             {" "}و{" "}
-            <Link to="/privacy" className="hover:underline">سياسة الخصوصية</Link>
+            <Link to="/terms" className="underline hover:text-primary">الشروط</Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

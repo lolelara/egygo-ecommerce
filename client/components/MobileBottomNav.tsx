@@ -71,8 +71,8 @@ export function MobileBottomNav({
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-40 bg-background border-t md:hidden",
-        "safe-area-inset-bottom",
+        "fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-xl border-t border-border/50 md:hidden shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.1)]",
+        "safe-area-inset-bottom pb-safe",
         className
       )}
     >
@@ -85,26 +85,23 @@ export function MobileBottomNav({
               key={item.id}
               to={item.path}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors",
-                "active:scale-95 active:bg-accent rounded-lg",
+                "relative flex flex-col items-center justify-center gap-1 flex-1 h-full transition-all duration-300",
+                "active:scale-90 rounded-xl mx-1",
                 active
                   ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
-              <div className="relative">
+              <div className={cn("relative p-1 rounded-full transition-all duration-300", active && "bg-primary/10 -translate-y-1")}>
                 {item.icon}
                 {item.badge !== undefined && item.badge > 0 && (
                   <Badge
                     className={cn(
-                      "absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] font-bold border-2 border-background shadow-md",
-                      item.id === 'cart' 
-                        ? "bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 animate-pulse" 
+                      "absolute -top-1 -right-1 h-4 w-4 min-w-[16px] rounded-full p-0 flex items-center justify-center text-[9px] font-bold border-[1.5px] border-background shadow-sm",
+                      item.id === 'cart'
+                        ? "bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 animate-pulse"
                         : "bg-gradient-to-r from-pink-500 to-red-500"
                     )}
-                    style={item.id === 'cart' ? {
-                      boxShadow: '0 0 8px rgba(239, 68, 68, 0.4)'
-                    } : undefined}
                   >
                     {item.badge > 99 ? '99+' : item.badge}
                   </Badge>
@@ -112,14 +109,14 @@ export function MobileBottomNav({
               </div>
               <span
                 className={cn(
-                  "text-xs transition-all",
-                  active ? "font-medium" : "font-normal"
+                  "text-[10px] transition-all duration-300",
+                  active ? "font-bold translate-y-0 opacity-100" : "font-medium translate-y-1 opacity-80"
                 )}
               >
                 {item.label}
               </span>
               {active && (
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-primary rounded-full" />
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
               )}
             </Link>
           );

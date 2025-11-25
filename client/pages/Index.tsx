@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   ArrowRight,
   Star,
@@ -246,7 +247,13 @@ export default function Index() {
         <div className="absolute bottom-10 end-10 w-96 h-96 bg-blue-100/20 dark:bg-blue-900/20 rounded-full blur-3xl"></div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-20"
+          >
             <Badge className="mb-6 bg-gradient-to-r from-red-100 to-blue-100 dark:from-red-900/30 dark:to-blue-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 px-6 py-2 text-base font-bold">
               {t('home.howItWorks.badge')}
             </Badge>
@@ -256,157 +263,178 @@ export default function Index() {
             <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">
               {t('home.howItWorks.subtitle')}
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* للعملاء */}
-            <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-800 hover:border-red-200 dark:hover:border-red-700 overflow-hidden">
-              <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-red-100 dark:from-red-900/30 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
-              <CardContent className="p-8 relative z-10">
-                {/* فيديو توضيحي */}
-                <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
-                  <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
-                    <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="h-8 w-8 text-white me-1" />
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-800 hover:border-red-200 dark:hover:border-red-700 overflow-hidden h-full">
+                <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-red-100 dark:from-red-900/30 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+                <CardContent className="p-8 relative z-10">
+                  {/* فيديو توضيحي */}
+                  <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                      <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="h-8 w-8 text-white me-1" />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                      <p className="text-white text-sm font-medium">{t('home.howItWorks.customers.video')}</p>
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    <p className="text-white text-sm font-medium">{t('home.howItWorks.customers.video')}</p>
-                  </div>
-                </div>
 
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
-                    <ShoppingCart className="h-8 w-8" />
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
+                      <ShoppingCart className="h-8 w-8" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.customers.title')}</h3>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.customers.title')}</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step1.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step1.desc')}</p>
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step1.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step1.desc')}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step2.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step2.desc')}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step3.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step3.desc')}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step2.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step2.desc')}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.customers.step3.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.customers.step3.desc')}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* للتجار */}
-            <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 dark:border-red-900 hover:border-red-300 dark:hover:border-red-600 overflow-visible">
-              <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-red-200 dark:from-red-900/40 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
-              <div className="absolute -top-3 -end-3 z-20">
-                <Badge className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-600 text-white px-4 py-2 font-bold text-sm shadow-xl shadow-red-500/50 dark:shadow-red-400/50 border-2 border-white dark:border-gray-700">
-                  {t('home.howItWorks.merchants.badge')}
-                </Badge>
-              </div>
-              <CardContent className="p-8 relative z-10">
-                {/* فيديو توضيحي */}
-                <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
-                  <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
-                    <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="h-8 w-8 text-white me-1" />
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-red-200 dark:border-red-900 hover:border-red-300 dark:hover:border-red-600 overflow-visible h-full">
+                <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-red-200 dark:from-red-900/40 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="absolute -top-3 -end-3 z-20">
+                  <Badge className="bg-gradient-to-r from-red-600 to-red-500 dark:from-red-500 dark:to-red-600 text-white px-4 py-2 font-bold text-sm shadow-xl shadow-red-500/50 dark:shadow-red-400/50 border-2 border-white dark:border-gray-700">
+                    {t('home.howItWorks.merchants.badge')}
+                  </Badge>
+                </div>
+                <CardContent className="p-8 relative z-10">
+                  {/* فيديو توضيحي */}
+                  <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                      <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="h-8 w-8 text-white me-1" />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                      <p className="text-white text-sm font-medium">{t('home.howItWorks.merchants.video')}</p>
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    <p className="text-white text-sm font-medium">{t('home.howItWorks.merchants.video')}</p>
-                  </div>
-                </div>
 
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
-                    <Sparkles className="h-8 w-8" />
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
+                      <Sparkles className="h-8 w-8" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.merchants.title')}</h3>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.merchants.title')}</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step1.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step1.desc')}</p>
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step1.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step1.desc')}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step2.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step2.desc')}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step3.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step3.desc')}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step2.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step2.desc')}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.merchants.step3.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.merchants.step3.desc')}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* للمسوقين */}
-            <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-700 overflow-hidden">
-              <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-green-100 dark:from-green-900/30 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
-              <CardContent className="p-8 relative z-10">
-                {/* فيديو توضيحي */}
-                <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
-                  <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
-                    <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="h-8 w-8 text-white me-1" />
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <Card className="group relative bg-white dark:bg-gray-900 hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border-2 border-gray-100 dark:border-gray-800 hover:border-green-200 dark:hover:border-green-700 overflow-hidden h-full">
+                <div className="absolute top-0 end-0 w-40 h-40 bg-gradient-to-br from-green-100 dark:from-green-900/30 to-transparent rounded-full -me-20 -mt-20 group-hover:scale-150 transition-transform duration-700"></div>
+                <CardContent className="p-8 relative z-10">
+                  {/* فيديو توضيحي */}
+                  <div className="relative mb-6 rounded-lg overflow-hidden bg-gradient-to-br from-red-100 to-red-50 dark:from-red-950/50 dark:to-red-900/30 aspect-video group cursor-pointer">
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-600/10 dark:bg-red-600/20 group-hover:bg-red-600/20 dark:group-hover:bg-red-600/30 transition-colors">
+                      <div className="w-16 h-16 rounded-full bg-red-600 dark:bg-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="h-8 w-8 text-white me-1" />
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                      <p className="text-white text-sm font-medium">{t('home.howItWorks.affiliates.video')}</p>
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
-                    <p className="text-white text-sm font-medium">{t('home.howItWorks.affiliates.video')}</p>
-                  </div>
-                </div>
 
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
-                    <TrendingUp className="h-8 w-8" />
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full mb-4">
+                      <TrendingUp className="h-8 w-8" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.affiliates.title')}</h3>
                   </div>
-                  <h3 className="text-xl font-bold mb-2 dark:text-gray-100">{t('home.howItWorks.affiliates.title')}</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step1.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step1.desc')}</p>
+                  <div className="space-y-4">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step1.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step1.desc')}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step2.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step2.desc')}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                      <div>
+                        <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step3.title')}</h4>
+                        <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step3.desc')}</p>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step2.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step2.desc')}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-red-600 dark:bg-red-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
-                    <div>
-                      <h4 className="font-semibold dark:text-gray-200">{t('home.howItWorks.affiliates.step3.title')}</h4>
-                      <p className="text-sm text-muted-foreground">{t('home.howItWorks.affiliates.step3.desc')}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </section>
