@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { User, MapPin, Package, Heart, Settings, Lock, CreditCard, ShoppingBag, Eye, Loader2, AlertCircle } from "lucide-react";
+import { User, MapPin, Package, Heart, Settings, Lock, CreditCard, ShoppingBag, Eye, Loader2, AlertCircle, Plus, X } from "lucide-react";
 import { useAuth } from "@/contexts/AppwriteAuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { customerApi } from "@/lib/customer-api";
@@ -21,7 +21,7 @@ export default function CustomerAccount() {
   const [activeTab, setActiveTab] = useState("profile");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  
+
   // Data states
   const [userData, setUserData] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
@@ -52,7 +52,7 @@ export default function CustomerAccount() {
 
   const loadAllData = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
       // Load profile
@@ -65,23 +65,23 @@ export default function CustomerAccount() {
           birthdate: profile.birthdate || "",
         });
       }
-      
+
       // Load orders
       const userOrders = await customerApi.getUserOrders(user.$id);
       setOrders(userOrders);
-      
+
       // Load wishlist
       const userWishlist = await customerApi.getUserWishlist(user.$id);
       setWishlist(userWishlist);
-      
+
       // Load addresses
       const userAddresses = await customerApi.getUserAddresses(user.$id);
       setAddresses(userAddresses);
-      
+
       // Load stats
       const userStats = await customerApi.getUserStats(user.$id);
       setStats(userStats);
-      
+
     } catch (error) {
       console.error("Error loading data:", error);
       toast({
@@ -96,14 +96,14 @@ export default function CustomerAccount() {
 
   const handleUpdateProfile = async () => {
     if (!userData?.$id) return;
-    
+
     setUpdating(true);
     try {
       // Update name in Appwrite Auth
       if (profileForm.name !== user?.name) {
         await account.updateName(profileForm.name);
       }
-      
+
       // Update profile in database
       await customerApi.updateUserProfile(userData.$id, {
         name: profileForm.name,
@@ -111,12 +111,12 @@ export default function CustomerAccount() {
         birthdate: profileForm.birthdate,
         updatedAt: new Date().toISOString(),
       });
-      
+
       toast({
         title: "تم التحديث",
         description: "تم تحديث معلوماتك بنجاح",
       });
-      
+
       // Reload data
       await loadAllData();
     } catch (error) {
@@ -194,12 +194,12 @@ export default function CustomerAccount() {
       delivered: { label: "تم التوصيل", variant: "success" },
       cancelled: { label: "ملغي", variant: "destructive" },
     };
-    
-    const statusInfo = statusMap[status?.toLowerCase()] || { 
-      label: status || "غير محدد", 
-      variant: "secondary" 
+
+    const statusInfo = statusMap[status?.toLowerCase()] || {
+      label: status || "غير محدد",
+      variant: "secondary"
     };
-    
+
     return (
       <Badge variant={statusInfo.variant as any}>
         {statusInfo.label}
@@ -247,69 +247,42 @@ export default function CustomerAccount() {
           </p>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - Animated */}
         <div className="grid gap-4 md:grid-cols-4 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">إجمالي الطلبات</p>
-                  <p className="text-2xl font-bold">{stats.totalOrders}</p>
+          {[
+            { label: "إجمالي الطلبات", value: stats.totalOrders, icon: Package, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/20" },
+            { label: "طلبات نشطة", value: stats.activeOrders, icon: ShoppingBag, color: "text-orange-600", bg: "bg-orange-100 dark:bg-orange-900/20" },
+            { label: "إجمالي المشتريات", value: formatPrice(stats.totalSpent), icon: CreditCard, color: "text-green-600", bg: "bg-green-100 dark:bg-green-900/20" },
+            { label: "المفضلة", value: stats.savedItems, icon: Heart, color: "text-red-600", bg: "bg-red-100 dark:bg-red-900/20" },
+          ].map((stat, index) => (
+            <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-l-4" style={{ borderLeftColor: stat.color.replace('text-', 'bg-').split('-')[1] }}>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">{stat.label}</p>
+                    <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
+                  </div>
+                  <div className={`h-12 w-12 rounded-xl ${stat.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                  </div>
                 </div>
-                <Package className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">طلبات نشطة</p>
-                  <p className="text-2xl font-bold">{stats.activeOrders}</p>
-                </div>
-                <ShoppingBag className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">إجمالي المشتريات</p>
-                  <p className="text-2xl font-bold">{formatPrice(stats.totalSpent)}</p>
-                </div>
-                <CreditCard className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">المفضلة</p>
-                  <p className="text-2xl font-bold">{stats.savedItems}</p>
-                </div>
-                <Heart className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="profile">الملف الشخصي</TabsTrigger>
-            <TabsTrigger value="orders">طلباتي</TabsTrigger>
-            <TabsTrigger value="wishlist">المفضلة</TabsTrigger>
-            <TabsTrigger value="addresses">العناوين</TabsTrigger>
-            <TabsTrigger value="settings">الإعدادات</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 p-1 bg-muted/50 rounded-xl">
+            <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">الملف الشخصي</TabsTrigger>
+            <TabsTrigger value="orders" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">طلباتي</TabsTrigger>
+            <TabsTrigger value="wishlist" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">المفضلة</TabsTrigger>
+            <TabsTrigger value="addresses" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">العناوين</TabsTrigger>
+            <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">الإعدادات</TabsTrigger>
           </TabsList>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-4">
+          <TabsContent value="profile" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Card>
               <CardHeader>
                 <CardTitle>المعلومات الشخصية</CardTitle>
@@ -319,35 +292,35 @@ export default function CustomerAccount() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="name">الاسم الكامل</Label>
-                    <Input 
-                      id="name" 
+                    <Input
+                      id="name"
                       value={profileForm.name}
-                      onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
+                      onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">البريد الإلكتروني</Label>
-                    <Input id="email" type="email" value={user?.email || ""} disabled />
+                    <Input id="email" type="email" value={user?.email || ""} disabled className="bg-muted" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone">رقم الهاتف</Label>
-                    <Input 
-                      id="phone" 
+                    <Input
+                      id="phone"
                       value={profileForm.phone}
-                      onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
+                      onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="birthdate">تاريخ الميلاد</Label>
-                    <Input 
-                      id="birthdate" 
+                    <Input
+                      id="birthdate"
                       type="date"
                       value={profileForm.birthdate}
-                      onChange={(e) => setProfileForm({...profileForm, birthdate: e.target.value})}
+                      onChange={(e) => setProfileForm({ ...profileForm, birthdate: e.target.value })}
                     />
                   </div>
                 </div>
-                <Button onClick={handleUpdateProfile} disabled={updating}>
+                <Button onClick={handleUpdateProfile} disabled={updating} className="w-full md:w-auto">
                   {updating && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                   حفظ التغييرات
                 </Button>
@@ -356,7 +329,7 @@ export default function CustomerAccount() {
           </TabsContent>
 
           {/* Orders Tab */}
-          <TabsContent value="orders" className="space-y-4">
+          <TabsContent value="orders" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Card>
               <CardHeader>
                 <CardTitle>طلباتي</CardTitle>
@@ -364,33 +337,43 @@ export default function CustomerAccount() {
               </CardHeader>
               <CardContent>
                 {orders.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-muted-foreground">لا توجد طلبات حتى الآن</p>
-                    <Button className="mt-4" onClick={() => navigate("/products")}>
+                  <div className="text-center py-12 flex flex-col items-center">
+                    <div className="h-20 w-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 animate-bounce">
+                      <Package className="h-10 w-10 text-blue-500" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">لا توجد طلبات حتى الآن</h3>
+                    <p className="text-muted-foreground max-w-sm mb-6">
+                      لم تقم بأي طلبات بعد. تصفح منتجاتنا وابدأ التسوق الآن!
+                    </p>
+                    <Button size="lg" onClick={() => navigate("/products")} className="gap-2">
+                      <ShoppingBag className="h-4 w-4" />
                       تسوق الآن
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {orders.map((order) => (
-                      <div key={order.$id} className="flex items-center justify-between p-4 rounded-lg border">
+                      <div key={order.$id} className="flex items-center justify-between p-4 rounded-xl border hover:border-primary/50 transition-colors bg-card hover:shadow-sm">
                         <div className="flex items-center gap-4">
-                          <div className="h-16 w-16 rounded bg-gray-100 flex items-center justify-center">
-                            <Package className="h-8 w-8 text-gray-400" />
+                          <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Package className="h-8 w-8 text-primary" />
                           </div>
                           <div>
-                            <p className="font-semibold">#{order.orderNumber || order.$id.slice(-6)}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {order.items?.length || 0} منتجات - {formatDate(order.$createdAt)}
+                            <p className="font-bold text-lg">#{order.orderNumber || order.$id.slice(-6)}</p>
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                              <span>{order.items?.length || 0} منتجات</span>
+                              <span className="h-1 w-1 rounded-full bg-gray-300" />
+                              <span>{formatDate(order.$createdAt)}</span>
                             </p>
-                            {getOrderStatusBadge(order.status)}
+                            <div className="mt-2">
+                              {getOrderStatusBadge(order.status)}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-left">
-                          <p className="text-lg font-bold">{formatPrice(order.total || order.totalAmount || 0)}</p>
-                          <Button variant="outline" size="sm" className="mt-2">
-                            <Eye className="h-4 w-4 ml-1" />
+                        <div className="text-left flex flex-col items-end gap-2">
+                          <p className="text-xl font-bold text-primary">{formatPrice(order.total || order.totalAmount || 0)}</p>
+                          <Button variant="outline" size="sm" className="gap-2">
+                            <Eye className="h-4 w-4" />
                             التفاصيل
                           </Button>
                         </div>
@@ -403,7 +386,7 @@ export default function CustomerAccount() {
           </TabsContent>
 
           {/* Wishlist Tab */}
-          <TabsContent value="wishlist" className="space-y-4">
+          <TabsContent value="wishlist" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Card>
               <CardHeader>
                 <CardTitle>قائمة المفضلة</CardTitle>
@@ -411,34 +394,50 @@ export default function CustomerAccount() {
               </CardHeader>
               <CardContent>
                 {wishlist.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Heart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-muted-foreground">قائمة المفضلة فارغة</p>
-                    <Button className="mt-4" onClick={() => navigate("/products")}>
+                  <div className="text-center py-12 flex flex-col items-center">
+                    <div className="h-20 w-20 bg-red-50 rounded-full flex items-center justify-center mb-4 animate-pulse">
+                      <Heart className="h-10 w-10 text-red-500" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">قائمة المفضلة فارغة</h3>
+                    <p className="text-muted-foreground max-w-sm mb-6">
+                      احفظ المنتجات التي تعجبك هنا للرجوع إليها لاحقاً.
+                    </p>
+                    <Button size="lg" onClick={() => navigate("/products")} className="gap-2">
+                      <ShoppingBag className="h-4 w-4" />
                       اكتشف المنتجات
                     </Button>
                   </div>
                 ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {wishlist.map((item) => (
-                      <Card key={item.$id}>
-                        <CardContent className="p-4">
-                          <img
-                            src={item.productImage || placeholder.product(item.productName)}
-                            alt={item.productName}
-                            className="w-full h-40 object-cover rounded mb-3"
-                          />
-                          <h4 className="font-semibold mb-2">{item.productName}</h4>
-                          <div className="flex items-center justify-between">
-                            <p className="text-lg font-bold">{formatPrice(item.productPrice)}</p>
-                            <Badge variant={item.inStock ? "default" : "secondary"}>
-                              {item.inStock ? "متوفر" : "نفذ"}
-                            </Badge>
+                      <Card key={item.$id} className="group overflow-hidden hover:shadow-md transition-all">
+                        <CardContent className="p-0">
+                          <div className="relative h-48 overflow-hidden">
+                            <img
+                              src={item.productImage || placeholder.product(item.productName)}
+                              alt={item.productName}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleRemoveFromWishlist(item.$id)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <div className="grid grid-cols-2 gap-2 mt-3">
-                            <Button size="sm" disabled={!item.inStock}>أضف للسلة</Button>
-                            <Button variant="outline" size="sm" onClick={() => handleRemoveFromWishlist(item.$id)}>
-                              إزالة
+                          <div className="p-4">
+                            <h4 className="font-semibold mb-2 line-clamp-1">{item.productName}</h4>
+                            <div className="flex items-center justify-between mb-4">
+                              <p className="text-lg font-bold text-primary">{formatPrice(item.productPrice)}</p>
+                              <Badge variant={item.inStock ? "default" : "secondary"}>
+                                {item.inStock ? "متوفر" : "نفذ"}
+                              </Badge>
+                            </div>
+                            <Button className="w-full" disabled={!item.inStock}>
+                              <ShoppingBag className="h-4 w-4 ml-2" />
+                              أضف للسلة
                             </Button>
                           </div>
                         </CardContent>
@@ -451,7 +450,7 @@ export default function CustomerAccount() {
           </TabsContent>
 
           {/* Addresses Tab */}
-          <TabsContent value="addresses" className="space-y-4">
+          <TabsContent value="addresses" className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
@@ -459,40 +458,53 @@ export default function CustomerAccount() {
                     <CardTitle>عناويني</CardTitle>
                     <CardDescription>إدارة عناوين الشحن</CardDescription>
                   </div>
-                  <Button>
-                    <MapPin className="h-4 w-4 ml-2" />
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
                     إضافة عنوان
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 {addresses.length === 0 ? (
-                  <div className="text-center py-8">
-                    <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-muted-foreground">لا توجد عناوين محفوظة</p>
+                  <div className="text-center py-12 flex flex-col items-center">
+                    <div className="h-20 w-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
+                      <MapPin className="h-10 w-10 text-green-500" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">لا توجد عناوين محفوظة</h3>
+                    <p className="text-muted-foreground max-w-sm mb-6">
+                      أضف عنوان شحن لتسهيل عملية الشراء في المرة القادمة.
+                    </p>
+                    <Button variant="outline" onClick={() => { }}>
+                      إضافة عنوان جديد
+                    </Button>
                   </div>
                 ) : (
                   <div className="grid gap-4 md:grid-cols-2">
                     {addresses.map((address) => (
-                      <Card key={address.$id}>
-                        <CardContent className="p-4">
+                      <Card key={address.$id} className="relative group hover:border-primary transition-colors">
+                        <CardContent className="p-5">
                           <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <p className="font-semibold">{address.label}</p>
-                              {address.isDefault && (
-                                <Badge variant="secondary" className="mt-1">
-                                  العنوان الافتراضي
-                                </Badge>
-                              )}
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-5 w-5 text-primary" />
+                              <p className="font-bold text-lg">{address.label}</p>
                             </div>
+                            {address.isDefault && (
+                              <Badge variant="secondary">
+                                الافتراضي
+                              </Badge>
+                            )}
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {address.street}, {address.city}, {address.country}
-                          </p>
-                          <p className="text-sm text-muted-foreground mb-3">{address.phone}</p>
-                          <div className="flex gap-2">
-                            <Button variant="outline" size="sm">تعديل</Button>
-                            <Button variant="outline" size="sm" onClick={() => handleDeleteAddress(address.$id)}>
+                          <div className="pl-7 space-y-1 text-muted-foreground">
+                            <p>{address.street}</p>
+                            <p>{address.city}, {address.country}</p>
+                            <p className="text-sm mt-2 flex items-center gap-2">
+                              <Phone className="h-3 w-3" />
+                              {address.phone}
+                            </p>
+                          </div>
+                          <div className="flex gap-2 mt-4 pl-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="outline" size="sm" className="h-8">تعديل</Button>
+                            <Button variant="ghost" size="sm" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteAddress(address.$id)}>
                               حذف
                             </Button>
                           </div>

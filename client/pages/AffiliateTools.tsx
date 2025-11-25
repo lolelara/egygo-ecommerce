@@ -10,6 +10,10 @@ import { LinkShortener } from '@/components/affiliate/LinkShortener';
 import { QRCodeGenerator } from '@/components/affiliate/QRCodeGenerator';
 import { UTMBuilder } from '@/components/affiliate/UTMBuilder';
 import { SocialShareTool } from '@/components/affiliate/SocialShareTool';
+import AIContentGenerator from '@/components/affiliate/AIContentGenerator';
+import AdvancedAnalytics from '@/components/affiliate/AdvancedAnalytics';
+import EarningsCalculator from '@/components/affiliate/EarningsCalculator';
+import LinkGenerator from '@/components/affiliate/LinkGenerator';
 
 export default function AffiliateTools() {
   return (
@@ -79,27 +83,47 @@ export default function AffiliateTools() {
 
         {/* Tools Tabs */}
         <Tabs defaultValue="shortener" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8 h-auto gap-2">
             <TabsTrigger value="shortener" className="flex items-center gap-2">
               <Link2 className="h-4 w-4" />
-              اختصار الروابط
+              <span className="hidden md:inline">الاختصار</span>
+            </TabsTrigger>
+            <TabsTrigger value="generator" className="flex items-center gap-2">
+              <Link2 className="h-4 w-4" />
+              <span className="hidden md:inline">الروابط</span>
             </TabsTrigger>
             <TabsTrigger value="qr" className="flex items-center gap-2">
               <QrCode className="h-4 w-4" />
-              رمز QR
+              <span className="hidden md:inline">QR</span>
             </TabsTrigger>
             <TabsTrigger value="utm" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
-              UTM Builder
+              <span className="hidden md:inline">UTM</span>
             </TabsTrigger>
             <TabsTrigger value="social" className="flex items-center gap-2">
               <Share2 className="h-4 w-4" />
-              المشاركة
+              <span className="hidden md:inline">نشر</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden md:inline">AI</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden md:inline">تحليل</span>
+            </TabsTrigger>
+            <TabsTrigger value="calculator" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              <span className="hidden md:inline">حاسبة</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="shortener">
             <LinkShortener />
+          </TabsContent>
+
+          <TabsContent value="generator">
+            <LinkGenerator />
           </TabsContent>
 
           <TabsContent value="qr">
@@ -112,6 +136,18 @@ export default function AffiliateTools() {
 
           <TabsContent value="social">
             <SocialShareTool />
+          </TabsContent>
+
+          <TabsContent value="ai">
+            <AIContentGenerator />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdvancedAnalytics />
+          </TabsContent>
+
+          <TabsContent value="calculator">
+            <EarningsCalculator />
           </TabsContent>
         </Tabs>
 

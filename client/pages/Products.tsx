@@ -331,25 +331,41 @@ export default function Products() {
       />
 
       <div className="min-h-screen bg-background w-full overflow-x-hidden">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-primary/10 via-purple-50 to-orange-50 dark:from-primary/5 dark:via-purple-950/20 dark:to-orange-950/20 py-12">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center space-y-4">
-              <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-r from-primary to-purple-600 mb-2">
-                <Grid3x3 className="h-7 w-7 text-white" />
+        {/* Hero Section - Dynamic & Enhanced */}
+        <div className={`relative py-16 overflow-hidden ${currentCategory
+            ? 'bg-gradient-to-br from-primary/20 via-background to-background'
+            : 'bg-gradient-to-br from-primary/10 via-purple-50 to-orange-50 dark:from-primary/5 dark:via-purple-950/20 dark:to-orange-950/20'
+          }`}>
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10 dark:opacity-5 pointer-events-none">
+            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.3),rgba(255,255,255,0))]" />
+            <div className="absolute top-[-50%] right-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.1)_1px,transparent_1px)] bg-[size:24px_24px]" />
+          </div>
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-4xl mx-auto text-center space-y-6">
+              <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/20 shadow-xl mb-4 animate-in fade-in zoom-in duration-500">
+                <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-inner">
+                  <Grid3x3 className="h-8 w-8 text-white" />
+                </div>
               </div>
-              <h1 className="text-4xl lg:text-5xl font-bold">
+
+              <h1 className="text-4xl lg:text-6xl font-black tracking-tight bg-gradient-to-r from-gray-900 via-primary to-purple-900 dark:from-white dark:via-primary dark:to-purple-400 bg-clip-text text-transparent animate-in slide-in-from-bottom-4 duration-700">
                 {currentCategory ? currentCategory.name : "جميع المنتجات"}
               </h1>
-              <p className="text-lg text-muted-foreground">
+
+              <p className="text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in slide-in-from-bottom-6 duration-700 delay-100">
                 {currentCategory
-                  ? `اكتشف منتجات ${currentCategory.name} المذهلة 🌟`
-                  : "اكتشف مجموعتنا الكاملة من المنتجات عالية الجودة 🛒"}
+                  ? `اكتشف تشكيلة ${currentCategory.name} المميزة، تم اختيارها بعناية لتناسب ذوقك الرفيع 🌟`
+                  : "تصفح مجموعتنا الكاملة من المنتجات عالية الجودة، حيث تجد كل ما تبحث عنه وأكثر 🛒"}
               </p>
+
               {totalProducts > 0 && (
-                <Badge className="bg-gradient-to-r from-primary to-purple-600 text-white text-base px-4 py-2">
-                  {totalProducts} منتج متاح
-                </Badge>
+                <div className="animate-in slide-in-from-bottom-8 duration-700 delay-200">
+                  <Badge variant="secondary" className="text-base px-6 py-2 h-auto rounded-full border-primary/20 bg-primary/5 text-primary backdrop-blur-md shadow-sm">
+                    {totalProducts} منتج متاح للتسوق
+                  </Badge>
+                </div>
               )}
             </div>
           </div>
@@ -413,11 +429,15 @@ export default function Products() {
               <Sheet>
                 <SheetTrigger asChild>
                   <Button
-                    variant="outline"
-                    className="btn-hover-lift lg:hidden"
+                    variant="default"
+                    className="lg:hidden fixed bottom-6 left-6 z-50 rounded-full h-14 w-14 shadow-2xl bg-primary hover:bg-primary/90 p-0 flex items-center justify-center"
                   >
-                    <SlidersHorizontal className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
-                    المرشحات
+                    <SlidersHorizontal className="h-6 w-6 text-white" />
+                    <span className="sr-only">المرشحات</span>
+                    {/* Active Filters Indicator */}
+                    {(selectedCategories.length > 0 || priceRange.min > 0 || showOnSale) && (
+                      <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full border-2 border-white" />
+                    )}
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-80">
