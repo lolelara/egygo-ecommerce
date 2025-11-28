@@ -418,7 +418,7 @@ export function Header({ cartItemCount }: HeaderProps) {
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/orders" className="flex items-center gap-2 cursor-pointer">
+                  <Link to="/my-orders" className="flex items-center gap-2 cursor-pointer">
                     {t('nav.myOrders')}
                   </Link>
                 </DropdownMenuItem>

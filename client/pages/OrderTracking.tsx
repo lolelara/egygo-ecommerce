@@ -75,7 +75,7 @@ export default function OrderTracking() {
             <XCircle className="mx-auto h-16 w-16 text-gray-300 mb-4" />
             <h3 className="text-xl font-semibold mb-2">الطلب غير موجود</h3>
             <p className="text-gray-500 mb-6">لم نتمكن من العثور على هذا الطلب</p>
-            <Link to="/orders">
+            <Link to="/my-orders">
               <Button>
                 <ArrowRight className="h-4 w-4 ml-2" />
                 العودة إلى طلباتي
@@ -100,7 +100,7 @@ export default function OrderTracking() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
-        <Link to="/orders">
+        <Link to="/my-orders">
           <Button variant="ghost" className="mb-6">
             <ArrowRight className="h-4 w-4 ml-2" />
             العودة إلى طلباتي
@@ -171,18 +171,16 @@ export default function OrderTracking() {
                       <div key={step.status} className="relative flex items-start gap-4">
                         {/* Icon */}
                         <div
-                          className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 ${
-                            isPast
+                          className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 ${isPast
                               ? "bg-green-500 border-green-500"
                               : isCurrent
-                              ? "bg-primary border-primary"
-                              : "bg-gray-100 border-gray-300"
-                          }`}
+                                ? "bg-primary border-primary"
+                                : "bg-gray-100 border-gray-300"
+                            }`}
                         >
                           <Icon
-                            className={`h-6 w-6 ${
-                              isPast || isCurrent ? "text-white" : "text-gray-400"
-                            }`}
+                            className={`h-6 w-6 ${isPast || isCurrent ? "text-white" : "text-gray-400"
+                              }`}
                           />
                         </div>
 
@@ -190,9 +188,8 @@ export default function OrderTracking() {
                         <div className="flex-1 pt-1">
                           <div className="flex items-center justify-between flex-wrap gap-2">
                             <h4
-                              className={`text-lg font-semibold ${
-                                isPast || isCurrent ? "text-gray-900" : "text-gray-400"
-                              }`}
+                              className={`text-lg font-semibold ${isPast || isCurrent ? "text-gray-900" : "text-gray-400"
+                                }`}
                             >
                               {step.label}
                             </h4>
@@ -206,9 +203,8 @@ export default function OrderTracking() {
                             )}
                           </div>
                           <p
-                            className={`mt-1 text-sm ${
-                              isPast || isCurrent ? "text-gray-600" : "text-gray-400"
-                            }`}
+                            className={`mt-1 text-sm ${isPast || isCurrent ? "text-gray-600" : "text-gray-400"
+                              }`}
                           >
                             {step.description}
                           </p>

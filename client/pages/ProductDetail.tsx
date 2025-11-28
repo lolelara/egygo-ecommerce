@@ -40,6 +40,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { analytics } from "@/lib/enhanced-analytics";
 import { getColorInfo } from "@/lib/colorUtils";
 import { GoogleDriveViewer } from "@/components/GoogleDriveViewer";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -326,25 +327,11 @@ export default function ProductDetail() {
         {/* Breadcrumb */}
         <div className="border-b">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link to="/" className="hover:text-foreground">
-                الرئيسية
-              </Link>
-              <span>/</span>
-              <Link to="/products" className="hover:text-foreground">
-                المنتجات
-              </Link>
-              <span>/</span>
-              {product.category?.slug ? (
-                <Link to={`/category/${product.category.slug}`} className="hover:text-foreground">
-                  {product.category.name}
-                </Link>
-              ) : (
-                <span className="text-muted-foreground">{product.category?.name || 'غير محدد'}</span>
-              )}
-              <span>/</span>
-              <span className="text-foreground">{product.name}</span>
-            </div>
+            <Breadcrumbs items={[
+              { label: "المنتجات", href: "/products" },
+              { label: product.category?.name || "غير محدد", href: product.category?.slug ? `/category/${product.category.slug}` : undefined },
+              { label: product.name }
+            ]} />
           </div>
         </div>
 

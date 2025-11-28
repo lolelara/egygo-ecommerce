@@ -59,8 +59,19 @@ export function SearchBarEnhanced({
             }
         };
 
+        const handleGlobalKeyDown = (event: KeyboardEvent) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+                event.preventDefault();
+                inputRef.current?.focus();
+            }
+        };
+
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleGlobalKeyDown);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleGlobalKeyDown);
+        };
     }, []);
 
     const handleSearch = (searchQuery: string) => {
@@ -128,10 +139,19 @@ export function SearchBarEnhanced({
                 />
 
                 {/* Search Icon */}
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-2">
                     <Search className={`w-6 h-6 transition-colors ${isFocused ? 'text-purple-600' : 'text-gray-400'
                         }`} />
                 </div>
+
+                {/* Ctrl+K Badge */}
+                {!isFocused && query.length === 0 && (
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none hidden md:flex items-center gap-1">
+                        <kbd className="hidden sm:inline-flex h-6 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                            <span className="text-xs">⌘</span>K
+                        </kbd>
+                    </div>
+                )}
 
                 {/* Clear Button / Loading */}
                 <div className="absolute left-4 top-1/2 -translate-y-1/2">

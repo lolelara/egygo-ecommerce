@@ -136,7 +136,7 @@ export function ProductCardPremium({
             )}
 
             {/* Image Container */}
-            <div className="relative overflow-hidden rounded-t-xl aspect-square bg-gray-100">
+            <div className="relative overflow-hidden rounded-t-xl aspect-[4/5] bg-gray-100">
                 {/* Skeleton Loader */}
                 {!imageLoaded && (
                     <div className="absolute inset-0 shimmer-effect" />

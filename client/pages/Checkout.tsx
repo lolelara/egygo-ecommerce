@@ -144,7 +144,7 @@ export default function Checkout() {
     setTimeout(() => {
       setIsProcessing(false);
       setProgress(0);
-      navigate("/orders");
+      navigate("/my-orders");
     }, 800);
   };
 

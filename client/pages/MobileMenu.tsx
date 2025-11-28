@@ -14,7 +14,7 @@ export default function MobileMenu() {
         { icon: Home, label: 'الرئيسية', path: '/' },
         { icon: Search, label: 'البحث', path: '/search' },
         { icon: ShoppingBag, label: 'المنتجات', path: '/products' },
-        { icon: Box, label: 'طلباتي', path: '/orders' },
+        { icon: Box, label: 'طلباتي', path: '/my-orders' },
         { icon: Heart, label: 'المفضلة', path: '/wishlist' },
         { icon: User, label: 'حسابي', path: '/account' },
         { icon: Settings, label: 'الإعدادات', path: '/settings' },

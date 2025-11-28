@@ -49,14 +49,16 @@ import DataDeletion from "./pages/DataDeletion";
 
 const queryClient = new QueryClient();
 
-// Initialize performance optimizations
-initPerformanceOptimizations();
+// Performance optimizations initialized in Layout component's useEffect
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   // Initialize global enhancements
   useEffect(() => {
+    // Initialize performance optimizations after DOM is ready
+    initPerformanceOptimizations();
+
     initializeEnhancements();
 
     // Load reCAPTCHA script
@@ -147,7 +149,7 @@ const App = () => (
                                 <Route path="/forgot-password" element={<LazyRoutes.ForgotPassword />} />
                                 <Route path="/account" element={<LazyRoutes.CustomerAccount />} />
                                 <Route path="/settings" element={<LazyRoutes.SettingsPage />} />
-                                <Route path="/orders" element={<LazyRoutes.MyOrders />} />
+                                <Route path="/my-orders" element={<LazyRoutes.MyOrders />} />
                                 <Route path="/orders/:orderId/track" element={<LazyRoutes.OrderTracking />} />
 
                                 {/* Affiliate Routes - Protected & Lazy */}
@@ -168,7 +170,7 @@ const App = () => (
                                 <Route path="/affiliate/courses" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateCourses /></ProtectedRoute>} />
                                 <Route path="/affiliate/withdraw" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateWithdrawPage /></ProtectedRoute>} />
                                 <Route path="/affiliate/withdrawals" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateWithdrawPage /></ProtectedRoute>} />
-                                <Route path="/affiliate/earnings" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />
+
                                 <Route path="/affiliate/leaderboard" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateLeaderboard /></ProtectedRoute>} />
                                 <Route path="/affiliate/campaigns" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateCreatives /></ProtectedRoute>} />
                                 <Route path="/affiliate/reports" element={<ProtectedRoute requiredRole="affiliate"><LazyRoutes.AffiliateAnalytics /></ProtectedRoute>} />

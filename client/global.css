@@ -281,6 +281,11 @@
   html[dir="rtl"] * {
     font-family: "Cairo", "Segoe UI", "Tahoma", "Arial", sans-serif;
   }
+
+  /* Accessibility Improvements */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  }
 }
 
 @layer components {
