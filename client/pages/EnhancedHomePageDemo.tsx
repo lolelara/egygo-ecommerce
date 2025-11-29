@@ -147,25 +147,11 @@ export default function EnhancedHomePage() {
                     toast.info('تصفح الفئة', `جار الانتقال إلى ${cat.nameAr}`);
                     navigate(`/category/${cat.id}`);
                 }}
-            />
-
-            {/* Featured Products */}
-            <ProductCarouselModern
-                products={sampleProducts}
-                title="منتجات مميزة"
-                subtitle="اكتشف أحدث العروض والمنتجات الأكثر مبيعاً"
-                onProductClick={(product) => navigate(`/product/${product.id}`)}
-                onAddToCart={handleAddToCart}
-                onQuickView={handleQuickView}
-                wishlistedIds={wishlist}
-                onToggleWishlist={handleToggleWishlist}
-            />
-
-            {/* Best Sellers */}
+                {/* Best Sellers */}
             <ProductCarouselModern
                 products={sampleProducts.reverse()}
-                title="الأكثر مبيعاً"
-                subtitle="المنتجات الأكثر طلباً هذا الشهر"
+                title="home.bestSellers.title"
+                subtitle="home.bestSellers.subtitle"
                 onAddToCart={handleAddToCart}
                 onQuickView={handleQuickView}
                 wishlistedIds={wishlist}

@@ -342,8 +342,8 @@ export default function Index() {
               isNew: false,
               isTrending: p.reviewCount > 100,
             }))}
-            title={t('home.featured.title')}
-            subtitle={t('home.featured.subtitle')}
+            title="home.featured.title"
+            subtitle="home.featured.subtitle"
             onProductClick={(p) => navigate(`/product/${p.id}`)}
             onAddToCart={(p) => navigate(`/product/${p.id}`)}
             onQuickView={(p) => navigate(`/product/${p.id}`)}

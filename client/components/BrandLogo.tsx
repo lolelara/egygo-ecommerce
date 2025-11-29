@@ -20,6 +20,7 @@ const sizeClasses: Record<NonNullable<BrandLogoProps['size']>, string> = {
 export function BrandLogo({ className, size = 'md', ariaLabel = 'EgyGo' }: BrandLogoProps) {
   return (
     <div
+      dir="ltr"
       className={cn(
         'select-none inline-flex items-center justify-center',
         sizeClasses[size],

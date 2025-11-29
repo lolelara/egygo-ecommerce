@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import { merchantsApi } from '@/lib/api';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Store } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 export function FeaturedMerchantsBar() {
     const [merchants, setMerchants] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const { t } = useI18n();
 
     useEffect(() => {
         const loadMerchants = async () => {
@@ -34,10 +35,10 @@ export function FeaturedMerchantsBar() {
             <div className="container px-4 md:px-6">
                 <div className="flex items-center gap-2 mb-3">
                     <Store className="h-5 w-5 text-primary" />
-                    <h2 className="text-lg font-semibold">تجار مميزون</h2>
+                    <h2 className="text-lg font-semibold">{t('home.featured.merchants')}</h2>
                 </div>
 
-                <ScrollArea className="w-full whitespace-nowrap rounded-md">
+                <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
                     <div className="flex w-max space-x-4 space-x-reverse p-1">
                         {merchants.map((merchant) => (
                             <Link
@@ -61,8 +62,7 @@ export function FeaturedMerchantsBar() {
                             </Link>
                         ))}
                     </div>
-                    <ScrollBar orientation="horizontal" />
-                </ScrollArea>
+                </div>
             </div>
         </div>
     );

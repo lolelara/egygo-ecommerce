@@ -13,6 +13,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
+
   body {
     font-family: 'Cairo', 'Inter', sans-serif;
   }

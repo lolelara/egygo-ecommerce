@@ -2,7 +2,10 @@ import { motion } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectCoverflow, Navigation, Pagination } from 'swiper/modules';
 import { ProductCardPremium } from './ProductCardPremium';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
+import { useRef, useState } from 'react';
+import { Button } from './ui/button';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -38,14 +41,20 @@ interface ProductCarouselModernProps {
 
 export function ProductCarouselModern({
     products,
-    title = 'منتجات مميزة',
-    subtitle = 'اكتشف أحدث العروض والمنتجات الأكثر مبيعاً',
+    title = 'home.featured.title',
+    subtitle = 'home.featured.subtitle',
     onProductClick,
     onAddToCart,
     onQuickView,
     wishlistedIds = [],
     onToggleWishlist,
 }: ProductCarouselModernProps) {
+    const { t, dir } = useI18n();
+
+    // Translate title and subtitle if they are keys
+    const displayTitle = title.startsWith('home.') ? t(title) : title;
+    const displaySubtitle = subtitle && subtitle.startsWith('home.') ? t(subtitle) : subtitle;
+
     return (
         <section className="py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-black transition-colors duration-300">
             <div className="container mx-auto px-4">
@@ -66,7 +75,7 @@ export function ProductCarouselModern({
                     >
                         <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-purple-600 
                            via-pink-600 to-orange-500 bg-clip-text text-transparent">
-                            {title}
+                            {displayTitle}
                         </h2>
                         <div className="h-1 w-24 bg-gradient-to-r from-purple-600 to-orange-500 
                             rounded-full mx-auto mb-4" />
@@ -78,7 +87,7 @@ export function ProductCarouselModern({
                         transition={{ delay: 0.4 }}
                         className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto"
                     >
-                        {subtitle}
+                        {displaySubtitle}
                     </motion.p>
                 </motion.div>
 
@@ -94,6 +103,8 @@ export function ProductCarouselModern({
                         modules={[Autoplay, EffectCoverflow, Navigation, Pagination]}
                         spaceBetween={30}
                         slidesPerView={1}
+                        key={dir} // Force re-render on direction change
+                        dir={dir}
                         navigation={{
                             nextEl: '.swiper-button-next-custom',
                             prevEl: '.swiper-button-prev-custom',
@@ -155,7 +166,7 @@ export function ProductCarouselModern({
                        border-2 border-purple-200 dark:border-gray-700 hover:border-purple-600
                        -me-6 hidden md:flex"
                     >
-                        <ChevronRight className="w-6 h-6" />
+                        <ChevronRight className="w-6 h-6 rtl:rotate-180" />
                     </motion.button>
 
                     <motion.button
@@ -168,7 +179,7 @@ export function ProductCarouselModern({
                        border-2 border-purple-200 dark:border-gray-700 hover:border-purple-600
                        -ms-6 hidden md:flex"
                     >
-                        <ChevronLeft className="w-6 h-6" />
+                        <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
                     </motion.button>
                 </motion.div>
 
@@ -180,15 +191,14 @@ export function ProductCarouselModern({
                     transition={{ delay: 0.5 }}
                     className="text-center mt-8"
                 >
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="btn-modern px-8 py-3 rounded-xl border-2 border-purple-600 
-                       text-purple-600 hover:bg-purple-600 hover:text-white
-                       transition-all duration-300 font-semibold text-lg"
+                    <Button
+                        variant="outline"
+                        className="gap-2 group px-8 py-6 text-lg rounded-xl border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white transition-all duration-300"
+                        onClick={() => window.location.href = '/products'}
                     >
-                        عرض جميع المنتجات
-                    </motion.button>
+                        {t('home.products.viewAll')}
+                        <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform rtl:rotate-180 rtl:group-hover:-translate-x-1" />
+                    </Button>
                 </motion.div>
             </div>
 
