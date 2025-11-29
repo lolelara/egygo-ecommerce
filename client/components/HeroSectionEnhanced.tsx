@@ -59,6 +59,43 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
     return () => clearInterval(interval);
   }, [featuredProducts.length]);
 
+  // Navigation Handlers
+  const handleNext = () => {
+    setActiveIndex((prev) => (prev + 1) % featuredProducts.length);
+  };
+
+  const handlePrev = () => {
+    setActiveIndex((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length);
+  };
+
+  // Swipe Support
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    if (isLeftSwipe) {
+      handleNext();
+    }
+    if (isRightSwipe) {
+      handlePrev();
+    }
+  };
+
   const getVisibleProducts = () => {
     if (featuredProducts.length === 0) return [];
     const products = [];
@@ -223,7 +260,26 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
               transformStyle: "preserve-3d",
             }}
             className="relative h-[400px] lg:h-[600px] order-1 lg:order-2 mb-8 lg:mb-0 perspective-1000 flex items-center justify-center"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
           >
+            {/* Navigation Buttons (Desktop) */}
+            <div className="hidden lg:flex absolute inset-x-0 top-1/2 -translate-y-1/2 justify-between z-50 pointer-events-none px-4">
+              <button
+                onClick={handlePrev}
+                className="pointer-events-auto bg-white/10 hover:bg-white/20 backdrop-blur-md p-3 rounded-full text-white transition-all hover:scale-110"
+              >
+                <ArrowLeft className="w-8 h-8 rotate-180" />
+              </button>
+              <button
+                onClick={handleNext}
+                className="pointer-events-auto bg-white/10 hover:bg-white/20 backdrop-blur-md p-3 rounded-full text-white transition-all hover:scale-110"
+              >
+                <ArrowLeft className="w-8 h-8" />
+              </button>
+            </div>
+
             {featuredProducts.length > 0 ? (
               <div className="relative w-full h-full flex items-center justify-center transform-style-3d">
                 {visibleProducts.map((product, index) => {
