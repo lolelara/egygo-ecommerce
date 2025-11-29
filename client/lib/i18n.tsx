@@ -450,8 +450,7 @@ export const translations: Translations = {
       badge: "الأكثر مبيعًا",
       commission: "عمولة"
     }
-  }
-},
+  },
 
   en: {
     // Navigation
