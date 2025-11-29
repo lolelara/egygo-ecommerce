@@ -16,7 +16,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 
 import { Footer } from "./components/Footer";
 import { AnnouncementBar } from "./components/AnnouncementBar";
-import { ScrollToTopButton } from "./components/ScrollToTopButton";
+
 import { AuthProvider } from "./contexts/AppwriteAuthContext";
 import { CartProvider, useCart } from "./contexts/CartContext";
 import { FavoritesProvider, useFavorites } from "./contexts/FavoritesContext";
@@ -86,7 +86,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Breadcrumbs removed to maximize screen space */}
       <main className="flex-1">{children}</main>
       <Footer />
-      <ScrollToTopButton />
+
       <AIAssistant />
 
       {/* Cookie Consent & Notification Permission */}

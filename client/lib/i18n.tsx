@@ -415,6 +415,12 @@ export const translations: Translations = {
           step3: { title: "سوّق واربح", desc: "اربح عمولة لحد 25% على كل بيعة" }
         }
       },
+      featured: {
+        title: "منتجات مميزة",
+        subtitle: "منتجات مختارة خصيصًا لك",
+        merchants: "تجار مميزون",
+        viewAll: "عرض الكل"
+      },
       affiliateProgram: {
         features: {
           commissions: { title: "عمولات عالية", desc: "احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص" },
