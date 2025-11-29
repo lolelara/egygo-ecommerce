@@ -129,7 +129,7 @@ const App = () => (
                                 <Route path="/logout" element={<Logout />} />
                                 <Route path="/auth/callback" element={<AuthCallback />} />
 
-                                {/* <Route path="/categories" element={<LazyRoutes.Categories />} /> */}
+                                <Route path="/categories" element={<LazyRoutes.Categories />} />
                                 {/* <Route path="/category" element={<LazyRoutes.Categories />} /> */}
                                 <Route path="/products" element={<LazyRoutes.Products />} />
                                 <Route path="/category/:slug" element={<LazyRoutes.Products />} />

@@ -65,38 +65,52 @@ export function CategoryGridAnimated({ categories, onCategoryClick }: CategoryGr
                                         whileTap={{ scale: 0.98 }}
                                         className="relative overflow-hidden rounded-2xl cursor-pointer group h-full flex flex-col"
                                     >
-                                        {/* Gradient Background */}
-                                        <div className={`aspect-square p-6 flex flex-col items-center justify-center
-                                    bg-gradient-to-br ${category.gradient} text-white relative`}>
-                                            {/* Animated Background Pattern */}
-                                            <motion.div
-                                                className="absolute inset-0 opacity-10"
-                                                animate={{
-                                                    backgroundPosition: ['0% 0%', '100% 100%'],
-                                                }}
-                                                transition={{
-                                                    duration: 20,
-                                                    repeat: Infinity,
-                                                    repeatType: 'reverse',
-                                                }}
-                                                style={{
-                                                    backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
-                                                    backgroundSize: '20px 20px',
-                                                }}
-                                            />
+                                        {/* Image or Gradient Background */}
+                                        <div className={`aspect-square relative flex flex-col items-center justify-center overflow-hidden
+                                    ${!category.image ? `bg-gradient-to-br ${category.gradient}` : 'bg-gray-100'} text-white`}>
 
-                                            {/* Icon */}
-                                            <motion.div
-                                                whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
-                                                transition={{ duration: 0.5 }}
-                                                className="relative z-10 mb-4"
-                                            >
-                                                {Icon ? (
-                                                    <Icon className="w-12 h-12 md:w-16 md:h-16" strokeWidth={1.5} />
-                                                ) : (
-                                                    <span className="text-4xl md:text-5xl">{category.icon}</span>
-                                                )}
-                                            </motion.div>
+                                            {category.image ? (
+                                                <>
+                                                    <img
+                                                        src={category.image}
+                                                        alt={category.name}
+                                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
+                                                </>
+                                            ) : (
+                                                /* Animated Background Pattern for Gradient */
+                                                <motion.div
+                                                    className="absolute inset-0 opacity-10"
+                                                    animate={{
+                                                        backgroundPosition: ['0% 0%', '100% 100%'],
+                                                    }}
+                                                    transition={{
+                                                        duration: 20,
+                                                        repeat: Infinity,
+                                                        repeatType: 'reverse',
+                                                    }}
+                                                    style={{
+                                                        backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+                                                        backgroundSize: '20px 20px',
+                                                    }}
+                                                />
+                                            )}
+
+                                            {/* Icon (only show if no image or if specifically desired) */}
+                                            {!category.image && (
+                                                <motion.div
+                                                    whileHover={{ rotate: [0, -10, 10, -10, 0], scale: 1.1 }}
+                                                    transition={{ duration: 0.5 }}
+                                                    className="relative z-10 mb-4"
+                                                >
+                                                    {Icon ? (
+                                                        <Icon className="w-12 h-12 md:w-16 md:h-16" strokeWidth={1.5} />
+                                                    ) : (
+                                                        <span className="text-4xl md:text-5xl">{category.icon as string}</span>
+                                                    )}
+                                                </motion.div>
+                                            )}
 
                                             {/* Overlay on Hover */}
                                             <motion.div
