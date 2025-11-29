@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { BrandLogo } from "../BrandLogo";
 
 export function Preloader({ onComplete }: { onComplete?: () => void }) {
     const [progress, setProgress] = useState(0);
@@ -47,7 +48,9 @@ export function Preloader({ onComplete }: { onComplete?: () => void }) {
                 />
 
                 {/* Logo Image */}
-                <img src="/logo.png" alt="Logo" className="w-32 h-32 object-contain relative z-10" />
+                <div className="relative z-10 p-4">
+                    <BrandLogo size="xl" className="w-48 h-auto" />
+                </div>
             </motion.div>
 
             {/* Brand Name */}
