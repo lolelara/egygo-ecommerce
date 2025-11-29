@@ -303,8 +303,25 @@ export default function Index() {
       </SectionReveal>
 
       {/* Categories - Moved Up */}
+      {/* Categories - Moved Up */}
       <SectionReveal direction="right">
-        <CategoryGridAnimated categories={categories} />
+        <CategoryGridAnimated categories={categories.map((cat: any, index: number) => ({
+          id: cat.id,
+          name: cat.name,
+          nameAr: cat.name, // Use name as nameAr for now
+          icon: cat.image ? cat.image : "🛍️", // Use image if available, else default emoji
+          productCount: cat.productCount || 0,
+          gradient: [
+            "from-purple-500 to-indigo-500",
+            "from-pink-500 to-rose-500",
+            "from-orange-500 to-amber-500",
+            "from-green-500 to-emerald-500",
+            "from-blue-500 to-cyan-500",
+            "from-teal-500 to-green-500"
+          ][index % 6], // Cycle through gradients
+          image: cat.image,
+          children: []
+        }))} />
       </SectionReveal>
 
       {/* Featured Products */}

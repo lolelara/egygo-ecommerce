@@ -107,7 +107,7 @@ export function ProductCarouselModern({
                             disableOnInteraction: false,
                             pauseOnMouseEnter: true,
                         }}
-                        loop={products.length >= 4}
+                        loop={products.length >= 6} // Ensure enough slides for loop
                         breakpoints={{
                             640: {
                                 slidesPerView: 2,
