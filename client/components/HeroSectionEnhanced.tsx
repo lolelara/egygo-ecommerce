@@ -268,15 +268,17 @@ export function HeroSectionEnhanced({ onShopNow, onExploreDeals, featuredProduct
             <div className="hidden lg:flex absolute inset-x-0 top-1/2 -translate-y-1/2 justify-between z-50 pointer-events-none px-4">
               <button
                 onClick={handlePrev}
-                className="pointer-events-auto bg-white/10 hover:bg-white/20 backdrop-blur-md p-3 rounded-full text-white transition-all hover:scale-110"
+                className="pointer-events-auto bg-black/30 hover:bg-black/50 backdrop-blur-md w-14 h-14 rounded-full text-white transition-all hover:scale-110 flex items-center justify-center border border-white/20 hover:border-white/50 shadow-lg hover:shadow-xl group"
+                aria-label="Previous"
               >
-                <ArrowLeft className="w-8 h-8 rotate-180" />
+                <ArrowLeft className="w-8 h-8 rotate-180 group-hover:-translate-x-1 transition-transform" />
               </button>
               <button
                 onClick={handleNext}
-                className="pointer-events-auto bg-white/10 hover:bg-white/20 backdrop-blur-md p-3 rounded-full text-white transition-all hover:scale-110"
+                className="pointer-events-auto bg-black/30 hover:bg-black/50 backdrop-blur-md w-14 h-14 rounded-full text-white transition-all hover:scale-110 flex items-center justify-center border border-white/20 hover:border-white/50 shadow-lg hover:shadow-xl group"
+                aria-label="Next"
               >
-                <ArrowLeft className="w-8 h-8" />
+                <ArrowLeft className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 

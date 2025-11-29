@@ -3,7 +3,6 @@ import { ShoppingCart, User, Search, Menu, Heart, Users, LogOut, Shield, Trendin
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { SearchBarEnhanced } from "./SearchBarEnhanced";
-import { MegaMenuModern } from "./MegaMenuModern";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -585,10 +584,10 @@ export function Header({ cartItemCount }: HeaderProps) {
         </div>
       </div>
 
-      {/* Mega Menu - Modern Navigation */}
-      <div className="hidden lg:block border-t border-border/40 bg-background/95 backdrop-blur-lg">
+      {/* Mega Menu - Modern Navigation (Removed as per user request) */}
+      {/* <div className="hidden lg:block border-t border-border/40 bg-background/95 backdrop-blur-lg">
         <MegaMenuModern categories={megaMenuCategories} />
-      </div>
+      </div> */}
     </header>
   );
 }

@@ -6,67 +6,73 @@ interface BrandLogoProps {
   ariaLabel?: string;
 }
 
-const textSizes: Record<NonNullable<BrandLogoProps['size']>, string> = {
-  sm: 'text-xl',
-  md: 'text-2xl',
-  lg: 'text-3xl',
-  xl: 'text-4xl'
-};
-
-const pillPadding: Record<NonNullable<BrandLogoProps['size']>, string> = {
-  sm: 'px-2 py-0.5',
-  md: 'px-2.5 py-0.5',
-  lg: 'px-3 py-0.5',
-  xl: 'px-3.5 py-1',
-};
-
-const tagPadding: Record<NonNullable<BrandLogoProps['size']>, string> = {
-  sm: 'px-1.5 py-0.5',
-  md: 'px-2 py-0.5',
-  lg: 'px-2.5 py-0.5',
-  xl: 'px-3 py-1',
+const sizeClasses: Record<NonNullable<BrandLogoProps['size']>, string> = {
+  sm: 'h-6',
+  md: 'h-8',
+  lg: 'h-10',
+  xl: 'h-16'
 };
 
 /**
  * BrandLogo
- * egy (red text) + go (red pill, white text) + .me (badge black/white per theme)
+ * Modern SVG Logo for EgyGo
  */
 export function BrandLogo({ className, size = 'md', ariaLabel = 'EgyGo' }: BrandLogoProps) {
   return (
     <div
-      dir="ltr"
       className={cn(
-        'select-none inline-flex items-center font-extrabold tracking-tight gap-1',
-        textSizes[size],
+        'select-none inline-flex items-center justify-center',
+        sizeClasses[size],
         className
       )}
       aria-label={ariaLabel}
       role="img"
     >
-      {/* egy - red text */}
-      <span className="text-red-600">egy</span>
-
-      {/* go - red rounded pill with white text */}
-      <span
-        className={cn(
-          'rounded-full text-white shadow-sm',
-          'bg-gradient-to-r from-red-600 to-red-700',
-          pillPadding[size]
-        )}
+      <svg
+        viewBox="0 0 200 60"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-full w-auto"
       >
-        go
-      </span>
+        {/* Symbol: Stylized 'G' with arrow/play button feel */}
+        <path
+          d="M30 10C18.9543 10 10 18.9543 10 30C10 41.0457 18.9543 50 30 50H45C47.7614 50 50 47.7614 50 45V30H35"
+          stroke="url(#logo-gradient)"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M45 30L55 30L50 25"
+          stroke="url(#logo-gradient)"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
 
-      {/* .me - small badge: black in light, white in dark (text color only) */}
-      <span
-        className={cn(
-          'text-xs align-middle font-black',
-          tagPadding[size],
-          'text-black dark:text-white'
-        )}
-      >
-        .me
-      </span>
+        {/* Text: EgyGo */}
+        <text
+          x="70"
+          y="42"
+          fontFamily="Arial, sans-serif"
+          fontWeight="900"
+          fontSize="36"
+          fill="currentColor"
+          className="text-foreground"
+        >
+          Egy
+          <tspan fill="url(#logo-gradient)">Go</tspan>
+        </text>
+
+        {/* Gradient Definition */}
+        <defs>
+          <linearGradient id="logo-gradient" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#DC2626" /> {/* Red-600 */}
+            <stop offset="50%" stopColor="#F97316" /> {/* Orange-500 */}
+            <stop offset="100%" stopColor="#9333EA" /> {/* Purple-600 */}
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
   );
 }
