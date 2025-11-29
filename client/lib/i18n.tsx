@@ -414,9 +414,8 @@ export const translations: Translations = {
           step2: { title: "احصل على روابطك", desc: "اختر المنتجات وخذ روابط التسويق" },
           step3: { title: "سوّق واربح", desc: "اربح عمولة لحد 25% على كل بيعة" }
         }
-      }
-
-    affiliateProgram: {
+      },
+      affiliateProgram: {
         features: {
           commissions: { title: "عمولات عالية", desc: "احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص" },
           tracking: { title: "تتبع دقيق", desc: "راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم" },
