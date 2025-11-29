@@ -911,7 +911,7 @@ export const translations: Translations = {
     commission: "Commission"
   }
 }
-};
+
 
 // ===== CONTEXT =====
 
