@@ -153,7 +153,12 @@ const ProductForm = ({
       }
     } catch (error: any) {
       console.error("Error improving description:", error);
-      alert(error.message || "فشل في تحسين الوصف");
+
+      if (error.message?.includes('429') || JSON.stringify(error).includes('429')) {
+        alert("⚠️ تم تجاوز حد استخدام الذكاء الاصطناعي (API Quota). يرجى الانتظار دقيقة والمحاولة مرة أخرى.");
+      } else {
+        alert(error.message || "فشل في تحسين الوصف");
+      }
     } finally {
       setIsImproving(false);
     }
@@ -873,7 +878,7 @@ export default function AdminProducts() {
     if (selectedProducts.length === 0) return;
 
     setBulkUpdating(true);
-    const toastId = toast.loading("جاري التصنيف التلقائي...");
+    const toastId = toast.loading("جاري التصنيف التلقائي (قد يستغرق وقتاً بسبب حدود API)...");
 
     try {
       // 1. Get categories for context
@@ -882,7 +887,18 @@ export default function AdminProducts() {
       let successCount = 0;
       let failedCount = 0;
 
-      for (const productId of selectedProducts) {
+      // Helper for delay
+      const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+      for (let i = 0; i < selectedProducts.length; i++) {
+        const productId = selectedProducts[i];
+
+        // Rate limit: 10 requests per minute = 1 request every 6 seconds
+        // We add a delay between requests to avoid 429 errors
+        if (i > 0) {
+          await delay(7000); // 7 seconds delay to be safe
+        }
+
         try {
           const product = products.find(p => p.id === productId);
           if (!product) continue;
@@ -910,8 +926,17 @@ export default function AdminProducts() {
           } else {
             failedCount++;
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error(`Failed to categorize product ${productId}`, err);
+
+          // If 429 error, wait longer and retry once
+          if (err.message?.includes('429') || JSON.stringify(err).includes('429')) {
+            toast.error(`تم تجاوز حد API، جاري الانتظار...`, { id: toastId });
+            await delay(30000); // Wait 30s
+            i--; // Retry this item
+            continue;
+          }
+
           failedCount++;
         }
       }
