@@ -374,7 +374,19 @@ export const translations: Translations = {
           income: "اعمل دخل بسهولة",
           save: "حافظ على فلوسك",
           earn: "اكسب أكتر"
-        }
+        },
+        stats: {
+          products: "منتج متاح",
+          customers: "عميل سعيد",
+          support: "دعم فوري"
+        },
+        badge: "عروض حصرية تصل إلى 50%",
+        title: "إيجي جو",
+        subtitle: "تجربة تسوق",
+        highlight: "استثنائية",
+        description: "اكتشف آلاف المنتجات المميزة بأفضل الأسعار مع شحن سريع ومجاني على جميع الطلبات. الجودة التي تستحقها، بالسعر الذي تحبه.",
+        shopNow: "تسوق الآن",
+        exploreDeals: "استكشف العروض"
       },
       howItWorks: {
         badge: "⚙️ كيف تعمل المنصة",
@@ -403,54 +415,57 @@ export const translations: Translations = {
           step3: { title: "سوّق واربح", desc: "اربح عمولة لحد 25% على كل بيعة" }
         }
       }
-    },
+
     affiliateProgram: {
-      features: {
-        commissions: { title: "عمولات عالية", desc: "احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص" },
-        tracking: { title: "تتبع دقيق", desc: "راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم" },
-        support: { title: "دعم مستمر", desc: "فريق دعم متواجد لمساعدتك على النجاح وزيادة أرباحك" }
+        features: {
+          commissions: { title: "عمولات عالية", desc: "احصل على نسبة من كل عملية بيع تتم عبر رابطك الخاص" },
+          tracking: { title: "تتبع دقيق", desc: "راقب أرباحك ومبيعاتك بشكل مباشر من لوحة التحكم" },
+          support: { title: "دعم مستمر", desc: "فريق دعم متواجد لمساعدتك على النجاح وزيادة أرباحك" }
+        },
+        cta: "اربح معنا الآن",
+        stats: {
+          commissionRate: "نسبة العمولة",
+          activeMarketer: "مسوق نشط",
+          avgIncome: "متوسط الدخل الشهري"
+        }
       },
-      cta: "اربح معنا الآن",
       stats: {
-        commissionRate: "نسبة العمولة",
+        badge: "📊 إحصائيات مبهرة",
+        title: "منصة موثوقة يستخدمها الآلاف",
+        subtitle: "انضم لمجتمع متنامي من التجار والمسوقين والعملاء الراضين",
+        activeCustomer: "عميل نشط",
+        successfulMerchant: "تاجر ناجح",
         activeMarketer: "مسوق نشط",
-        avgIncome: "متوسط الدخل الشهري"
+        salesVolume: "جنيه مبيعات"
+      },
+      partnerProgram: {
+        badge: "💰 برنامج الشراكة",
+        title: "ابدأ تكسب دلوقتي مع برنامج الشراكة",
+        desc: "انضم لآلاف المسوقين الناجحين واكسب عمولة لحد 25% على كل عملية بيع تيجي منك. الانضمام مجاني وعندنا كل الأدوات اللي تحتاجها عشان تنجح.",
+        stats: {
+          commission: "عمولة",
+          activeMarketer: "مسوق نشط",
+          paidCommissions: "اتدفع عمولات"
+        },
+        cta: "انضم لبرنامج الشراكة",
+        whyChoose: {
+          title: "لماذا تختار برنامجنا؟",
+          highRates: { title: "معدلات عمولة عالية", desc: "اكسب 8-25% عمولة على جميع المبيعات" },
+          realTimeTracking: { title: "تتبع فوري", desc: "راقب أداءك وأرباحك مباشرة" },
+          marketingSupport: { title: "دعم تسويقي", desc: "احصل على بانرات وروابط ومواد ترويجية" },
+          fastPayments: { title: "دفعات سريعة", desc: "دفعات أسبوعية عبر PayPal أو التحويل البنكي" }
+        }
+      },
+      bestSellers: {
+        title: "الأكثر مبيعًا",
+        subtitle: "منتجاتنا الأكثر شعبية المحبوبة من العملاء في جميع أنحاء مصر",
+        badge: "الأكثر مبيعًا",
+        commission: "عمولة"
       }
     },
-    stats: {
-      badge: "📊 إحصائيات مبهرة",
-      title: "منصة موثوقة يستخدمها الآلاف",
-      subtitle: "انضم لمجتمع متنامي من التجار والمسوقين والعملاء الراضين",
-      activeCustomer: "عميل نشط",
-      successfulMerchant: "تاجر ناجح",
-      activeMarketer: "مسوق نشط",
-      salesVolume: "جنيه مبيعات"
-    },
-    partnerProgram: {
-      badge: "💰 برنامج الشراكة",
-      title: "ابدأ تكسب دلوقتي مع برنامج الشراكة",
-      desc: "انضم لآلاف المسوقين الناجحين واكسب عمولة لحد 25% على كل عملية بيع تيجي منك. الانضمام مجاني وعندنا كل الأدوات اللي تحتاجها عشان تنجح.",
-      stats: {
-        commission: "عمولة",
-        activeMarketer: "مسوق نشط",
-        paidCommissions: "اتدفع عمولات"
-      },
-      cta: "انضم لبرنامج الشراكة",
-      whyChoose: {
-        title: "لماذا تختار برنامجنا؟",
-        highRates: { title: "معدلات عمولة عالية", desc: "اكسب 8-25% عمولة على جميع المبيعات" },
-        realTimeTracking: { title: "تتبع فوري", desc: "راقب أداءك وأرباحك مباشرة" },
-        marketingSupport: { title: "دعم تسويقي", desc: "احصل على بانرات وروابط ومواد ترويجية" },
-        fastPayments: { title: "دفعات سريعة", desc: "دفعات أسبوعية عبر PayPal أو التحويل البنكي" }
-      }
-    },
-    bestSellers: {
-      title: "الأكثر مبيعًا",
-      subtitle: "منتجاتنا الأكثر شعبية المحبوبة من العملاء في جميع أنحاء مصر",
-      badge: "الأكثر مبيعًا",
-      commission: "عمولة"
-    }
+
   },
+
 
   en: {
     // Navigation
@@ -845,57 +860,58 @@ export const translations: Translations = {
         bestSellers: "Best Sellers",
         viewAll: "View All Products"
       },
-      affiliateProgram: {
-        badge: "💰 Affiliate Program",
-        title: "Start Earning from Home",
-        subtitle: "Join thousands of successful marketers and get rewarding commissions on every sale",
-        features: {
-          commissions: { title: "High Commissions", desc: "Get a percentage of every sale made through your link" },
-          tracking: { title: "Accurate Tracking", desc: "Monitor your earnings and sales directly from the dashboard" },
-          support: { title: "Continuous Support", desc: "Support team available to help you succeed and increase earnings" }
-        },
-        cta: "Earn With Us Now",
-        stats: {
-          commissionRate: "Commission Rate",
-          activeMarketer: "Active Marketer",
-          avgIncome: "Avg Monthly Income"
-        }
-      },
-      stats: {
-        badge: "📊 Impressive Stats",
-        title: "Trusted Platform Used by Thousands",
-        subtitle: "Join a growing community of satisfied merchants, marketers, and customers",
-        activeCustomer: "Active Customer",
-        successfulMerchant: "Successful Merchant",
-        activeMarketer: "Active Marketer",
-        salesVolume: "Sales Volume (EGP)"
-      },
-      partnerProgram: {
-        badge: "💰 Partner Program",
-        title: "Start Earning Now with Partner Program",
-        desc: "Join thousands of successful marketers and earn up to 25% commission on every sale from you. Joining is free and we have all the tools you need to succeed.",
-        stats: {
-          commission: "Commission",
-          activeMarketer: "Active Marketer",
-          paidCommissions: "Paid Commissions"
-        },
-        cta: "Join Partner Program",
-        whyChoose: {
-          title: "Why Choose Our Program?",
-          highRates: { title: "High Commission Rates", desc: "Earn 8-25% commission on all sales" },
-          realTimeTracking: { title: "Real-time Tracking", desc: "Monitor your performance and earnings instantly" },
-          marketingSupport: { title: "Marketing Support", desc: "Get banners, links, and promotional materials" },
-          fastPayments: { title: "Fast Payments", desc: "Weekly payments via PayPal or Bank Transfer" }
-        }
-      },
-      bestSellers: {
-        title: "Best Sellers",
-        subtitle: "Our most popular products loved by customers all over Egypt",
-        badge: "Best Seller",
-        commission: "Commission"
-      }
     }
+  },
+  affiliateProgram: {
+    badge: "💰 Affiliate Program",
+    title: "Start Earning from Home",
+    subtitle: "Join thousands of successful marketers and get rewarding commissions on every sale",
+    features: {
+      commissions: { title: "High Commissions", desc: "Get a percentage of every sale made through your link" },
+      tracking: { title: "Accurate Tracking", desc: "Monitor your earnings and sales directly from the dashboard" },
+      support: { title: "Continuous Support", desc: "Support team available to help you succeed and increase earnings" }
+    },
+    cta: "Earn With Us Now",
+    stats: {
+      commissionRate: "Commission Rate",
+      activeMarketer: "Active Marketer",
+      avgIncome: "Avg Monthly Income"
+    }
+  },
+  stats: {
+    badge: "📊 Impressive Stats",
+    title: "Trusted Platform Used by Thousands",
+    subtitle: "Join a growing community of satisfied merchants, marketers, and customers",
+    activeCustomer: "Active Customer",
+    successfulMerchant: "Successful Merchant",
+    activeMarketer: "Active Marketer",
+    salesVolume: "Sales Volume (EGP)"
+  },
+  partnerProgram: {
+    badge: "💰 Partner Program",
+    title: "Start Earning Now with Partner Program",
+    desc: "Join thousands of successful marketers and earn up to 25% commission on every sale from you. Joining is free and we have all the tools you need to succeed.",
+    stats: {
+      commission: "Commission",
+      activeMarketer: "Active Marketer",
+      paidCommissions: "Paid Commissions"
+    },
+    cta: "Join Partner Program",
+    whyChoose: {
+      title: "Why Choose Our Program?",
+      highRates: { title: "High Commission Rates", desc: "Earn 8-25% commission on all sales" },
+      realTimeTracking: { title: "Real-time Tracking", desc: "Monitor your performance and earnings instantly" },
+      marketingSupport: { title: "Marketing Support", desc: "Get banners, links, and promotional materials" },
+      fastPayments: { title: "Fast Payments", desc: "Weekly payments via PayPal or Bank Transfer" }
+    }
+  },
+  bestSellers: {
+    title: "Best Sellers",
+    subtitle: "Our most popular products loved by customers all over Egypt",
+    badge: "Best Seller",
+    commission: "Commission"
   }
+}
 };
 
 // ===== CONTEXT =====
