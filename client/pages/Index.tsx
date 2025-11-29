@@ -309,6 +309,7 @@ export default function Index() {
           id: cat.id,
           name: cat.name,
           nameAr: cat.name, // Use name as nameAr for now
+          slug: cat.slug,
           icon: cat.image ? cat.image : "🛍️", // Use image if available, else default emoji
           productCount: cat.productCount || 0,
           gradient: [

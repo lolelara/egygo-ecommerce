@@ -6,6 +6,7 @@ interface Category {
     id: string;
     name: string;
     nameAr: string;
+    slug?: string;
     icon: LucideIcon | string;
     productCount: number;
     gradient: string;
@@ -52,7 +53,7 @@ export function CategoryGridAnimated({ categories, onCategoryClick }: CategoryGr
                                 transition={{ delay: index * 0.05, duration: 0.4 }}
                             >
                                 <Link
-                                    to={`/category/${category.id}`}
+                                    to={`/category/${category.slug || category.id}`}
                                     onClick={(e) => {
                                         if (onCategoryClick) {
                                             e.preventDefault();
